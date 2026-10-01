@@ -1,6 +1,6 @@
 # Specs — Admin DevBatista (MVP)
 
-Outubro de 2026 · Fonte: `MVP - Admin DevBatista.pdf` (v1.0, set/2026) · Design: [todas as telas em `docs/design/`](../../design/index.html)
+Outubro de 2026 · Fonte: `MVP - Admin DevBatista.pdf` (v1.0, set/2026) · Design: [todas as telas em `docs/design/`](../../design/index.html) · Andamento: [checklist de desenvolvimento](../../CHECKLIST.md)
 
 Estas specs transformam o documento "Admin DevBatista — MVP" (v1.0, set/2026, 47 páginas) em histórias, critérios de aceite e regras prontas para desenvolvimento. Os números de capítulo (cap. N) apontam para o documento original.
 

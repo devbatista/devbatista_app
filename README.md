@@ -5,6 +5,7 @@ Sistema interno de gestão da DevBatista: comercial, clientes, operação, finan
 - **Specs:** [`docs/specs/admin-devbatista-mvp/`](docs/specs/admin-devbatista-mvp/README.md)
 - **Design (protótipo de todas as telas):** [`docs/design/`](docs/design/README.md)
 - **Design system:** [`docs/design/DESIGN-SYSTEM.md`](docs/design/DESIGN-SYSTEM.md)
+- **Checklist de desenvolvimento:** [`docs/CHECKLIST.md`](docs/CHECKLIST.md)
 
 ## Stack
 
