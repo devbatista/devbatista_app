@@ -1,0 +1,22 @@
+<% page_title "Dashboard" %>
+<% nav_location :dash %>
+<% breadcrumb ["Dashboard"] %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label"><%= l(Date.current, format: "%B de %Y").capitalize %></span>
+    <h1>Olá, <%= current_user.first_name %></h1>
+    <p class="lead">O dashboard executivo mostra os 12 cartões do mês assim que os módulos de clientes, comercial, operação e financeiro estiverem no ar.</p>
+  </div>
+</div>
+
+<section class="card">
+  <div class="empty">
+    <span class="ic"><%= icon(:dash, size: 22, stroke: 1.8) %></span>
+    <h2>Base do sistema pronta</h2>
+    <p style="margin:0;max-width:520px">Login, perfis, permissões e auditoria já funcionam. Os itens marcados como “em breve” no menu chegam módulo a módulo.</p>
+    <% if policy(User).index? %>
+      <%= link_to "Gerenciar usuários", admin_users_path, class: "btn" %>
+    <% end %>
+  </div>
+</section>

@@ -1,0 +1,19 @@
+<header class="top">
+  <button class="icon-btn ghost menu-btn" type="button" aria-label="Abrir menu" aria-controls="menu-lateral" data-nav-toggle><%= icon(:menu, size: 22, stroke: 1.8) %></button>
+  <div class="crumb"><%= breadcrumb_html %></div>
+
+  <div class="user-menu">
+    <button class="avatar" type="button" aria-label="<%= current_user.name %>, <%= current_user.role.name %>" aria-haspopup="true" aria-expanded="false" data-popover-toggle="menu-usuario"><%= current_user.initials %></button>
+    <div class="popover user-pop" id="menu-usuario" role="menu">
+      <div class="card-head">
+        <div>
+          <h2><%= current_user.name %></h2>
+          <span class="caption"><%= current_user.email %> · <%= current_user.role.name %></span>
+        </div>
+      </div>
+      <%= button_to destroy_user_session_path, method: :delete, class: "notif signout", role: "menuitem", form: { "data-turbo": "false" } do %>
+        <%= icon(:logout, size: 16, stroke: 1.8) %><span>Sair</span>
+      <% end %>
+    </div>
+  </div>
+</header>

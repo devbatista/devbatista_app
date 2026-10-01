@@ -1,0 +1,16 @@
+<% page_title "Recuperar senha" %>
+<div class="stack" style="gap:6px">
+  <h1 style="font-size:24px">Recuperar senha</h1>
+  <p class="lead">Informe seu e-mail. Se ele estiver cadastrado, você recebe um link para criar uma nova senha.</p>
+</div>
+
+<%= form_for resource, as: resource_name, url: password_path(resource_name), html: { method: :post, class: "form" }, data: { turbo: false } do |f| %>
+  <div class="field">
+    <%= f.label :email, "E-mail" %>
+    <%= f.email_field :email, class: "input", autofocus: true, autocomplete: "email", placeholder: "voce@devbatista.com", required: true %>
+    <span class="hint">O link vale por 2 horas e só pode ser usado uma vez.</span>
+  </div>
+  <%= f.submit "Enviar link", class: "btn pri block" %>
+<% end %>
+
+<%= link_to "← Voltar para o login", new_session_path(resource_name), style: "font-size:13px;font-weight:600" %>

@@ -1,0 +1,35 @@
+<%= form_with model: [ :admin, user ], class: "card form", data: { turbo: false } do |f| %>
+  <div class="card-body form">
+    <% if user.errors.any? %>
+      <div class="callout crit" role="alert"><span><%= user.errors.full_messages.to_sentence %></span></div>
+    <% end %>
+    <div class="fieldset-title">Dados do usuário</div>
+    <div class="form-grid">
+      <div class="field full">
+        <%= f.label :name do %>Nome <span class="req">*</span><% end %>
+        <%= f.text_field :name, class: "input", required: true, placeholder: "Nome completo" %>
+      </div>
+      <div class="field">
+        <%= f.label :email do %>E-mail <span class="req">*</span><% end %>
+        <%= f.email_field :email, class: "input", required: true, placeholder: "nome@devbatista.com" %>
+      </div>
+      <div class="field">
+        <%= f.label :role_id do %>Perfil <span class="req">*</span><% end %>
+        <%= f.collection_select :role_id, Role.order(:id), :id, :name, { prompt: "Selecione" }, class: "select", required: true %>
+        <span class="hint">Define o menu e as ações permitidas. <%= link_to "Ver permissões", admin_permissions_path %></span>
+      </div>
+      <div class="field">
+        <%= f.label :hourly_cost, "Custo por hora (R$)" %>
+        <%= f.number_field :hourly_cost, class: "input", min: 0, step: "0.01", placeholder: "Opcional" %>
+        <span class="hint">Usado na rentabilidade por cliente.</span>
+      </div>
+    </div>
+    <% if user.new_record? %>
+      <p class="caption" style="margin:0">A pessoa recebe um e-mail com um link para definir a própria senha.</p>
+    <% end %>
+  </div>
+  <div class="drawer-foot">
+    <%= link_to "Cancelar", admin_users_path, class: "btn" %>
+    <%= f.submit user.new_record? ? "Criar usuário" : "Salvar alterações", class: "btn pri" %>
+  </div>
+<% end %>

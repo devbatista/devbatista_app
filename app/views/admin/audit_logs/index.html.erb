@@ -1,0 +1,67 @@
+<% page_title "Logs e auditoria" %>
+<% nav_location :adm, "Logs" %>
+<% breadcrumb ["Administração"], ["Logs"] %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Administração · Trilha de auditoria</span>
+    <h1>Logs e auditoria</h1>
+    <p class="lead">Criações, alterações, exclusões, mudanças de status e acessos, com o valor anterior e o novo. Nenhum perfil edita ou exclui estes registros.</p>
+  </div>
+</div>
+
+<%= form_with url: admin_audit_logs_path, method: :get, class: "toolbar", data: { turbo_frame: "_top" } do %>
+  <label class="sr-only" for="f-user">Usuário</label>
+  <%= select_tag :user_id, options_from_collection_for_select(@users, :id, :name, params[:user_id]), include_blank: "Todos os usuários", class: "select", id: "f-user" %>
+  <label class="sr-only" for="f-area">Módulo</label>
+  <%= select_tag :area, options_for_select([ [ "Acesso", "acesso" ] ] + Role::AREAS.map { |k, v| [ v, k ] }, params[:area]), include_blank: "Todos os módulos", class: "select", id: "f-area" %>
+  <label class="sr-only" for="f-event">Evento</label>
+  <%= select_tag :event, options_for_select(AuditLog::ACTIONS.map { |k, v| [ v, k ] }, params[:event]), include_blank: "Todos os eventos", class: "select", id: "f-event" %>
+  <label class="sr-only" for="f-period">Período</label>
+  <%= select_tag :period, options_for_select([ [ "Hoje", "hoje" ], [ "Últimos 7 dias", "7d" ], [ "Últimos 30 dias", "30d" ] ], params[:period]), include_blank: "Todo o período", class: "select", id: "f-period" %>
+  <button class="btn" type="submit">Filtrar</button>
+<% end %>
+
+<section class="card" aria-label="Registros de auditoria">
+  <% if @logs.any? %>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr><th>Data e hora</th><th>Usuário</th><th>Evento</th><th>Módulo</th><th>Registro</th><th>Alteração</th><th>IP</th></tr></thead>
+        <tbody>
+          <% @logs.each do |log| %>
+            <tr>
+              <td data-label="Data e hora" class="mono nowrap"><%= datetime_br(log.created_at) %></td>
+              <td data-label="Usuário"><%= log.user&.name || "—" %></td>
+              <td data-label="Evento"><%= status_badge(log.action_name, { "login_failed" => "crit", "destroy" => "crit", "status_change" => "warn", "create" => "good" }.fetch(log.action, "mute")) %></td>
+              <td data-label="Módulo"><%= log.area == "acesso" ? "Acesso" : Role::AREAS.fetch(log.area, log.area) %></td>
+              <td data-label="Registro"><%= log.auditable_label.presence || "—" %><% if log.auditable_type %><span class="cell-sub"><%= log.auditable_type_name %> #<%= log.auditable_id %></span><% end %></td>
+              <td data-label="Alteração">
+                <% changes = log.readable_changes %>
+                <% if changes.any? %>
+                  <% changes.first(3).each do |label, before, after| %>
+                    <span class="cell-sub"><b class="strong"><%= label %></b>:
+                      <% if log.action == "create" %><%= after.presence || "—" %>
+                      <% elsif log.action == "destroy" %><%= before.presence || "—" %>
+                      <% else %><%= before.presence || "—" %> → <%= after.presence || "—" %><% end %>
+                    </span>
+                  <% end %>
+                  <% if changes.size > 3 %><span class="cell-sub">+<%= changes.size - 3 %> campos</span><% end %>
+                <% else %>—<% end %>
+              </td>
+              <td data-label="IP" class="mono"><%= log.ip_address || "—" %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination">
+      <span><%= @total %> registros · página <%= @page %> de <%= [ @pages, 1 ].max %></span>
+      <div class="row">
+        <% if @page > 1 %><%= link_to "← Anterior", url_for(request.query_parameters.merge(page: @page - 1)), class: "btn sm" %><% end %>
+        <% if @page < @pages %><%= link_to "Próxima →", url_for(request.query_parameters.merge(page: @page + 1)), class: "btn sm" %><% end %>
+      </div>
+    </div>
+  <% else %>
+    <div class="empty"><h2>Nenhum registro</h2><p style="margin:0">Nada encontrado com esses filtros.</p></div>
+  <% end %>
+</section>

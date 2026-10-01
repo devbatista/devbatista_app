@@ -1,0 +1,27 @@
+# syntax=docker/dockerfile:1
+# Imagem de desenvolvimento, usada pelo docker-compose.yml.
+# A imagem de produção é o Dockerfile (usado pelo Kamal).
+ARG RUBY_VERSION=3.3.1
+FROM docker.io/library/ruby:$RUBY_VERSION-slim
+
+WORKDIR /rails
+
+# Cliente do PostgreSQL 17 (mesma versão do banco) para o db/structure.sql,
+# que guarda o trigger da auditoria imutável.
+RUN apt-get update -qq && \
+    apt-get install --no-install-recommends -y build-essential curl git gnupg libpq-dev libvips libyaml-dev pkg-config && \
+    install -d /usr/share/postgresql-common/pgdg && \
+    curl -fsSL -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc && \
+    . /etc/os-release && \
+    echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt ${VERSION_CODENAME}-pgdg main" > /etc/apt/sources.list.d/pgdg.list && \
+    apt-get update -qq && \
+    apt-get install --no-install-recommends -y postgresql-client-17 && \
+    rm -rf /var/lib/apt/lists /var/cache/apt/archives
+
+ENV BUNDLE_PATH="/usr/local/bundle"
+
+COPY Gemfile Gemfile.lock ./
+RUN bundle install
+
+EXPOSE 3000
+CMD ["bin/rails", "server", "-b", "0.0.0.0"]

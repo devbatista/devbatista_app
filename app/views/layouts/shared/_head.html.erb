@@ -1,0 +1,18 @@
+<meta charset="utf-8">
+<title><%= [ content_for(:title), "Admin DevBatista" ].compact.join(" · ") %></title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="application-name" content="Admin DevBatista">
+<meta name="theme-color" content="#0b1120">
+<%= csrf_meta_tags %>
+<%= csp_meta_tag %>
+
+<link rel="icon" href="/icon.png" type="image/png">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icon.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<%# app.css é o design system (docs/design/DESIGN-SYSTEM.md); application.css guarda o que é só do app. %>
+<%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+<%= javascript_importmap_tags %>
+<%= yield :head %>

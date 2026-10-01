@@ -1,0 +1,33 @@
+pt-BR:
+  activerecord:
+    models:
+      user:
+        one: Usuário
+        other: Usuários
+      role:
+        one: Perfil
+        other: Perfis
+      audit_log:
+        one: Registro de auditoria
+        other: Registros de auditoria
+    attributes:
+      user:
+        name: Nome
+        email: E-mail
+        role: Perfil
+        role_id: Perfil
+        active: Ativo
+        hourly_cost: Custo por hora
+        hourly_cost_cents: Custo por hora (centavos)
+        password: Senha
+        password_confirmation: Confirmação da senha
+      role:
+        name: Nome
+        key: Chave
+        permissions: Permissões
+  date:
+    formats:
+      month_year: "%B de %Y"
+  devise:
+    failure:
+      deactivated: "Seu usuário foi desativado. Fale com um administrador."

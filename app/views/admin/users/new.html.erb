@@ -1,0 +1,14 @@
+<% page_title "Novo usuário" %>
+<% nav_location :adm, "Usuários" %>
+<% breadcrumb ["Administração"], ["Usuários", admin_users_path], ["Novo usuário"] %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Administração · Usuários</span>
+    <h1>Novo usuário</h1>
+  </div>
+</div>
+
+<div style="max-width:760px">
+  <%= render "form", user: @user %>
+</div>

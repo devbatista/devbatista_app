@@ -1,0 +1,14 @@
+<% page_title "Editar usuário" %>
+<% nav_location :adm, "Usuários" %>
+<% breadcrumb ["Administração"], ["Usuários", admin_users_path], [@user.name] %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Administração · Usuários</span>
+    <h1><%= @user.name %></h1>
+  </div>
+</div>
+
+<div style="max-width:760px">
+  <%= render "form", user: @user %>
+</div>

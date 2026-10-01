@@ -1,0 +1,27 @@
+# Perfis com a matriz inicial e a equipe usada no design (docs/design/administracao/usuarios.html).
+# Pode rodar mais de uma vez: só cria o que ainda não existe.
+Role.seed_defaults!
+
+password = ENV.fetch("SEED_PASSWORD") { Rails.env.production? ? raise("Defina SEED_PASSWORD") : "devbatista123" }
+
+team = [
+  [ "Rafael Batista", "rafael@devbatista.com.br", "admin", nil ],
+  [ "Ana Souza", "ana.souza@devbatista.com.br", "comercial", nil ],
+  [ "Bruno Lima", "bruno.lima@devbatista.com.br", "financeiro", 70 ],
+  [ "Carla Mendes", "carla.mendes@devbatista.com.br", "suporte", 65 ],
+  [ "Diego Rocha", "diego.rocha@devbatista.com.br", "desenvolvedor", 95 ],
+  [ "Elisa Prado", "elisa.prado@devbatista.com.br", "desenvolvedor", 90 ]
+]
+team = team.first(1) if Rails.env.production?
+
+team.each do |name, email, role_key, hourly_cost|
+  User.find_or_create_by!(email: email) do |user|
+    user.name = name
+    user.role = Role.find_by!(key: role_key)
+    user.hourly_cost = hourly_cost
+    user.password = user.password_confirmation = password
+  end
+end
+
+puts "Perfis: #{Role.count} · Usuários: #{User.count}"
+puts "Senha dos usuários de exemplo: #{password}" unless Rails.env.production?

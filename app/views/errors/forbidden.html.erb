@@ -1,0 +1,10 @@
+<% page_title "Sem permissão" %>
+<% breadcrumb ["Sem permissão"] %>
+<section class="card">
+  <div class="empty">
+    <span class="ic"><%= icon(:lock, size: 22, stroke: 1.8) %></span>
+    <h2>Você não tem permissão para esta ação</h2>
+    <p style="margin:0;max-width:440px">O seu perfil (<%= current_user.role.name %>) não dá acesso a esta área. Se precisar, peça a um administrador para ajustar as permissões.</p>
+    <%= link_to "Voltar ao início", root_path, class: "btn" %>
+  </div>
+</section>

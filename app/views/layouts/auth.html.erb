@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <%= render "layouts/shared/head" %>
+  </head>
+
+  <body>
+    <main class="auth">
+      <div class="auth-wrap">
+        <div class="card auth-card">
+          <div class="row" style="justify-content:space-between">
+            <%= image_tag "logo-devbatista-branco.png", alt: "DevBatista", class: "logo" %>
+            <span class="badge b-info">Admin</span>
+          </div>
+          <%= render "layouts/flash" %>
+          <%= yield %>
+        </div>
+        <p class="caption auth-foot">© <%= Date.current.year %> DevBatista · conexão segura</p>
+      </div>
+    </main>
+  </body>
+</html>

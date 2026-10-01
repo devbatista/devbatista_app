@@ -1,0 +1,66 @@
+<% page_title "Usuários" %>
+<% nav_location :adm, "Usuários" %>
+<% breadcrumb ["Administração"], ["Usuários"] %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Administração · Acesso ao sistema</span>
+    <h1>Usuários</h1>
+    <p class="lead">Cada usuário tem exatamente um perfil, que define os módulos visíveis e as ações permitidas.</p>
+  </div>
+  <div class="actions">
+    <%= link_to "Ver permissões", admin_permissions_path, class: "btn" %>
+    <% if policy(User).create? %>
+      <%= link_to new_admin_user_path, class: "btn pri" do %><%= icon(:plus, size: 16, stroke: 2) %>Novo usuário<% end %>
+    <% end %>
+  </div>
+</div>
+
+<div class="grid-kpi g3">
+  <div class="card kpi"><span class="eyebrow">Usuários ativos</span><span class="v"><%= @stats[:active] %></span><span class="f">em <%= @stats[:active_roles] %> perfis</span></div>
+  <div class="card kpi"><span class="eyebrow">Acessaram hoje</span><span class="v"><%= @stats[:today] %></span><span class="f">desde 00:00</span></div>
+  <div class="card kpi"><span class="eyebrow">Desativados</span><span class="v"><%= @stats[:inactive] %></span><span class="f">histórico mantido</span></div>
+</div>
+
+<div class="toolbar">
+  <div class="seg" role="group" aria-label="Filtrar por status" data-filter-group="usuarios">
+    <button type="button" class="on" data-filter="todos" aria-pressed="true">Todos <span class="c"></span></button>
+    <button type="button" data-filter="Ativo" aria-pressed="false">Ativos <span class="c"></span></button>
+    <button type="button" data-filter="Desativado" aria-pressed="false">Desativados <span class="c"></span></button>
+  </div>
+</div>
+
+<section class="card" aria-label="Lista de usuários">
+  <div class="table-wrap">
+    <table class="table cards" data-filter-target="usuarios">
+      <thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Último acesso</th><th>Status</th><th><span class="sr-only">Ações</span></th></tr></thead>
+      <tbody>
+        <% @users.each do |user| %>
+          <tr data-status="<%= user.active? ? 'Ativo' : 'Desativado' %>" class="<%= 'inactive' unless user.active? %>">
+            <td data-label="Nome"><span class="who"><span class="avatar sm"><%= user.initials %></span><span class="strong"><%= user.name %></span></span></td>
+            <td data-label="E-mail"><%= user.email %></td>
+            <td data-label="Perfil"><%= status_badge(user.role.name, user.admin? ? "info" : "mute") %></td>
+            <td data-label="Último acesso" class="mono nowrap"><%= datetime_br(user.current_sign_in_at) %></td>
+            <td data-label="Status">
+              <% if user.access_locked? %>
+                <%= status_badge("Bloqueado", "warn") %>
+              <% else %>
+                <%= status_badge(user.active? ? "Ativo" : "Desativado", user.active? ? "good" : "mute") %>
+              <% end %>
+            </td>
+            <td data-label="" class="right nowrap">
+              <span class="row-actions">
+                <% if policy(user).edit? %><%= link_to "Editar", edit_admin_user_path(user), class: "link-btn" %><% end %>
+                <% if policy(user).deactivate? %>
+                  <%= button_to (user.active? ? "Desativar" : "Reativar"), toggle_active_admin_user_path(user), method: :patch,
+                        class: "link-btn#{' danger' if user.active?}", form_class: "inline-form",
+                        form: { data: { turbo_confirm: user.active? ? "Desativar #{user.name}? A pessoa perde o acesso, mas continua nos registros." : nil } } %>
+                <% end %>
+              </span>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</section>

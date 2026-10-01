@@ -1,0 +1,38 @@
+<aside class="side" id="menu-lateral">
+  <div class="brand">
+    <%= link_to root_path, "aria-label": "Início" do %>
+      <%= image_tag "logo-devbatista-branco.png", alt: "DevBatista" %>
+    <% end %>
+    <span class="badge b-info">Admin</span>
+  </div>
+
+  <nav aria-label="Menu principal" class="nav">
+    <% navigation_for(current_user).each do |group| %>
+      <% active = nav_group_active?(group) %>
+      <% if group[:items] %>
+        <button class="grp<%= ' on open' if active %>" type="button" aria-expanded="<%= active %>" data-nav-group>
+          <%= icon(group[:key]) %><%= group[:label] %><span class="chev"><%= icon(:chev, size: 14, stroke: 2) %></span>
+        </button>
+        <div class="sub">
+          <% group[:items].each do |(label, route, _area)| %>
+            <% if route %>
+              <% current = nav_item_active?(group, label) %>
+              <%= link_to label, public_send(route), class: "it#{' on' if current}", "aria-current": (current ? "page" : nil) %>
+            <% else %>
+              <span class="it soon" aria-disabled="true" title="Em construção"><%= label %><small>em breve</small></span>
+            <% end %>
+          <% end %>
+        </div>
+      <% else %>
+        <%= link_to public_send(group[:route]), class: "grp#{' on' if active}", "aria-current": (active ? "page" : nil) do %>
+          <%= icon(group[:key]) %><%= group[:label] %>
+        <% end %>
+      <% end %>
+    <% end %>
+  </nav>
+
+  <div class="me">
+    <span class="avatar"><%= current_user.initials %></span>
+    <div><%= current_user.first_name %><small><%= current_user.role.name %></small></div>
+  </div>
+</aside>

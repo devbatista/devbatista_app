@@ -1,0 +1,8 @@
+<% { notice: "", alert: " crit" }.each do |type, tone| %>
+  <% if flash[type].present? %>
+    <div class="callout<%= tone %> flash" role="<%= type == :alert ? 'alert' : 'status' %>" data-flash>
+      <span><%= flash[type] %></span>
+      <button class="icon-btn ghost sm" type="button" data-flash-close aria-label="Fechar aviso"><%= icon(:close, size: 16, stroke: 1.8) %></button>
+    </div>
+  <% end %>
+<% end %>

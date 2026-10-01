@@ -1,0 +1,24 @@
+<% page_title "Nova senha" %>
+<div class="stack" style="gap:6px">
+  <h1 style="font-size:24px">Nova senha</h1>
+  <p class="lead">Escolha uma senha com pelo menos <%= @minimum_password_length %> caracteres.</p>
+</div>
+
+<%= form_for resource, as: resource_name, url: password_path(resource_name), html: { method: :put, class: "form" }, data: { turbo: false } do |f| %>
+  <%= f.hidden_field :reset_password_token %>
+  <% if resource.errors.any? %>
+    <div class="callout crit" role="alert"><span><%= resource.errors.full_messages.to_sentence %></span></div>
+  <% end %>
+  <div class="field">
+    <%= f.label :password, "Nova senha" %>
+    <div class="pw">
+      <%= f.password_field :password, class: "input", autofocus: true, autocomplete: "new-password", required: true %>
+      <button class="icon-btn ghost" type="button" aria-label="Mostrar senha" aria-pressed="false" data-password-toggle><%= icon(:eye, size: 18, stroke: 1.8) %></button>
+    </div>
+  </div>
+  <div class="field">
+    <%= f.label :password_confirmation, "Confirme a nova senha" %>
+    <%= f.password_field :password_confirmation, class: "input", autocomplete: "new-password", required: true %>
+  </div>
+  <%= f.submit "Salvar senha e entrar", class: "btn pri block" %>
+<% end %>
