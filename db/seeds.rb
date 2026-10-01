@@ -23,5 +23,10 @@ team.each do |name, email, role_key, hourly_cost|
   end
 end
 
+# Dados de negócio do design só fora de produção.
+load Rails.root.join("db/seeds/clientes.rb") unless Rails.env.production?
+
 puts "Perfis: #{Role.count} · Usuários: #{User.count}"
+puts "Empresas: #{Company.count} · Contatos: #{Contact.count} · Contratos: #{Contract.count} · " \
+     "Serviços contratados: #{CustomerService.count} · MRR: R$ #{CustomerService.active.sum(:mrr_cents) / 100}" unless Rails.env.production?
 puts "Senha dos usuários de exemplo: #{password}" unless Rails.env.production?

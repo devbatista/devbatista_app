@@ -1,0 +1,34 @@
+<% page_title "Documentos" %>
+<% nav_location :ges, "Documentos" %>
+<% breadcrumb ["Gestão"], ["Documentos"] %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Gestão</span>
+    <h1>Documentos</h1>
+    <p class="lead">Repositório de arquivos, ligados a clientes e contratos. Projetos, propostas e fornecedores entram com os próximos módulos.</p>
+  </div>
+  <% if policy(Document).create? %>
+    <div class="actions"><%= drawer_link_to new_document_path, class: "btn pri" do %><%= icon(:upload, size: 16, stroke: 2) %>Enviar arquivo<% end %></div>
+  <% end %>
+</div>
+
+<div class="grid-kpi g3">
+  <div class="card kpi"><span class="eyebrow">Documentos</span><span class="v"><%= @counts.values.sum %></span><span class="f"><%= number_to_human_size(@total_bytes) %> armazenados</span></div>
+  <div class="card kpi"><span class="eyebrow">Contratos assinados</span><span class="v"><%= @counts["contract"].to_i %></span><span class="f">ligados aos contratos</span></div>
+  <div class="card kpi"><span class="eyebrow">Outros tipos</span><span class="v"><%= @counts.except("contract").values.sum %></span><span class="f">notas, briefings, técnicos</span></div>
+</div>
+
+<%= form_with url: documents_path, method: :get, class: "toolbar" do %>
+  <%= status_filter :tipo, [ [ "todos", "Todos", @counts.values.sum ] ] + Document::KIND_LABELS.filter_map { |k, v| [ k, v, @counts[k] ] if @counts[k] }, label: "Filtrar por tipo" %>
+  <span class="spacer"></span>
+  <%= hidden_field_tag :tipo, params[:tipo], id: nil if params[:tipo].present? %>
+  <%= search_field placeholder: "Nome do arquivo", label: "Buscar documento" %>
+  <label class="sr-only" for="f-empresa">Cliente</label>
+  <%= select_tag :empresa, options_from_collection_for_select(@companies, :id, :trade_name, params[:empresa]), include_blank: "Todos os clientes", class: "select", id: "f-empresa", onchange: "this.form.requestSubmit()" %>
+<% end %>
+
+<section class="card" aria-label="Lista de documentos">
+  <%= render "table", documents: @documents, show_company: true %>
+  <%= render "shared/pagination", pager: @pager %>
+</section>

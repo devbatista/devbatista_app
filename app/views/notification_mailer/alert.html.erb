@@ -1,0 +1,4 @@
+<p>Olá, <%= @notification.user.first_name %>.</p>
+<p><strong><%= @notification.title %></strong></p>
+<p><%= link_to "Abrir no sistema", @url %></p>
+<p style="color:#64748b;font-size:12px">Você recebe este e-mail porque o alerta “<%= @notification.kind_label %>” está ativo nas suas preferências de notificação.</p>

@@ -1,0 +1,30 @@
+<% page_title "Busca" %>
+<% breadcrumb ["Busca"] %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Busca global</span>
+    <h1><%= @query.present? ? "Resultados para “#{@query}”" : "Buscar" %></h1>
+    <p class="lead">Clientes, contatos e contratos. Os resultados respeitam as permissões do seu perfil.</p>
+  </div>
+</div>
+
+<%= form_with url: search_path, method: :get, class: "toolbar" do %>
+  <label class="search-field" style="flex:1;max-width:520px"><span class="sr-only">Termo de busca</span><%= icon(:search, size: 16, stroke: 1.8) %><%= search_field_tag :q, @query, class: "input", placeholder: "Nome, CNPJ, e-mail ou número do contrato", autofocus: true, style: "width:100%" %></label>
+  <button class="btn" type="submit">Buscar</button>
+<% end %>
+
+<% if @query.size >= 2 %>
+  <% if @groups.any? %>
+    <% @groups.each do |group| %>
+      <section class="card">
+        <div class="card-head"><h2><%= group.label %></h2><span class="caption"><%= pluralize(group.items.size, "resultado") %></span></div>
+        <% group.items.each do |item| %>
+          <%= link_to item.path, class: "palette-item", style: "border-top:1px solid var(--rule)" do %><span class="strong"><%= item.title %></span><span class="muted"><%= item.subtitle %></span><% end %>
+        <% end %>
+      </section>
+    <% end %>
+  <% else %>
+    <section class="card"><%= render "shared/empty", title: "Nada encontrado", text: "Tente outro termo: nome fantasia, razão social, CNPJ, nome ou e-mail do contato, número do contrato.", icon_name: :search %></section>
+  <% end %>
+<% end %>

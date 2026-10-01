@@ -18,7 +18,13 @@ module NavigationHelper
     plus: "M12 5v14M5 12h14",
     logout: "M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10",
     lock: "M6 11h12v10H6zM8 11V7a4 4 0 118 0v4",
-    eye: "M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12zM12 15a3 3 0 100-6 3 3 0 000 6z"
+    eye: "M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12zM12 15a3 3 0 100-6 3 3 0 000 6z",
+    edit: "M4 20h4L19 9l-4-4L4 16zM14 6l4 4",
+    file: "M6 3h9l4 4v14H6zM14 3v5h5",
+    upload: "M12 16V4M7 9l5-5 5 5M4 20h16",
+    star: "M12 3l2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z",
+    phone: "M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2",
+    whatsapp: "M4 20l1.4-4.2A8 8 0 1112 20a8 8 0 01-3.8-1z"
   }.freeze
 
   # Grupos do menu. Cada item aponta para a rota (símbolo do helper de path) e a área da
@@ -30,8 +36,8 @@ module NavigationHelper
       [ "Propostas", nil, "comercial" ], [ "Pipeline", nil, "comercial" ]
     ] },
     { key: :cli, label: "Clientes", items: [
-      [ "Empresas", nil, "clientes" ], [ "Contatos", nil, "clientes" ],
-      [ "Contratos", nil, "contratos" ], [ "Serviços contratados", nil, "contratos" ]
+      [ "Empresas", :companies_path, "clientes" ], [ "Contatos", :contacts_path, "clientes" ],
+      [ "Contratos", :contracts_path, "contratos" ], [ "Serviços contratados", :customer_services_path, "contratos" ]
     ] },
     { key: :op, label: "Operação", items: [
       [ "Projetos", nil, "projetos" ], [ "Tarefas", nil, "projetos" ],
@@ -53,13 +59,14 @@ module NavigationHelper
       [ "Indicadores", nil, "produtos" ]
     ] },
     { key: :ges, label: "Gestão", items: [
-      [ "Fornecedores", nil, "fornecedores" ], [ "Documentos", nil, "documentos" ],
+      [ "Fornecedores", nil, "fornecedores" ], [ "Documentos", :documents_path, "documentos" ],
       [ "Relatórios", nil, "relatorios" ], [ "Indicadores", nil, "relatorios" ],
       [ "Rentabilidade", nil, "relatorios" ]
     ] },
     { key: :adm, label: "Administração", items: [
       [ "Usuários", :admin_users_path, "administracao" ], [ "Permissões", :admin_permissions_path, "administracao" ],
-      [ "Logs", :admin_audit_logs_path, "administracao" ], [ "Configurações", nil, "administracao" ]
+      [ "Logs", :admin_audit_logs_path, "administracao" ], [ "Configurações", :admin_settings_path, "administracao" ],
+      [ "Catálogo de serviços", :admin_services_path, "administracao" ]
     ] }
   ].freeze
 

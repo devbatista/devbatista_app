@@ -1,0 +1,32 @@
+<%# Locals: documents, show_company (bool) %>
+<% if documents.any? %>
+  <div class="table-wrap">
+    <table class="table cards">
+      <thead><tr><th>Documento</th><th>Tipo</th><th>Vínculo</th><% if show_company %><th>Cliente</th><% end %><th>Enviado por</th><th><span class="sr-only">Ações</span></th></tr></thead>
+      <tbody>
+        <% documents.each do |doc| %>
+          <tr>
+            <td data-label="Documento"><div class="hcell"><span class="file-ic"><%= icon(:file, size: 18, stroke: 1.8) %></span><div><%= link_to doc.title, document_path(doc), target: "_blank", class: "strong" %><span class="cell-sub"><%= number_to_human_size(doc.file.byte_size) if doc.file.attached? %><%= " · #{doc.notes}" if doc.notes.present? %></span></div></div></td>
+            <td data-label="Tipo"><%= status_badge(doc.kind_label, "mute") %></td>
+            <td data-label="Vínculo"><%= case doc.documentable
+                                           when Contract then link_to("Contrato #{doc.documentable.code}", doc.documentable)
+                                           when Company then "Cliente"
+                                           else "—" end %></td>
+            <% if show_company %><td data-label="Cliente"><%= doc.company ? link_to(doc.company.trade_name, company_path(doc.company)) : "—" %></td><% end %>
+            <td data-label="Enviado por"><%= doc.uploaded_by.name %><span class="cell-sub"><%= date_br(doc.created_at) %></span></td>
+            <td data-label="" class="right">
+              <span class="row-actions">
+                <%= link_to "Baixar", document_path(doc, baixar: 1), class: "link-btn" %>
+                <% if policy(doc).destroy? %>
+                  <%= button_to "Excluir", document_path(doc), method: :delete, class: "link-btn danger", form_class: "inline-form", form: { data: { turbo_confirm: "Excluir #{doc.title}? O arquivo sai do armazenamento." } } %>
+                <% end %>
+              </span>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <%= render "shared/empty", title: "Nenhum documento", text: "Contratos assinados, propostas, briefings e demais arquivos aparecem aqui.", icon_name: :file %>
+<% end %>

@@ -1,0 +1,266 @@
+# Extraído de docs/design/clientes/servicos-contratados.html, com subtítulos e
+# datas da ACME conferidos em docs/design/clientes/empresa.html e regras em
+# docs/design/financeiro/recorrencias.html.
+# MRR (status active, mensalizado: trimestral ÷3, semestral ÷6, anual ÷12, avulso fora) = R$ 20.400.
+# O design mostra 21 de 29 serviços (os 8 restantes são "avulsos de projetos", sem dados).
+
+# Empresa ACME — MRR R$ 3.800
+- company: Empresa ACME
+  service: Consultoria de TI
+  contract: 104
+  price: 3000
+  recurrence: monthly
+  start_date: "2026-03-12"
+  due_day: 10
+  status: active
+  ended_on: null
+  description: 40 h/mês de consultoria e acompanhamento
+  notes: null
+
+- company: Empresa ACME
+  service: Manutenção
+  contract: null
+  price: 500
+  recurrence: monthly
+  start_date: "2026-07-01"
+  due_day: 10
+  status: active
+  ended_on: null
+  description: Correções e pequenas evoluções do Portal ACME
+  notes: Sem contrato vinculado. Formalizado pela aprovação da proposta Portal ACME — Fase 2; considerar aditivo ao contrato #104.
+
+- company: Empresa ACME
+  service: Hospedagem
+  contract: null
+  price: 300
+  recurrence: monthly
+  start_date: "2026-07-01"
+  due_day: 10
+  status: active
+  ended_on: null
+  description: Railway + AWS, monitoramento e backups
+  notes: Sem contrato vinculado. Formalizado pela aprovação da proposta Portal ACME — Fase 2; considerar aditivo ao contrato #104.
+
+- company: Empresa ACME
+  service: Gestão de infraestrutura
+  contract: null
+  price: 200
+  recurrence: one_off
+  start_date: "2026-09-15"
+  due_day: null
+  status: active
+  ended_on: null
+  description: Migração de DNS e e-mail corporativo
+  notes: Avulso, fora do MRR. Vencimento em 25/09/2026.
+
+# Cliente A — MRR R$ 4.500
+- company: Cliente A
+  service: Consultoria de TI
+  contract: 101
+  price: 18000
+  recurrence: semiannual
+  start_date: "2026-02-01"
+  due_day: 5
+  status: active
+  ended_on: null
+  description: null
+  notes: null
+
+- company: Cliente A
+  service: Hospedagem
+  contract: null
+  price: 1500
+  recurrence: monthly
+  start_date: "2026-01-18"
+  due_day: 18
+  status: active
+  ended_on: null
+  description: null
+  notes: null
+
+# Cliente B — MRR R$ 3.200
+- company: Cliente B
+  service: Manutenção
+  contract: null
+  price: 1400
+  recurrence: monthly
+  start_date: "2025-11-22"
+  due_day: 22
+  status: active
+  ended_on: null
+  description: null
+  notes: null
+
+- company: Cliente B
+  service: Gestão de infraestrutura
+  contract: null
+  price: 3600
+  recurrence: quarterly
+  start_date: "2026-04-15"
+  due_day: 15
+  status: active
+  ended_on: null
+  description: null
+  notes: null
+
+- company: Cliente B
+  service: Suporte
+  contract: 99
+  price: 600
+  recurrence: monthly
+  start_date: "2026-01-01"
+  due_day: 22
+  status: active
+  ended_on: null
+  description: null
+  notes: null
+
+# Empresa XYZ — MRR R$ 2.900
+- company: Empresa XYZ
+  service: Manutenção
+  contract: 98
+  price: 1200
+  recurrence: monthly
+  start_date: "2025-10-18"
+  due_day: 5
+  status: active
+  ended_on: null
+  description: null
+  notes: null
+
+- company: Empresa XYZ
+  service: Suporte
+  contract: null
+  price: 900
+  recurrence: monthly
+  start_date: "2026-01-05"
+  due_day: 5
+  status: active
+  ended_on: null
+  description: null
+  notes: null
+
+- company: Empresa XYZ
+  service: Hospedagem
+  contract: null
+  price: 800
+  recurrence: monthly
+  start_date: "2026-01-05"
+  due_day: 5
+  status: active
+  ended_on: null
+  description: null
+  notes: null
+
+# Cliente C — MRR R$ 2.400
+- company: Cliente C
+  service: Desenvolvimento de sistemas
+  contract: 92
+  price: 2400
+  recurrence: monthly
+  start_date: "2025-09-01"
+  due_day: 1
+  status: active
+  ended_on: null
+  description: ERP Cliente C
+  notes: null
+
+# Cliente D — MRR R$ 1.400
+- company: Cliente D
+  service: Suporte
+  contract: 95
+  price: 9600
+  recurrence: annual
+  start_date: "2025-11-06"
+  due_day: 6
+  status: active
+  ended_on: null
+  description: null
+  notes: null
+
+- company: Cliente D
+  service: Hospedagem
+  contract: 108
+  price: 600
+  recurrence: monthly
+  start_date: "2026-06-10"
+  due_day: 10
+  status: active
+  ended_on: null
+  description: null
+  notes: null
+
+# Empresa Delta — MRR R$ 1.000
+- company: Empresa Delta
+  service: Suporte
+  contract: 111
+  price: 700
+  recurrence: monthly
+  start_date: "2026-07-20"
+  due_day: 10
+  status: active
+  ended_on: null
+  description: null
+  notes: null
+
+- company: Empresa Delta
+  service: Hospedagem
+  contract: 111
+  price: 300
+  recurrence: monthly
+  start_date: "2026-07-20"
+  due_day: 20
+  status: active
+  ended_on: null
+  description: null
+  notes: null
+
+# Empresa Orion — MRR R$ 900
+- company: Empresa Orion
+  service: Suporte
+  contract: 87
+  price: 900
+  recurrence: monthly
+  start_date: "2024-11-16"
+  due_day: 25
+  status: active
+  ended_on: null
+  description: null
+  notes: null
+
+- company: Empresa Orion
+  service: Manutenção
+  contract: null
+  price: 600
+  recurrence: monthly
+  start_date: null
+  due_day: 25
+  status: suspended
+  ended_on: null
+  description: App Orion
+  notes: Suspenso em 01/08/2026 com o projeto pausado. Fora do MRR.
+
+- company: Empresa Orion
+  service: Hospedagem
+  contract: null
+  price: 200
+  recurrence: monthly
+  start_date: null
+  due_day: 25
+  status: ended
+  ended_on: "2026-09-14"
+  description: null
+  notes: Encerrado em 14/09/2026; 3 previsões de recorrência canceladas.
+
+# Cliente E — MRR R$ 300
+- company: Cliente E
+  service: Hospedagem
+  contract: 105
+  price: 300
+  recurrence: monthly
+  start_date: "2026-04-20"
+  due_day: 20
+  status: active
+  ended_on: null
+  description: null
+  notes: null

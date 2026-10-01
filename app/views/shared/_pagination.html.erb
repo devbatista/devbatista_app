@@ -1,0 +1,12 @@
+<% if pager.total > 0 %>
+  <div class="pagination">
+    <span><%= pager.from %>–<%= pager.to %> de <%= pager.total %></span>
+    <% if pager.pages > 1 %>
+      <div class="row">
+        <% if pager.prev? %><%= link_to "← Anterior", url_for(request.query_parameters.merge(page: pager.page - 1)), class: "btn sm" %><% end %>
+        <span class="caption">Página <%= pager.page %> de <%= pager.pages %></span>
+        <% if pager.next? %><%= link_to "Próxima →", url_for(request.query_parameters.merge(page: pager.page + 1)), class: "btn sm" %><% end %>
+      </div>
+    <% end %>
+  </div>
+<% end %>

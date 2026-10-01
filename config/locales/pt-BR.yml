@@ -10,6 +10,30 @@ pt-BR:
       audit_log:
         one: Registro de auditoria
         other: Registros de auditoria
+      company:
+        one: Empresa
+        other: Empresas
+      contact:
+        one: Contato
+        other: Contatos
+      contract:
+        one: Contrato
+        other: Contratos
+      customer_service:
+        one: Serviço contratado
+        other: Serviços contratados
+      service:
+        one: Serviço
+        other: Serviços
+      document:
+        one: Documento
+        other: Documentos
+      notification:
+        one: Notificação
+        other: Notificações
+      setting:
+        one: Configuração
+        other: Configurações
     attributes:
       user:
         name: Nome
@@ -25,6 +49,82 @@ pt-BR:
         name: Nome
         key: Chave
         permissions: Permissões
+      company:
+        legal_name: Razão social
+        trade_name: Nome fantasia
+        cnpj: CNPJ
+        status: Status
+        phone: Telefone
+        email: E-mail
+        website: Site
+        street: Logradouro
+        city: Cidade
+        state: UF
+        zip_code: CEP
+        notes: Observações
+        customer_since: Cliente desde
+        external_id: ID no HubSpot
+      contact:
+        company: Empresa
+        company_id: Empresa
+        name: Nome
+        position: Cargo
+        phone: Telefone
+        whatsapp: WhatsApp
+        email: E-mail
+        primary: Principal
+        notes: Observações
+        external_id: ID no HubSpot
+      contract:
+        company: Cliente
+        company_id: Cliente
+        number: Número
+        title: Título
+        status: Status
+        start_date: Início
+        end_date: Término
+        renewal: Renovação
+        value: Valor
+        value_cents: Valor
+        periodicity: Periodicidade
+        notes: Observações
+      customer_service:
+        company: Cliente
+        company_id: Cliente
+        service: Serviço
+        service_id: Serviço
+        contract: Contrato
+        contract_id: Contrato
+        price: Valor
+        price_cents: Valor
+        recurrence: Recorrência
+        mrr_cents: MRR
+        start_date: Início
+        due_day: Dia de vencimento
+        status: Status
+        ended_on: Encerrado em
+        description: Descrição
+        notes: Observações
+      service:
+        name: Nome
+        description: Descrição
+        category: Categoria
+        kind: Tipo
+        default_price: Preço padrão
+        default_price_cents: Preço padrão
+        status: Status
+      document:
+        title: Título
+        kind: Tipo
+        file: Arquivo
+        documentable: Vínculo
+        documentable_type: Tipo de vínculo
+        documentable_id: Vínculo
+        company: Cliente
+        notes: Observações
+      setting:
+        key: Configuração
+        value: Valor
   date:
     formats:
       month_year: "%B de %Y"

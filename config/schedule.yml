@@ -1,7 +1,6 @@
 # Rotinas diárias (sidekiq-cron), no horário de Brasília.
-# Cada módulo acrescenta aqui os seus jobs: recorrências, vencimentos e alertas. Exemplo:
-#
-# gerar_recorrencias:
-#   cron: "0 6 * * * America/Sao_Paulo"
-#   class: "GenerateRecurringChargesJob"
-{}
+# Cada módulo acrescenta as suas verificações em DailyAlertsJob.
+alertas_diarios:
+  cron: "0 7 * * * America/Sao_Paulo"
+  class: "DailyAlertsJob"
+  description: "Vencimentos e alertas da central de notificações"

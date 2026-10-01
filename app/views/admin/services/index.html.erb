@@ -1,0 +1,49 @@
+<% page_title "Catálogo de serviços" %>
+<% nav_location :adm, "Catálogo de serviços" %>
+<% breadcrumb ["Administração"], ["Catálogo de serviços"] %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Administração · Catálogo</span>
+    <h1>Catálogo de serviços</h1>
+    <p class="lead">O que a DevBatista vende: nomes, categorias e preços de referência usados nas propostas e nos serviços contratados. Serviço inativo não aparece em novas contratações.</p>
+  </div>
+  <% if policy(Service).create? %>
+    <div class="actions"><%= drawer_link_to new_admin_service_path, class: "btn pri" do %><%= icon(:plus, size: 16, stroke: 2) %>Novo serviço<% end %></div>
+  <% end %>
+</div>
+
+<%= form_with url: admin_services_path, method: :get, class: "toolbar" do %>
+  <%= status_filter :status, [ [ "todos", "Todos", @counts.values.sum ] ] + Service::STATUS_LABELS.map { |k, v| [ k, v, @counts[k].to_i ] } %>
+  <span class="spacer"></span>
+  <%= hidden_field_tag :status, params[:status], id: nil if params[:status].present? %>
+  <%= search_field placeholder: "Nome do serviço", label: "Buscar serviço" %>
+  <label class="sr-only" for="f-cat">Categoria</label>
+  <%= select_tag :categoria, options_for_select((Service::CATEGORIES | Service.distinct.pluck(:category)).sort, params[:categoria]), include_blank: "Todas as categorias", class: "select", id: "f-cat", onchange: "this.form.requestSubmit()" %>
+<% end %>
+
+<section class="card" aria-label="Serviços do catálogo">
+  <% if @services.any? %>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr><th>Serviço</th><th>Categoria</th><th>Tipo</th><th class="num">Preço padrão</th><th class="num">Em uso</th><th>Status</th><th><span class="sr-only">Ações</span></th></tr></thead>
+        <tbody>
+          <% @services.each do |service| %>
+            <tr class="<%= 'inactive' if service.inactive? %>">
+              <td data-label="Serviço"><span class="strong"><%= service.name %></span><% if service.description.present? %><span class="cell-sub"><%= service.description %></span><% end %></td>
+              <td data-label="Categoria"><%= service.category %></td>
+              <td data-label="Tipo"><%= status_badge(service.kind_label, { "recurring" => "info", "project" => "blue", "one_off" => "mute" }[service.kind]) %></td>
+              <td data-label="Preço padrão" class="num nowrap"><%= brl(service.default_price_cents) %></td>
+              <td data-label="Em uso" class="num"><%= link_to_if @in_use[service.id], (@in_use[service.id] || 0).to_s, customer_services_path(servico: service.id) %></td>
+              <td data-label="Status"><%= status_badge_for(service) %></td>
+              <td data-label="" class="right"><% if policy(service).edit? %><%= drawer_link_to "Editar", edit_admin_service_path(service), class: "link-btn" %><% end %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <%= render "shared/pagination", pager: @pager %>
+  <% else %>
+    <%= render "shared/empty", title: "Nenhum serviço encontrado" %>
+  <% end %>
+</section>

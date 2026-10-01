@@ -1,5 +1,6 @@
 class ApplicationController < ActionController::Base
   include Pundit::Authorization
+  include Listing
 
   # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
   allow_browser versions: :modern
@@ -18,9 +19,10 @@ class ApplicationController < ActionController::Base
 
   private
 
+  # Não chama current_user aqui, para não autenticar a sessão nas telas do Devise
+  # (login e senha). O usuário entra no Current em authenticate_user!.
   def set_current_request
     Current.ip_address = request.remote_ip
-    Current.user = current_user if respond_to?(:current_user)
   end
 
   def authenticate_user!

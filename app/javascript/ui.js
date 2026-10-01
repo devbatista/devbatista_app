@@ -10,8 +10,13 @@
 
 const overlay = () => document.querySelector("[data-overlay]")
 
+const LOADING = '<div class="drawer-body caption">Carregando…</div>'
+
 const closeAll = () => {
   document.querySelectorAll(".drawer.open, .modal.open, .popover.open").forEach((el) => el.classList.remove("open"))
+  // Limpa a gaveta para o próximo formulário não mostrar o anterior.
+  const frame = document.getElementById("drawer-frame")
+  if (frame) { frame.removeAttribute("src"); frame.innerHTML = LOADING }
   document.querySelectorAll("[data-popover-toggle]").forEach((b) => b.setAttribute("aria-expanded", "false"))
   overlay()?.classList.remove("open")
 }
@@ -41,11 +46,22 @@ document.addEventListener("click", (e) => {
   const open = t.closest("[data-open]")
   if (open) {
     const el = document.getElementById(open.dataset.open)
-    if (el) { e.preventDefault(); openPanel(el) }
+    if (el) {
+      // Links com data-turbo-frame carregam o conteúdo da gaveta; o Turbo cuida da navegação.
+      if (!open.dataset.turboFrame) e.preventDefault()
+      openPanel(el)
+    }
     return
   }
 
-  if (t.closest("[data-close]") || t.closest("[data-overlay]")) { closeAll(); return }
+  if (t.closest("[data-search-open]")) { openPalette(); return }
+
+  const close = t.closest("[data-close]")
+  if (close || t.closest("[data-overlay]")) {
+    // Dentro da gaveta ou do modal, só fecha; numa página própria, o link segue normalmente.
+    if (!close || close.closest(".drawer.open, .modal.open")) { e.preventDefault(); closeAll(); palette()?.classList.remove("open") }
+    return
+  }
 
   const pop = t.closest("[data-popover-toggle]")
   if (pop) {
@@ -103,10 +119,64 @@ document.addEventListener("click", (e) => {
   if (row && !t.closest("a, button, input, select, label")) Turbo.visit(row.dataset.href)
 })
 
+// Busca global (⌘K / Ctrl+K)
+const palette = () => document.querySelector("[data-palette]")
+const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]))
+let searchTimer, searchSeq = 0
+
+const openPalette = () => {
+  const p = palette()
+  if (!p) return
+  p.classList.add("open")
+  overlay()?.classList.add("open")
+  setTimeout(() => p.querySelector("[data-palette-input]").focus(), 10)
+}
+
+const renderResults = (groups, q) => {
+  const box = palette().querySelector("[data-palette-results]")
+  if (q.length < 2) { box.innerHTML = '<div class="palette-group">Digite pelo menos 2 letras</div>'; return }
+  if (!groups.length) { box.innerHTML = '<div class="empty">Nada encontrado para essa busca.</div>'; return }
+  box.innerHTML = groups.map((g) => `<div class="palette-group">${escapeHtml(g.label)}</div>` +
+    g.items.map((i) => `<a class="palette-item" href="${escapeHtml(i.path)}"><span class="strong">${escapeHtml(i.title)}</span><span class="muted">${escapeHtml(i.subtitle || "")}</span></a>`).join("")).join("")
+}
+
+document.addEventListener("input", (e) => {
+  if (!e.target.matches("[data-palette-input]")) return
+  const q = e.target.value.trim()
+  const all = palette().querySelector("[data-palette-all]")
+  if (all) all.href = `${all.pathname}?q=${encodeURIComponent(q)}`
+  clearTimeout(searchTimer)
+  searchTimer = setTimeout(async () => {
+    const seq = ++searchSeq
+    if (q.length < 2) return renderResults([], q)
+    const res = await fetch(`${palette().dataset.url}?q=${encodeURIComponent(q)}`, { headers: { Accept: "application/json" } })
+    if (seq === searchSeq && res.ok) renderResults(await res.json(), q)
+  }, 180)
+})
+
 document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") { closeAll(); document.body.classList.remove("nav-open") }
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); openPalette(); return }
+  if (e.key === "Escape") { closeAll(); palette()?.classList.remove("open"); document.body.classList.remove("nav-open"); return }
+
+  // Setas navegam pelos resultados da busca
+  const p = palette()
+  if (p?.classList.contains("open") && (e.key === "ArrowDown" || e.key === "ArrowUp")) {
+    const items = [...p.querySelectorAll(".palette-item")]
+    if (!items.length) return
+    e.preventDefault()
+    const i = items.indexOf(document.activeElement)
+    const next = e.key === "ArrowDown" ? Math.min(i + 1, items.length - 1) : Math.max(i - 1, -1)
+    next < 0 ? p.querySelector("[data-palette-input]").focus() : items[next].focus()
+  }
 })
 
 document.addEventListener("turbo:load", filterCounts)
+
+// Foco no primeiro campo quando o formulário chega na gaveta.
+document.addEventListener("turbo:frame-load", (e) => {
+  if (e.target.id !== "drawer-frame") return
+  const field = e.target.querySelector("input:not([type=hidden]), select, textarea")
+  if (field) field.focus()
+})
 // Fecha painéis abertos antes de o Turbo guardar a página no cache.
-document.addEventListener("turbo:before-cache", () => { closeAll(); document.body.classList.remove("nav-open") })
+document.addEventListener("turbo:before-cache", () => { closeAll(); palette()?.classList.remove("open"); document.body.classList.remove("nav-open") })

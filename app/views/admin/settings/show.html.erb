@@ -1,0 +1,82 @@
+<% page_title "Configurações" %>
+<% nav_location :adm, "Configurações" %>
+<% breadcrumb ["Administração"], ["Configurações"] %>
+<% editable = policy(Setting).update? %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Administração</span>
+    <h1>Configurações</h1>
+    <p class="lead">Listas e prazos ajustáveis sem deploy. Toda alteração fica registrada em <%= link_to "Logs", admin_audit_logs_path(area: "administracao") %>.</p>
+  </div>
+</div>
+
+<div data-tabs-scope>
+  <div class="tabs" role="tablist" data-tabs>
+    <% [ [ "geral", "Geral" ], [ "alertas", "Alertas" ], [ "motivos", "Motivos de perda" ] ].each do |key, label| %>
+      <button class="tab<%= ' on' if @tab == key %>" type="button" role="tab" aria-selected="<%= @tab == key %>" data-tab="<%= key %>"><%= label %></button>
+    <% end %>
+    <%= link_to "Catálogo de serviços →", admin_services_path, class: "tab", style: "display:inline-flex;align-items:center" %>
+  </div>
+
+  <section data-panel="geral" <%= "hidden" unless @tab == "geral" %> style="margin-top:20px">
+    <%= form_with url: admin_settings_path, method: :patch, class: "card", data: { turbo: false } do %>
+      <%= hidden_field_tag :aba, "geral" %>
+      <div class="card-head"><h2>Empresa e e-mail</h2></div>
+      <div class="card-body form">
+        <div class="form-grid">
+          <div class="field"><label for="s-name">Nome da empresa</label><%= text_field_tag "settings[company_name]", Setting[:company_name], class: "input", id: "s-name", disabled: !editable %></div>
+          <div class="field"><label for="s-legal">Razão social</label><%= text_field_tag "settings[company_legal_name]", Setting[:company_legal_name], class: "input", id: "s-legal", disabled: !editable %></div>
+          <div class="field"><label for="s-sender">E-mail remetente das notificações</label><%= email_field_tag "settings[mailer_sender]", Setting[:mailer_sender], class: "input", id: "s-sender", disabled: !editable %><span class="hint">Precisa estar verificado no Amazon SES</span></div>
+          <div class="field"><label for="s-site">Site</label><%= text_field_tag "settings[company_site]", Setting[:company_site], class: "input", id: "s-site", disabled: !editable %></div>
+          <div class="field"><label for="s-time">Horário da rotina diária</label><%= text_field_tag "settings[daily_run_time]", Setting[:daily_run_time], class: "input", id: "s-time", disabled: true %><span class="hint">Definido em config/schedule.yml (fuso de Brasília)</span></div>
+        </div>
+        <label class="check"><%= hidden_field_tag "settings[email_enabled]", "0", id: nil %><%= check_box_tag "settings[email_enabled]", "1", Setting[:email_enabled], disabled: !editable %> Permitir envio de alertas por e-mail</label>
+        <p class="caption" style="margin:0">Fuso horário America/Sao_Paulo, moeda R$ e datas dd/mm/aaaa são fixos no MVP.</p>
+      </div>
+      <% if editable %><div class="drawer-foot"><button class="btn pri" type="submit">Salvar</button></div><% end %>
+    <% end %>
+  </section>
+
+  <section data-panel="alertas" <%= "hidden" unless @tab == "alertas" %> style="margin-top:20px">
+    <%= form_with url: admin_settings_path, method: :patch, class: "card", data: { turbo: false } do %>
+      <%= hidden_field_tag :aba, "alertas" %>
+      <div class="card-head"><div><h2>Antecedência dos alertas</h2><span class="caption">Dias antes do vencimento em que a rotina diária avisa</span></div></div>
+      <div class="card-body form">
+        <span class="fieldset-title">Contratos · Comercial e Administrador</span>
+        <div class="form-grid" style="grid-template-columns:repeat(3,minmax(0,1fr))">
+          <% Setting[:contract_alert_days].each_with_index do |days, i| %>
+            <div class="field"><label for="s-c<%= i %>">Contratos, <%= i + 1 %>º aviso</label><%= number_field_tag "settings[contract_alert_days][]", days, class: "input", min: 1, max: 365, id: "s-c#{i}", disabled: !editable %></div>
+          <% end %>
+        </div>
+        <span class="caption">O primeiro aviso também muda o status do contrato para Próximo do vencimento.</span>
+        <span class="fieldset-title">Domínios · Desenvolvedor e Administrador</span>
+        <div class="form-grid" style="grid-template-columns:repeat(3,minmax(0,1fr))">
+          <% Setting[:domain_alert_days].each_with_index do |days, i| %>
+            <div class="field"><label for="s-d<%= i %>">Domínios, <%= i + 1 %>º aviso</label><%= number_field_tag "settings[domain_alert_days][]", days, class: "input", min: 1, max: 365, id: "s-d#{i}", disabled: !editable %></div>
+          <% end %>
+        </div>
+        <span class="caption">Usado quando o módulo Tecnologia estiver no ar.</span>
+        <span class="fieldset-title">Propostas · responsável pela proposta</span>
+        <div class="form-grid">
+          <div class="field"><label for="s-p">Dias antes do fim da validade</label><%= number_field_tag "settings[proposal_alert_days]", Setting[:proposal_alert_days], class: "input", min: 1, max: 60, id: "s-p", disabled: !editable %><span class="hint">Usado quando o módulo Comercial estiver no ar</span></div>
+        </div>
+      </div>
+      <% if editable %><div class="drawer-foot"><button class="btn pri" type="submit">Salvar prazos</button></div><% end %>
+    <% end %>
+  </section>
+
+  <section data-panel="motivos" <%= "hidden" unless @tab == "motivos" %> style="margin-top:20px">
+    <%= form_with url: admin_settings_path, method: :patch, class: "card", data: { turbo: false } do %>
+      <%= hidden_field_tag :aba, "motivos" %>
+      <div class="card-head"><div><h2>Motivos de perda</h2><span class="caption">Lista usada ao marcar um lead ou uma oportunidade como Perdido</span></div></div>
+      <div class="card-body form">
+        <% (Setting[:loss_reasons] + [ "" ]).each_with_index do |reason, i| %>
+          <div class="field"><label for="s-m<%= i %>"><%= reason.present? ? "Motivo #{i + 1}" : "Novo motivo" %></label><%= text_field_tag "settings[loss_reasons][]", reason, class: "input", id: "s-m#{i}", placeholder: "Deixe em branco para não incluir", disabled: !editable %></div>
+        <% end %>
+        <span class="caption">Para remover um motivo, apague o texto e salve.</span>
+      </div>
+      <% if editable %><div class="drawer-foot"><button class="btn pri" type="submit">Salvar motivos</button></div><% end %>
+    <% end %>
+  </section>
+</div>

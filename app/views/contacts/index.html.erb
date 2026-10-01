@@ -1,0 +1,67 @@
+<% page_title "Contatos" %>
+<% nav_location :cli, "Contatos" %>
+<% breadcrumb ["Clientes", companies_path], ["Contatos"] %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Clientes</span>
+    <h1>Contatos</h1>
+    <p class="lead">Pessoas de cada empresa. O contato principal é sugerido por padrão em propostas, chamados e cobranças.</p>
+  </div>
+  <% if policy(Contact).create? %>
+    <div class="actions"><%= drawer_link_to new_contact_path(empresa: params[:empresa]), class: "btn pri" do %><%= icon(:plus, size: 16, stroke: 2) %>Novo contato<% end %></div>
+  <% end %>
+</div>
+
+<div class="grid-kpi g4">
+  <div class="card kpi"><span class="eyebrow">Contatos cadastrados</span><span class="v"><%= @kpis[:total] %></span><span class="f">em <%= @kpis[:companies] %> empresas</span></div>
+  <div class="card kpi"><span class="eyebrow">Contatos principais</span><span class="v"><%= @kpis[:primaries] %></span><span class="f">um por empresa</span></div>
+  <div class="card kpi<%= ' warn' if @kpis[:without_primary].any? %>"><span class="eyebrow">Sem contato principal</span><span class="v"><%= @kpis[:without_primary].size %></span><span class="f"><% @kpis[:without_primary].first(2).each do |c| %><%= link_to c.trade_name, company_path(c), class: "badge b-warn" %><% end %><%= " e mais #{@kpis[:without_primary].size - 2}" if @kpis[:without_primary].size > 2 %></span></div>
+  <div class="card kpi"><span class="eyebrow">Com WhatsApp</span><span class="v"><%= @kpis[:whatsapp] %></span><span class="f"><%= @kpis[:total].zero? ? "—" : "#{(@kpis[:whatsapp] * 100 / @kpis[:total])}% dos contatos" %></span></div>
+</div>
+
+<%= form_with url: contacts_path, method: :get, class: "toolbar" do %>
+  <%= status_filter :tipo, [ [ "todos", "Todos", @counts["todos"] ], [ "principal", "Principais", @counts["principal"] ], [ "demais", "Demais contatos", @counts["demais"] ] ], label: "Filtrar por tipo de contato" %>
+  <span class="spacer"></span>
+  <%= hidden_field_tag :tipo, params[:tipo], id: nil if params[:tipo].present? %>
+  <%= search_field placeholder: "Nome ou e-mail", label: "Buscar contato" %>
+  <label class="sr-only" for="f-empresa">Empresa</label>
+  <%= select_tag :empresa, options_from_collection_for_select(@companies, :id, :trade_name, params[:empresa]), include_blank: "Todas as empresas", class: "select", id: "f-empresa", onchange: "this.form.requestSubmit()" %>
+  <%= render "shared/sort_select" %>
+<% end %>
+
+<section class="card" aria-label="Lista de contatos">
+  <% if @contacts.any? %>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr><th>Contato</th><th>Empresa</th><th>Telefone</th><th>E-mail</th><th>Principal</th><th><span class="sr-only">Ações</span></th></tr></thead>
+        <tbody>
+          <% @contacts.each do |contact| %>
+            <tr>
+              <td data-label="Contato"><div class="p-cell"><span class="avatar sm soft"><%= contact.initials %></span><div><span class="strong"><%= contact.name %></span><% if contact.position.present? %><span class="cell-sub"><%= contact.position %></span><% end %></div></div></td>
+              <td data-label="Empresa"><%= link_to contact.company.trade_name, company_path(contact.company) %></td>
+              <td data-label="Telefone" class="nowrap">
+                <%= contact.phone.present? ? link_to(contact.phone, "tel:+55#{contact.phone.gsub(/\D/, '')}") : tag.span("—", class: "muted") %>
+                <% if contact.whatsapp.present? %><span class="cell-sub"><%= link_to "https://wa.me/55#{contact.whatsapp.gsub(/\D/, '')}", class: "wa", target: "_blank", rel: "noopener" do %><%= icon(:whatsapp, size: 14, stroke: 1.8) %> <%= contact.whatsapp %><% end %></span><% end %>
+              </td>
+              <td data-label="E-mail"><%= contact.email.present? ? mail_to(contact.email) : tag.span("—", class: "muted") %></td>
+              <td data-label="Principal"><%= contact.primary? ? status_badge("Principal", "info") : tag.span("—", class: "muted") %></td>
+              <td data-label="" class="right">
+                <span class="row-actions">
+                  <% if policy(contact).update? && !contact.primary? %>
+                    <%= button_to "Tornar principal", make_primary_contact_path(contact), method: :patch, class: "link-btn", form_class: "inline-form",
+                          form: { data: { turbo_confirm: "Tornar #{contact.name} o contato principal de #{contact.company.trade_name}? O principal atual (#{contact.company.primary_contact&.name || 'nenhum'}) deixa de ser." } } %>
+                  <% end %>
+                  <% if policy(contact).edit? %><%= drawer_link_to "Editar", edit_contact_path(contact), class: "link-btn" %><% end %>
+                </span>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <%= render "shared/pagination", pager: @pager %>
+  <% else %>
+    <%= render "shared/empty", title: "Nenhum contato encontrado", text: "Ajuste os filtros ou cadastre um contato." %>
+  <% end %>
+</section>

@@ -1,0 +1,2 @@
+<label class="sr-only" for="f-ordem">Ordenar por</label>
+<%= select_tag :ordem, options_for_select(@sorts.map { |key, (label, _)| [ label, key ] }, @sort), class: "select", id: "f-ordem", onchange: "this.form.requestSubmit()" %>

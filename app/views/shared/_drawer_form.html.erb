@@ -1,0 +1,9 @@
+<%# Formulário que abre na gaveta lateral e também funciona como página própria.
+    Locals: title, cancel_path; o bloco é o form_with (com data: { turbo_frame: "_top" }). %>
+<turbo-frame id="drawer-frame">
+  <div class="drawer-head">
+    <h2><%= title %></h2>
+    <%= link_to cancel_path, class: "icon-btn ghost", data: { close: true, turbo_frame: "_top" }, "aria-label": "Fechar" do %><%= icon(:close, size: 20, stroke: 1.8) %><% end %>
+  </div>
+  <%= yield %>
+</turbo-frame>

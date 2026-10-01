@@ -1,0 +1,48 @@
+<% page_title @company.trade_name %>
+<% nav_location :cli, "Empresas" %>
+<% breadcrumb ["Clientes"], ["Empresas", companies_path], [@company.trade_name] %>
+<% can_contracts = current_user.can_read?("contratos") %>
+<% can_documents = policy(Document).index? %>
+<% recurring = @services.select(&:counts_for_mrr?) %>
+<% charge = can_contracts ? @company.next_charge : nil %>
+
+<div class="page-head">
+  <div class="head360">
+    <span class="co-avatar" aria-hidden="true"><%= @company.initials %></span>
+    <div class="titles">
+      <span class="section-label">Visão 360º do cliente</span>
+      <div class="row wrap" style="gap:10px"><h1><%= @company.trade_name %></h1><%= tag.span(@company.status_label, class: "badge b-#{ListingHelper::STATUS_TONES[@company.status]} dot-l") %></div>
+      <p class="lead"><%= @company.legal_name %> · CNPJ <span class="mono"><%= @company.formatted_cnpj %></span><% if @company.customer_since %> · Cliente desde <%= date_br(@company.customer_since) %><% end %></p>
+    </div>
+  </div>
+  <div class="actions">
+    <% if policy(Contact).create? %><%= drawer_link_to new_contact_path(empresa: @company.id, voltar: "empresa"), class: "btn" do %><%= icon(:plus, size: 16, stroke: 2) %>Novo contato<% end %><% end %>
+    <% if policy(@company).edit? %><%= drawer_link_to edit_company_path(@company), class: "btn pri" do %><%= icon(:edit, size: 16, stroke: 1.8) %>Editar<% end %><% end %>
+  </div>
+</div>
+
+<div class="grid-kpi g4">
+  <div class="card kpi"><span class="eyebrow">MRR</span><span class="v"><%= can_contracts ? brl(@company.mrr_cents) : "—" %></span><span class="f"><%= pluralize(recurring.size, "serviço recorrente", plural: "serviços recorrentes") if can_contracts %></span></div>
+  <div class="card kpi soon-card"><span class="eyebrow">Projetos ativos</span><span class="v">—</span><span class="f">chega com o módulo Operação</span></div>
+  <div class="card kpi soon-card"><span class="eyebrow">Chamados abertos</span><span class="v">—</span><span class="f">chega com o módulo Suporte</span></div>
+  <div class="card kpi"><span class="eyebrow">Próxima cobrança</span><span class="v"><%= charge ? brl(charge[:cents]) : "—" %></span><span class="f"><%= charge ? "vencimento #{date_br(charge[:date])}" : "sem serviço recorrente ativo" %></span></div>
+</div>
+
+<% tabs = [ [ "resumo", "Resumo", nil ] ]
+   tabs += [ [ "servicos", "Serviços", @services.size ], [ "contratos", "Contratos", @contracts.size ] ] if can_contracts
+   tabs << [ "documentos", "Documentos", @documents.size ] if can_documents
+   tabs << [ "atividades", "Atividades", nil ]
+   current_tab = tabs.map(&:first).include?(@tab) ? @tab : "resumo" %>
+<div data-tabs-scope>
+  <div class="tabs" role="tablist" aria-label="Seções da Visão 360º" data-tabs>
+    <% tabs.each do |key, label, count| %>
+      <button class="tab<%= ' on' if key == current_tab %>" type="button" role="tab" aria-selected="<%= key == current_tab %>" data-tab="<%= key %>"><%= label %><% if count %><span class="c"><%= count %></span><% end %></button>
+    <% end %>
+  </div>
+
+  <% tabs.each do |key, _label, _count| %>
+    <section data-panel="<%= key %>" role="tabpanel" <%= "hidden" unless key == current_tab %> style="display:flex;flex-direction:column;gap:16px;margin-top:20px">
+      <%= render "companies/tabs/#{key}" %>
+    </section>
+  <% end %>
+</div>

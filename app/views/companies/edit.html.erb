@@ -1,0 +1,4 @@
+<% page_title "Editar empresa" %>
+<% nav_location :cli, "Empresas" %>
+<% breadcrumb ["Clientes"], ["Empresas", companies_path], [@company.trade_name, company_path(@company)], ["Editar"] %>
+<div class="form-page"><%= render "form", company: @company %></div>

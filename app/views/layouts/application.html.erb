@@ -16,5 +16,19 @@
       </div>
     </div>
     <div class="overlay" data-overlay></div>
+    <%# Busca global (⌘K): consulta /busca.json enquanto a pessoa digita. %>
+    <div class="palette" role="dialog" aria-label="Busca global" data-palette data-url="<%= search_path(format: :json) %>">
+      <form class="palette-input" action="<%= search_path %>" method="get" data-turbo="false">
+        <%= icon(:search, size: 18, stroke: 1.8) %>
+        <input type="search" name="q" placeholder="Buscar em clientes, contatos e contratos" aria-label="Termo de busca" autocomplete="off" data-palette-input>
+        <span class="kbd">Esc</span>
+      </form>
+      <div class="palette-results" data-palette-results style="max-height:52vh;overflow-y:auto;padding-bottom:8px"><div class="palette-group">Digite pelo menos 2 letras</div></div>
+      <div class="palette-foot"><span>↑↓ navegar</span><span>Enter abrir</span><%= link_to "Ver todos os resultados", search_path, style: "margin-left:auto;font-weight:600", data: { palette_all: true } %></div>
+    </div>
+    <%# Gaveta lateral única: os formulários de criar e editar carregam aqui pelo Turbo Frame. %>
+    <aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="Formulário">
+      <turbo-frame id="drawer-frame"><div class="drawer-body caption">Carregando…</div></turbo-frame>
+    </aside>
   </body>
 </html>

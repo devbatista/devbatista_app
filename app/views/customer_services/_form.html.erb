@@ -1,0 +1,29 @@
+<% back = params[:voltar] == "empresa" && customer_service.company ? company_path(customer_service.company, aba: "servicos") : customer_services_path %>
+<% contracts = customer_service.company ? customer_service.company.contracts.order(number: :desc) : Contract.includes(:company).order(number: :desc) %>
+<%= render layout: "shared/drawer_form", locals: { title: customer_service.new_record? ? "Novo serviço contratado" : "Editar serviço contratado", cancel_path: back } do %>
+  <%= form_with model: customer_service, class: "form", data: { turbo_frame: "_top" } do |f| %>
+    <%= hidden_field_tag :voltar, params[:voltar] if params[:voltar] %>
+    <div class="drawer-body form">
+      <%= render "shared/form_errors", record: customer_service %>
+      <div class="form-grid">
+        <div class="field full"><%= f.label :company_id do %>Cliente <span class="req">*</span><% end %><%= f.collection_select :company_id, Company.by_name, :id, :trade_name, { prompt: "Selecione" }, class: "select", required: true %></div>
+        <div class="field full"><%= f.label :service_id do %>Serviço do catálogo <span class="req">*</span><% end %>
+          <%= f.select :service_id, options_for_select((Service.available.to_a | [ customer_service.service ].compact).map { |s| [ "#{s.name} · #{s.kind_label} · #{brl(s.default_price_cents)}", s.id ] }, customer_service.service_id), { prompt: "Selecione" }, class: "select", required: true %>
+          <span class="hint">Serviços inativos no catálogo não aparecem para novas contratações</span></div>
+        <div class="field full"><%= f.label :description, "Descrição curta" %><%= f.text_field :description, class: "input", placeholder: "Ex.: 40 h/mês de consultoria" %></div>
+        <div class="field"><%= f.label :price do %>Valor (R$) <span class="req">*</span><% end %><%= f.number_field :price, class: "input", step: "0.01", min: 0, placeholder: "Usa o preço padrão se ficar em branco" %><span class="hint">Valor acordado, na recorrência escolhida</span></div>
+        <div class="field"><%= f.label :recurrence do %>Recorrência <span class="req">*</span><% end %><%= f.select :recurrence, CustomerService.options_for_recurrence, {}, class: "select" %><span class="hint">Trimestral ÷ 3, semestral ÷ 6, anual ÷ 12; avulsa fora do MRR</span></div>
+        <div class="field"><%= f.label :start_date do %>Início <span class="req">*</span><% end %><%= f.date_field :start_date, class: "input", required: true %></div>
+        <div class="field"><%= f.label :due_day, "Dia de vencimento" %><%= f.number_field :due_day, class: "input", min: 1, max: 31 %></div>
+        <div class="field"><%= f.label :contract_id, "Contrato" %><%= f.select :contract_id, contracts.map { |c| [ "#{c.code} — #{c.title}#{" · #{c.company.trade_name}" unless customer_service.company}", c.id ] }, { include_blank: "Sem contrato" }, class: "select" %></div>
+        <div class="field"><%= f.label :status, "Status" %><%= f.select :status, CustomerService.options_for_status, {}, class: "select" %><span class="hint">Só Ativo compõe o MRR</span></div>
+      </div>
+      <div class="field"><%= f.label :notes, "Observações" %><%= f.text_area :notes, class: "textarea", placeholder: "Condições específicas" %></div>
+      <p class="caption" style="margin:0">O MRR é calculado pelo sistema, nunca digitado. As recorrências financeiras serão geradas a partir daqui quando o módulo Financeiro estiver no ar.</p>
+    </div>
+    <div class="drawer-foot">
+      <%= link_to "Cancelar", back, class: "btn", data: { close: true, turbo_frame: "_top" } %>
+      <%= f.submit customer_service.new_record? ? "Cadastrar" : "Salvar alterações", class: "btn pri" %>
+    </div>
+  <% end %>
+<% end %>

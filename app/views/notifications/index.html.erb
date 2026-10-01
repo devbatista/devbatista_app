@@ -1,0 +1,53 @@
+<% page_title "Notificações" %>
+<% breadcrumb ["Notificações"] %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Central de notificações</span>
+    <h1>Notificações</h1>
+    <p class="lead">Alertas gerados pela rotina diária e pelos eventos dos módulos que o seu perfil acompanha.</p>
+  </div>
+  <% if @unread_count > 0 %>
+    <div class="actions"><%= button_to "Marcar todas como lidas", read_all_notifications_path, method: :patch, class: "btn" %></div>
+  <% end %>
+</div>
+
+<div class="toolbar">
+  <%= status_filter :filtro, [ [ "todos", "Todas", nil ], [ "nao-lidas", "Não lidas", @unread_count ] ], label: "Filtrar notificações" %>
+</div>
+
+<section class="card" aria-label="Notificações">
+  <% if @notifications.any? %>
+    <% @notifications.each do |n| %>
+      <%= button_to notification_path(n), method: :patch, class: "notif notif-row#{' read' if n.read?}", form_class: "inline-form", data: { turbo: false } do %>
+        <i class="<%= n.read? ? 'read' : n.level %>"></i>
+        <div><span class="<%= 'strong' unless n.read? %>"><%= n.title %></span><small><%= datetime_br(n.created_at) %> · <%= n.kind_label %></small></div>
+      <% end %>
+    <% end %>
+    <%= render "shared/pagination", pager: @pager %>
+  <% else %>
+    <%= render "shared/empty", title: "Nenhuma notificação", text: "Quando houver contratos vencendo ou outros alertas do seu perfil, eles aparecem aqui.", icon_name: :bell %>
+  <% end %>
+</section>
+
+<section class="card">
+  <div class="card-head"><div><h2>Preferências de e-mail</h2><span class="caption">Além da central, receba estes alertas no seu e-mail (<%= current_user.email %>)</span></div></div>
+  <%= form_with url: preferences_notifications_path, method: :patch, data: { turbo: false } do %>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr><th>Alerta</th><th>Gatilho</th><th>Receber por e-mail</th></tr></thead>
+        <tbody>
+          <% Notification::KINDS.each do |kind, config| %>
+            <% visible = config[:roles].include?(current_user.role.key) %>
+            <tr class="<%= 'inactive' unless visible %>">
+              <td data-label="Alerta" class="strong"><%= config[:label] %><% unless visible %><span class="cell-sub">Não é enviado para o seu perfil</span><% end %></td>
+              <td data-label="Gatilho"><%= Setting[:contract_alert_days].to_sentence %> dias antes do término</td>
+              <td data-label="Receber por e-mail"><label class="switch"><%= check_box_tag "email_kinds[]", kind, current_user.email_for?(kind), id: "email-#{kind}", disabled: !visible, "aria-label": "Receber #{config[:label]} por e-mail" %><span></span></label></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <div class="drawer-foot"><button class="btn pri" type="submit">Salvar preferências</button></div>
+  <% end %>
+</section>

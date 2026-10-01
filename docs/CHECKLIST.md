@@ -4,7 +4,7 @@ Acompanha a construção da V1, fase por fase. Cada item é um requisito funcion
 
 Marque `[x]` só quando o item cumprir o [Pronto quando](#pronto-quando) abaixo.
 
-**Andamento:** fase 1 concluída · próxima: fase 2 (Clientes)
+**Andamento:** fases 1 e 2 concluídas · próxima: fase 3 (Comercial)
 
 ## Pronto quando
 
@@ -45,48 +45,51 @@ Vale para todo módulo antes de marcar como concluído:
   - [x] Nenhum perfil edita ou exclui (model somente leitura + trigger no banco)
 - [x] **RF 42 · Configurações (parte 1): matriz de permissões** — [permissões](design/administracao/permissoes.html)
 
-## Fase 2 · Clientes
+## Fase 2 · Clientes ✅
 
 Primeiro módulo de negócio. Traz também o que os outros módulos vão usar: histórico de atividades, documentos, notificações, configurações e busca.
 
-- [ ] **Activity** — histórico de negócio, polimórfico (registro + usuário + descrição), usado no feed do dashboard e na aba Atividades
-- [ ] **RF 42 · Configurações (parte 2)** — [configurações](design/administracao/configuracoes.html)
-  - [ ] Model `Setting` com listas e prazos editáveis sem deploy
-  - [ ] Antecedência dos alertas (contratos 60/30/15, domínios 60/30/7)
-- [ ] **RF 12 · Empresas** — [spec](specs/admin-devbatista-mvp/04-requisitos-funcionais/03-clientes-e-operacao.md) · [empresas](design/clientes/empresas.html)
-  - [ ] CNPJ validado (dígitos verificadores) e único
-  - [ ] Status: Prospect, Ativo, Inativo; listagens usam o nome fantasia
-  - [ ] Campo `external_id` para o HubSpot
-- [ ] **RF 13 · Contatos** — [contatos](design/clientes/contatos.html)
-  - [ ] Vários por empresa; só um principal (marcar outro desmarca o anterior)
-  - [ ] Principal sugerido por padrão em propostas, chamados e cobranças
-  - [ ] Campo `external_id` para o HubSpot
-- [ ] **RF 15 · Catálogo de serviços** — [catálogo](design/administracao/catalogo-servicos.html)
-  - [ ] Categoria, tipo (Recorrente, Projeto, Avulso) e preço padrão
-  - [ ] Serviço Inativo não aparece em novas propostas
-- [ ] **RF 16 · Serviços contratados** — [serviços contratados](design/clientes/servicos-contratados.html)
-  - [ ] MRR calculado, nunca digitado: mensal = valor; trimestral ÷ 3; semestral ÷ 6; anual ÷ 12; avulso fora
-  - [ ] Status Ativo, Suspenso, Encerrado; só Ativo compõe o MRR
-- [ ] **RF 17 · Contratos** — [contratos](design/clientes/contratos.html) · [contrato](design/clientes/contrato.html)
-  - [ ] Número interno sequencial gerado pelo sistema
-  - [ ] Status vira Próximo do vencimento sozinho (job diário), com alertas a 60, 30 e 15 dias
-  - [ ] Arquivo assinado guardado em Documentos
-- [ ] **RF 37 · Documentos** — [spec](specs/admin-devbatista-mvp/04-requisitos-funcionais/06-gestao-e-administracao.md) · [documentos](design/gestao/documentos.html)
-  - [ ] Upload por Active Storage (S3 em produção)
-  - [ ] Ligado a cliente, projeto, contrato, proposta ou fornecedor (polimórfico)
-  - [ ] "Enviado por" e data automáticos
-- [ ] **RF 5 · Notificações (base)** — [spec](specs/admin-devbatista-mvp/04-requisitos-funcionais/01-core.md) · [central](design/geral/notificacoes.html)
-  - [ ] Central com lida/não lida e link para o registro; sino da barra superior
-  - [ ] Rotina diária (Sidekiq) que gera os alertas; cada fase acrescenta os seus
-  - [ ] E-mail opcional por usuário
-- [ ] **RF 4 · Busca global (base)** — [resultados](design/geral/busca.html)
-  - [ ] Barra superior e atalho ⌘K / Ctrl+K
-  - [ ] Resultados agrupados por tipo, só do que o perfil pode ver
-  - [ ] Nesta fase: clientes, contatos e contratos (cada fase acrescenta os seus tipos)
-- [ ] **RF 14 · Visão 360º (parte 1)** — [empresa](design/clientes/empresa.html)
-  - [ ] Cabeçalho: nome, status, "cliente desde" e 4 cartões (MRR, Projetos ativos, Chamados abertos, Próxima cobrança)
-  - [ ] Abas desta fase: Resumo, Serviços, Contratos, Documentos, Atividades
-  - [ ] Aba sem permissão não aparece
+- [x] **Activity** — histórico de negócio, polimórfico (registro + usuário + descrição), usado no feed do dashboard e na aba Atividades
+- [x] **RF 42 · Configurações (parte 2)** — [configurações](design/administracao/configuracoes.html)
+  - [x] Model `Setting` com listas e prazos editáveis sem deploy
+  - [x] Antecedência dos alertas (contratos 60/30/15, domínios 60/30/7)
+- [x] **RF 12 · Empresas** — [spec](specs/admin-devbatista-mvp/04-requisitos-funcionais/03-clientes-e-operacao.md) · [empresas](design/clientes/empresas.html)
+  - [x] CNPJ validado (dígitos verificadores) e único
+  - [x] Status: Prospect, Ativo, Inativo; listagens usam o nome fantasia
+  - [x] Campo `external_id` para o HubSpot
+- [x] **RF 13 · Contatos** — [contatos](design/clientes/contatos.html)
+  - [x] Vários por empresa; só um principal (marcar outro desmarca o anterior)
+  - [ ] Principal sugerido por padrão em propostas, chamados e cobranças (entra nas fases 3, 4 e 5)
+  - [x] Campo `external_id` para o HubSpot
+- [x] **RF 15 · Catálogo de serviços** — [catálogo](design/administracao/catalogo-servicos.html)
+  - [x] Categoria, tipo (Recorrente, Projeto, Avulso) e preço padrão
+  - [x] Serviço Inativo não aparece em novos serviços contratados
+  - [ ] Nem em novas propostas (fase 3)
+- [x] **RF 16 · Serviços contratados** — [serviços contratados](design/clientes/servicos-contratados.html)
+  - [x] MRR calculado, nunca digitado: mensal = valor; trimestral ÷ 3; semestral ÷ 6; anual ÷ 12; avulso fora
+  - [x] Status Ativo, Suspenso, Encerrado; só Ativo compõe o MRR
+- [x] **RF 17 · Contratos** — [contratos](design/clientes/contratos.html) · [contrato](design/clientes/contrato.html)
+  - [x] Número interno sequencial gerado pelo sistema
+  - [x] Status vira Próximo do vencimento sozinho (job diário), com alertas a 60, 30 e 15 dias
+  - [x] Arquivo assinado guardado em Documentos
+- [x] **RF 37 · Documentos** — [spec](specs/admin-devbatista-mvp/04-requisitos-funcionais/06-gestao-e-administracao.md) · [documentos](design/gestao/documentos.html)
+  - [x] Upload por Active Storage (S3 em produção)
+  - [x] Vínculo polimórfico e obrigatório; nesta fase, cliente ou contrato
+  - [ ] Projeto, proposta e fornecedor (entram nas fases 3, 4 e 5)
+  - [x] "Enviado por" e data automáticos
+- [x] **RF 5 · Notificações (base)** — [spec](specs/admin-devbatista-mvp/04-requisitos-funcionais/01-core.md) · [central](design/geral/notificacoes.html)
+  - [x] Central com lida/não lida e link para o registro; sino da barra superior
+  - [x] Rotina diária (Sidekiq) que gera os alertas; cada fase acrescenta os seus
+  - [x] E-mail opcional por usuário, por tipo de alerta (central de notificações → Preferências)
+  - [x] Primeiro alerta: contratos vencendo (Comercial e Administrador)
+- [x] **RF 4 · Busca global (base)** — [resultados](design/geral/busca.html)
+  - [x] Barra superior e atalho ⌘K / Ctrl+K
+  - [x] Resultados agrupados por tipo, só do que o perfil pode ver
+  - [x] Nesta fase: clientes, contatos e contratos (cada fase acrescenta os seus tipos)
+- [x] **RF 14 · Visão 360º (parte 1)** — [empresa](design/clientes/empresa.html)
+  - [x] Cabeçalho: nome, status, "cliente desde" e 4 cartões (MRR, Projetos ativos, Chamados abertos, Próxima cobrança)
+  - [x] Abas desta fase: Resumo, Serviços, Contratos, Documentos, Atividades
+  - [x] Aba sem permissão não aparece
 
 ## Fase 3 · Comercial
 
@@ -113,6 +116,9 @@ Primeiro módulo de negócio. Traz também o que os outros módulos vão usar: h
   - [ ] Empresa passa a Ativo
 - [ ] **RF 42 · Configurações (parte 3):** motivos de perda editáveis
 - [ ] Busca global: propostas
+- [ ] Contato principal sugerido ao criar proposta
+- [ ] Documentos: vínculo com proposta
+- [ ] Notificações: propostas expirando (responsável pela proposta)
 - [ ] Decidir: probabilidade livre ou sugerida pela etapa ([dúvida](specs/admin-devbatista-mvp/08-duvidas-em-aberto-e-premissas.md))
 - [ ] Decidir: como marcar proposta Visualizada sem portal (proposta: manual)
 
@@ -136,6 +142,10 @@ Primeiro módulo de negócio. Traz também o que os outros módulos vão usar: h
   - [ ] Prioridade Crítica notifica na hora, sem esperar a rotina diária
 - [ ] Visão 360º: abas Projetos e Chamados
 - [ ] Busca global: projetos e chamados
+- [ ] Contato principal sugerido ao abrir chamado
+- [ ] Documentos: vínculo com projeto
+- [ ] Notificações: tarefas e projetos atrasados, chamado crítico
+- [ ] Visão 360º: cartões Projetos ativos e Chamados abertos
 
 ## Fase 5 · Financeiro
 
@@ -166,6 +176,10 @@ Primeiro módulo de negócio. Traz também o que os outros módulos vão usar: h
   - [ ] Teste de consistência: Faturamento = Recebido + A receber + Vencido
 - [ ] Visão 360º: aba Financeiro e cartão Próxima cobrança
 - [ ] Busca global: faturas
+- [ ] Contato principal sugerido nas cobranças
+- [ ] Documentos: vínculo com fornecedor
+- [ ] Notificações: pagamentos vencidos
+- [ ] Visão 360º: Próxima cobrança calculada pelos títulos (hoje vem dos serviços contratados)
 - [ ] Decidir: horizonte das recorrências (proposta: 3 meses)
 - [ ] Decidir: origem do câmbio (digitado ou API)
 
@@ -188,6 +202,7 @@ Primeiro módulo de negócio. Traz também o que os outros módulos vão usar: h
   - [ ] Assinaturas (Subscription) com registro manual
 - [ ] Visão 360º: aba Infraestrutura
 - [ ] Busca global: aplicações
+- [ ] Notificações: domínios vencendo (prazos já configuráveis)
 
 ## Fase 7 · Gestão e dashboard
 

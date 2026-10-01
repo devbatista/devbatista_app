@@ -1,0 +1,32 @@
+<%= render layout: "shared/drawer_form", locals: { title: company.new_record? ? "Nova empresa" : "Editar empresa", cancel_path: company.new_record? ? companies_path : company_path(company) } do %>
+  <%= form_with model: company, class: "form", data: { turbo_frame: "_top" } do |f| %>
+    <div class="drawer-body form">
+      <%= render "shared/form_errors", record: company %>
+      <span class="fieldset-title">Identificação</span>
+      <div class="form-grid">
+        <div class="field full"><%= f.label :legal_name do %>Razão social <span class="req">*</span><% end %><%= f.text_field :legal_name, class: "input", required: true, placeholder: "Ex.: ACME Comércio e Serviços Ltda." %><span class="hint">Nome jurídico da empresa</span></div>
+        <div class="field full"><%= f.label :trade_name do %>Nome fantasia <span class="req">*</span><% end %><%= f.text_field :trade_name, class: "input", required: true, placeholder: "Ex.: Empresa ACME" %><span class="hint">Nome comercial, usado nas listagens</span></div>
+        <div class="field"><%= f.label :cnpj do %>CNPJ <span class="req">*</span><% end %><%= f.text_field :cnpj, value: company.formatted_cnpj, class: "input mono", required: true, inputmode: "numeric", placeholder: "00.000.000/0000-00", maxlength: 18 %><span class="hint">Validado pelos dígitos verificadores e único no cadastro</span></div>
+        <div class="field"><%= f.label :status do %>Status <span class="req">*</span><% end %><%= f.select :status, Company.options_for_status, {}, class: "select" %><span class="hint">Situação do relacionamento</span></div>
+      </div>
+      <span class="fieldset-title">Contato institucional</span>
+      <div class="form-grid">
+        <div class="field"><%= f.label :phone, "Telefone" %><%= f.telephone_field :phone, class: "input", placeholder: "(11) 3456-7800" %></div>
+        <div class="field"><%= f.label :email, "E-mail" %><%= f.email_field :email, class: "input", placeholder: "financeiro@empresa.com.br" %><span class="hint">Institucional ou financeiro</span></div>
+        <div class="field full"><%= f.label :website, "Site" %><%= f.text_field :website, class: "input", placeholder: "https://www.empresa.com.br" %></div>
+      </div>
+      <span class="fieldset-title">Endereço</span>
+      <div class="form-grid">
+        <div class="field full"><%= f.label :street, "Logradouro" %><%= f.text_field :street, class: "input", placeholder: "Rua, número e complemento" %></div>
+        <div class="field"><%= f.label :city, "Cidade" %><%= f.text_field :city, class: "input", placeholder: "São Paulo" %></div>
+        <div class="field"><%= f.label :state, "UF" %><%= f.select :state, %w[AC AL AP AM BA CE DF ES GO MA MT MS MG PA PB PR PE PI RJ RN RS RO RR SC SP SE TO], { include_blank: "Selecione" }, class: "select" %></div>
+        <div class="field"><%= f.label :zip_code, "CEP" %><%= f.text_field :zip_code, class: "input mono", inputmode: "numeric", placeholder: "00000-000", maxlength: 9 %></div>
+      </div>
+      <div class="field"><%= f.label :notes, "Observações" %><%= f.text_area :notes, class: "textarea", placeholder: "Informações gerais relevantes" %></div>
+    </div>
+    <div class="drawer-foot">
+      <%= link_to "Cancelar", (company.new_record? ? companies_path : company_path(company)), class: "btn", data: { close: true, turbo_frame: "_top" } %>
+      <%= f.submit company.new_record? ? "Cadastrar empresa" : "Salvar alterações", class: "btn pri" %>
+    </div>
+  <% end %>
+<% end %>

@@ -1,0 +1,126 @@
+<% page_title "Contrato #{@contract.code}" %>
+<% nav_location :cli, "Contratos" %>
+<% breadcrumb ["Clientes", companies_path], ["Contratos", contracts_path], [@contract.to_s] %>
+<% c = @contract %>
+<% elapsed = (c.elapsed_ratio * 100).round %>
+<% alert_days = Setting[:contract_alert_days] %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Contrato <%= c.code %></span>
+    <div class="row wrap" style="gap:10px"><h1><%= c.title %></h1><%= status_badge_for(c) %></div>
+    <p class="lead"><%= link_to c.company.trade_name, company_path(c.company), class: "strong" %> · <%= brl(c.value_cents) %> <%= c.periodicity_label.downcase %> · vigência <%= date_br(c.start_date) %> – <%= date_br(c.end_date) %> · <%= c.renewal_text %></p>
+  </div>
+  <div class="actions">
+    <% if policy(Document).create? %><%= drawer_link_to new_document_path(contrato: c.id), class: "btn" do %><%= icon(:upload, size: 16, stroke: 2) %>Anexar documento<% end %><% end %>
+    <% if policy(c).edit? %><%= drawer_link_to edit_contract_path(c), class: "btn pri" do %><%= icon(:edit, size: 16, stroke: 1.8) %>Editar<% end %><% end %>
+  </div>
+</div>
+
+<div class="grid-kpi g4">
+  <div class="card kpi"><span class="eyebrow">Valor</span><span class="v"><%= brl(c.value_cents) %></span><span class="f"><%= c.periodicity_label %></span></div>
+  <div class="card kpi"><span class="eyebrow">Vigência decorrida</span><span class="v"><%= elapsed %>%</span><span class="f"><%= c.days_left >= 0 ? "faltam #{c.days_left} dias" : "terminou há #{-c.days_left} dias" %> · término <%= date_br(c.end_date) %></span></div>
+  <div class="card kpi"><span class="eyebrow">Valor mensalizado</span><span class="v"><%= c.one_time? ? "—" : brl(c.monthly_value_cents) %></span><span class="f"><%= c.one_time? ? "valor único, fora do MRR" : "para comparar com o MRR" %></span></div>
+  <div class="card kpi"><span class="eyebrow">MRR dos serviços</span><span class="v"><%= brl(@services.select(&:counts_for_mrr?).sum(&:mrr_cents)) %></span><span class="f"><%= pluralize(@services.size, "serviço vinculado", plural: "serviços vinculados") %></span></div>
+</div>
+
+<div class="cols-2-1">
+  <div class="stack">
+    <div class="card">
+      <div class="card-head"><h2>Dados do contrato</h2></div>
+      <dl class="dl">
+        <div><dt>Número</dt><dd class="mono"><%= c.code %></dd></div>
+        <div><dt>Cliente</dt><dd><%= link_to c.company.trade_name, company_path(c.company) %></dd></div>
+        <div><dt>Título</dt><dd><%= c.title %></dd></div>
+        <div><dt>Status</dt><dd><%= status_badge_for(c) %></dd></div>
+        <div><dt>Valor</dt><dd><%= brl(c.value_cents) %></dd></div>
+        <div><dt>Periodicidade</dt><dd><%= c.periodicity_label %></dd></div>
+        <div><dt>Início</dt><dd class="mono"><%= date_br(c.start_date) %></dd></div>
+        <div><dt>Término</dt><dd class="mono"><%= date_br(c.end_date) %></dd></div>
+        <div><dt>Renovação</dt><dd><%= c.renewal_label %></dd></div>
+      </dl>
+      <% if c.notes.present? %><div class="card-body" style="border-top:1px solid var(--rule)"><span class="eyebrow">Observações</span><%= simple_format(c.notes, { style: "margin:6px 0 0" }) %></div><% end %>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><div><h2>Vigência</h2><span class="caption"><%= [ (Date.current - c.start_date).to_i, 0 ].max %> de <%= (c.end_date - c.start_date).to_i %> dias decorridos</span></div><%= status_badge(c.expiring? ? "Vence em breve" : (c.days_left < 0 ? "Encerrada" : "No prazo"), c.expiring? ? "warn" : "good") %></div>
+      <div class="card-body stack" style="padding-top:0">
+        <div class="vig-ends"><span>Início<b><%= date_br(c.start_date) %></b></span><span style="text-align:center">Hoje<b><%= date_br(Date.current) %></b></span><span style="text-align:right">Término<b><%= date_br(c.end_date) %></b></span></div>
+        <div class="progress<%= ' warn' if c.expiring? %>" role="progressbar" aria-valuenow="<%= elapsed %>" aria-valuemin="0" aria-valuemax="100" aria-label="Vigência decorrida"><i style="width:<%= elapsed %>%"></i></div>
+      </div>
+      <% if c.renewal_automatic? %>
+        <div class="kv"><span>Próximo período, se renovado</span><b><%= date_br(c.end_date + 1) %> – <%= date_br(c.end_date + 1 + (c.end_date - c.start_date)) %></b></div>
+      <% end %>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><div><h2>Serviços contratados vinculados</h2><span class="caption">Geram o MRR e, com o Financeiro, as recorrências deste contrato</span></div><%= link_to "Serviços contratados →", customer_services_path(empresa: c.company_id), style: "font-size:13px;font-weight:600" %></div>
+      <% if @services.any? %>
+        <div class="table-wrap">
+          <table class="table cards">
+            <thead><tr><th>Serviço</th><th>Início</th><th>Vencimento</th><th class="num">Valor</th><th class="num">MRR</th><th>Status</th></tr></thead>
+            <tbody>
+              <% @services.each do |cs| %>
+                <tr><td data-label="Serviço" class="strong"><%= cs.service.name %><% if cs.description.present? %><span class="cell-sub"><%= cs.description %></span><% end %></td>
+                  <td data-label="Início" class="mono nowrap"><%= date_br(cs.start_date) %></td><td data-label="Vencimento"><%= cs.due_day ? "Dia #{cs.due_day}" : "—" %></td>
+                  <td data-label="Valor" class="num nowrap"><%= brl(cs.price_cents) %><span class="cell-sub"><%= cs.recurrence_label %></span></td>
+                  <td data-label="MRR" class="num strong nowrap"><%= cs.counts_for_mrr? ? brl(cs.mrr_cents) : "—" %></td><td data-label="Status"><%= status_badge_for(cs) %></td></tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <%= render "shared/empty", title: "Nenhum serviço vinculado", text: "Vincule os serviços contratados deste cliente a este contrato." %>
+      <% end %>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><div><h2>Histórico de alterações</h2><span class="caption">Registrado automaticamente na trilha de auditoria</span></div><% if policy(AuditLog).index? %><%= link_to "Ver em Logs →", admin_audit_logs_path(area: "contratos"), style: "font-size:13px;font-weight:600" %><% end %></div>
+      <div class="table-wrap">
+        <table class="table cards">
+          <thead><tr><th>Data e hora</th><th>Usuário</th><th>Alteração</th></tr></thead>
+          <tbody>
+            <% @history.each do |log| %>
+              <tr>
+                <td data-label="Data e hora" class="mono nowrap"><%= datetime_br(log.created_at) %></td>
+                <td data-label="Usuário"><%= log.user ? tag.span(class: "who") { safe_join([ tag.span(log.user.initials, class: "avatar sm"), log.user.name ]) } : "Sistema" %></td>
+                <td data-label="Alteração"><%= log.action_name %>
+                  <% if log.action.in?(%w[update status_change]) %>
+                    <% log.readable_changes.first(3).each do |label, before, after| %><span class="cell-sub"><span class="chg"><b><%= label %></b> <s><%= before.presence || "—" %></s> → <b><%= after.presence || "—" %></b></span></span><% end %>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="stack">
+    <div class="card">
+      <div class="card-head"><h2>Documento assinado</h2><%= status_badge(c.signed_document ? "Anexado" : "Pendente", c.signed_document ? "good" : "warn") %></div>
+      <% @documents.each do |doc| %>
+        <div class="file-row"><span class="file-ic"><%= icon(:file, size: 18, stroke: 1.8) %></span>
+          <div><%= link_to doc.title, document_path(doc), target: "_blank", class: "strong" %><span class="cell-sub"><%= doc.kind_label %> · <%= number_to_human_size(doc.file.byte_size) %> · <%= date_br(doc.created_at) %> · <%= doc.uploaded_by.first_name %></span></div>
+          <%= link_to "Abrir", document_path(doc), target: "_blank", class: "link-btn" %></div>
+      <% end %>
+      <div class="card-foot"><span>Arquivos guardados no módulo Documentos, ligados ao cliente e ao contrato.</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><div><h2>Alertas de vencimento</h2><span class="caption">Notificam Comercial e Administrador</span></div></div>
+      <% alert_days.each do |days| %>
+        <% date = c.end_date - days %>
+        <div class="alert-row"><span class="d"><%= days %> dias</span><span class="mono"><%= date_br(date) %></span><%= status_badge(date <= Date.current ? "Enviado" : "Programado", date <= Date.current ? "good" : "info") %></div>
+      <% end %>
+      <div class="card-foot"><span>No 1º alerta o status muda para Próximo do vencimento. A antecedência é ajustável em <%= link_to "Configurações", admin_settings_path(aba: "alertas") %>.</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Relacionados</h2></div>
+      <div class="kv"><span>Cliente</span><%= link_to "#{c.company.trade_name} · Visão 360º", company_path(c.company), style: "font-weight:600" %></div>
+      <div class="kv"><span>Contato principal</span><b><%= c.company.primary_contact&.name || "—" %></b></div>
+    </div>
+  </div>
+</div>

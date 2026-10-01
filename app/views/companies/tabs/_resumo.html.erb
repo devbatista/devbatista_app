@@ -1,0 +1,86 @@
+<% can_contracts = current_user.can_read?("contratos") %>
+<div class="cols-2-1">
+  <div class="stack">
+    <% if can_contracts %>
+      <% active = @services.select(&:active?) %>
+      <div class="card">
+        <div class="card-head"><h2>Serviços contratados</h2><%= link_to "Ver todos →", customer_services_path(empresa: @company.id), style: "font-size:13px;font-weight:600" %></div>
+        <% if active.any? %>
+          <div class="table-wrap">
+            <table class="table cards">
+              <thead><tr><th>Serviço</th><th>Recorrência</th><th>Vencimento</th><th class="num">Valor</th></tr></thead>
+              <tbody>
+                <% active.each do |cs| %>
+                  <tr>
+                    <td data-label="Serviço" class="strong"><%= cs.service.name %><span class="cell-sub"><% if cs.contract %>Contrato <%= link_to cs.contract.code, cs.contract %><% else %>Sem contrato vinculado<% end %></span></td>
+                    <td data-label="Recorrência"><%= cs.recurrence_label %></td>
+                    <td data-label="Vencimento"><%= cs.due_day ? "Dia #{cs.due_day}" : "—" %></td>
+                    <td data-label="Valor" class="num nowrap"><%= brl(cs.price_cents) %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+              <tfoot><tr><td data-label="" colspan="3">Total recorrente (MRR)</td><td data-label="MRR" class="num nowrap"><%= brl(@company.mrr_cents) %></td></tr></tfoot>
+            </table>
+          </div>
+        <% else %>
+          <%= render "shared/empty", title: "Nenhum serviço ativo", text: "Os serviços contratados formam o MRR do cliente." %>
+        <% end %>
+      </div>
+
+      <% if (contract = @current_contract) %>
+        <div class="card">
+          <div class="card-head"><div><h2>Contrato vigente</h2><span class="caption"><%= link_to contract.to_s, contract %></span></div><%= status_badge_for(contract) %></div>
+          <div class="card-body stack" style="padding-top:0">
+            <div class="row" style="justify-content:space-between;font-size:13px"><span class="muted"><%= date_br(contract.start_date) %></span><span class="strong"><%= (contract.elapsed_ratio * 100).round %>% da vigência · faltam <%= [ contract.days_left, 0 ].max %> dias</span><span class="muted"><%= date_br(contract.end_date) %></span></div>
+            <div class="progress<%= ' warn' if contract.expiring? %>" role="progressbar" aria-valuenow="<%= (contract.elapsed_ratio * 100).round %>" aria-valuemin="0" aria-valuemax="100" aria-label="Vigência decorrida"><i style="width:<%= (contract.elapsed_ratio * 100).round %>%"></i></div>
+          </div>
+          <div class="kv"><span>Valor</span><b><%= brl(contract.value_cents) %> · <%= contract.periodicity_label.downcase %></b></div>
+          <div class="kv"><span>Renovação</span><b><%= contract.renewal_label %></b></div>
+          <% if (doc = contract.signed_document) && policy(Document).index? %>
+            <div class="kv"><span>Documento assinado</span><%= link_to doc.title, document_path(doc), target: "_blank", style: "font-weight:600" %></div>
+          <% end %>
+        </div>
+      <% end %>
+    <% end %>
+
+    <div class="card">
+      <div class="card-head"><h2>Atividades recentes</h2><span class="caption">Linha do tempo completa na aba Atividades</span></div>
+      <% if @activities.any? %>
+        <%= render partial: "companies/activity", collection: @activities.first(5) %>
+      <% else %>
+        <%= render "shared/empty", title: "Nada registrado ainda" %>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="stack">
+    <div class="card">
+      <div class="card-head"><h2>Contatos</h2><%= link_to "Gerenciar", contacts_path(empresa: @company.id), style: "font-size:13px;font-weight:600" %></div>
+      <% @contacts.each do |contact| %>
+        <div class="contact">
+          <span class="avatar soft"><%= contact.initials %></span>
+          <div>
+            <div class="nm"><%= contact.name %><% if contact.primary? %><span class="badge b-info">Principal</span><% end %></div>
+            <% if contact.position.present? %><div class="ln"><%= contact.position %></div><% end %>
+            <% phones = [ contact.phone, ("WhatsApp #{contact.whatsapp}" if contact.whatsapp.present?) ].compact_blank %>
+            <% if phones.any? %><div class="ln num"><%= phones.join(" · ") %></div><% end %>
+            <% if contact.email.present? %><div class="ln"><%= mail_to contact.email %></div><% end %>
+          </div>
+          <% if policy(contact).edit? %><%= drawer_link_to "Editar", edit_contact_path(contact, voltar: "empresa"), class: "link-btn" %><% end %>
+        </div>
+      <% end %>
+      <% if @contacts.empty? %><%= render "shared/empty", title: "Nenhum contato", text: "Cadastre ao menos um contato principal." %><% end %>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Dados cadastrais</h2><% if policy(@company).edit? %><%= drawer_link_to "Editar", edit_company_path(@company), style: "font-size:13px;font-weight:600" %><% end %></div>
+      <div class="kv"><span>Razão social</span><b style="text-align:right"><%= @company.legal_name %></b></div>
+      <div class="kv"><span>CNPJ</span><b class="mono"><%= @company.formatted_cnpj %></b></div>
+      <div class="kv"><span>Telefone</span><b><%= @company.phone.presence || "—" %></b></div>
+      <div class="kv"><span>E-mail</span><b><%= @company.email.present? ? mail_to(@company.email) : "—" %></b></div>
+      <div class="kv"><span>Site</span><b><%= @company.website.present? ? link_to(@company.website, @company.website.start_with?("http") ? @company.website : "https://#{@company.website}", target: "_blank", rel: "noopener") : "—" %></b></div>
+      <div class="kv"><span>Endereço</span><b style="text-align:right"><%= @company.address_line.presence || "—" %></b></div>
+      <% if @company.notes.present? %><div class="card-body caption" style="border-top:1px solid var(--rule)"><%= simple_format(@company.notes, {}, wrapper_tag: "span") %></div><% end %>
+    </div>
+  </div>
+</div>

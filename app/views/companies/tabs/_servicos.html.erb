@@ -1,0 +1,29 @@
+<div class="card">
+  <div class="card-head">
+    <div><h2>Serviços contratados</h2><span class="caption">MRR <%= brl(@company.mrr_cents) %> · avulsos não entram no MRR</span></div>
+    <% if policy(CustomerService).create? %><%= drawer_link_to new_customer_service_path(empresa: @company.id, voltar: "empresa"), class: "btn sm" do %><%= icon(:plus, size: 14, stroke: 2) %>Novo serviço<% end %><% end %>
+  </div>
+  <% if @services.any? %>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr><th>Serviço</th><th>Início</th><th>Vencimento</th><th>Contrato</th><th class="num">Valor</th><th class="num">MRR</th><th>Status</th><th><span class="sr-only">Ações</span></th></tr></thead>
+        <tbody>
+          <% @services.each do |cs| %>
+            <tr class="<%= 'inactive' unless cs.active? %>">
+              <td data-label="Serviço" class="strong"><%= cs.service.name %><% if cs.description.present? %><span class="cell-sub"><%= cs.description %></span><% end %></td>
+              <td data-label="Início" class="mono nowrap"><%= date_br(cs.start_date) %></td>
+              <td data-label="Vencimento"><%= cs.due_day ? "Dia #{cs.due_day}" : "—" %></td>
+              <td data-label="Contrato"><%= cs.contract ? link_to(cs.contract.code, cs.contract) : tag.span("Sem contrato", class: "muted") %></td>
+              <td data-label="Valor" class="num nowrap"><%= brl(cs.price_cents) %><span class="cell-sub"><%= cs.recurrence_label %></span></td>
+              <td data-label="MRR" class="num strong nowrap"><%= cs.counts_for_mrr? ? brl(cs.mrr_cents) : "fora do MRR" %></td>
+              <td data-label="Status"><%= status_badge_for(cs) %></td>
+              <td data-label="" class="right"><% if policy(cs).edit? %><%= drawer_link_to "Editar", edit_customer_service_path(cs, voltar: "empresa"), class: "link-btn" %><% end %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <%= render "shared/empty", title: "Nenhum serviço contratado", text: "Vincule um serviço do catálogo para começar a compor o MRR." %>
+  <% end %>
+</div>

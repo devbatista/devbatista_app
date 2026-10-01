@@ -1,0 +1,72 @@
+# Extraído de docs/design/gestao/documentos.html e da aba Documentos de
+# docs/design/clientes/empresa.html (Empresa ACME); conferido com docs/design/clientes/contrato.html.
+# Só documentos ligados a empresa/contrato. Ignorados (módulos futuros): propostas
+# (Proposta_Portal_ACME_Fase2.pdf, proposta-portal-pedidos-v2.pdf, proposta-automacao-nf-delta.pdf),
+# projetos (Briefing_Portal_ACME_Fase2.docx / briefing-portal-acme-fase2.docx,
+# erp-cliente-c-arquitetura.pdf, cliente-d-marca.zip) e fornecedores
+# (aws-business-support-2026.pdf, silva-associados-honorarios-09-2026.pdf).
+# kind: Contratos = contract · Notas = invoice · Briefings = briefing · Documentos técnicos = technical
+
+- title: Contrato_104_ACME_assinado.pdf
+  kind: contract
+  company: Empresa ACME
+  contract: 104
+  uploaded_by: ana.souza@devbatista.com.br
+  uploaded_at: "2026-03-10"
+  notes: Contrato #104 — Consultoria de TI (assinado).
+
+- title: Aditivo_01_Contrato_104.pdf
+  kind: contract
+  company: Empresa ACME
+  contract: 104
+  uploaded_by: rafael@devbatista.com.br
+  uploaded_at: "2026-09-17"
+  notes: Aditivo — reajuste do contrato #104 (R$ 2.500 para R$ 3.000).
+
+- title: Contrato_103_Diagnostico_assinado.pdf
+  kind: contract
+  company: Empresa ACME
+  contract: 103
+  uploaded_by: ana.souza@devbatista.com.br
+  uploaded_at: "2026-03-11"
+  notes: Contrato #103 — Diagnóstico de infraestrutura (assinado).
+
+- title: NF_1248_ACME_set2026.pdf
+  kind: invoice
+  company: Empresa ACME
+  contract: null
+  uploaded_by: bruno.lima@devbatista.com.br
+  uploaded_at: "2026-09-10"
+  notes: NF 1.248 — competência Set/2026, R$ 3.800.
+
+- title: Arquitetura_API_Integracao.pdf
+  kind: technical
+  company: Empresa ACME
+  contract: null
+  uploaded_by: elisa.prado@devbatista.com.br
+  uploaded_at: "2026-08-05"
+  notes: Arquitetura da aplicação API de Integração ACME.
+
+- title: contrato-098-xyz-assinado.pdf
+  kind: contract
+  company: Empresa XYZ
+  contract: 98
+  uploaded_by: rafael@devbatista.com.br
+  uploaded_at: "2025-10-17"
+  notes: Contrato #098 — Manutenção (assinado).
+
+- title: incidente-2394-api-delta.pdf
+  kind: technical
+  company: Empresa Delta
+  contract: null
+  uploaded_by: carla.mendes@devbatista.com.br
+  uploaded_at: "2026-09-17"
+  notes: Relatório de incidente — chamado #2394.
+
+- title: briefing-grupo-norte.pdf
+  kind: briefing
+  company: Grupo Norte Logística
+  contract: null
+  uploaded_by: ana.souza@devbatista.com.br
+  uploaded_at: "2026-07-29"
+  notes: Levantamento inicial — roteirização de entregas.

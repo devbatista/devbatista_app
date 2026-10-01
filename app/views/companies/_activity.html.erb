@@ -1,0 +1,3 @@
+<% tone = { "create" => "good", "destroy" => "crit", "status_change" => "warn" }[activity.action] %>
+<% text = activity.user ? "#{activity.user.name} #{activity.description.sub(/\A./, &:downcase)}" : activity.description %>
+<div class="tl"><i class="<%= tone %>"></i><div><%= text %><small><%= datetime_br(activity.created_at) %> · <%= Role::AREAS.fetch(activity.area, activity.area) %></small></div></div>

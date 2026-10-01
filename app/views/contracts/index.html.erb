@@ -1,0 +1,76 @@
+<% page_title "Contratos" %>
+<% nav_location :cli, "Contratos" %>
+<% breadcrumb ["Clientes", companies_path], ["Contratos"] %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Clientes</span>
+    <h1>Contratos</h1>
+    <p class="lead">Contratos firmados com os clientes, prazos de vigência e documento assinado. Alertas automáticos <%= Setting[:contract_alert_days].to_sentence %> dias antes do término.</p>
+  </div>
+  <% if policy(Contract).create? %>
+    <div class="actions"><%= drawer_link_to new_contract_path, class: "btn pri" do %><%= icon(:plus, size: 16, stroke: 2) %>Novo contrato<% end %></div>
+  <% end %>
+</div>
+
+<div class="grid-kpi g4">
+  <div class="card kpi"><span class="eyebrow">Contratos vigentes</span><span class="v"><%= @kpis[:current] %></span><span class="f">ativos e próximos do vencimento</span></div>
+  <div class="card kpi<%= ' warn' if @kpis[:expiring] > 0 %>"><span class="eyebrow">Vencem em <%= Setting[:contract_alert_days].max %> dias</span><span class="v"><%= @kpis[:expiring] %></span><span class="f"><%= pluralize(@kpis[:manual_expiring], "com renovação manual", plural: "com renovação manual") %></span></div>
+  <div class="card kpi"><span class="eyebrow">Valor mensal contratado</span><span class="v"><%= brl(@kpis[:monthly]) %></span><span class="f">mensalizado<%= " · #{(@kpis[:monthly] * 100 / @kpis[:mrr])}% do MRR" if @kpis[:mrr] > 0 %></span></div>
+  <%= link_to customer_services_path, class: "card kpi" do %><span class="eyebrow">MRR sem contrato</span><span class="v"><%= brl(@kpis[:mrr_without_contract]) %></span><span class="f">serviços ativos sem contrato vinculado</span><% end %>
+</div>
+
+<% if @expiring.any? %>
+  <section class="card">
+    <div class="card-head"><div><h2>Próximos do vencimento</h2><span class="caption">Término nos próximos <%= Setting[:contract_alert_days].max %> dias · status alterado automaticamente</span></div><%= status_badge(pluralize(@expiring.size, "contrato"), "warn") %></div>
+    <% @expiring.each do |contract| %>
+      <% left = contract.days_left %>
+      <div class="exp">
+        <div class="days<%= ' crit' if left <= Setting[:contract_alert_days].min %>"><%= left %><small><%= left == 1 ? "dia" : "dias" %></small></div>
+        <div><%= link_to "#{contract.code} — #{contract.title}", contract, class: "strong" %> · <%= link_to contract.company.trade_name, company_path(contract.company) %>
+          <span class="cell-sub">Termina em <b class="strong"><%= date_br(contract.end_date) %></b> · <%= contract.renewal_text %> · <%= brl(contract.value_cents) %> <%= contract.periodicity_label.downcase %></span></div>
+        <div class="acts"><%= link_to "Abrir", contract, class: "btn sm" %></div>
+      </div>
+    <% end %>
+  </section>
+<% end %>
+
+<%= form_with url: contracts_path, method: :get, class: "toolbar" do %>
+  <%= status_filter :status, [ [ "todos", "Todos", @counts.values.sum ] ] + Contract::STATUS_LABELS.map { |k, v| [ k, v, @counts[k].to_i ] } %>
+  <span class="spacer"></span>
+  <%= hidden_field_tag :status, params[:status], id: nil if params[:status].present? %>
+  <%= search_field placeholder: "Número ou título", label: "Buscar contrato" %>
+  <label class="sr-only" for="f-empresa">Cliente</label>
+  <%= select_tag :empresa, options_from_collection_for_select(@companies, :id, :trade_name, params[:empresa]), include_blank: "Todos os clientes", class: "select", id: "f-empresa", onchange: "this.form.requestSubmit()" %>
+  <label class="sr-only" for="f-renovacao">Renovação</label>
+  <%= select_tag :renovacao, options_for_select(Contract.options_for_renewal, params[:renovacao]), include_blank: "Toda renovação", class: "select", id: "f-renovacao", onchange: "this.form.requestSubmit()" %>
+  <%= render "shared/sort_select" %>
+<% end %>
+
+<section class="card" aria-label="Lista de contratos">
+  <% if @contracts.any? %>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr><th>Número</th><th>Cliente</th><th>Título</th><th>Vigência</th><th class="num">Valor</th><th>Status</th><th><span class="sr-only">Abrir</span></th></tr></thead>
+        <tbody>
+          <% @contracts.each do |contract| %>
+            <% left = contract.days_left %>
+            <tr data-href="<%= contract_path(contract) %>" class="<%= 'soon' if contract.expiring? %>">
+              <td data-label="Número"><%= link_to contract.code, contract, class: "strong mono" %></td>
+              <td data-label="Cliente"><%= link_to contract.company.trade_name, company_path(contract.company) %></td>
+              <td data-label="Título" class="strong"><%= contract.title %></td>
+              <td data-label="Vigência" class="mono nowrap"><%= date_br(contract.start_date) %> – <span style="<%= 'color:var(--warn);font-weight:600' if contract.expiring? %>"><%= date_br(contract.end_date) %></span>
+                <span class="cell-sub"><%= contract.active? || contract.expiring? ? "faltam #{[ left, 0 ].max} dias · " : "" %><%= contract.renewal_text %></span></td>
+              <td data-label="Valor" class="num nowrap"><%= brl(contract.value_cents) %><span class="cell-sub"><%= contract.periodicity_label %></span></td>
+              <td data-label="Status"><%= status_badge_for(contract) %></td>
+              <td data-label="" class="right"><%= link_to "Abrir →", contract, class: "link-btn", "aria-label": "Abrir contrato #{contract.code}" %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <%= render "shared/pagination", pager: @pager %>
+  <% else %>
+    <%= render "shared/empty", title: "Nenhum contrato encontrado", text: "Ajuste os filtros ou cadastre um contrato." %>
+  <% end %>
+</section>

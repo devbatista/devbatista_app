@@ -1,0 +1,73 @@
+<% page_title "Serviços contratados" %>
+<% nav_location :cli, "Serviços contratados" %>
+<% breadcrumb ["Clientes", companies_path], ["Serviços contratados"] %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Clientes · <%= l(Date.current, format: "%B de %Y") %></span>
+    <h1>Serviços contratados</h1>
+    <p class="lead">Vínculo entre cliente e serviço do catálogo, com valor e recorrência acordados. É daqui que saem o MRR e as recorrências financeiras.</p>
+  </div>
+  <% if policy(CustomerService).create? %>
+    <div class="actions"><%= drawer_link_to new_customer_service_path(empresa: params[:empresa]), class: "btn pri" do %><%= icon(:plus, size: 16, stroke: 2) %>Novo serviço contratado<% end %></div>
+  <% end %>
+</div>
+
+<div class="grid-kpi g4">
+  <div class="card kpi"><span class="eyebrow">MRR total</span><span class="v"><%= brl(@kpis[:mrr]) %></span><span class="f">ARR <%= brl(@kpis[:mrr] * 12) %> · <%= pluralize(@kpis[:clients], "cliente") %></span></div>
+  <div class="card kpi"><span class="eyebrow">Serviços recorrentes ativos</span><span class="v"><%= @kpis[:recurring] %></span><span class="f"><%= @kpis[:monthly] %> mensais · <%= @kpis[:recurring] - @kpis[:monthly] %> mensalizados</span></div>
+  <div class="card kpi"><span class="eyebrow">Avulsos ativos</span><span class="v"><%= brl(@kpis[:one_off_cents]) %></span><span class="f">fora do MRR · <%= pluralize(@kpis[:one_off], "serviço") %></span></div>
+  <div class="card kpi<%= ' warn' if @kpis[:suspended] > 0 %>"><span class="eyebrow">Suspensos</span><span class="v"><%= @kpis[:suspended] %></span><span class="f"><% if @kpis[:suspended] > 0 %><span class="badge b-warn"><%= brl(@kpis[:suspended_cents]) %>/mês</span>fora do MRR<% else %>nenhum<% end %></span></div>
+</div>
+
+<section class="card">
+  <div class="card-head"><div><h2>Como o MRR é calculado</h2><span class="caption">Recorrência diferente de mensal é mensalizada. Só serviços com status Ativo entram.</span></div><%= status_badge(brl(@kpis[:mrr]), "info") %></div>
+  <div class="mrr-rule">
+    <% { "monthly" => [ "valor integral", nil ], "quarterly" => [ "÷ 3", 3 ], "semiannual" => [ "÷ 6", 6 ], "annual" => [ "÷ 12", 12 ] }.each do |rec, (rule, _)| %>
+      <% row = @by_recurrence[rec] %>
+      <div><span class="eyebrow"><%= CustomerService::RECURRENCE_LABELS[rec] %></span><b><%= rule %></b><span><%= row ? "#{pluralize(row[:count], 'serviço')} · #{brl(row[:price])} → #{brl(row[:mrr])}/mês" : "nenhum serviço" %></span></div>
+    <% end %>
+    <div><span class="eyebrow">Avulsa</span><b>fora do MRR</b><span>cobrança única</span></div>
+  </div>
+</section>
+
+<%= form_with url: customer_services_path, method: :get, class: "toolbar" do %>
+  <%= status_filter :status, [ [ "todos", "Todos", @counts.values.sum ] ] + CustomerService::STATUS_LABELS.map { |k, v| [ k, v, @counts[k].to_i ] } %>
+  <span class="spacer"></span>
+  <%= hidden_field_tag :status, params[:status], id: nil if params[:status].present? %>
+  <%= search_field placeholder: "Cliente ou serviço", label: "Buscar" %>
+  <label class="sr-only" for="f-empresa">Cliente</label>
+  <%= select_tag :empresa, options_from_collection_for_select(@companies, :id, :trade_name, params[:empresa]), include_blank: "Todos os clientes", class: "select", id: "f-empresa", onchange: "this.form.requestSubmit()" %>
+  <label class="sr-only" for="f-servico">Serviço</label>
+  <%= select_tag :servico, options_from_collection_for_select(@services, :id, :name, params[:servico]), include_blank: "Todos os serviços", class: "select", id: "f-servico", onchange: "this.form.requestSubmit()" %>
+  <label class="sr-only" for="f-rec">Recorrência</label>
+  <%= select_tag :recorrencia, options_for_select(CustomerService.options_for_recurrence, params[:recorrencia]), include_blank: "Toda recorrência", class: "select", id: "f-rec", onchange: "this.form.requestSubmit()" %>
+  <%= render "shared/sort_select" %>
+<% end %>
+
+<section class="card" aria-label="Lista de serviços contratados">
+  <% if @customer_services.any? %>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr><th>Cliente</th><th>Serviço</th><th class="num">Valor</th><th class="num">MRR</th><th>Vencimento</th><th>Contrato</th><th>Status</th><th><span class="sr-only">Ações</span></th></tr></thead>
+        <tbody>
+          <% @customer_services.each do |cs| %>
+            <tr class="<%= 'inactive' unless cs.active? %>">
+              <td data-label="Cliente"><%= link_to cs.company.trade_name, company_path(cs.company, aba: "servicos"), class: "strong" %></td>
+              <td data-label="Serviço"><%= cs.service.name %><span class="cell-sub"><%= cs.description.presence || "desde #{date_br(cs.start_date)}" %></span></td>
+              <td data-label="Valor" class="num nowrap"><%= brl(cs.price_cents) %><span class="cell-sub"><%= cs.recurrence_label %></span></td>
+              <td data-label="MRR" class="num strong nowrap"><% if cs.counts_for_mrr? %><%= brl(cs.mrr_cents) %><% unless cs.monthly? %><span class="cell-sub"><%= brl(cs.price_cents) %> ÷ <%= CustomerService::MRR_DIVISOR[cs.recurrence] %></span><% end %><% else %><span class="muted">fora do MRR</span><% end %></td>
+              <td data-label="Vencimento"><%= cs.due_day ? "Dia #{cs.due_day}" : "—" %></td>
+              <td data-label="Contrato"><%= cs.contract ? link_to(cs.contract.code, cs.contract) : (cs.counts_for_mrr? ? status_badge("Sem contrato", "warn") : "—") %></td>
+              <td data-label="Status"><%= status_badge_for(cs) %></td>
+              <td data-label="" class="right"><% if policy(cs).edit? %><%= drawer_link_to "Editar", edit_customer_service_path(cs), class: "link-btn" %><% end %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <%= render "shared/pagination", pager: @pager %>
+  <% else %>
+    <%= render "shared/empty", title: "Nenhum serviço contratado encontrado", text: "Ajuste os filtros ou vincule um serviço do catálogo a um cliente." %>
+  <% end %>
+</section>

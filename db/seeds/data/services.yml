@@ -1,0 +1,88 @@
+# Extraído de docs/design/administracao/catalogo-servicos.html
+# (nomes conferidos com docs/design/clientes/servicos-contratados.html)
+# kind: Recorrente = recurring · Projeto = project · Avulso = one_off
+# default_price em reais (preço de referência: /mês, "a partir de", por publicação ou por turma)
+
+- name: Consultoria de TI
+  description: Diagnóstico, arquitetura e acompanhamento técnico mensal
+  category: Consultoria
+  kind: recurring
+  default_price: 3000
+  status: active
+
+- name: Desenvolvimento de sistemas
+  description: Sistemas web sob medida, do levantamento à implantação
+  category: Desenvolvimento
+  kind: project
+  default_price: 24000
+  status: active
+
+- name: Desenvolvimento de sites
+  description: Sites institucionais e landing pages
+  category: Desenvolvimento
+  kind: project
+  default_price: 6500
+  status: active
+
+- name: Manutenção
+  description: Correções, atualizações de versão e pequenas melhorias
+  category: Sustentação
+  kind: recurring
+  default_price: 1200
+  status: active
+
+- name: Automação/RPA
+  description: Robôs para tarefas repetitivas e integração de planilhas
+  category: Automação e IA
+  kind: project
+  default_price: 8000
+  status: active
+
+- name: Integrações
+  description: Conexão com ERPs, gateways de pagamento e APIs de terceiros
+  category: Desenvolvimento
+  kind: project
+  default_price: 5500
+  status: active
+
+- name: Inteligência Artificial
+  description: Assistentes, classificação e extração de dados com IA
+  category: Automação e IA
+  kind: project
+  default_price: 12000
+  status: active
+
+- name: Hospedagem
+  description: Hospedagem gerenciada da aplicação, backups e SSL
+  category: Infraestrutura
+  kind: recurring
+  default_price: 300
+  status: active
+
+- name: Gestão de infraestrutura
+  description: Monitoramento, servidores, domínios e custos de nuvem
+  category: Infraestrutura
+  kind: recurring
+  default_price: 1500
+  status: active
+
+- name: Suporte
+  description: Atendimento a chamados com prazos por prioridade
+  category: Sustentação
+  kind: recurring
+  default_price: 900
+  status: active
+
+- name: Publicação de aplicativos
+  description: Publicação na App Store e no Google Play
+  category: Desenvolvimento
+  kind: one_off
+  default_price: 800
+  status: active
+
+- name: Treinamento de equipes
+  description: Capacitação de usuários em sistemas entregues
+  category: Consultoria
+  kind: one_off
+  default_price: 1600
+  status: inactive

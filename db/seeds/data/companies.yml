@@ -1,0 +1,194 @@
+# Extraído de docs/design/clientes/empresas.html (nome fantasia, razão social, CNPJ, status)
+# e docs/design/clientes/empresa.html (dados cadastrais completos da Empresa ACME).
+# Demais telas consultadas: clientes/contatos.html, clientes/contratos.html,
+# clientes/servicos-contratados.html.
+#
+# Observações sobre campos derivados:
+# - Só a Empresa ACME tem telefone, e-mail, site, endereço e "cliente desde" no design.
+# - state (UF) das demais empresas foi inferido pelo DDD do contato principal
+#   (bate com o filtro de UF de empresas.html: SP, MG, PR, GO, RS). Cidade fica null.
+# - customer_since das demais empresas (ativas/inativas) = início do contrato ou
+#   serviço contratado mais antigo mostrado no design. Prospects ficam null.
+# - Todos os CNPJs abaixo são os do design e têm dígitos verificadores válidos.
+
+- trade_name: Empresa ACME
+  legal_name: ACME Comércio e Serviços Ltda.
+  cnpj: "52.601.815/0001-20"
+  status: active
+  phone: "(11) 3456-7800"
+  email: financeiro@acme.com.br
+  website: www.acme.com.br
+  street: "Av. Paulista, 1.578 — 12º andar"
+  city: São Paulo
+  state: SP
+  zip_code: "01310-200"
+  customer_since: "2026-03-12"
+  notes: Faturamento concentrado no dia 10. NF enviada para financeiro@acme.com.br. Reuniões de alinhamento quinzenais às terças.
+
+- trade_name: Cliente A
+  legal_name: Cliente A Indústria e Comércio S.A.
+  cnpj: "08.246.281/0001-79"
+  status: active
+  phone: null
+  email: null
+  website: null
+  street: null
+  city: null
+  state: SP
+  zip_code: null
+  customer_since: "2026-01-18"
+  notes: null
+
+- trade_name: Cliente B
+  legal_name: Cliente B Distribuidora Ltda.
+  cnpj: "94.821.993/0001-06"
+  status: active
+  phone: null
+  email: null
+  website: null
+  street: null
+  city: null
+  state: PR
+  zip_code: null
+  customer_since: "2025-11-22"
+  notes: null
+
+- trade_name: Empresa XYZ
+  legal_name: XYZ Tecnologia em Logística Ltda.
+  cnpj: "90.830.166/0001-28"
+  status: active
+  phone: null
+  email: null
+  website: null
+  street: null
+  city: null
+  state: SP
+  zip_code: null
+  customer_since: "2025-10-18"
+  notes: null
+
+- trade_name: Cliente C
+  legal_name: Cliente C Comércio Varejista Ltda.
+  cnpj: "51.819.093/0001-11"
+  status: active
+  phone: null
+  email: null
+  website: null
+  street: null
+  city: null
+  state: GO
+  zip_code: null
+  customer_since: "2025-09-01"
+  notes: null
+
+- trade_name: Cliente D
+  legal_name: Cliente D Serviços Médicos Ltda.
+  cnpj: "78.657.975/0001-84"
+  status: active
+  phone: null
+  email: null
+  website: null
+  street: null
+  city: null
+  state: RS
+  zip_code: null
+  customer_since: "2025-11-06"
+  notes: null
+
+- trade_name: Empresa Delta
+  legal_name: Delta Serviços Empresariais Ltda.
+  cnpj: "13.186.091/0001-43"
+  status: active
+  phone: null
+  email: null
+  website: null
+  street: null
+  city: null
+  state: MG
+  zip_code: null
+  customer_since: "2026-07-20"
+  notes: null
+
+- trade_name: Empresa Orion
+  legal_name: Orion Aplicativos e Mídia Ltda.
+  cnpj: "39.099.603/0001-28"
+  status: active
+  phone: null
+  email: null
+  website: null
+  street: null
+  city: null
+  state: PR
+  zip_code: null
+  customer_since: "2024-11-16"
+  notes: null
+
+- trade_name: Cliente E
+  legal_name: Cliente E Educação Online Ltda.
+  cnpj: "43.231.948/0001-60"
+  status: active
+  phone: null
+  email: null
+  website: null
+  street: null
+  city: null
+  state: SP
+  zip_code: null
+  customer_since: "2026-04-20"
+  notes: null
+
+- trade_name: Grupo Norte Logística
+  legal_name: Norte Transportes e Logística S.A.
+  cnpj: "75.749.118/0001-16"
+  status: prospect
+  phone: null
+  email: null
+  website: null
+  street: null
+  city: null
+  state: AM
+  zip_code: null
+  customer_since: null
+  notes: null
+
+- trade_name: Agro Campos
+  legal_name: Agro Campos Insumos Agrícolas Ltda.
+  cnpj: "62.527.601/0001-04"
+  status: prospect
+  phone: null
+  email: null
+  website: null
+  street: null
+  city: null
+  state: GO
+  zip_code: null
+  customer_since: null
+  notes: null
+
+- trade_name: Studio Arq
+  legal_name: Studio Arq Arquitetura e Interiores Ltda.
+  cnpj: "89.555.979/0001-78"
+  status: prospect
+  phone: null
+  email: null
+  website: null
+  street: null
+  city: null
+  state: SP
+  zip_code: null
+  customer_since: null
+  notes: null
+
+- trade_name: Construtora Pilar
+  legal_name: Pilar Engenharia e Construções Ltda.
+  cnpj: "71.147.104/0001-71"
+  status: inactive
+  phone: null
+  email: null
+  website: null
+  street: null
+  city: null
+  state: null
+  zip_code: null
+  customer_since: "2025-06-01"
+  notes: null

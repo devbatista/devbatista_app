@@ -1,0 +1,58 @@
+<% page_title "Empresas" %>
+<% nav_location :cli, "Empresas" %>
+<% breadcrumb ["Clientes"], ["Empresas"] %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Clientes</span>
+    <h1>Empresas</h1>
+    <p class="lead">Cadastro central: toda informação operacional, financeira e tecnológica se liga a uma empresa.</p>
+  </div>
+  <% if policy(Company).create? %>
+    <div class="actions">
+      <%= drawer_link_to new_company_path, class: "btn pri" do %><%= icon(:plus, size: 16, stroke: 2) %>Nova empresa<% end %>
+    </div>
+  <% end %>
+</div>
+
+<div class="grid-kpi g3">
+  <div class="card kpi"><span class="eyebrow">Clientes ativos</span><span class="v"><%= @kpis[:active] %></span><span class="f"><% if @kpis[:new_quarter] > 0 %><span class="badge b-info"><%= @kpis[:new_quarter] %> <%= @kpis[:new_quarter] == 1 ? "novo" : "novos" %></span>no trimestre<% else %>nenhum novo no trimestre<% end %></span></div>
+  <div class="card kpi"><span class="eyebrow">Prospects</span><span class="v"><%= @kpis[:prospects] %></span><span class="f">ainda sem contrato</span></div>
+  <%= link_to customer_services_path, class: "card kpi" do %><span class="eyebrow">MRR total</span><span class="v"><%= brl(@kpis[:mrr]) %></span><span class="f">ARR <%= brl(@kpis[:mrr] * 12) %></span><% end %>
+</div>
+
+<%= form_with url: companies_path, method: :get, class: "toolbar" do %>
+  <%= status_filter :status, [ [ "todos", "Todas", @counts.values.sum ] ] + Company::STATUS_LABELS.map { |k, v| [ k, v, @counts[k].to_i ] } %>
+  <span class="spacer"></span>
+  <%= hidden_field_tag :status, params[:status], id: nil if params[:status].present? %>
+  <%= search_field placeholder: "Nome, razão social ou CNPJ", label: "Buscar empresa" %>
+  <label class="sr-only" for="f-uf">UF</label>
+  <%= select_tag :uf, options_for_select(@states, params[:uf]), include_blank: "Todas as UFs", class: "select", id: "f-uf", onchange: "this.form.requestSubmit()" %>
+  <%= render "shared/sort_select" %>
+<% end %>
+
+<section class="card" aria-label="Lista de empresas">
+  <% if @companies.any? %>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr><th>Empresa</th><th>CNPJ</th><th>Contato principal</th><th class="num">MRR</th><th class="num">Contratos</th><th>Status</th><th><span class="sr-only">Abrir</span></th></tr></thead>
+        <tbody>
+          <% @companies.each do |company| %>
+            <tr data-href="<%= company_path(company) %>">
+              <td data-label="Empresa"><div class="co-cell"><span class="co-avatar sm"><%= company.initials %></span><div><%= link_to company.trade_name, company, class: "strong" %><span class="cell-sub"><%= company.legal_name %></span></div></div></td>
+              <td data-label="CNPJ" class="mono nowrap"><%= company.formatted_cnpj %></td>
+              <td data-label="Contato principal"><% if (contact = company.primary_contact) %><%= contact.name %><span class="cell-sub"><%= contact.position %></span><% else %><span class="muted">—</span><% end %></td>
+              <td data-label="MRR" class="num strong nowrap"><%= @mrr[company.id] ? brl(@mrr[company.id]) : "—" %></td>
+              <td data-label="Contratos" class="num"><%= @contracts[company.id] || 0 %></td>
+              <td data-label="Status"><%= status_badge_for(company) %></td>
+              <td data-label="" class="right"><%= link_to "Visão 360º →", company, class: "link-btn", "aria-label": "Abrir Visão 360º de #{company.trade_name}" %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <%= render "shared/pagination", pager: @pager %>
+  <% else %>
+    <%= render "shared/empty", title: "Nenhuma empresa encontrada", text: "Ajuste os filtros ou cadastre uma nova empresa.", icon_name: :cli %>
+  <% end %>
+</section>

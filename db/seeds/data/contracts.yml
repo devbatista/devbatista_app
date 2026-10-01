@@ -1,0 +1,184 @@
+# Extraído de docs/design/clientes/contratos.html e docs/design/clientes/contrato.html
+# (detalhe do #104), com o #103 conferido em docs/design/clientes/empresa.html.
+# value = valor na periodicidade (ex.: #101 = R$ 18.000 por semestre; #095 = R$ 9.600 por ano).
+# O design lista 16 de 24 contratos; só os 16 visíveis estão aqui.
+
+- number: 98
+  company: Empresa XYZ
+  title: Manutenção
+  status: expiring
+  start_date: "2025-10-18"
+  end_date: "2026-10-17"
+  renewal: manual
+  value: 1200
+  periodicity: monthly
+  notes: Alerta de 30 dias enviado em 17/09/2026 para Comercial e Administrador.
+
+- number: 95
+  company: Cliente D
+  title: Suporte anual
+  status: expiring
+  start_date: "2025-11-06"
+  end_date: "2026-11-05"
+  renewal: automatic
+  value: 9600
+  periodicity: annual
+  notes: Renovação automática por mais 12 meses.
+
+- number: 87
+  company: Empresa Orion
+  title: Suporte
+  status: expiring
+  start_date: "2024-11-16"
+  end_date: "2026-11-15"
+  renewal: manual
+  value: 900
+  periodicity: monthly
+  notes: Alerta de 60 dias enviado em 16/09/2026.
+
+- number: 104
+  company: Empresa ACME
+  title: Consultoria de TI
+  status: active
+  start_date: "2026-03-12"
+  end_date: "2027-03-11"
+  renewal: automatic
+  value: 3000
+  periodicity: monthly
+  notes: >-
+    40 h mensais de consultoria e acompanhamento técnico, com reunião quinzenal
+    às terças. Horas excedentes cobradas à parte mediante aprovação. Reajuste
+    anual pelo IPCA na renovação. Aviso prévio de 30 dias para não renovação.
+    Aditivo 01 em 17/09/2026: valor de R$ 2.500 para R$ 3.000.
+
+- number: 111
+  company: Empresa Delta
+  title: Hospedagem e suporte
+  status: active
+  start_date: "2026-07-20"
+  end_date: "2027-07-19"
+  renewal: automatic
+  value: 1000
+  periodicity: monthly
+  notes: null
+
+- number: 92
+  company: Cliente C
+  title: Desenvolvimento — ERP Cliente C
+  status: active
+  start_date: "2025-09-01"
+  end_date: "2026-12-31"
+  renewal: none
+  value: 2400
+  periodicity: monthly
+  notes: null
+
+- number: 101
+  company: Cliente A
+  title: Consultoria de TI
+  status: active
+  start_date: "2026-02-01"
+  end_date: "2027-01-31"
+  renewal: automatic
+  value: 18000
+  periodicity: semiannual
+  notes: null
+
+- number: 106
+  company: Cliente A
+  title: Integração com ERP
+  status: active
+  start_date: "2026-05-04"
+  end_date: "2026-11-30"
+  renewal: none
+  value: 22000
+  periodicity: one_time
+  notes: null
+
+- number: 99
+  company: Cliente B
+  title: Suporte
+  status: active
+  start_date: "2026-01-01"
+  end_date: "2026-12-31"
+  renewal: automatic
+  value: 600
+  periodicity: monthly
+  notes: null
+
+- number: 109
+  company: Cliente B
+  title: Treinamento de equipes
+  status: active
+  start_date: "2026-09-01"
+  end_date: "2026-12-15"
+  renewal: none
+  value: 6500
+  periodicity: one_time
+  notes: null
+
+- number: 108
+  company: Cliente D
+  title: Hospedagem
+  status: active
+  start_date: "2026-06-10"
+  end_date: "2027-06-09"
+  renewal: automatic
+  value: 600
+  periodicity: monthly
+  notes: null
+
+- number: 105
+  company: Cliente E
+  title: Hospedagem
+  status: active
+  start_date: "2026-04-20"
+  end_date: "2027-04-19"
+  renewal: automatic
+  value: 300
+  periodicity: monthly
+  notes: null
+
+- number: 110
+  company: Grupo Norte Logística
+  title: Roteirização de entregas
+  status: draft
+  start_date: "2026-10-01"
+  end_date: "2027-09-30"
+  renewal: manual
+  value: 4200
+  periodicity: monthly
+  notes: Aguardando documento assinado. Vigência prevista.
+
+- number: 103
+  company: Empresa ACME
+  title: Diagnóstico de infraestrutura
+  status: ended
+  start_date: "2026-03-12"
+  end_date: "2026-04-30"
+  renewal: none
+  value: 4500
+  periodicity: one_time
+  notes: Escopo entregue e aceito.
+
+- number: 83
+  company: Construtora Pilar
+  title: Manutenção
+  status: ended
+  start_date: "2025-06-01"
+  end_date: "2026-05-31"
+  renewal: manual
+  value: 900
+  periodicity: monthly
+  notes: null
+
+- number: 102
+  company: Cliente B
+  title: Migração de servidores
+  status: cancelled
+  start_date: "2026-03-16"
+  end_date: "2026-06-30"
+  renewal: none
+  value: 7800
+  periodicity: one_time
+  notes: Cancelado em 20/03/2026 a pedido do cliente.

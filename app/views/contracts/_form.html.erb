@@ -1,0 +1,25 @@
+<% back = contract.persisted? ? contract_path(contract) : contracts_path %>
+<%= render layout: "shared/drawer_form", locals: { title: contract.new_record? ? "Novo contrato" : "Editar contrato #{contract.code}", cancel_path: back } do %>
+  <%= form_with model: contract, class: "form", data: { turbo_frame: "_top" } do |f| %>
+    <div class="drawer-body form">
+      <%= render "shared/form_errors", record: contract %>
+      <div class="form-grid">
+        <div class="field full"><%= f.label :company_id do %>Cliente <span class="req">*</span><% end %><%= f.collection_select :company_id, Company.by_name, :id, :trade_name, { prompt: "Selecione" }, class: "select", required: true %></div>
+        <div class="field full"><%= f.label :title do %>Título <span class="req">*</span><% end %><%= f.text_field :title, class: "input", required: true, placeholder: "Ex.: Consultoria de TI" %>
+          <span class="hint"><%= contract.persisted? ? "Número #{contract.code}, gerado pelo sistema" : "O número é gerado pelo sistema ao salvar" %></span></div>
+        <div class="field"><%= f.label :start_date do %>Início <span class="req">*</span><% end %><%= f.date_field :start_date, class: "input", required: true %></div>
+        <div class="field"><%= f.label :end_date do %>Término <span class="req">*</span><% end %><%= f.date_field :end_date, class: "input", required: true %></div>
+        <div class="field"><%= f.label :value do %>Valor (R$) <span class="req">*</span><% end %><%= f.number_field :value, class: "input", step: "0.01", min: 0, required: true %><span class="hint">Na periodicidade escolhida</span></div>
+        <div class="field"><%= f.label :periodicity, "Periodicidade" %><%= f.select :periodicity, Contract.options_for_periodicity, {}, class: "select" %></div>
+        <div class="field"><%= f.label :renewal, "Renovação" %><%= f.select :renewal, Contract.options_for_renewal, {}, class: "select" %></div>
+        <div class="field"><%= f.label :status, "Status" %><%= f.select :status, Contract.options_for_status, {}, class: "select" %><span class="hint">Próximo do vencimento é definido pela rotina diária</span></div>
+      </div>
+      <div class="field"><%= f.label :notes, "Observações" %><%= f.text_area :notes, class: "textarea", placeholder: "Cláusulas e condições relevantes" %></div>
+      <% if contract.new_record? %><p class="caption" style="margin:0">Depois de salvar, anexe o contrato assinado pela tela do contrato.</p><% end %>
+    </div>
+    <div class="drawer-foot">
+      <%= link_to "Cancelar", back, class: "btn", data: { close: true, turbo_frame: "_top" } %>
+      <%= f.submit contract.new_record? ? "Cadastrar contrato" : "Salvar alterações", class: "btn pri" %>
+    </div>
+  <% end %>
+<% end %>

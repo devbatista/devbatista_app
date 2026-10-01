@@ -1,0 +1,6 @@
+<div class="empty">
+  <% if local_assigns[:icon_name] %><span class="ic"><%= icon(icon_name, size: 22, stroke: 1.8) %></span><% end %>
+  <h2><%= title %></h2>
+  <% if local_assigns[:text] %><p style="margin:0;max-width:440px"><%= text %></p><% end %>
+  <%= yield if block_given? %>
+</div>

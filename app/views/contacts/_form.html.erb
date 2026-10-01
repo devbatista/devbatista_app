@@ -1,0 +1,27 @@
+<% back = params[:voltar] == "empresa" && contact.company ? company_path(contact.company) : contacts_path %>
+<%= render layout: "shared/drawer_form", locals: { title: contact.new_record? ? "Novo contato" : "Editar contato", cancel_path: back } do %>
+  <%= form_with model: contact, class: "form", data: { turbo_frame: "_top" } do |f| %>
+    <%= hidden_field_tag :voltar, params[:voltar] if params[:voltar] %>
+    <div class="drawer-body form">
+      <%= render "shared/form_errors", record: contact %>
+      <div class="form-grid">
+        <div class="field full"><%= f.label :company_id do %>Empresa <span class="req">*</span><% end %><%= f.collection_select :company_id, Company.by_name, :id, :trade_name, { prompt: "Selecione" }, class: "select", required: true %></div>
+        <div class="field full"><%= f.label :name do %>Nome <span class="req">*</span><% end %><%= f.text_field :name, class: "input", required: true, placeholder: "Nome completo do contato" %></div>
+        <div class="field full"><%= f.label :position, "Cargo" %><%= f.text_field :position, class: "input", placeholder: "Ex.: Gerente de TI" %><span class="hint">Função na empresa</span></div>
+        <div class="field"><%= f.label :phone, "Telefone" %><%= f.telephone_field :phone, class: "input", placeholder: "(11) 3456-7800" %><span class="hint">Telefone direto</span></div>
+        <div class="field"><%= f.label :whatsapp, "WhatsApp" %><%= f.telephone_field :whatsapp, class: "input", placeholder: "(11) 98765-4321" %></div>
+        <div class="field full"><%= f.label :email, "E-mail" %><%= f.email_field :email, class: "input", placeholder: "nome@empresa.com.br" %></div>
+      </div>
+      <label class="check"><%= f.check_box :primary %> Contato principal da empresa</label>
+      <p class="caption" style="margin:0">Só existe um contato principal por empresa. Marcar este desmarca o atual.</p>
+      <div class="field"><%= f.label :notes, "Observações" %><%= f.text_area :notes, class: "textarea", placeholder: "Ex.: recebe as cobranças, abre chamados" %></div>
+    </div>
+    <div class="drawer-foot">
+      <% if contact.persisted? && policy(contact).destroy? %>
+        <%= link_to "Excluir", contact_path(contact, voltar: params[:voltar]), class: "btn danger", style: "margin-right:auto", data: { turbo_method: :delete, turbo_confirm: "Excluir o contato #{contact.name}?", turbo_frame: "_top" } %>
+      <% end %>
+      <%= link_to "Cancelar", back, class: "btn", data: { close: true, turbo_frame: "_top" } %>
+      <%= f.submit contact.new_record? ? "Cadastrar contato" : "Salvar alterações", class: "btn pri" %>
+    </div>
+  <% end %>
+<% end %>

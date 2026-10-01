@@ -1,0 +1,19 @@
+<%= render layout: "shared/drawer_form", locals: { title: service.new_record? ? "Novo serviço" : "Editar serviço", cancel_path: admin_services_path } do %>
+  <%= form_with model: [ :admin, service ], class: "form", data: { turbo_frame: "_top" } do |f| %>
+    <div class="drawer-body form">
+      <%= render "shared/form_errors", record: service %>
+      <div class="form-grid">
+        <div class="field full"><%= f.label :name do %>Nome <span class="req">*</span><% end %><%= f.text_field :name, class: "input", required: true, placeholder: "Ex.: Consultoria de TI" %></div>
+        <div class="field full"><%= f.label :description, "Descrição" %><%= f.text_area :description, class: "textarea", placeholder: "O que o serviço inclui" %></div>
+        <div class="field"><%= f.label :category do %>Categoria <span class="req">*</span><% end %><%= f.select :category, (Service::CATEGORIES | [ service.category ].compact), {}, class: "select" %><span class="hint">Agrupamento para relatórios</span></div>
+        <div class="field"><%= f.label :kind do %>Tipo <span class="req">*</span><% end %><%= f.select :kind, Service.options_for_kind, {}, class: "select" %></div>
+        <div class="field"><%= f.label :default_price do %>Preço padrão (R$) <span class="req">*</span><% end %><%= f.number_field :default_price, class: "input", step: "0.01", min: 0, required: true %><span class="hint">Referência; pode ser ajustado por cliente</span></div>
+        <div class="field"><%= f.label :status do %>Status <span class="req">*</span><% end %><%= f.select :status, Service.options_for_status, {}, class: "select" %></div>
+      </div>
+    </div>
+    <div class="drawer-foot">
+      <%= link_to "Cancelar", admin_services_path, class: "btn", data: { close: true, turbo_frame: "_top" } %>
+      <%= f.submit service.new_record? ? "Incluir no catálogo" : "Salvar alterações", class: "btn pri" %>
+    </div>
+  <% end %>
+<% end %>

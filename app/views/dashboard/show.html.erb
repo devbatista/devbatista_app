@@ -13,10 +13,11 @@
 <section class="card">
   <div class="empty">
     <span class="ic"><%= icon(:dash, size: 22, stroke: 1.8) %></span>
-    <h2>Base do sistema pronta</h2>
-    <p style="margin:0;max-width:520px">Login, perfis, permissões e auditoria já funcionam. Os itens marcados como “em breve” no menu chegam módulo a módulo.</p>
-    <% if policy(User).index? %>
-      <%= link_to "Gerenciar usuários", admin_users_path, class: "btn" %>
-    <% end %>
+    <h2>Módulo Clientes no ar</h2>
+    <p style="margin:0;max-width:520px">Empresas, contatos, contratos, serviços contratados, documentos, busca e notificações já funcionam. Os itens marcados como “em breve” no menu chegam módulo a módulo.</p>
+    <div class="row wrap" style="justify-content:center">
+      <% if policy(Company).index? %><%= link_to "Empresas", companies_path, class: "btn" %><% end %>
+      <% if policy(Contract).index? %><%= link_to "Contratos", contracts_path, class: "btn" %><% end %>
+    </div>
   </div>
 </section>

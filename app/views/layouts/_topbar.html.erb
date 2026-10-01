@@ -1,8 +1,23 @@
 <header class="top">
   <button class="icon-btn ghost menu-btn" type="button" aria-label="Abrir menu" aria-controls="menu-lateral" data-nav-toggle><%= icon(:menu, size: 22, stroke: 1.8) %></button>
   <div class="crumb"><%= breadcrumb_html %></div>
+  <button class="search-trigger" type="button" data-search-open aria-label="Busca global (⌘K)"><%= icon(:search, size: 16, stroke: 1.8) %><span>Buscar clientes, contatos, contratos…</span><span class="kbd">⌘K</span></button>
 
-  <div class="user-menu">
+  <% unread = current_user.notifications.unread %>
+  <% unread_count = unread.count %>
+  <div class="user-menu notif-menu">
+    <button class="icon-btn" type="button" aria-label="Notificações<%= ", #{unread_count} não lidas" if unread_count > 0 %>" aria-haspopup="true" aria-expanded="false" data-popover-toggle="notificacoes-pop"><%= icon(:bell) %><% if unread_count > 0 %><span class="dot"></span><% end %></button>
+    <div class="popover notif-pop" id="notificacoes-pop" role="dialog" aria-label="Notificações">
+      <div class="card-head"><h2>Notificações</h2><%= link_to "Ver todas", notifications_path, style: "font-size:13px;font-weight:600" %></div>
+      <% recent = current_user.notifications.recent.limit(5).to_a %>
+      <% recent.each do |n| %>
+        <%= button_to notification_path(n), method: :patch, class: "notif notif-row", form_class: "inline-form", data: { turbo: false } do %><i class="<%= n.read? ? 'read' : n.level %>"></i><div><%= n.title %><small><%= datetime_br(n.created_at) %> · <%= n.kind_label %></small></div><% end %>
+      <% end %>
+      <% if recent.empty? %><div class="notif"><i class="read"></i><div>Nenhuma notificação por enquanto.</div></div><% end %>
+    </div>
+  </div>
+
+  <div class="user-menu user-menu-avatar">
     <button class="avatar" type="button" aria-label="<%= current_user.name %>, <%= current_user.role.name %>" aria-haspopup="true" aria-expanded="false" data-popover-toggle="menu-usuario"><%= current_user.initials %></button>
     <div class="popover user-pop" id="menu-usuario" role="menu">
       <div class="card-head">

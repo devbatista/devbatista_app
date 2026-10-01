@@ -1,0 +1,5 @@
+<% if record.errors.any? %>
+  <div class="callout crit" role="alert">
+    <span><b class="strong">Revise os campos:</b> <%= record.errors.full_messages.to_sentence %>.</span>
+  </div>
+<% end %>

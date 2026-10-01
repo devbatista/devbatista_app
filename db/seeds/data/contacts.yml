@@ -1,0 +1,172 @@
+# Extraído de docs/design/clientes/contatos.html e docs/design/clientes/empresa.html
+# (contatos da Empresa ACME). Contato principal conferido com a coluna
+# "Contato principal" de docs/design/clientes/empresas.html.
+# Sérgio Batalha (Construtora Pilar, inativa) só aparece em empresas.html: sem telefone/e-mail.
+# Studio Arq não tem contato principal no design (Beatriz Toledo fica primary: false).
+# Na listagem, o 1º número é o telefone e o 2º (ícone de WhatsApp) é o whatsapp.
+
+# Empresa ACME
+- company: Empresa ACME
+  name: Marcos Andrade
+  position: Diretor de Operações
+  phone: "(11) 3456-7801"
+  whatsapp: "(11) 98765-4321"
+  email: marcos.andrade@acme.com.br
+  primary: true
+  notes: null
+
+- company: Empresa ACME
+  name: Juliana Ferraz
+  position: Analista financeira
+  phone: "(11) 3456-7815"
+  whatsapp: "(11) 99812-3344"
+  email: financeiro@acme.com.br
+  primary: false
+  notes: Recebe as cobranças.
+
+- company: Empresa ACME
+  name: Paulo Reis
+  position: Coordenador de TI
+  phone: "(11) 3456-7820"
+  whatsapp: "(11) 97654-1122"
+  email: paulo.reis@acme.com.br
+  primary: false
+  notes: Abre chamados.
+
+# Empresa XYZ
+- company: Empresa XYZ
+  name: Fernanda Lopes
+  position: Gerente de TI
+  phone: "(19) 3210-4400"
+  whatsapp: "(19) 99123-7788"
+  email: fernanda.lopes@xyz.com.br
+  primary: true
+  notes: null
+
+- company: Empresa XYZ
+  name: Rodrigo Nunes
+  position: Contas a pagar
+  phone: "(19) 3210-4415"
+  whatsapp: null
+  email: financeiro@xyz.com.br
+  primary: false
+  notes: null
+
+# Empresa Delta
+- company: Empresa Delta
+  name: Henrique Matos
+  position: Sócio-diretor
+  phone: "(31) 3245-9000"
+  whatsapp: "(31) 98874-6120"
+  email: henrique@deltaservicos.com.br
+  primary: true
+  notes: null
+
+- company: Empresa Delta
+  name: Marcos Teixeira
+  position: Gerente de TI
+  phone: "(31) 3245-9012"
+  whatsapp: "(31) 99145-2208"
+  email: marcos@deltaservicos.com.br
+  primary: false
+  notes: Abre chamados.
+
+# Empresa Orion
+- company: Empresa Orion
+  name: Lucas Viana
+  position: CEO
+  phone: "(41) 3022-8810"
+  whatsapp: "(41) 99660-7731"
+  email: lucas@orion.app
+  primary: true
+  notes: null
+
+# Cliente A
+- company: Cliente A
+  name: Eduardo Pires
+  position: Diretor de TI
+  phone: "(11) 4002-8100"
+  whatsapp: "(11) 99100-4512"
+  email: eduardo.pires@clientea.com.br
+  primary: true
+  notes: null
+
+# Cliente B
+- company: Cliente B
+  name: Renata Siqueira
+  position: Gerente administrativa
+  phone: "(41) 3321-4500"
+  whatsapp: "(41) 98821-3390"
+  email: renata@clienteb.com.br
+  primary: true
+  notes: null
+
+# Cliente C
+- company: Cliente C
+  name: Patrícia Gomes
+  position: Gerente de projetos
+  phone: "(62) 3241-7700"
+  whatsapp: "(62) 99231-8845"
+  email: patricia.gomes@clientec.com.br
+  primary: true
+  notes: null
+
+# Cliente D
+- company: Cliente D
+  name: Vanessa Rocha
+  position: Coordenadora administrativa
+  phone: "(51) 3012-9600"
+  whatsapp: null
+  email: vanessa.rocha@cliented.com.br
+  primary: true
+  notes: null
+
+# Cliente E
+- company: Cliente E
+  name: Gustavo Lima
+  position: Coordenador pedagógico
+  phone: "(11) 3045-8820"
+  whatsapp: "(11) 99401-7756"
+  email: gustavo@clientee.com.br
+  primary: true
+  notes: null
+
+# Grupo Norte Logística (prospect)
+- company: Grupo Norte Logística
+  name: Roberto Almeida
+  position: Diretor de logística
+  phone: "(92) 3214-8000"
+  whatsapp: "(92) 98112-7734"
+  email: roberto.almeida@gruponorte.com.br
+  primary: true
+  notes: null
+
+# Agro Campos (prospect)
+- company: Agro Campos
+  name: Camila Rezende
+  position: Gestora administrativa
+  phone: "(64) 3412-7050"
+  whatsapp: "(64) 99902-4418"
+  email: camila@agrocampos.com.br
+  primary: true
+  notes: null
+
+# Studio Arq (prospect, sem contato principal)
+- company: Studio Arq
+  name: Beatriz Toledo
+  position: Sócia · arquiteta
+  phone: null
+  whatsapp: "(11) 98553-0192"
+  email: beatriz@studioarq.com.br
+  primary: false
+  notes: null
+
+# Construtora Pilar (inativa)
+- company: Construtora Pilar
+  name: Sérgio Batalha
+  position: Gerente de obras
+  phone: null
+  whatsapp: null
+  email: null
+  primary: true
+  notes: null

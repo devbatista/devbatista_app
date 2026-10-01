@@ -8,11 +8,12 @@ class User < ApplicationRecord
   audited area: "administracao", ignore: %w[
     encrypted_password reset_password_token reset_password_sent_at
     sign_in_count current_sign_in_at last_sign_in_at current_sign_in_ip last_sign_in_ip
-    failed_attempts locked_at
-  ]
+    failed_attempts locked_at email_preferences
+  ], activity: false
 
   belongs_to :role
   has_many :audit_logs, dependent: :restrict_with_error
+  has_many :notifications, dependent: :destroy
 
   normalizes :email, with: ->(email) { email.strip.downcase }
   validates :name, presence: true
@@ -43,6 +44,11 @@ class User < ApplicationRecord
 
   def hourly_cost=(value)
     self.hourly_cost_cents = value.presence && (BigDecimal(value.to_s.tr(",", ".")) * 100).round
+  end
+
+  # Preferência de e-mail por tipo de alerta; o padrão é receber.
+  def email_for?(kind)
+    email_preferences.fetch(kind.to_s, true)
   end
 
   def first_name
