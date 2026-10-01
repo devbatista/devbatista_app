@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Documentos · Admin DevBatista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/app.css">
+<style>
+  .file { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .file .ic { width: 34px; height: 34px; border-radius: 8px; flex: none; display: inline-flex; align-items: center; justify-content: center; background: var(--cyan-tint); color: var(--cyan-300); box-shadow: inset 0 0 0 1px var(--cyan-line); }
+  .who { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
+  .drop { border: 1.5px dashed var(--border-strong); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; color: var(--muted); font-size: 13px; }
+  .drop input[type=file] { font-size: 13px; color: var(--text-2); max-width: 100%; }
+</style>
+</head>
+<body data-group="ges" data-item="Documentos" data-crumb='[["Gestão"],["Documentos"]]'>
+<div class="app">
+<aside class="side"></aside>
+<div class="main">
+<header class="top"></header>
+<main class="content">
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Gestão · Repositório de arquivos</span>
+    <h1>Documentos</h1>
+    <p class="lead">Contratos, propostas, notas e arquivos técnicos, cada um ligado ao cliente, projeto, contrato, proposta ou fornecedor a que pertence.</p>
+  </div>
+  <div class="actions">
+    <button class="btn pri" type="button" data-open="enviar-documento">Enviar documento</button>
+  </div>
+</div>
+
+<div class="grid-kpi">
+  <div class="card kpi"><span class="eyebrow">Documentos</span><span class="v">126</span><span class="f">em 38 registros vinculados</span></div>
+  <div class="card kpi"><span class="eyebrow">Enviados em setembro</span><span class="v">14</span><span class="f"><span class="badge b-info">3 hoje</span>por 5 usuários</span></div>
+  <div class="card kpi"><span class="eyebrow">Contratos assinados</span><span class="v">17</span><span class="f">1 por contrato ativo</span></div>
+  <div class="card kpi"><span class="eyebrow">Armazenamento</span><span class="v">1,8 GB</span><span class="f">AWS S3 · Active Storage</span></div>
+</div>
+
+<div class="toolbar">
+  <div class="seg" role="group" aria-label="Filtrar por tipo" data-filter-group="docs">
+    <button type="button" class="on" data-filter="todos" aria-pressed="true">Todos <span class="c"></span></button>
+    <button type="button" data-filter="Contratos" aria-pressed="false">Contratos <span class="c"></span></button>
+    <button type="button" data-filter="Propostas" aria-pressed="false">Propostas <span class="c"></span></button>
+    <button type="button" data-filter="Notas" aria-pressed="false">Notas <span class="c"></span></button>
+    <button type="button" data-filter="Briefings" aria-pressed="false">Briefings <span class="c"></span></button>
+    <button type="button" data-filter="Documentos técnicos" aria-pressed="false">Documentos técnicos <span class="c"></span></button>
+    <button type="button" data-filter="Outros arquivos" aria-pressed="false">Outros arquivos <span class="c"></span></button>
+  </div>
+</div>
+<div class="toolbar">
+  <label class="search-field"><span class="sr-only">Buscar documento</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M11 18a7 7 0 100-14 7 7 0 000 14zM21 21l-4.3-4.3"/></svg><input class="input" type="search" placeholder="Título ou registro vinculado"></label>
+  <label class="sr-only" for="f-vin">Vínculo</label>
+  <select class="select" id="f-vin"><option>Todos os vínculos</option><option>Clientes</option><option>Projetos</option><option>Contratos</option><option>Propostas</option><option>Fornecedores</option></select>
+  <label class="sr-only" for="f-usr">Enviado por</label>
+  <select class="select" id="f-usr"><option>Qualquer usuário</option><option>Rafael</option><option>Ana Souza</option><option>Bruno Lima</option><option>Carla Mendes</option><option>Diego Rocha</option><option>Elisa Prado</option></select>
+  <label class="sr-only" for="f-per">Período</label>
+  <select class="select" id="f-per"><option>Qualquer data</option><option>Últimos 7 dias</option><option>Setembro/2026</option><option>Últimos 90 dias</option><option>2026</option></select>
+</div>
+
+<section class="card" aria-label="Lista de documentos">
+  <div class="table-wrap">
+    <table class="table cards" data-filter-target="docs">
+      <thead><tr><th>Título</th><th>Tipo</th><th>Vínculo</th><th>Enviado por</th><th>Data</th><th class="num">Tamanho</th><th><span class="sr-only">Ações</span></th></tr></thead>
+      <tbody>
+        <tr data-status="Contratos"><td data-label="Título"><span class="file"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h9l4 4v14H6zM14 3v5h5"/></svg></span><span><span class="strong">Aditivo — reajuste do contrato #104</span><span class="cell-sub">Aditivo_01_Contrato_104.pdf</span></span></span></td><td data-label="Tipo"><span class="badge b-mute">Contratos</span></td><td data-label="Vínculo"><a href="../clientes/contrato.html">Contrato #104</a><span class="cell-sub">Empresa ACME</span></td><td data-label="Enviado por"><span class="who"><span class="avatar sm soft">R</span>Rafael</span></td><td data-label="Data" class="mono">17/09/2026</td><td data-label="Tamanho" class="num">412 KB</td><td data-label="" class="right"><button class="icon-btn ghost" type="button" aria-label="Baixar Aditivo — reajuste do contrato #104"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M6 10l6 6 6-6M4 20h16"/></svg></button></td></tr>
+        <tr data-status="Documentos técnicos"><td data-label="Título"><span class="file"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h9l4 4v14H6zM14 3v5h5"/></svg></span><span><span class="strong">Relatório de incidente — chamado #2394</span><span class="cell-sub">incidente-2394-api-delta.pdf</span></span></span></td><td data-label="Tipo"><span class="badge b-mute">Documentos técnicos</span></td><td data-label="Vínculo"><a href="../clientes/empresa.html">Empresa Delta</a><span class="cell-sub">Cliente</span></td><td data-label="Enviado por"><span class="who"><span class="avatar sm soft">CM</span>Carla Mendes</span></td><td data-label="Data" class="mono">17/09/2026</td><td data-label="Tamanho" class="num">186 KB</td><td data-label="" class="right"><button class="icon-btn ghost" type="button" aria-label="Baixar Relatório de incidente — chamado #2394"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M6 10l6 6 6-6M4 20h16"/></svg></button></td></tr>
+        <tr data-status="Propostas"><td data-label="Título"><span class="file"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h9l4 4v14H6zM14 3v5h5"/></svg></span><span><span class="strong">Proposta Portal de Pedidos — v2</span><span class="cell-sub">proposta-portal-pedidos-v2.pdf</span></span></span></td><td data-label="Tipo"><span class="badge b-mute">Propostas</span></td><td data-label="Vínculo"><a href="../comercial/proposta.html">Portal de Pedidos</a><span class="cell-sub">Proposta · Empresa XYZ</span></td><td data-label="Enviado por"><span class="who"><span class="avatar sm soft">AS</span>Ana Souza</span></td><td data-label="Data" class="mono">17/09/2026</td><td data-label="Tamanho" class="num">2,4 MB</td><td data-label="" class="right"><button class="icon-btn ghost" type="button" aria-label="Baixar Proposta Portal de Pedidos — v2"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M6 10l6 6 6-6M4 20h16"/></svg></button></td></tr>
+        <tr data-status="Notas"><td data-label="Título"><span class="file"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h9l4 4v14H6zM14 3v5h5"/></svg></span><span><span class="strong">NFS-e 2026/0912 — Setembro</span><span class="cell-sub">nfse-2026-0912-acme.pdf</span></span></span></td><td data-label="Tipo"><span class="badge b-mute">Notas</span></td><td data-label="Vínculo"><a href="../clientes/empresa.html">Empresa ACME</a><span class="cell-sub">Cliente</span></td><td data-label="Enviado por"><span class="who"><span class="avatar sm soft">BL</span>Bruno Lima</span></td><td data-label="Data" class="mono">10/09/2026</td><td data-label="Tamanho" class="num">98 KB</td><td data-label="" class="right"><button class="icon-btn ghost" type="button" aria-label="Baixar NFS-e 2026/0912"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M6 10l6 6 6-6M4 20h16"/></svg></button></td></tr>
+        <tr data-status="Briefings"><td data-label="Título"><span class="file"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h9l4 4v14H6zM14 3v5h5"/></svg></span><span><span class="strong">Briefing — Portal ACME Fase 2</span><span class="cell-sub">briefing-portal-acme-fase2.docx</span></span></span></td><td data-label="Tipo"><span class="badge b-mute">Briefings</span></td><td data-label="Vínculo"><a href="../operacao/projeto.html">Portal ACME — Fase 2</a><span class="cell-sub">Projeto · Empresa ACME</span></td><td data-label="Enviado por"><span class="who"><span class="avatar sm soft">DR</span>Diego Rocha</span></td><td data-label="Data" class="mono">02/09/2026</td><td data-label="Tamanho" class="num">640 KB</td><td data-label="" class="right"><button class="icon-btn ghost" type="button" aria-label="Baixar Briefing — Portal ACME Fase 2"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M6 10l6 6 6-6M4 20h16"/></svg></button></td></tr>
+        <tr data-status="Documentos técnicos"><td data-label="Título"><span class="file"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h9l4 4v14H6zM14 3v5h5"/></svg></span><span><span class="strong">Arquitetura e modelo de dados — ERP</span><span class="cell-sub">erp-cliente-c-arquitetura.pdf</span></span></span></td><td data-label="Tipo"><span class="badge b-mute">Documentos técnicos</span></td><td data-label="Vínculo"><a href="../operacao/projeto.html">ERP Cliente C</a><span class="cell-sub">Projeto · Cliente C</span></td><td data-label="Enviado por"><span class="who"><span class="avatar sm soft">EP</span>Elisa Prado</span></td><td data-label="Data" class="mono">28/08/2026</td><td data-label="Tamanho" class="num">3,1 MB</td><td data-label="" class="right"><button class="icon-btn ghost" type="button" aria-label="Baixar Arquitetura e modelo de dados — ERP"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M6 10l6 6 6-6M4 20h16"/></svg></button></td></tr>
+        <tr data-status="Propostas"><td data-label="Título"><span class="file"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h9l4 4v14H6zM14 3v5h5"/></svg></span><span><span class="strong">Proposta Automação de NF Delta</span><span class="cell-sub">proposta-automacao-nf-delta.pdf</span></span></span></td><td data-label="Tipo"><span class="badge b-mute">Propostas</span></td><td data-label="Vínculo"><a href="../comercial/proposta.html">Automação de NF Delta</a><span class="cell-sub">Proposta · Empresa Delta</span><span class="cell-sub"><a href="../operacao/projeto.html">+ 1 projeto</a></span></td><td data-label="Enviado por"><span class="who"><span class="avatar sm soft">AS</span>Ana Souza</span></td><td data-label="Data" class="mono">20/08/2026</td><td data-label="Tamanho" class="num">1,2 MB</td><td data-label="" class="right"><button class="icon-btn ghost" type="button" aria-label="Baixar Proposta Automação de NF Delta"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M6 10l6 6 6-6M4 20h16"/></svg></button></td></tr>
+        <tr data-status="Contratos"><td data-label="Título"><span class="file"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h9l4 4v14H6zM14 3v5h5"/></svg></span><span><span class="strong">Termos do plano Business Support</span><span class="cell-sub">aws-business-support-2026.pdf</span></span></span></td><td data-label="Tipo"><span class="badge b-mute">Contratos</span></td><td data-label="Vínculo"><a href="fornecedores.html">AWS</a><span class="cell-sub">Fornecedor</span></td><td data-label="Enviado por"><span class="who"><span class="avatar sm soft">BL</span>Bruno Lima</span></td><td data-label="Data" class="mono">05/08/2026</td><td data-label="Tamanho" class="num">530 KB</td><td data-label="" class="right"><button class="icon-btn ghost" type="button" aria-label="Baixar Termos do plano Business Support"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M6 10l6 6 6-6M4 20h16"/></svg></button></td></tr>
+        <tr data-status="Briefings"><td data-label="Título"><span class="file"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h9l4 4v14H6zM14 3v5h5"/></svg></span><span><span class="strong">Levantamento inicial — roteirização de entregas</span><span class="cell-sub">briefing-grupo-norte.pdf</span></span></span></td><td data-label="Tipo"><span class="badge b-mute">Briefings</span></td><td data-label="Vínculo"><a href="../clientes/empresa.html">Grupo Norte Logística</a><span class="cell-sub">Cliente · Prospect</span></td><td data-label="Enviado por"><span class="who"><span class="avatar sm soft">AS</span>Ana Souza</span></td><td data-label="Data" class="mono">29/07/2026</td><td data-label="Tamanho" class="num">870 KB</td><td data-label="" class="right"><button class="icon-btn ghost" type="button" aria-label="Baixar Levantamento inicial — roteirização de entregas"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M6 10l6 6 6-6M4 20h16"/></svg></button></td></tr>
+        <tr data-status="Outros arquivos"><td data-label="Título"><span class="file"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h9l4 4v14H6zM14 3v5h5"/></svg></span><span><span class="strong">Manual de marca e logotipos</span><span class="cell-sub">cliente-d-marca.zip</span></span></span></td><td data-label="Tipo"><span class="badge b-mute">Outros arquivos</span></td><td data-label="Vínculo"><a href="../operacao/projeto.html">Site institucional Cliente D</a><span class="cell-sub">Projeto · Cliente D</span></td><td data-label="Enviado por"><span class="who"><span class="avatar sm soft">DR</span>Diego Rocha</span></td><td data-label="Data" class="mono">15/07/2026</td><td data-label="Tamanho" class="num">18,6 MB</td><td data-label="" class="right"><button class="icon-btn ghost" type="button" aria-label="Baixar Manual de marca e logotipos"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M6 10l6 6 6-6M4 20h16"/></svg></button></td></tr>
+        <tr data-status="Contratos"><td data-label="Título"><span class="file"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h9l4 4v14H6zM14 3v5h5"/></svg></span><span><span class="strong">Contrato #098 — Manutenção (assinado)</span><span class="cell-sub">contrato-098-xyz-assinado.pdf</span></span></span></td><td data-label="Tipo"><span class="badge b-mute">Contratos</span></td><td data-label="Vínculo"><a href="../clientes/contrato.html">Contrato #098</a><span class="cell-sub">Empresa XYZ</span></td><td data-label="Enviado por"><span class="who"><span class="avatar sm soft">R</span>Rafael</span></td><td data-label="Data" class="mono">17/10/2025</td><td data-label="Tamanho" class="num">356 KB</td><td data-label="" class="right"><button class="icon-btn ghost" type="button" aria-label="Baixar Contrato #098 — Manutenção"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M6 10l6 6 6-6M4 20h16"/></svg></button></td></tr>
+        <tr data-status="Notas"><td data-label="Título"><span class="file"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h9l4 4v14H6zM14 3v5h5"/></svg></span><span><span class="strong">Nota de serviço — honorários setembro</span><span class="cell-sub">silva-associados-honorarios-09-2026.pdf</span></span></span></td><td data-label="Tipo"><span class="badge b-mute">Notas</span></td><td data-label="Vínculo"><a href="fornecedores.html">Silva &amp; Associados</a><span class="cell-sub">Fornecedor</span></td><td data-label="Enviado por"><span class="who"><span class="avatar sm soft">BL</span>Bruno Lima</span></td><td data-label="Data" class="mono">05/09/2026</td><td data-label="Tamanho" class="num">74 KB</td><td data-label="" class="right"><button class="icon-btn ghost" type="button" aria-label="Baixar Nota de serviço — honorários setembro"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M6 10l6 6 6-6M4 20h16"/></svg></button></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="pagination"><span>Mostrando 12 de 126 documentos · ordenados por data de envio</span><div class="pages"><button type="button" class="on" aria-current="page">1</button><button type="button">2</button><button type="button">3</button><button type="button" aria-label="Próxima página">›</button></div></div>
+</section>
+
+</main>
+</div>
+</div>
+
+<!-- Formulário lateral: enviar documento -->
+<aside class="drawer" id="enviar-documento" role="dialog" aria-modal="true" aria-labelledby="enviar-documento-t">
+  <form class="form" style="display:contents">
+    <div class="drawer-head"><h2 id="enviar-documento-t">Enviar documento</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="drawer-body form">
+      <div class="field">
+        <label for="d-arq">Arquivo <span class="req">*</span></label>
+        <div class="drop">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M6 10l6-6 6 6M4 20h16"/></svg>
+          <span>Arraste o arquivo aqui ou selecione</span>
+          <input id="d-arq" type="file" required>
+          <span class="caption">PDF, DOCX, XLSX, imagens ou ZIP · até 50 MB · armazenado no AWS S3</span>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="field full"><label for="d-tit">Título <span class="req">*</span></label><input class="input" id="d-tit" required placeholder="Ex.: Contrato #104 — Consultoria de TI (assinado)"></div>
+        <div class="field full"><label for="d-tipo">Tipo <span class="req">*</span></label><select class="select" id="d-tipo" required><option value="">Selecione</option><option>Contratos</option><option>Propostas</option><option>Notas</option><option>Briefings</option><option>Documentos técnicos</option><option>Outros arquivos</option></select></div>
+      </div>
+      <span class="fieldset-title">Vínculo</span>
+      <div class="form-grid">
+        <div class="field"><label for="d-vt">Vincular a <span class="req">*</span></label><select class="select" id="d-vt" required><option>Clientes</option><option>Projetos</option><option>Contratos</option><option>Propostas</option><option>Fornecedores</option></select></div>
+        <div class="field"><label for="d-vr">Registro <span class="req">*</span></label><select class="select" id="d-vr" required><option value="">Selecione</option><option>Empresa ACME</option><option>Empresa XYZ</option><option>Empresa Delta</option><option>Empresa Orion</option><option>Cliente C</option><option>Grupo Norte Logística</option></select></div>
+        <div class="field full"><button class="link-btn" type="button" style="align-self:flex-start">+ Adicionar outro vínculo</button><span class="hint">Um documento pode ficar ligado a mais de um registro — por exemplo, ao contrato e ao cliente.</span></div>
+      </div>
+      <div class="field"><label for="d-obs">Observações</label><textarea class="textarea" id="d-obs" placeholder="Versão, quem assinou, o que mudou…"></textarea></div>
+      <div class="callout"><span>Enviado por <b class="strong">Rafael</b> em <b class="strong">17/09/2026</b> — preenchido automaticamente.</span></div>
+    </div>
+    <div class="drawer-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Enviar documento</button></div>
+  </form>
+</aside>
+
+<script src="../assets/app.js"></script>
+</body>
+</html>

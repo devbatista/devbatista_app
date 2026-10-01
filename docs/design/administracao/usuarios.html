@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Usuários · Admin DevBatista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/app.css">
+<style>
+  .who { display: inline-flex; align-items: center; gap: 10px; white-space: nowrap; }
+  tr[data-status="Desativado"] td { color: var(--faint); }
+  tr[data-status="Desativado"] .avatar { background: var(--surface-2); color: var(--muted); box-shadow: inset 0 0 0 1px var(--border-strong); }
+</style>
+</head>
+<body data-group="adm" data-item="Usuários" data-crumb='[["Administração"],["Usuários"]]'>
+<div class="app">
+<aside class="side"></aside>
+<div class="main">
+<header class="top"></header>
+<main class="content">
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Administração · Acesso ao sistema</span>
+    <h1>Usuários</h1>
+    <p class="lead">Cada usuário tem exatamente um perfil, que define os módulos visíveis e as ações permitidas.</p>
+  </div>
+  <div class="actions">
+    <a class="btn" href="permissoes.html">Ver permissões</a>
+    <button class="btn pri" type="button" data-open="novo-usuario">Novo usuário</button>
+  </div>
+</div>
+
+<div class="grid-kpi">
+  <div class="card kpi"><span class="eyebrow">Usuários ativos</span><span class="v">6</span><span class="f">em 5 perfis</span></div>
+  <div class="card kpi"><span class="eyebrow">Acessaram hoje</span><span class="v">5</span><span class="f">último às 14:32 · Rafael</span></div>
+  <div class="card kpi"><span class="eyebrow">Desativados</span><span class="v">1</span><span class="f">histórico mantido</span></div>
+  <div class="card kpi"><span class="eyebrow">Com custo/hora</span><span class="v">4 de 6</span><span class="f">para a rentabilidade futura</span></div>
+</div>
+
+<div class="toolbar">
+  <div class="seg" role="group" aria-label="Filtrar por status" data-filter-group="usuarios">
+    <button type="button" class="on" data-filter="todos" aria-pressed="true">Todos <span class="c"></span></button>
+    <button type="button" data-filter="Ativo" aria-pressed="false">Ativos <span class="c"></span></button>
+    <button type="button" data-filter="Desativado" aria-pressed="false">Desativados <span class="c"></span></button>
+  </div>
+  <span class="spacer"></span>
+  <label class="search-field"><span class="sr-only">Buscar usuário</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M11 18a7 7 0 100-14 7 7 0 000 14zM21 21l-4.3-4.3"/></svg><input class="input" type="search" placeholder="Nome ou e-mail"></label>
+  <label class="sr-only" for="f-perfil">Perfil</label>
+  <select class="select" id="f-perfil"><option>Todos os perfis</option><option>Administrador</option><option>Comercial</option><option>Financeiro</option><option>Suporte</option><option>Desenvolvedor</option></select>
+</div>
+
+<section class="card" aria-label="Lista de usuários">
+  <div class="table-wrap">
+    <table class="table cards" data-filter-target="usuarios">
+      <thead><tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th class="num">Custo/hora</th><th>Último acesso</th><th>Status</th><th><span class="sr-only">Ações</span></th></tr></thead>
+      <tbody>
+        <tr data-status="Ativo"><td data-label="Nome"><span class="who"><span class="avatar sm">R</span><span class="strong">Rafael</span></span></td><td data-label="E-mail">rafael@devbatista.com.br</td><td data-label="Perfil"><span class="badge b-info">Administrador</span></td><td data-label="Custo/hora" class="num muted">—</td><td data-label="Último acesso" class="mono">17/09/2026 14:32</td><td data-label="Status"><span class="badge b-good">Ativo</span></td><td data-label="" class="right nowrap"><button class="link-btn" type="button">Editar</button></td></tr>
+        <tr data-status="Ativo"><td data-label="Nome"><span class="who"><span class="avatar sm">CM</span><span class="strong">Carla Mendes</span></span></td><td data-label="E-mail">carla.mendes@devbatista.com.br</td><td data-label="Perfil"><span class="badge b-mute">Suporte</span></td><td data-label="Custo/hora" class="num">R$ 65</td><td data-label="Último acesso" class="mono">17/09/2026 14:05</td><td data-label="Status"><span class="badge b-good">Ativo</span></td><td data-label="" class="right nowrap"><button class="link-btn" type="button">Editar</button> · <button class="link-btn" type="button" data-open="desativar" style="color:var(--crit)">Desativar</button></td></tr>
+        <tr data-status="Ativo"><td data-label="Nome"><span class="who"><span class="avatar sm">AS</span><span class="strong">Ana Souza</span></span></td><td data-label="E-mail">ana.souza@devbatista.com.br</td><td data-label="Perfil"><span class="badge b-mute">Comercial</span></td><td data-label="Custo/hora" class="num muted">—</td><td data-label="Último acesso" class="mono">17/09/2026 13:10</td><td data-label="Status"><span class="badge b-good">Ativo</span></td><td data-label="" class="right nowrap"><button class="link-btn" type="button">Editar</button> · <button class="link-btn" type="button" data-open="desativar" style="color:var(--crit)">Desativar</button></td></tr>
+        <tr data-status="Ativo"><td data-label="Nome"><span class="who"><span class="avatar sm">DR</span><span class="strong">Diego Rocha</span></span></td><td data-label="E-mail">diego.rocha@devbatista.com.br</td><td data-label="Perfil"><span class="badge b-mute">Desenvolvedor</span></td><td data-label="Custo/hora" class="num">R$ 95</td><td data-label="Último acesso" class="mono">17/09/2026 11:58</td><td data-label="Status"><span class="badge b-good">Ativo</span></td><td data-label="" class="right nowrap"><button class="link-btn" type="button">Editar</button> · <button class="link-btn" type="button" data-open="desativar" style="color:var(--crit)">Desativar</button></td></tr>
+        <tr data-status="Ativo"><td data-label="Nome"><span class="who"><span class="avatar sm">BL</span><span class="strong">Bruno Lima</span></span></td><td data-label="E-mail">bruno.lima@devbatista.com.br</td><td data-label="Perfil"><span class="badge b-mute">Financeiro</span></td><td data-label="Custo/hora" class="num">R$ 70</td><td data-label="Último acesso" class="mono">17/09/2026 10:20</td><td data-label="Status"><span class="badge b-good">Ativo</span></td><td data-label="" class="right nowrap"><button class="link-btn" type="button">Editar</button> · <button class="link-btn" type="button" data-open="desativar" style="color:var(--crit)">Desativar</button></td></tr>
+        <tr data-status="Ativo"><td data-label="Nome"><span class="who"><span class="avatar sm">EP</span><span class="strong">Elisa Prado</span></span></td><td data-label="E-mail">elisa.prado@devbatista.com.br</td><td data-label="Perfil"><span class="badge b-mute">Desenvolvedor</span></td><td data-label="Custo/hora" class="num">R$ 90</td><td data-label="Último acesso" class="mono">16/09/2026 18:40</td><td data-label="Status"><span class="badge b-good">Ativo</span></td><td data-label="" class="right nowrap"><button class="link-btn" type="button">Editar</button> · <button class="link-btn" type="button" data-open="desativar" style="color:var(--crit)">Desativar</button></td></tr>
+        <tr data-status="Desativado"><td data-label="Nome"><span class="who"><span class="avatar sm">MT</span><span>Marcos Teles<span class="cell-sub">desativado em 01/07/2026 por Rafael</span></span></span></td><td data-label="E-mail">marcos.teles@devbatista.com.br</td><td data-label="Perfil"><span class="badge b-mute">Comercial</span></td><td data-label="Custo/hora" class="num">—</td><td data-label="Último acesso" class="mono">30/06/2026 17:12</td><td data-label="Status"><span class="badge b-mute">Desativado</span></td><td data-label="" class="right nowrap"><button class="link-btn" type="button">Reativar</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="pagination"><span>7 usuários · login por e-mail e senha, com bloqueio após tentativas inválidas</span><div class="pages"><button type="button" class="on" aria-current="page">1</button></div></div>
+</section>
+
+<section class="card" aria-labelledby="perfis-t">
+  <div class="card-head"><h2 id="perfis-t">Perfis</h2><a href="permissoes.html" style="font-size:13px;font-weight:600">Editar matriz de permissões →</a></div>
+  <div class="kv"><span>Administrador</span><b style="font-weight:500;text-align:right">Acesso total, incluindo usuários, permissões, logs e configurações · 1 usuário</b></div>
+  <div class="kv"><span>Comercial</span><b style="font-weight:500;text-align:right">Leads, oportunidades, propostas, pipeline e cadastro de clientes · 1 usuário</b></div>
+  <div class="kv"><span>Financeiro</span><b style="font-weight:500;text-align:right">Receitas, despesas, contas, recorrências, notas fiscais e fornecedores · 1 usuário</b></div>
+  <div class="kv"><span>Suporte</span><b style="font-weight:500;text-align:right">Chamados, consulta a clientes e à infraestrutura · 1 usuário</b></div>
+  <div class="kv"><span>Desenvolvedor</span><b style="font-weight:500;text-align:right">Projetos, tarefas, horas, chamados técnicos e módulo de Tecnologia · 2 usuários</b></div>
+</section>
+
+</main>
+</div>
+</div>
+
+<!-- Formulário lateral: novo usuário -->
+<aside class="drawer" id="novo-usuario" role="dialog" aria-modal="true" aria-labelledby="novo-usuario-t">
+  <form class="form" style="display:contents">
+    <div class="drawer-head"><h2 id="novo-usuario-t">Novo usuário</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="drawer-body form">
+      <div class="form-grid">
+        <div class="field full"><label for="u-nome">Nome <span class="req">*</span></label><input class="input" id="u-nome" required autocomplete="off" placeholder="Nome completo"></div>
+        <div class="field full"><label for="u-mail">E-mail <span class="req">*</span></label><input class="input" id="u-mail" type="email" required autocomplete="off" placeholder="nome@devbatista.com.br"><span class="hint">Usado para login e para as notificações por e-mail</span></div>
+        <div class="field full"><label for="u-perfil">Perfil <span class="req">*</span></label><select class="select" id="u-perfil" required><option value="">Selecione</option><option>Administrador</option><option>Comercial</option><option>Financeiro</option><option>Suporte</option><option>Desenvolvedor</option></select><span class="hint">Define os módulos visíveis e as ações. Veja a <a href="permissoes.html">matriz de permissões</a>.</span></div>
+        <div class="field"><label for="u-custo">Custo/hora (R$)</label><input class="input num" id="u-custo" inputmode="decimal" placeholder="Opcional"><span class="hint">Usado futuramente na rentabilidade (horas × custo/hora)</span></div>
+        <div class="field"><span class="label">Notificações por e-mail</span><label class="check" style="height:40px"><span class="switch"><input type="checkbox" checked aria-label="Receber notificações por e-mail"><span></span></span>Receber</label></div>
+      </div>
+      <div class="callout"><span>O usuário recebe um convite com link de uso único para definir a própria senha. Senhas nunca são cadastradas nem exibidas aqui.</span></div>
+    </div>
+    <div class="drawer-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Criar e enviar convite</button></div>
+  </form>
+</aside>
+
+<!-- Modal: desativar usuário -->
+<div class="modal" id="desativar" role="dialog" aria-modal="true" aria-labelledby="desativar-t">
+  <form class="form" style="display:contents">
+    <div class="modal-head"><h2 id="desativar-t">Desativar Elisa Prado?</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="modal-body form">
+      <p style="margin:0">O acesso é bloqueado imediatamente e as sessões abertas são encerradas. <b class="strong">Nada é apagado:</b> horas registradas, tarefas, chamados, documentos enviados e a trilha de auditoria continuam com o nome dela.</p>
+      <div class="callout warn"><span>Elisa é responsável por <b class="strong">4 tarefas abertas</b> e pelo projeto <a href="../operacao/projeto.html">ERP Cliente C</a>. Reatribua-os depois para não perder prazos.</span></div>
+      <p class="caption" style="margin:0">É possível reativar o usuário a qualquer momento. A desativação fica registrada em <a href="logs.html">Logs</a>.</p>
+    </div>
+    <div class="modal-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn danger" type="submit">Desativar usuário</button></div>
+  </form>
+</div>
+
+<script src="../assets/app.js"></script>
+</body>
+</html>

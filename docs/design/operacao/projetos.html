@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Projetos · Admin DevBatista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/app.css">
+<style>
+  .prog-cell { display: flex; align-items: center; gap: 10px; min-width: 140px; }
+  .prog-cell .progress { flex: 1; }
+  .prog-cell b { font-size: 12px; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; width: 34px; text-align: right; }
+  @media (max-width: 960px) { .prog-cell { min-width: 0; width: 60%; } }
+</style>
+</head>
+<body data-group="op" data-item="Projetos" data-crumb='[["Operação"],["Projetos"]]'>
+<div class="app">
+<aside class="side"></aside>
+<div class="main">
+<header class="top"></header>
+<main class="content">
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Operação · Setembro de 2026</span>
+    <h1>Projetos</h1>
+  </div>
+  <div class="actions">
+    <a class="btn" href="tarefas.html">Ver quadro de tarefas</a>
+    <button class="btn pri" type="button" data-open="novo-projeto">Novo projeto</button>
+  </div>
+</div>
+
+<div class="grid-kpi">
+  <div class="card kpi"><span class="eyebrow">Projetos ativos</span><span class="v">6</span><span class="f">planejamento, andamento, pausados e aguardando</span></div>
+  <div class="card kpi alert"><span class="eyebrow">Atrasados</span><span class="v">1</span><span class="f"><span class="badge b-crit">ERP Cliente C</span>previsão 10/09</span></div>
+  <div class="card kpi"><span class="eyebrow">Orçamento em carteira</span><span class="v">R$ 118.500</span><span class="f">soma dos projetos ativos</span></div>
+  <div class="card kpi"><span class="eyebrow">Horas em projetos</span><span class="v">130h</span><span class="f">registradas em setembro</span></div>
+</div>
+
+<div class="callout crit" role="status">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color:var(--crit);flex:none;margin-top:1px"><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg>
+  <span><b class="strong">ERP Cliente C</b> passou da previsão de 10/09/2026 há 7 dias e segue Em andamento (81%). Elisa Prado e Rafael foram notificados. <a href="projeto.html">Abrir projeto</a></span>
+</div>
+
+<div class="toolbar">
+  <div class="seg" role="group" aria-label="Filtrar por status" data-filter-group="projetos">
+    <button type="button" class="on" data-filter="todos" aria-pressed="true">Todos <span class="c"></span></button>
+    <button type="button" data-filter="Planejamento" aria-pressed="false">Planejamento <span class="c"></span></button>
+    <button type="button" data-filter="Em andamento" aria-pressed="false">Em andamento <span class="c"></span></button>
+    <button type="button" data-filter="Pausado" aria-pressed="false">Pausado <span class="c"></span></button>
+    <button type="button" data-filter="Aguardando cliente" aria-pressed="false">Aguardando cliente <span class="c"></span></button>
+    <button type="button" data-filter="Concluído" aria-pressed="false">Concluído <span class="c"></span></button>
+    <button type="button" data-filter="Cancelado" aria-pressed="false">Cancelado <span class="c"></span></button>
+  </div>
+  <span class="spacer"></span>
+  <label class="search-field"><span class="sr-only">Buscar projeto</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M11 18a7 7 0 100-14 7 7 0 000 14zM21 21l-4.3-4.3"/></svg><input class="input" type="search" placeholder="Projeto ou cliente"></label>
+  <label class="sr-only" for="f-cli">Cliente</label>
+  <select class="select" id="f-cli"><option>Todos os clientes</option><option>Empresa ACME</option><option>Empresa XYZ</option><option>Empresa Delta</option><option>Empresa Orion</option><option>Cliente A</option><option>Cliente B</option><option>Cliente C</option><option>Cliente D</option></select>
+  <label class="sr-only" for="f-resp">Responsável</label>
+  <select class="select" id="f-resp"><option>Todos os responsáveis</option><option>Diego Rocha</option><option>Elisa Prado</option><option>Rafael</option></select>
+  <label class="check"><input type="checkbox"> Só atrasados</label>
+</div>
+
+<section class="card" aria-label="Lista de projetos">
+  <div class="table-wrap">
+    <table class="table cards" data-filter-target="projetos">
+      <thead><tr><th>Projeto</th><th>Responsável</th><th>Início</th><th>Previsão</th><th class="num">Orçamento</th><th class="num">Horas</th><th>Progresso</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr class="late" data-status="Em andamento">
+          <td data-label="Projeto"><a class="strong" href="projeto.html">ERP Cliente C</a><span class="cell-sub">Cliente C · contrato #092</span></td>
+          <td data-label="Responsável"><span class="row" style="gap:8px"><span class="avatar sm soft">EP</span>Elisa Prado</span></td>
+          <td data-label="Início" class="mono">02/06/2026</td>
+          <td data-label="Previsão" class="mono" style="color:var(--crit);font-weight:600">10/09/2026<span class="cell-sub" style="color:var(--crit)">7 dias de atraso</span></td>
+          <td data-label="Orçamento" class="num">R$ 36.000</td>
+          <td data-label="Horas" class="num">248h<span class="cell-sub">de 280h estimadas</span></td>
+          <td data-label="Progresso"><div class="prog-cell"><div class="progress crit" role="progressbar" aria-valuenow="81" aria-valuemin="0" aria-valuemax="100" aria-label="Progresso 81%"><i style="width:81%"></i></div><b>81%</b></div></td>
+          <td data-label="Status"><span class="row" style="gap:6px;flex-wrap:wrap;justify-content:flex-end"><span class="badge b-info">Em andamento</span><span class="badge b-crit dot-l">Atrasado</span></span></td>
+        </tr>
+        <tr data-status="Em andamento">
+          <td data-label="Projeto"><a class="strong" href="projeto.html">Portal ACME — Fase 2</a><span class="cell-sub">Empresa ACME · aplicação Portal ACME</span></td>
+          <td data-label="Responsável"><span class="row" style="gap:8px"><span class="avatar sm soft">DR</span>Diego Rocha</span></td>
+          <td data-label="Início" class="mono">03/08/2026</td>
+          <td data-label="Previsão" class="mono">30/10/2026</td>
+          <td data-label="Orçamento" class="num">R$ 24.000</td>
+          <td data-label="Horas" class="num">96h<span class="cell-sub">de 160h estimadas</span></td>
+          <td data-label="Progresso"><div class="prog-cell"><div class="progress" role="progressbar" aria-valuenow="62" aria-valuemin="0" aria-valuemax="100" aria-label="Progresso 62%"><i style="width:62%"></i></div><b>62%</b></div></td>
+          <td data-label="Status"><span class="badge b-info">Em andamento</span></td>
+        </tr>
+        <tr data-status="Em andamento">
+          <td data-label="Projeto"><a class="strong" href="projeto.html">Painel de indicadores</a><span class="cell-sub">Cliente A</span></td>
+          <td data-label="Responsável"><span class="row" style="gap:8px"><span class="avatar sm soft">EP</span>Elisa Prado</span></td>
+          <td data-label="Início" class="mono">17/08/2026</td>
+          <td data-label="Previsão" class="mono">16/10/2026</td>
+          <td data-label="Orçamento" class="num">R$ 9.600</td>
+          <td data-label="Horas" class="num">38h<span class="cell-sub">de 64h estimadas</span></td>
+          <td data-label="Progresso"><div class="prog-cell"><div class="progress" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" aria-label="Progresso 45%"><i style="width:45%"></i></div><b>45%</b></div></td>
+          <td data-label="Status"><span class="badge b-info">Em andamento</span></td>
+        </tr>
+        <tr data-status="Aguardando cliente">
+          <td data-label="Projeto"><a class="strong" href="projeto.html">Portal de Pedidos</a><span class="cell-sub">Empresa XYZ · aguardando aprovação da <a href="../comercial/proposta.html">proposta</a></span></td>
+          <td data-label="Responsável"><span class="row" style="gap:8px"><span class="avatar sm soft">DR</span>Diego Rocha</span></td>
+          <td data-label="Início" class="mono">—</td>
+          <td data-label="Previsão" class="mono">15/12/2026</td>
+          <td data-label="Orçamento" class="num">R$ 18.500</td>
+          <td data-label="Horas" class="num">6h<span class="cell-sub">levantamento</span></td>
+          <td data-label="Progresso"><div class="prog-cell"><div class="progress" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Progresso 0%"><i style="width:0%"></i></div><b>0%</b></div></td>
+          <td data-label="Status"><span class="badge b-warn">Aguardando cliente</span></td>
+        </tr>
+        <tr data-status="Planejamento">
+          <td data-label="Projeto"><a class="strong" href="projeto.html">Automação de NF Delta</a><span class="cell-sub">Empresa Delta · contrato #111</span></td>
+          <td data-label="Responsável"><span class="row" style="gap:8px"><span class="avatar sm soft">EP</span>Elisa Prado</span></td>
+          <td data-label="Início" class="mono">01/10/2026</td>
+          <td data-label="Previsão" class="mono">30/11/2026</td>
+          <td data-label="Orçamento" class="num">R$ 8.400</td>
+          <td data-label="Horas" class="num">4h<span class="cell-sub">de 56h estimadas</span></td>
+          <td data-label="Progresso"><div class="prog-cell"><div class="progress" role="progressbar" aria-valuenow="5" aria-valuemin="0" aria-valuemax="100" aria-label="Progresso 5%"><i style="width:5%"></i></div><b>5%</b></div></td>
+          <td data-label="Status"><span class="badge b-mute">Planejamento</span></td>
+        </tr>
+        <tr data-status="Pausado">
+          <td data-label="Projeto"><a class="strong" href="projeto.html">App Orion</a><span class="cell-sub">Empresa Orion · pausado a pedido do cliente em 28/08</span></td>
+          <td data-label="Responsável"><span class="row" style="gap:8px"><span class="avatar sm soft">DR</span>Diego Rocha</span></td>
+          <td data-label="Início" class="mono">04/05/2026</td>
+          <td data-label="Previsão" class="mono">30/11/2026</td>
+          <td data-label="Orçamento" class="num">R$ 22.000</td>
+          <td data-label="Horas" class="num">132h<span class="cell-sub">de 220h estimadas</span></td>
+          <td data-label="Progresso"><div class="prog-cell"><div class="progress warn" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" aria-label="Progresso 40%"><i style="width:40%"></i></div><b>40%</b></div></td>
+          <td data-label="Status"><span class="badge b-warn">Pausado</span></td>
+        </tr>
+        <tr data-status="Concluído">
+          <td data-label="Projeto"><a class="strong" href="projeto.html">Site institucional Cliente D</a><span class="cell-sub">Cliente D · entregue em 28/08/2026</span></td>
+          <td data-label="Responsável"><span class="row" style="gap:8px"><span class="avatar sm soft">DR</span>Diego Rocha</span></td>
+          <td data-label="Início" class="mono">06/07/2026</td>
+          <td data-label="Previsão" class="mono">31/08/2026</td>
+          <td data-label="Orçamento" class="num">R$ 6.800</td>
+          <td data-label="Horas" class="num">52h<span class="cell-sub">de 56h estimadas</span></td>
+          <td data-label="Progresso"><div class="prog-cell"><div class="progress" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" aria-label="Progresso 100%"><i style="width:100%"></i></div><b>100%</b></div></td>
+          <td data-label="Status"><span class="badge b-good">Concluído</span></td>
+        </tr>
+        <tr data-status="Cancelado">
+          <td data-label="Projeto"><a class="strong" href="projeto.html">Chatbot de atendimento</a><span class="cell-sub">Cliente B · cancelado em 21/07/2026</span></td>
+          <td data-label="Responsável"><span class="row" style="gap:8px"><span class="avatar sm soft">EP</span>Elisa Prado</span></td>
+          <td data-label="Início" class="mono">01/07/2026</td>
+          <td data-label="Previsão" class="mono muted">30/09/2026</td>
+          <td data-label="Orçamento" class="num muted" style="text-decoration:line-through">R$ 12.000</td>
+          <td data-label="Horas" class="num">10h<span class="cell-sub">de 90h estimadas</span></td>
+          <td data-label="Progresso"><div class="prog-cell"><div class="progress" role="progressbar" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100" aria-label="Progresso 15%" style="opacity:.5"><i style="width:15%;background:var(--faint)"></i></div><b>15%</b></div></td>
+          <td data-label="Status"><span class="badge b-mute">Cancelado</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="pagination"><span>Atrasado = previsão ultrapassada e status diferente de Concluído ou Cancelado</span><div class="pages"><button type="button" class="on" aria-current="page">1</button></div></div>
+</section>
+
+</main>
+</div>
+</div>
+
+<!-- Formulário lateral: novo projeto -->
+<aside class="drawer" id="novo-projeto" role="dialog" aria-modal="true" aria-labelledby="novo-projeto-t">
+  <form class="form" style="display:contents">
+    <div class="drawer-head"><h2 id="novo-projeto-t">Novo projeto</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="drawer-body form">
+      <div class="form-grid">
+        <div class="field full"><label for="p-cli">Cliente <span class="req">*</span></label><select class="select" id="p-cli" required><option value="">Selecione</option><option>Empresa ACME</option><option>Empresa XYZ</option><option>Empresa Delta</option><option>Empresa Orion</option><option>Cliente A</option><option>Cliente B</option><option>Cliente C</option><option>Cliente D</option></select></div>
+        <div class="field full"><label for="p-nome">Nome <span class="req">*</span></label><input class="input" id="p-nome" required placeholder="Ex.: Portal ACME — Fase 3"></div>
+        <div class="field full"><label for="p-desc">Descrição</label><textarea class="textarea" id="p-desc" placeholder="Objetivo e escopo resumido"></textarea></div>
+        <div class="field"><label for="p-resp">Responsável <span class="req">*</span></label><select class="select" id="p-resp" required><option value="">Selecione</option><option>Diego Rocha</option><option>Elisa Prado</option><option>Carla Mendes</option><option>Rafael</option></select></div>
+        <div class="field"><label for="p-status">Status <span class="req">*</span></label><select class="select" id="p-status" required><option selected>Planejamento</option><option>Em andamento</option><option>Pausado</option><option>Aguardando cliente</option><option>Concluído</option><option>Cancelado</option></select></div>
+        <div class="field"><label for="p-ini">Data inicial <span class="req">*</span></label><input class="input" id="p-ini" type="date" value="2026-10-01" required></div>
+        <div class="field"><label for="p-prev">Previsão <span class="req">*</span></label><input class="input" id="p-prev" type="date" required><span class="hint">Passou da previsão sem concluir → atrasado</span></div>
+        <div class="field"><label for="p-orc">Orçamento (R$)</label><input class="input num" id="p-orc" inputmode="decimal" placeholder="0,00"><span class="hint">Valor orçado ou vendido</span></div>
+        <div class="field"><label for="p-prog">Progresso (%)</label><input class="input num" id="p-prog" type="number" min="0" max="100" value="0"></div>
+        <div class="field full"><label class="check"><input type="checkbox" checked> Calcular o progresso pelas tarefas concluídas</label><span class="hint">Desmarque para informar o percentual manualmente.</span></div>
+      </div>
+    </div>
+    <div class="drawer-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Salvar projeto</button></div>
+  </form>
+</aside>
+
+<script src="../assets/app.js"></script>
+</body>
+</html>

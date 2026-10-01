@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Oportunidades · Admin DevBatista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/app.css">
+<style>
+  .modal { max-height: 84vh; flex-direction: column; }
+  .modal.open { display: flex; }
+  .modal .modal-body { overflow-y: auto; }
+  .prob { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
+  .prob .progress { width: 56px; }
+</style>
+</head>
+<body data-group="com" data-item="Oportunidades" data-crumb='[["Comercial","pipeline.html"],["Oportunidades"]]'>
+<div class="app">
+<aside class="side"></aside>
+<div class="main">
+<header class="top"></header>
+<main class="content">
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Comercial · Setembro de 2026</span>
+    <h1>Oportunidades</h1>
+  </div>
+  <div class="actions">
+    <a class="btn" href="pipeline.html">Ver no pipeline</a>
+    <button class="btn" type="button">Exportar CSV</button>
+    <button class="btn pri" type="button" data-open="nova-oportunidade">Nova oportunidade</button>
+  </div>
+</div>
+
+<div class="grid-kpi">
+  <div class="card kpi"><span class="eyebrow">Valor em aberto</span><span class="v">R$ 56.000</span><span class="f">7 oportunidades em Reunião, Proposta e Negociação</span></div>
+  <div class="card kpi"><span class="eyebrow">Previsão ponderada</span><span class="v">R$ 28.800</span><span class="f">soma de valor estimado × probabilidade</span></div>
+  <div class="card kpi"><span class="eyebrow">Fecham em setembro</span><span class="v">R$ 24.000</span><span class="f"><span class="badge b-info">4</span>ponderado R$ 15.000</span></div>
+  <div class="card kpi"><span class="eyebrow">Fechado no mês</span><span class="v">R$ 7.200</span><span class="f"><span class="badge b-good">1 ganho</span>1 perdido</span></div>
+</div>
+
+<div class="toolbar">
+  <div class="seg" role="group" aria-label="Filtrar por etapa" data-filter-group="opps">
+    <button type="button" class="on" data-filter="todos" aria-pressed="true">Todas <span class="c"></span></button>
+    <button type="button" data-filter="Reunião" aria-pressed="false">Reunião <span class="c"></span></button>
+    <button type="button" data-filter="Proposta" aria-pressed="false">Proposta <span class="c"></span></button>
+    <button type="button" data-filter="Negociação" aria-pressed="false">Negociação <span class="c"></span></button>
+    <button type="button" data-filter="Fechado" aria-pressed="false">Fechado <span class="c"></span></button>
+    <button type="button" data-filter="Perdido" aria-pressed="false">Perdido <span class="c"></span></button>
+  </div>
+  <span class="spacer"></span>
+  <label class="search-field"><span class="sr-only">Buscar oportunidade</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M11 18a7 7 0 100-14 7 7 0 000 14zM21 21l-4.3-4.3"/></svg><input class="input" type="search" placeholder="Cliente, lead ou serviço"></label>
+  <label class="sr-only" for="f-resp">Responsável</label>
+  <select class="select" id="f-resp"><option>Todos os responsáveis</option><option>Rafael</option><option>Ana Souza</option></select>
+  <label class="sr-only" for="f-prev">Previsão de fechamento</label>
+  <select class="select" id="f-prev"><option>Qualquer previsão</option><option>Setembro/2026</option><option>Outubro/2026</option><option>Atrasadas</option></select>
+</div>
+
+<section class="card" aria-label="Lista de oportunidades">
+  <div class="table-wrap">
+    <table class="table cards" data-filter-target="opps">
+      <thead><tr><th>Lead ou cliente</th><th>Serviço</th><th>Etapa</th><th class="num">Valor estimado</th><th class="num">Probabilidade</th><th class="num">Ponderada</th><th>Previsão de fechamento</th><th>Responsável</th><th><span class="sr-only">Ações</span></th></tr></thead>
+      <tbody>
+        <tr data-status="Proposta">
+          <td data-label="Lead ou cliente"><a class="strong" href="../clientes/empresa.html">Empresa XYZ</a><span class="cell-sub">Portal de Pedidos</span></td>
+          <td data-label="Serviço">Desenvolvimento de sistemas</td>
+          <td data-label="Etapa"><span class="badge b-info">Proposta</span></td>
+          <td data-label="Valor estimado" class="num">R$ 14.000</td>
+          <td data-label="Probabilidade" class="num"><span class="prob"><span class="progress" aria-hidden="true"><i style="width:60%"></i></span>60%</span></td>
+          <td data-label="Ponderada" class="num strong">R$ 8.400</td>
+          <td data-label="Previsão de fechamento" class="mono">02/10/2026</td>
+          <td data-label="Responsável">Ana Souza</td>
+          <td data-label="" class="right nowrap"><a class="link-btn" href="proposta.html">Ver proposta</a></td>
+        </tr>
+        <tr data-status="Negociação">
+          <td data-label="Lead ou cliente"><a class="strong" href="../clientes/empresa.html">Agro Campos</a><span class="cell-sub">Automação de notas e pedidos</span></td>
+          <td data-label="Serviço">Automação/RPA</td>
+          <td data-label="Etapa"><span class="badge b-info">Negociação</span></td>
+          <td data-label="Valor estimado" class="num">R$ 9.000</td>
+          <td data-label="Probabilidade" class="num"><span class="prob"><span class="progress" aria-hidden="true"><i style="width:75%"></i></span>75%</span></td>
+          <td data-label="Ponderada" class="num strong">R$ 6.750</td>
+          <td data-label="Previsão de fechamento" class="mono">25/09/2026</td>
+          <td data-label="Responsável">Ana Souza</td>
+          <td data-label="" class="right nowrap"><a class="link-btn" href="propostas.html">Ver proposta</a></td>
+        </tr>
+        <tr data-status="Negociação">
+          <td data-label="Lead ou cliente"><a class="strong" href="../clientes/empresa.html">Studio Arq</a><span class="cell-sub">Novo site institucional</span></td>
+          <td data-label="Serviço">Desenvolvimento de sites</td>
+          <td data-label="Etapa"><span class="badge b-info">Negociação</span></td>
+          <td data-label="Valor estimado" class="num">R$ 4.000</td>
+          <td data-label="Probabilidade" class="num"><span class="prob"><span class="progress" aria-hidden="true"><i style="width:80%"></i></span>80%</span></td>
+          <td data-label="Ponderada" class="num strong">R$ 3.200</td>
+          <td data-label="Previsão de fechamento" class="mono">22/09/2026</td>
+          <td data-label="Responsável">Ana Souza</td>
+          <td data-label="" class="right nowrap"><a class="link-btn" href="propostas.html">Ver proposta</a></td>
+        </tr>
+        <tr data-status="Proposta">
+          <td data-label="Lead ou cliente"><a class="strong" href="../clientes/empresa.html">Empresa Delta</a><span class="cell-sub">Gestão de infraestrutura AWS</span></td>
+          <td data-label="Serviço">Gestão de infraestrutura</td>
+          <td data-label="Etapa"><span class="badge b-info">Proposta</span></td>
+          <td data-label="Valor estimado" class="num">R$ 6.500</td>
+          <td data-label="Probabilidade" class="num"><span class="prob"><span class="progress" aria-hidden="true"><i style="width:50%"></i></span>50%</span></td>
+          <td data-label="Ponderada" class="num strong">R$ 3.250</td>
+          <td data-label="Previsão de fechamento" class="mono">30/09/2026</td>
+          <td data-label="Responsável">Rafael</td>
+          <td data-label="" class="right nowrap"><a class="link-btn" href="propostas.html">Ver proposta</a></td>
+        </tr>
+        <tr data-status="Proposta">
+          <td data-label="Lead ou cliente"><a class="strong" href="../clientes/empresa.html">Cliente C</a><span class="cell-sub">Integração ERP</span></td>
+          <td data-label="Serviço">Integrações</td>
+          <td data-label="Etapa"><span class="badge b-info">Proposta</span></td>
+          <td data-label="Valor estimado" class="num">R$ 4.500</td>
+          <td data-label="Probabilidade" class="num"><span class="prob"><span class="progress" aria-hidden="true"><i style="width:40%"></i></span>40%</span></td>
+          <td data-label="Ponderada" class="num strong">R$ 1.800</td>
+          <td data-label="Previsão de fechamento" class="mono">19/09/2026<span class="cell-sub"><span class="badge b-warn">proposta expira em 2 dias</span></span></td>
+          <td data-label="Responsável">Ana Souza</td>
+          <td data-label="" class="right nowrap"><a class="link-btn" href="propostas.html">Ver proposta</a></td>
+        </tr>
+        <tr data-status="Reunião">
+          <td data-label="Lead ou cliente"><a class="strong" href="../clientes/empresa.html">Grupo Norte Logística</a><span class="cell-sub">Sistema de roteirização</span></td>
+          <td data-label="Serviço">Desenvolvimento de sistemas</td>
+          <td data-label="Etapa"><span class="badge b-info">Reunião</span></td>
+          <td data-label="Valor estimado" class="num">R$ 12.000</td>
+          <td data-label="Probabilidade" class="num"><span class="prob"><span class="progress" aria-hidden="true"><i style="width:30%"></i></span>30%</span></td>
+          <td data-label="Ponderada" class="num strong">R$ 3.600</td>
+          <td data-label="Previsão de fechamento" class="mono">30/10/2026</td>
+          <td data-label="Responsável">Rafael</td>
+          <td data-label="" class="right nowrap"><a class="link-btn" href="lead.html">Ver lead</a> · <button class="link-btn" type="button" data-open="perdida">Perdida</button></td>
+        </tr>
+        <tr data-status="Reunião">
+          <td data-label="Lead ou cliente"><a class="strong" href="../clientes/empresa.html">Empresa Orion</a><span class="cell-sub">Assistente de atendimento com IA</span></td>
+          <td data-label="Serviço">Inteligência Artificial</td>
+          <td data-label="Etapa"><span class="badge b-info">Reunião</span></td>
+          <td data-label="Valor estimado" class="num">R$ 6.000</td>
+          <td data-label="Probabilidade" class="num"><span class="prob"><span class="progress" aria-hidden="true"><i style="width:30%"></i></span>30%</span></td>
+          <td data-label="Ponderada" class="num strong">R$ 1.800</td>
+          <td data-label="Previsão de fechamento" class="mono">15/10/2026</td>
+          <td data-label="Responsável">Rafael</td>
+          <td data-label="" class="right nowrap"><button class="link-btn" type="button" data-open="perdida">Perdida</button></td>
+        </tr>
+        <tr data-status="Fechado">
+          <td data-label="Lead ou cliente"><a class="strong" href="../clientes/empresa.html">Cliente E</a><span class="cell-sub">Sistema de controle de estoque</span></td>
+          <td data-label="Serviço">Desenvolvimento de sistemas</td>
+          <td data-label="Etapa"><span class="badge b-good">Fechado</span></td>
+          <td data-label="Valor estimado" class="num">R$ 7.200</td>
+          <td data-label="Probabilidade" class="num"><span class="prob"><span class="progress" aria-hidden="true"><i style="width:100%"></i></span>100%</span></td>
+          <td data-label="Ponderada" class="num muted">—</td>
+          <td data-label="Previsão de fechamento" class="mono">08/09/2026<span class="cell-sub">fechado</span></td>
+          <td data-label="Responsável">Ana Souza</td>
+          <td data-label="" class="right nowrap"><a class="link-btn" href="../clientes/contrato.html">Ver contrato</a></td>
+        </tr>
+        <tr data-status="Perdido">
+          <td data-label="Lead ou cliente"><a class="strong" href="lead.html">Construtora Alicerce</a><span class="cell-sub">Lead · Outbound</span></td>
+          <td data-label="Serviço">Gestão de infraestrutura</td>
+          <td data-label="Etapa"><span class="badge b-mute">Perdido</span><span class="cell-sub">Optou por concorrente</span></td>
+          <td data-label="Valor estimado" class="num muted">R$ 4.800</td>
+          <td data-label="Probabilidade" class="num muted">0%</td>
+          <td data-label="Ponderada" class="num muted">—</td>
+          <td data-label="Previsão de fechamento" class="mono">04/09/2026<span class="cell-sub">perdido</span></td>
+          <td data-label="Responsável">Rafael</td>
+          <td data-label="" class="right nowrap"><button class="link-btn" type="button">Reabrir</button></td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td data-label="">Total em aberto</td>
+          <td data-label=""></td>
+          <td data-label=""></td>
+          <td data-label="Valor estimado" class="num">R$ 56.000</td>
+          <td data-label=""></td>
+          <td data-label="Ponderada" class="num" style="color:var(--cyan-300)">R$ 28.800</td>
+          <td data-label=""></td>
+          <td data-label=""></td>
+          <td data-label=""></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+  <div class="pagination"><span>Previsão ponderada = valor estimado × probabilidade · Fechado e Perdido ficam fora do total em aberto</span><div class="pages"><button type="button" class="on" aria-current="page">1</button></div></div>
+</section>
+
+</main>
+</div>
+</div>
+
+<!-- Drawer: nova oportunidade -->
+<aside class="drawer" id="nova-oportunidade" role="dialog" aria-modal="true" aria-labelledby="nova-op-t">
+  <form class="form" style="display:contents">
+    <div class="drawer-head"><h2 id="nova-op-t">Nova oportunidade</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="drawer-body form">
+      <div class="form-grid">
+        <div class="field full"><label for="o-ref">Lead ou cliente <span class="req">*</span></label>
+          <select class="select" id="o-ref" required>
+            <option value="">Selecione</option>
+            <optgroup label="Empresas">
+              <option>Empresa ACME</option><option>Empresa XYZ</option><option>Empresa Delta</option><option>Empresa Orion</option><option>Cliente C</option><option>Grupo Norte Logística</option><option>Agro Campos</option><option>Studio Arq</option>
+            </optgroup>
+            <optgroup label="Leads">
+              <option>Transportes Lima — Paulo Lima</option><option>Clínica Bem Estar — Fernanda Reis</option><option>Colégio Horizonte — Márcia Tavares</option><option>Padaria Trigo Bom — Sérgio Nunes</option>
+            </optgroup>
+          </select>
+        </div>
+        <div class="field full"><label for="o-svc">Serviço <span class="req">*</span></label><select class="select" id="o-svc" required><option value="">Selecione do catálogo</option><option>Consultoria de TI</option><option>Desenvolvimento de sistemas</option><option>Desenvolvimento de sites</option><option>Manutenção</option><option>Automação/RPA</option><option>Integrações</option><option>Inteligência Artificial</option><option>Hospedagem</option><option>Gestão de infraestrutura</option><option>Suporte</option><option>Publicação de aplicativos</option></select><span class="hint">O valor estimado é sugerido pelo preço padrão do catálogo.</span></div>
+        <div class="field"><label for="o-val">Valor estimado (R$) <span class="req">*</span></label><input class="input num" id="o-val" inputmode="decimal" required placeholder="0,00" value="10.000,00"></div>
+        <div class="field"><label for="o-prob">Probabilidade (%) <span class="req">*</span></label><input class="input num" id="o-prob" type="number" min="0" max="100" step="5" required value="30"></div>
+        <div class="field"><label for="o-pond">Previsão ponderada</label><output class="input num" id="o-pond" for="o-val o-prob" style="display:flex;align-items:center;color:var(--cyan-300);font-weight:600">R$ 3.000,00</output><span class="hint">Valor estimado × probabilidade</span></div>
+        <div class="field"><label for="o-prev">Previsão de fechamento <span class="req">*</span></label><input class="input" id="o-prev" type="date" required value="2026-10-30"></div>
+        <div class="field"><label for="o-resp">Responsável <span class="req">*</span></label><select class="select" id="o-resp" required><option>Ana Souza</option><option>Rafael</option><option>Bruno Lima</option><option>Carla Mendes</option><option>Diego Rocha</option><option>Elisa Prado</option></select></div>
+        <div class="field"><label for="o-st">Status <span class="req">*</span></label><select class="select" id="o-st" required><option>Novo Lead</option><option>Contato Realizado</option><option>Qualificado</option><option selected>Reunião</option><option>Proposta</option><option>Negociação</option><option>Fechado</option><option>Perdido</option></select></div>
+        <div class="field full" id="o-mot-wrap" hidden><label for="o-mot">Motivo da perda <span class="req">*</span></label><select class="select" id="o-mot"><option value="">Selecione</option><option>Preço</option><option>Prazo</option><option>Sem retorno</option><option>Optou por concorrente</option><option>Sem orçamento</option><option>Fora do perfil</option><option>Outro</option></select></div>
+        <div class="field full"><label for="o-obs">Observações</label><textarea class="textarea" id="o-obs" placeholder="Notas da negociação: decisores, concorrentes, condições pedidas…"></textarea></div>
+      </div>
+    </div>
+    <div class="drawer-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Salvar oportunidade</button></div>
+  </form>
+</aside>
+
+<!-- Modal: marcar oportunidade como perdida -->
+<div class="modal" id="perdida" role="dialog" aria-modal="true" aria-labelledby="perdida-t">
+  <form class="form" style="display:contents">
+    <div class="modal-head"><h2 id="perdida-t">Marcar oportunidade como perdida</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="modal-body form">
+      <div class="callout"><span>Empresa Orion · Inteligência Artificial · <b class="strong">R$ 6.000</b> · etapa Reunião</span></div>
+      <div class="field"><label for="pp-mot">Motivo da perda <span class="req">*</span></label><select class="select" id="pp-mot" required><option value="">Selecione</option><option>Preço</option><option>Prazo</option><option>Sem retorno</option><option>Optou por concorrente</option><option>Sem orçamento</option><option>Fora do perfil</option><option>Outro</option></select></div>
+      <div class="field"><label for="pp-obs">Detalhes</label><textarea class="textarea" id="pp-obs" placeholder="Contexto da perda"></textarea></div>
+    </div>
+    <div class="modal-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn danger" type="submit">Marcar como perdida</button></div>
+  </form>
+</div>
+
+<script src="../assets/app.js"></script>
+<script>
+  // Previsão ponderada ao vivo e motivo obrigatório quando o status é Perdido
+  (function () {
+    var val = document.getElementById('o-val'), prob = document.getElementById('o-prob'), out = document.getElementById('o-pond');
+    var st = document.getElementById('o-st'), wrap = document.getElementById('o-mot-wrap'), mot = document.getElementById('o-mot');
+    var parse = function (s) { return parseFloat(String(s).replace(/\./g, '').replace(',', '.')) || 0; };
+    var brl = function (n) { return 'R$ ' + n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
+    var calc = function () { out.textContent = brl(parse(val.value) * (parseFloat(prob.value) || 0) / 100); };
+    val.addEventListener('input', calc); prob.addEventListener('input', calc);
+    st.addEventListener('change', function () { var p = st.value === 'Perdido'; wrap.hidden = !p; mot.required = p; });
+  })();
+</script>
+</body>
+</html>

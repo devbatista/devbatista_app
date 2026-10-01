@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Portal ACME · Admin DevBatista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/app.css">
+<style>
+  .dep .card-head { padding-bottom: 14px; }
+  .dep .card-head .row { gap: 10px; }
+  .dep-ic { width: 32px; height: 32px; border-radius: 8px; background: var(--cyan-tint); color: var(--cyan); display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  .dep .kv { padding: 10px 20px; font-size: 13px; }
+  .dep .kv > span:first-child { color: var(--text-2); }
+  .dep.crit { border-color: var(--crit-line); }
+  .dep.crit .dep-ic { background: var(--crit-bg); color: var(--crit); }
+  .ref { display: block; font-size: 12.5px; color: var(--text); margin-top: 6px; word-break: break-word; }
+</style>
+</head>
+<body data-group="tec" data-item="Aplicações" data-crumb='[["Tecnologia","aplicacoes.html"],["Aplicações","aplicacoes.html"],["Portal ACME"]]'>
+<div class="app">
+<aside class="side"></aside>
+<div class="main">
+<header class="top"></header>
+<main class="content">
+
+<div class="page-head">
+  <div class="row" style="align-items:flex-end;gap:16px">
+    <span class="co-avatar" aria-hidden="true">PA</span>
+    <div class="titles">
+      <span class="section-label">Aplicação · <a href="../clientes/empresa.html">Empresa ACME</a></span>
+      <h1>Portal ACME</h1>
+      <div class="row wrap" style="gap:8px"><span class="badge b-good">Produção</span><span class="badge b-good dot-l">Ativa</span><span class="badge b-mute">Ruby on Rails 7.2</span><span class="badge b-mute">Railway</span></div>
+    </div>
+  </div>
+  <div class="actions">
+    <a class="btn" href="../operacao/chamados.html">Abrir chamado</a>
+    <button class="btn pri" type="button" data-open="editar-aplicacao">Editar aplicação</button>
+  </div>
+</div>
+
+<div class="grid-kpi">
+  <div class="card kpi"><span class="eyebrow">Custo mensal</span><span class="v">R$ 570</span><span class="f">4 itens pagos pela DevBatista</span></div>
+  <div class="card kpi"><span class="eyebrow">Dependências</span><span class="v">9</span><span class="f">servidor, banco, 3 integrações, 3 serviços, domínio</span></div>
+  <a class="card kpi" href="../operacao/chamados.html"><span class="eyebrow">Chamados abertos</span><span class="v">2</span><span class="f"><span class="badge b-good">0</span>críticos</span></a>
+  <a class="card kpi alert" href="dominios.html"><span class="eyebrow">Domínio</span><span class="v">7 dias</span><span class="f"><span class="badge b-crit">Sem renovação automática</span>acme.com.br</span></a>
+</div>
+
+<div class="cols-2-1">
+  <div class="stack">
+
+    <section class="card" aria-labelledby="dados-t">
+      <div class="card-head"><h2 id="dados-t">Dados da aplicação</h2><span class="caption">Cadastrada em 20/03/2026 por Rafael</span></div>
+      <dl class="dl" style="border-top:1px solid var(--rule)">
+        <div><dt>Cliente</dt><dd><a href="../clientes/empresa.html">Empresa ACME</a></dd></div>
+        <div><dt>Ambiente</dt><dd>Produção</dd></div>
+        <div><dt>Status</dt><dd>Ativa</dd></div>
+        <div><dt>URL</dt><dd class="mono">https://portal.acme.com.br</dd></div>
+        <div><dt>Tecnologia</dt><dd>Ruby on Rails 7.2 · Hotwire · PostgreSQL</dd></div>
+        <div><dt>Repositório</dt><dd class="mono">github.com/devbatista/portal-acme</dd></div>
+        <div><dt>Hospedagem</dt><dd><a href="servicos-externos.html">Railway</a> <span class="muted">· serviço externo</span></dd></div>
+        <div><dt>Projeto</dt><dd><a href="../operacao/projeto.html">Portal ACME — Fase 2</a></dd></div>
+        <div><dt>Contrato</dt><dd><a href="../clientes/contrato.html">#104 Consultoria de TI</a></dd></div>
+        <div><dt>Responsável técnico</dt><dd>Diego Rocha</dd></div>
+      </dl>
+      <div class="kv" style="display:block"><span class="eyebrow">Descrição</span><p style="margin:6px 0 0;color:var(--text-2)">Portal web da Empresa ACME para pedidos de clientes, acompanhamento de entregas e relatórios gerenciais. Envia e-mails transacionais e gera resumos automáticos de atendimento.</p></div>
+    </section>
+
+    <section class="stack" aria-labelledby="mapa-t">
+      <div class="section-title"><h2 id="mapa-t">Mapa de dependências</h2><span class="caption">O que precisa estar no ar para o Portal ACME funcionar</span></div>
+      <div class="grid-2">
+
+        <div class="card dep">
+          <div class="card-head"><div class="row"><span class="dep-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16v6H4zM4 14h16v6H4zM8 7h.01M8 17h.01"/></svg></span><div><span class="eyebrow">Servidor e hospedagem</span><h3>Railway + 1 servidor</h3></div></div><a class="link-btn" href="servidores.html">Servidores</a></div>
+          <div class="kv"><span>Railway · plano Pro<span class="cell-sub">Hospedagem principal da aplicação web</span></span><b>R$ 150</b></div>
+          <div class="kv"><span>acme-worker-01 · AWS<span class="cell-sub">Jobs em segundo plano · compartilhado com o site institucional</span></span><b>R$ 220</b></div>
+        </div>
+
+        <div class="card dep">
+          <div class="card-head"><div class="row"><span class="dep-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6c0-1.7 3.6-3 8-3s8 1.3 8 3-3.6 3-8 3-8-1.3-8-3zM4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg></span><div><span class="eyebrow">Banco de dados</span><h3>PostgreSQL 16.4</h3></div></div><a class="link-btn" href="bancos-dados.html">Bancos</a></div>
+          <div class="kv"><span>Provedor</span><b>Railway (gerenciado)</b></div>
+          <div class="kv"><span>Ambiente</span><b>Produção</b></div>
+          <div class="kv"><span>Backup</span><b>Diário · 7 dias + dump semanal no S3</b></div>
+        </div>
+
+        <div class="card dep">
+          <div class="card-head"><div class="row"><span class="dep-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 7H5a2 2 0 00-2 2v6a2 2 0 002 2h3M16 7h3a2 2 0 012 2v6a2 2 0 01-2 2h-3M8 12h8"/></svg></span><div><span class="eyebrow">Integrações</span><h3>3 integrações</h3></div></div><a class="link-btn" href="integracoes.html">Integrações</a></div>
+          <div class="kv"><span>OpenAI<span class="cell-sub">Resumo automático de chamados e relatórios</span></span><span class="badge b-good">Ativa</span></div>
+          <div class="kv"><span>Amazon SES<span class="cell-sub">E-mails transacionais de pedidos</span></span><span class="badge b-good">Ativa</span></div>
+          <div class="kv"><span>WhatsApp (Cloud API)<span class="cell-sub">Notificação de status do pedido</span></span><span class="badge b-info">Em configuração</span></div>
+        </div>
+
+        <div class="card dep">
+          <div class="card-head"><div class="row"><span class="dep-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 18a4 4 0 01-.6-8A6 6 0 0118 9a4.5 4.5 0 01-.5 9z"/></svg></span><div><span class="eyebrow">Serviços externos</span><h3>3 serviços · DevBatista paga</h3></div></div><a class="link-btn" href="servicos-externos.html">Serviços</a></div>
+          <div class="kv"><span>Railway<span class="cell-sub">US$ 26,70 · Mensal</span></span><b>R$ 150</b></div>
+          <div class="kv"><span>OpenAI API<span class="cell-sub">US$ 21,35 em agosto · Por consumo</span></span><b>R$ 120</b></div>
+          <div class="kv"><span>Amazon SES<span class="cell-sub">US$ 14,25 em agosto · Por consumo</span></span><b>R$ 80</b></div>
+        </div>
+
+        <div class="card dep crit">
+          <div class="card-head"><div class="row"><span class="dep-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21a9 9 0 100-18 9 9 0 000 18zM3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg></span><div><span class="eyebrow">Domínio</span><h3>acme.com.br</h3></div></div><a class="link-btn" href="dominios.html">Domínios</a></div>
+          <div class="kv"><span>Endereço da aplicação</span><b class="mono">portal.acme.com.br</b></div>
+          <div class="kv"><span>Registrador · DNS</span><b>Registro.br · Cloudflare</b></div>
+          <div class="kv"><span>Vencimento</span><span class="row" style="gap:8px"><b>24/09/2026</b><span class="badge b-crit">7 dias</span></span></div>
+          <div class="kv"><span>Renovação automática</span><span class="badge b-crit">Não</span></div>
+        </div>
+
+        <div class="card dep">
+          <div class="card-head"><div class="row"><span class="dep-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h9l4 4v14H6zM14 3v5h5M9 13h7M9 17h5"/></svg></span><div><span class="eyebrow">Projeto e contrato</span><h3>Vínculos comerciais</h3></div></div></div>
+          <div class="kv"><span><a href="../operacao/projeto.html">Portal ACME — Fase 2</a><span class="cell-sub">Diego Rocha · em andamento</span></span><b>62%</b></div>
+          <div class="kv"><span><a href="../clientes/contrato.html">Contrato #104</a><span class="cell-sub">Consultoria de TI · mensal</span></span><b>R$ 3.000</b></div>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="chamados-t">
+      <div class="card-head"><h2 id="chamados-t">Chamados recentes</h2><a class="link-btn" href="../operacao/chamados.html">Ver todos</a></div>
+      <div class="table-wrap">
+        <table class="table cards">
+          <thead><tr><th>Chamado</th><th>Assunto</th><th>Responsável</th><th>Aberto em</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td data-label="Chamado"><a class="strong" href="../operacao/chamado.html">#2396</a></td><td data-label="Assunto">Ajuste no modelo do e-mail de confirmação de pedido</td><td data-label="Responsável">Elisa Prado</td><td data-label="Aberto em" class="mono">16/09/2026</td><td data-label="Status"><span class="badge b-info">Aberto</span></td></tr>
+            <tr><td data-label="Chamado"><a class="strong" href="../operacao/chamado.html">#2389</a></td><td data-label="Assunto">Lentidão na exportação de pedidos</td><td data-label="Responsável">Diego Rocha</td><td data-label="Aberto em" class="mono">11/09/2026</td><td data-label="Status"><span class="badge b-warn">Em atendimento</span></td></tr>
+            <tr><td data-label="Chamado"><a class="strong" href="../operacao/chamado.html">#2381</a></td><td data-label="Assunto">Erro ao gerar relatório</td><td data-label="Responsável">Carla Mendes</td><td data-label="Aberto em" class="mono">03/09/2026</td><td data-label="Status"><span class="badge b-good">Resolvido</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="stack">
+
+    <section class="card" aria-labelledby="custo-t">
+      <div class="card-head"><h2 id="custo-t">Custo mensal</h2><span class="unit">SET/2026</span></div>
+      <div class="kv"><span>Railway · hospedagem</span><b>R$ 150</b></div>
+      <div class="kv"><span>acme-worker-01 · AWS</span><b>R$ 220</b></div>
+      <div class="kv"><span>OpenAI API</span><b>R$ 120</b></div>
+      <div class="kv"><span>Amazon SES</span><b>R$ 80</b></div>
+      <div class="kv"><span>Domínio acme.com.br<span class="cell-sub">Pago pelo cliente</span></span><span class="muted">—</span></div>
+      <div class="kv" style="background:var(--surface-hover)"><span class="strong" style="color:var(--white)">Total</span><b style="font-size:18px;color:var(--white)">R$ 570/mês</b></div>
+      <div class="card-foot"><span>US$ convertido a R$ 5,62 (17/09/2026)</span><a href="../gestao/rentabilidade.html" style="font-weight:600">Rentabilidade</a></div>
+    </section>
+
+    <div class="callout">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:1px;color:var(--cyan)"><path d="M5 11h14v10H5zM8 11V7a4 4 0 018 0v4"/></svg>
+      <div>
+        <b class="strong">Credenciais</b>
+        <p style="margin:4px 0 0">O sistema guarda só a referência ao cofre de senhas. Senhas, chaves e tokens nunca são cadastrados aqui.</p>
+        <span class="ref mono">Cofre DevBatista › Clientes › ACME › Portal ACME (produção)</span>
+        <span class="ref mono">Cofre DevBatista › Clientes › ACME › PostgreSQL produção</span>
+        <span class="ref mono">Cofre DevBatista › Clientes › ACME › Railway</span>
+      </div>
+    </div>
+
+    <section class="card" aria-labelledby="hist-t">
+      <div class="card-head"><h2 id="hist-t">Histórico</h2><a class="link-btn" href="../administracao/logs.html">Auditoria</a></div>
+      <div class="tl"><i></i><div>Chamado <a href="../operacao/chamado.html">#2381</a> marcado como Resolvido<small>hoje, 11:45 · Carla Mendes</small></div></div>
+      <div class="tl"><i></i><div>Tecnologia alterada de Rails 7.1 para Rails 7.2<small>02/09/2026 · Diego Rocha</small></div></div>
+      <div class="tl"><i></i><div>Integração WhatsApp cadastrada (Em configuração)<small>28/08/2026 · Diego Rocha</small></div></div>
+      <div class="tl"><i></i><div>Aplicação cadastrada<small>20/03/2026 · Rafael</small></div></div>
+    </section>
+
+  </div>
+</div>
+
+</main>
+</div>
+</div>
+
+<!-- Formulário lateral: editar aplicação -->
+<aside class="drawer" id="editar-aplicacao" role="dialog" aria-modal="true" aria-labelledby="editar-aplicacao-t">
+  <form class="form" style="display:contents">
+    <div class="drawer-head"><h2 id="editar-aplicacao-t">Editar aplicação</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="drawer-body form">
+      <span class="fieldset-title">Identificação</span>
+      <div class="form-grid">
+        <div class="field full"><label for="e-cli">Cliente <span class="req">*</span></label><select class="select" id="e-cli" required><option selected>Empresa ACME</option><option>Empresa XYZ</option><option>Empresa Delta</option><option>Empresa Orion</option><option>Cliente A</option><option>Cliente B</option><option>Cliente C</option></select></div>
+        <div class="field full"><label for="e-nome">Nome <span class="req">*</span></label><input class="input" id="e-nome" required value="Portal ACME"></div>
+        <div class="field full"><label for="e-desc">Descrição</label><textarea class="textarea" id="e-desc">Portal web da Empresa ACME para pedidos de clientes, acompanhamento de entregas e relatórios gerenciais.</textarea></div>
+        <div class="field"><label for="e-amb">Ambiente <span class="req">*</span></label><select class="select" id="e-amb" required><option>Desenvolvimento</option><option>Staging</option><option selected>Produção</option></select></div>
+        <div class="field"><label for="e-status">Status <span class="req">*</span></label><select class="select" id="e-status" required><option selected>Ativa</option><option>Em manutenção</option><option>Desativada</option></select></div>
+      </div>
+      <span class="fieldset-title">Acesso e código</span>
+      <div class="form-grid">
+        <div class="field full"><label for="e-url">URL</label><input class="input" id="e-url" type="url" value="https://portal.acme.com.br"></div>
+        <div class="field full"><label for="e-tec">Tecnologia</label><input class="input" id="e-tec" value="Ruby on Rails 7.2 · Hotwire · PostgreSQL"></div>
+        <div class="field full"><label for="e-repo">Repositório</label><input class="input" id="e-repo" type="url" value="https://github.com/devbatista/portal-acme"></div>
+      </div>
+      <span class="fieldset-title">Hospedagem e credenciais</span>
+      <div class="form-grid">
+        <div class="field full"><label for="e-host">Hospedagem</label>
+          <select class="select" id="e-host">
+            <optgroup label="Servidores"><option>acme-worker-01 · AWS</option></optgroup>
+            <optgroup label="Serviços externos"><option selected>Railway · Empresa ACME</option></optgroup>
+          </select>
+          <span class="hint">Servidor ou serviço externo onde a aplicação roda</span>
+        </div>
+        <div class="field full"><label for="e-cofre">Referência no cofre de senhas</label><input class="input" id="e-cofre" value="Cofre DevBatista › Clientes › ACME › Portal ACME (produção)"><span class="hint">Caminho do item no cofre, nunca a credencial</span></div>
+      </div>
+    </div>
+    <div class="drawer-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Salvar alterações</button></div>
+  </form>
+</aside>
+
+<script src="../assets/app.js"></script>
+</body>
+</html>

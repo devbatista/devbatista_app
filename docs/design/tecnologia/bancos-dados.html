@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bancos de dados · Admin DevBatista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/app.css">
+</head>
+<body data-group="tec" data-item="Bancos de dados" data-crumb='[["Tecnologia","aplicacoes.html"],["Bancos de dados"]]'>
+<div class="app">
+<aside class="side"></aside>
+<div class="main">
+<header class="top"></header>
+<main class="content">
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Tecnologia · Inventário</span>
+    <h1>Bancos de dados</h1>
+    <p class="lead">Banco de cada aplicação, com tecnologia, versão, provedor e política de backup.</p>
+  </div>
+  <div class="actions">
+    <button class="btn" type="button">Exportar CSV</button>
+    <button class="btn pri" type="button" data-open="novo-banco">Novo banco de dados</button>
+  </div>
+</div>
+
+<div class="callout crit">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:1px;color:var(--crit)"><path d="M5 11h14v10H5zM8 11V7a4 4 0 018 0v4"/></svg>
+  <div><b class="strong">Não armazenar senhas</b><p style="margin:4px 0 0">Este cadastro é um inventário. Usuário, senha e string de conexão ficam no cofre de senhas; aqui só a referência ao item do cofre.</p></div>
+</div>
+
+<div class="grid-kpi">
+  <div class="card kpi"><span class="eyebrow">Bancos cadastrados</span><span class="v">9</span><span class="f">em 9 aplicações de 7 clientes</span></div>
+  <div class="card kpi"><span class="eyebrow">Em produção</span><span class="v">5</span><span class="f"><span class="badge b-good">5</span>com backup diário</span></div>
+  <div class="card kpi"><span class="eyebrow">Tecnologias</span><span class="v">3</span><span class="f">PostgreSQL 6 · MySQL 2 · MongoDB 1</span></div>
+  <div class="card kpi"><span class="eyebrow">Sem backup</span><span class="v">2</span><span class="f"><span class="badge b-mute">Staging e desenvolvimento</span></span></div>
+</div>
+
+<div class="toolbar">
+  <div class="seg" role="group" aria-label="Filtrar por ambiente" data-filter-group="bancos">
+    <button type="button" class="on" data-filter="todos" aria-pressed="true">Todos <span class="c"></span></button>
+    <button type="button" data-filter="Produção" aria-pressed="false">Produção <span class="c"></span></button>
+    <button type="button" data-filter="Staging" aria-pressed="false">Staging <span class="c"></span></button>
+    <button type="button" data-filter="Desenvolvimento" aria-pressed="false">Desenvolvimento <span class="c"></span></button>
+  </div>
+  <span class="spacer"></span>
+  <label class="search-field"><span class="sr-only">Buscar banco de dados</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M11 18a7 7 0 100-14 7 7 0 000 14zM21 21l-4.3-4.3"/></svg><input class="input" type="search" placeholder="Aplicação, cliente ou provedor"></label>
+  <label class="sr-only" for="f-tec">Tecnologia</label>
+  <select class="select" id="f-tec"><option>Todas as tecnologias</option><option>PostgreSQL</option><option>MySQL</option><option>MongoDB</option></select>
+  <label class="sr-only" for="f-cli">Cliente</label>
+  <select class="select" id="f-cli"><option>Todos os clientes</option><option>Empresa ACME</option><option>Empresa XYZ</option><option>Empresa Delta</option><option>Empresa Orion</option><option>Cliente A</option><option>Cliente B</option><option>Cliente C</option></select>
+</div>
+
+<section class="card" aria-label="Lista de bancos de dados">
+  <div class="table-wrap">
+    <table class="table cards" data-filter-target="bancos">
+      <thead><tr><th>Cliente</th><th>Aplicação</th><th>Tecnologia</th><th>Versão</th><th>Ambiente</th><th>Provedor</th><th>Política de backup</th></tr></thead>
+      <tbody>
+        <tr data-status="Produção"><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa ACME</a></td><td data-label="Aplicação"><a class="strong" href="aplicacao.html">Portal ACME</a></td><td data-label="Tecnologia">PostgreSQL</td><td data-label="Versão" class="mono">16.4</td><td data-label="Ambiente"><span class="badge b-good">Produção</span></td><td data-label="Provedor">Railway (gerenciado)</td><td data-label="Política de backup">Diário · 7 dias<span class="cell-sub">+ dump semanal no S3</span></td></tr>
+        <tr data-status="Produção"><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa XYZ</a></td><td data-label="Aplicação"><a class="strong" href="aplicacao.html">Sistema ERP</a></td><td data-label="Tecnologia">PostgreSQL</td><td data-label="Versão" class="mono">15.8</td><td data-label="Ambiente"><span class="badge b-good">Produção</span></td><td data-label="Provedor">Railway (gerenciado)</td><td data-label="Política de backup">Diário · 7 dias<span class="cell-sub">Restauração testada em 15/08/2026</span></td></tr>
+        <tr data-status="Produção"><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa XYZ</a></td><td data-label="Aplicação"><a class="strong" href="aplicacao.html">Portal de arquivos XYZ</a></td><td data-label="Tecnologia">MySQL</td><td data-label="Versão" class="mono">8.0.39</td><td data-label="Ambiente"><span class="badge b-good">Produção</span></td><td data-label="Provedor">Servidor próprio · xyz-files-01</td><td data-label="Política de backup">Dump noturno no S3 · 30 dias</td></tr>
+        <tr data-status="Produção"><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa Delta</a></td><td data-label="Aplicação"><a class="strong" href="aplicacao.html">API Delta</a></td><td data-label="Tecnologia">PostgreSQL</td><td data-label="Versão" class="mono">14.12</td><td data-label="Ambiente"><span class="badge b-good">Produção</span></td><td data-label="Provedor">Amazon RDS</td><td data-label="Política de backup">Snapshots diários · 14 dias<span class="cell-sub">Recuperação a um ponto no tempo ativa</span></td></tr>
+        <tr data-status="Staging"><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa Delta</a></td><td data-label="Aplicação"><a class="strong" href="aplicacao.html">API Delta (staging)</a></td><td data-label="Tecnologia">PostgreSQL</td><td data-label="Versão" class="mono">14.12</td><td data-label="Ambiente"><span class="badge b-info">Staging</span></td><td data-label="Provedor">Servidor próprio · delta-api-stg</td><td data-label="Política de backup"><span class="badge b-mute">Sem backup</span><span class="cell-sub">Dados de teste, recriados por seed</span></td></tr>
+        <tr data-status="Staging"><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa Orion</a></td><td data-label="Aplicação"><a class="strong" href="aplicacao.html">App Orion</a></td><td data-label="Tecnologia">MongoDB</td><td data-label="Versão" class="mono">7.0</td><td data-label="Ambiente"><span class="badge b-info">Staging</span></td><td data-label="Provedor">MongoDB Atlas (M10)</td><td data-label="Política de backup">Snapshot diário · 2 dias</td></tr>
+        <tr data-status="Staging"><td data-label="Cliente"><a href="../clientes/empresa.html">Cliente C</a></td><td data-label="Aplicação"><a class="strong" href="aplicacao.html">ERP Cliente C</a></td><td data-label="Tecnologia">PostgreSQL</td><td data-label="Versão" class="mono">16.4</td><td data-label="Ambiente"><span class="badge b-info">Staging</span></td><td data-label="Provedor">Amazon RDS</td><td data-label="Política de backup">Snapshot diário · 7 dias</td></tr>
+        <tr data-status="Produção"><td data-label="Cliente"><a href="../clientes/empresa.html">Cliente A</a></td><td data-label="Aplicação"><a class="strong" href="aplicacao.html">Sistema de agendamento</a></td><td data-label="Tecnologia">MySQL</td><td data-label="Versão" class="mono">8.0.39</td><td data-label="Ambiente"><span class="badge b-good">Produção</span></td><td data-label="Provedor">Amazon RDS</td><td data-label="Política de backup">Diário · 30 dias<span class="cell-sub">Restauração testada em 02/09/2026</span></td></tr>
+        <tr data-status="Desenvolvimento"><td data-label="Cliente"><a href="../clientes/empresa.html">Cliente B</a></td><td data-label="Aplicação"><a class="strong" href="aplicacao.html">Painel de vendas</a></td><td data-label="Tecnologia">PostgreSQL</td><td data-label="Versão" class="mono">16.4</td><td data-label="Ambiente"><span class="badge b-mute">Desenvolvimento</span></td><td data-label="Provedor">Docker · clienteb-dev</td><td data-label="Política de backup"><span class="badge b-mute">Sem backup</span><span class="cell-sub">Ambiente descartável</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="pagination"><span>9 bancos de dados · política de backup registrada em Observações</span><div class="pages"><button type="button" class="on" aria-current="page">1</button></div></div>
+</section>
+
+</main>
+</div>
+</div>
+
+<!-- Formulário lateral: novo banco de dados -->
+<aside class="drawer" id="novo-banco" role="dialog" aria-modal="true" aria-labelledby="novo-banco-t">
+  <form class="form" style="display:contents">
+    <div class="drawer-head"><h2 id="novo-banco-t">Novo banco de dados</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="drawer-body form">
+      <div class="callout crit"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:2px;color:var(--crit)"><path d="M5 11h14v10H5zM8 11V7a4 4 0 018 0v4"/></svg><span>Não informe senha, usuário de acesso nem string de conexão. As credenciais ficam no cofre de senhas.</span></div>
+      <div class="form-grid">
+        <div class="field"><label for="b-cli">Cliente <span class="req">*</span></label><select class="select" id="b-cli" required><option value="">Selecione</option><option>Empresa ACME</option><option>Empresa XYZ</option><option>Empresa Delta</option><option>Empresa Orion</option><option>Cliente A</option><option>Cliente B</option><option>Cliente C</option></select></div>
+        <div class="field"><label for="b-app">Aplicação <span class="req">*</span></label><select class="select" id="b-app" required><option value="">Selecione o cliente primeiro</option><option>Portal ACME</option><option>Site institucional ACME</option></select></div>
+        <div class="field"><label for="b-tec">Tecnologia <span class="req">*</span></label><input class="input" id="b-tec" list="tecnologias" required placeholder="Ex.: PostgreSQL"><datalist id="tecnologias"><option value="PostgreSQL"></option><option value="MySQL"></option><option value="MongoDB"></option><option value="Redis"></option><option value="SQL Server"></option></datalist></div>
+        <div class="field"><label for="b-ver">Versão</label><input class="input" id="b-ver" placeholder="Ex.: 16.4"></div>
+        <div class="field"><label for="b-amb">Ambiente <span class="req">*</span></label><select class="select" id="b-amb" required><option value="">Selecione</option><option>Desenvolvimento</option><option>Staging</option><option>Produção</option></select></div>
+        <div class="field"><label for="b-prov">Provedor</label><input class="input" id="b-prov" placeholder="Ex.: Amazon RDS ou servidor próprio"><span class="hint">Serviço gerenciado ou servidor próprio</span></div>
+        <div class="field full"><label for="b-obs">Observações</label><textarea class="textarea" id="b-obs" placeholder="Política de backup, porte e particularidades"></textarea></div>
+        <div class="field full"><label for="b-cofre">Referência no cofre de senhas</label><input class="input" id="b-cofre" placeholder="Ex.: Cofre DevBatista › Clientes › ACME › PostgreSQL produção"><span class="hint">Caminho do item no cofre, nunca a credencial</span></div>
+      </div>
+    </div>
+    <div class="drawer-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Salvar banco de dados</button></div>
+  </form>
+</aside>
+
+<script src="../assets/app.js"></script>
+</body>
+</html>

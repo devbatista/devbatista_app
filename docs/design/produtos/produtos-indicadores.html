@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Indicadores dos produtos · Admin DevBatista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/app.css">
+<style>
+  .bars.stacked .col { gap: 0; }
+  .bars.stacked .lbl { margin-bottom: 6px; }
+  .bars.stacked .bar + .bar { border-radius: 0; }
+  .line-lbl { position: absolute; right: 0; font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body data-group="prod" data-item="Indicadores" data-crumb='[["Produtos","produtos.html"],["Indicadores"]]'>
+<div class="app">
+<aside class="side"></aside>
+<div class="main">
+<header class="top"></header>
+<main class="content">
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Produtos · Abril a setembro de 2026</span>
+    <h1>Indicadores dos produtos</h1>
+    <p class="lead">MRR, clientes e custo de cada produto próprio ao longo dos últimos seis meses.</p>
+  </div>
+  <div class="actions">
+    <label class="sr-only" for="periodo">Período</label>
+    <select class="select" id="periodo"><option>Últimos 6 meses</option><option>Últimos 12 meses</option><option>Ano de 2026</option><option>Personalizado…</option></select>
+    <label class="sr-only" for="f-prod">Produto</label>
+    <select class="select" id="f-prod"><option>Todos os produtos</option><option>CatalystOps</option><option>PrescSign</option><option>Ruby Rose</option><option>Plataforma de eBooks</option></select>
+    <button class="btn" type="button">Exportar CSV</button>
+  </div>
+</div>
+
+<div class="grid-kpi">
+  <div class="card kpi"><span class="eyebrow">MRR dos produtos</span><span class="v">R$ 3.650</span><span class="f"><span class="badge b-good">+5,8%</span>vs. agosto · +37% em 6 meses</span></div>
+  <div class="card kpi"><span class="eyebrow">Clientes ativos</span><span class="v">86</span><span class="f"><span class="badge b-good">+5</span>vs. agosto</span></div>
+  <div class="card kpi"><span class="eyebrow">Custo mensal</span><span class="v">R$ 1.150</span><span class="f"><span class="badge b-warn">+5,5%</span>vs. agosto · inclui Ruby Rose</span></div>
+  <div class="card kpi"><span class="eyebrow">Margem</span><span class="v">68,5%</span><span class="f">R$ 2.500 · ticket médio R$ 42,44</span></div>
+</div>
+
+<section class="stack" aria-label="Gráficos dos produtos">
+  <div class="section-title"><span class="eyebrow">Últimos seis meses</span><span class="caption">Valores ilustrativos · lançados manualmente em Assinaturas</span></div>
+  <div class="grid-3">
+
+    <div class="card card-body stack">
+      <div class="section-title"><h2>MRR total</h2><span class="unit">R$</span></div>
+      <div class="bars" role="img" aria-label="MRR total de abril a setembro: 2.660; 2.870; 3.050; 3.250; 3.450; 3.650 reais">
+        <div class="col" title="Abr: R$ 2.660"><div class="bar" style="height:66%"></div></div>
+        <div class="col" title="Mai: R$ 2.870"><div class="bar" style="height:72%"></div></div>
+        <div class="col" title="Jun: R$ 3.050"><div class="bar" style="height:76%"></div></div>
+        <div class="col" title="Jul: R$ 3.250"><div class="bar" style="height:81%"></div></div>
+        <div class="col" title="Ago: R$ 3.450"><div class="bar" style="height:86%"></div></div>
+        <div class="col" title="Set: R$ 3.650"><span class="lbl">3.650</span><div class="bar cur" style="height:91%"></div></div>
+      </div>
+      <div class="axis"><span>Abr</span><span>Mai</span><span>Jun</span><span>Jul</span><span>Ago</span><span>Set</span></div>
+    </div>
+
+    <div class="card card-body stack">
+      <div class="section-title"><h2>MRR por produto</h2><span class="unit">R$</span></div>
+      <div style="position:relative;height:150px;border-bottom:1px solid var(--border-strong)">
+        <svg width="100%" height="150" viewBox="0 0 300 150" preserveAspectRatio="none" role="img" aria-label="CatalystOps cresceu de R$ 1.640 para R$ 2.180; PrescSign de R$ 1.020 para R$ 1.470, de abril a setembro">
+          <line x1="0" y1="50" x2="300" y2="50" style="stroke:var(--rule)" vector-effect="non-scaling-stroke"/>
+          <line x1="0" y1="100" x2="300" y2="100" style="stroke:var(--rule)" vector-effect="non-scaling-stroke"/>
+          <polyline points="0,51.6 60,44.4 120,39 180,32.4 240,25.8 300,19.2" fill="none" style="stroke:var(--cyan)" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>
+          <polyline points="0,88.8 60,83.4 120,78 180,72.6 240,67.2 300,61.8" fill="none" style="stroke:var(--blue)" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>
+        </svg>
+        <span class="line-lbl" style="top:0;color:var(--cyan-300)">2.180</span>
+        <span class="line-lbl" style="top:44px;color:var(--blue)">1.470</span>
+      </div>
+      <div class="axis"><span>Abr</span><span>Mai</span><span>Jun</span><span>Jul</span><span>Ago</span><span>Set</span></div>
+      <div class="legend"><span><i style="background:var(--cyan)"></i>CatalystOps</span><span><i style="background:var(--blue)"></i>PrescSign</span></div>
+    </div>
+
+    <div class="card card-body stack">
+      <div class="section-title"><h2>Clientes por produto</h2><span class="unit">ASSINANTES</span></div>
+      <div class="bars stacked" role="img" aria-label="Clientes ativos de abril a setembro. CatalystOps: 28, 30, 32, 34, 35, 37. PrescSign: 34, 37, 40, 43, 46, 49. Total: 62, 67, 72, 77, 81, 86">
+        <div class="col" title="Abr: 62 (CatalystOps 28, PrescSign 34)"><div class="bar" style="height:28%;background:var(--cyan)"></div><div class="bar" style="height:34%;background:var(--cyan-800)"></div></div>
+        <div class="col" title="Mai: 67 (CatalystOps 30, PrescSign 37)"><div class="bar" style="height:30%;background:var(--cyan)"></div><div class="bar" style="height:37%;background:var(--cyan-800)"></div></div>
+        <div class="col" title="Jun: 72 (CatalystOps 32, PrescSign 40)"><div class="bar" style="height:32%;background:var(--cyan)"></div><div class="bar" style="height:40%;background:var(--cyan-800)"></div></div>
+        <div class="col" title="Jul: 77 (CatalystOps 34, PrescSign 43)"><div class="bar" style="height:34%;background:var(--cyan)"></div><div class="bar" style="height:43%;background:var(--cyan-800)"></div></div>
+        <div class="col" title="Ago: 81 (CatalystOps 35, PrescSign 46)"><div class="bar" style="height:35%;background:var(--cyan)"></div><div class="bar" style="height:46%;background:var(--cyan-800)"></div></div>
+        <div class="col" title="Set: 86 (CatalystOps 37, PrescSign 49)"><span class="lbl">86</span><div class="bar" style="height:37%;background:var(--cyan)"></div><div class="bar" style="height:49%;background:var(--cyan-800)"></div></div>
+      </div>
+      <div class="axis"><span>Abr</span><span>Mai</span><span>Jun</span><span>Jul</span><span>Ago</span><span>Set</span></div>
+      <div class="legend"><span><i style="background:var(--cyan)"></i>CatalystOps</span><span><i style="background:var(--cyan-800)"></i>PrescSign</span></div>
+    </div>
+
+    <div class="card card-body stack">
+      <div class="section-title"><h2>Custo mensal total</h2><span class="unit">R$</span></div>
+      <div class="bars" role="img" aria-label="Custo mensal dos produtos de abril a setembro: 860; 900; 980; 1.050; 1.090; 1.150 reais">
+        <div class="col" title="Abr: R$ 860"><div class="bar" style="height:57%"></div></div>
+        <div class="col" title="Mai: R$ 900"><div class="bar" style="height:60%"></div></div>
+        <div class="col" title="Jun: R$ 980 (Ruby Rose entra com R$ 40)"><div class="bar" style="height:65%"></div></div>
+        <div class="col" title="Jul: R$ 1.050"><div class="bar" style="height:70%"></div></div>
+        <div class="col" title="Ago: R$ 1.090"><div class="bar" style="height:73%"></div></div>
+        <div class="col" title="Set: R$ 1.150"><span class="lbl">1.150</span><div class="bar cur" style="height:77%"></div></div>
+      </div>
+      <div class="axis"><span>Abr</span><span>Mai</span><span>Jun</span><span>Jul</span><span>Ago</span><span>Set</span></div>
+    </div>
+
+    <div class="card card-body stack">
+      <div class="section-title"><h2>Custo por produto</h2><span class="unit">R$ · SET</span></div>
+      <div class="hbars">
+        <div class="hbar"><span>CatalystOps</span><div class="track"><div class="fill" style="width:100%"></div></div><span class="val">640</span></div>
+        <div class="hbar"><span>PrescSign</span><div class="track"><div class="fill" style="width:61%"></div></div><span class="val">390</span></div>
+        <div class="hbar"><span>Ruby Rose</span><div class="track"><div class="fill alt" style="width:19%"></div></div><span class="val">120</span></div>
+        <div class="hbar"><span>eBooks</span><div class="track"><div class="fill alt" style="width:0%"></div></div><span class="val">0</span></div>
+      </div>
+      <span class="caption">Ruby Rose ainda sem receita: custo de infraestrutura do beta.</span>
+    </div>
+
+    <div class="card card-body stack">
+      <div class="section-title"><h2>Margem por produto</h2><span class="unit">% · SET</span></div>
+      <div class="hbars">
+        <div class="hbar"><span>PrescSign</span><div class="track"><div class="fill" style="width:73.5%"></div></div><span class="val">73,5</span></div>
+        <div class="hbar"><span>CatalystOps</span><div class="track"><div class="fill" style="width:70.6%"></div></div><span class="val">70,6</span></div>
+        <div class="hbar"><span>Consolidado</span><div class="track"><div class="fill alt" style="width:68.5%"></div></div><span class="val">68,5</span></div>
+      </div>
+      <span class="caption">Margem = (MRR − custo mensal) ÷ MRR. Produtos sem receita ficam fora.</span>
+    </div>
+
+  </div>
+</section>
+
+<section class="card" aria-labelledby="comp-t">
+  <div class="card-head"><h2 id="comp-t">Comparação entre produtos</h2><span class="eyebrow">Setembro de 2026</span></div>
+  <div class="table-wrap">
+    <table class="table cards">
+      <thead><tr><th>Produto</th><th>Status</th><th class="num">MRR</th><th class="num">Var. 6 meses</th><th class="num">Clientes</th><th class="num">Ticket médio</th><th class="num">Custo mensal</th><th class="num">Resultado</th><th class="num">Margem</th></tr></thead>
+      <tbody>
+        <tr><td data-label="Produto"><a class="strong" href="produtos.html">CatalystOps</a></td><td data-label="Status"><span class="badge b-good">Em operação</span></td><td data-label="MRR" class="num">R$ 2.180</td><td data-label="Var. 6 meses" class="num" style="color:var(--good)">+32,9%</td><td data-label="Clientes" class="num">37</td><td data-label="Ticket médio" class="num">R$ 58,92</td><td data-label="Custo mensal" class="num">R$ 640</td><td data-label="Resultado" class="num">R$ 1.540</td><td data-label="Margem" class="num strong">70,6%</td></tr>
+        <tr><td data-label="Produto"><a class="strong" href="produtos.html">PrescSign</a></td><td data-label="Status"><span class="badge b-good">Em operação</span></td><td data-label="MRR" class="num">R$ 1.470</td><td data-label="Var. 6 meses" class="num" style="color:var(--good)">+44,1%</td><td data-label="Clientes" class="num">49</td><td data-label="Ticket médio" class="num">R$ 30,00</td><td data-label="Custo mensal" class="num">R$ 390</td><td data-label="Resultado" class="num">R$ 1.080</td><td data-label="Margem" class="num strong">73,5%</td></tr>
+        <tr><td data-label="Produto"><a class="strong" href="produtos.html">Ruby Rose</a></td><td data-label="Status"><span class="badge b-info">Em desenvolvimento</span></td><td data-label="MRR" class="num muted">R$ 0</td><td data-label="Var. 6 meses" class="num muted">—</td><td data-label="Clientes" class="num muted">0</td><td data-label="Ticket médio" class="num muted">—</td><td data-label="Custo mensal" class="num">R$ 120</td><td data-label="Resultado" class="num" style="color:var(--crit)">− R$ 120</td><td data-label="Margem" class="num muted">—</td></tr>
+        <tr><td data-label="Produto"><a class="strong" href="produtos.html">Plataforma de eBooks</a></td><td data-label="Status"><span class="badge b-blue">Ideia</span></td><td data-label="MRR" class="num muted">—</td><td data-label="Var. 6 meses" class="num muted">—</td><td data-label="Clientes" class="num muted">—</td><td data-label="Ticket médio" class="num muted">—</td><td data-label="Custo mensal" class="num muted">R$ 0</td><td data-label="Resultado" class="num muted">—</td><td data-label="Margem" class="num muted">—</td></tr>
+      </tbody>
+      <tfoot><tr><td data-label="" colspan="2">Total dos produtos</td><td data-label="MRR" class="num">R$ 3.650</td><td data-label="Var. 6 meses" class="num">+37,2%</td><td data-label="Clientes" class="num">86</td><td data-label="Ticket médio" class="num">R$ 42,44</td><td data-label="Custo mensal" class="num">R$ 1.150</td><td data-label="Resultado" class="num">R$ 2.500</td><td data-label="Margem" class="num">68,5%</td></tr></tfoot>
+    </table>
+  </div>
+</section>
+
+<section class="card" aria-labelledby="serie-t" data-tabs-scope>
+  <div class="card-head" style="padding-bottom:0;flex-wrap:wrap"><h2 id="serie-t">Série mensal por produto</h2>
+    <div class="tabs" role="tablist" data-tabs style="border-bottom:0">
+      <button class="tab on" type="button" role="tab" aria-selected="true" data-tab="mrr">MRR</button>
+      <button class="tab" type="button" role="tab" aria-selected="false" data-tab="cli">Clientes</button>
+      <button class="tab" type="button" role="tab" aria-selected="false" data-tab="custo">Custo mensal</button>
+    </div>
+  </div>
+  <div class="table-wrap" data-panel="mrr" style="border-top:1px solid var(--border)">
+    <table class="table cards">
+      <thead><tr><th>Produto</th><th class="num">Abr</th><th class="num">Mai</th><th class="num">Jun</th><th class="num">Jul</th><th class="num">Ago</th><th class="num">Set</th></tr></thead>
+      <tbody>
+        <tr><td data-label="Produto" class="strong">CatalystOps</td><td data-label="Abr" class="num">R$ 1.640</td><td data-label="Mai" class="num">R$ 1.760</td><td data-label="Jun" class="num">R$ 1.850</td><td data-label="Jul" class="num">R$ 1.960</td><td data-label="Ago" class="num">R$ 2.070</td><td data-label="Set" class="num strong">R$ 2.180</td></tr>
+        <tr><td data-label="Produto" class="strong">PrescSign</td><td data-label="Abr" class="num">R$ 1.020</td><td data-label="Mai" class="num">R$ 1.110</td><td data-label="Jun" class="num">R$ 1.200</td><td data-label="Jul" class="num">R$ 1.290</td><td data-label="Ago" class="num">R$ 1.380</td><td data-label="Set" class="num strong">R$ 1.470</td></tr>
+        <tr><td data-label="Produto" class="strong">Ruby Rose</td><td data-label="Abr" class="num muted">R$ 0</td><td data-label="Mai" class="num muted">R$ 0</td><td data-label="Jun" class="num muted">R$ 0</td><td data-label="Jul" class="num muted">R$ 0</td><td data-label="Ago" class="num muted">R$ 0</td><td data-label="Set" class="num muted">R$ 0</td></tr>
+      </tbody>
+      <tfoot><tr><td data-label="">Total</td><td data-label="Abr" class="num">R$ 2.660</td><td data-label="Mai" class="num">R$ 2.870</td><td data-label="Jun" class="num">R$ 3.050</td><td data-label="Jul" class="num">R$ 3.250</td><td data-label="Ago" class="num">R$ 3.450</td><td data-label="Set" class="num">R$ 3.650</td></tr></tfoot>
+    </table>
+  </div>
+  <div class="table-wrap" data-panel="cli" hidden style="border-top:1px solid var(--border)">
+    <table class="table cards">
+      <thead><tr><th>Produto</th><th class="num">Abr</th><th class="num">Mai</th><th class="num">Jun</th><th class="num">Jul</th><th class="num">Ago</th><th class="num">Set</th></tr></thead>
+      <tbody>
+        <tr><td data-label="Produto" class="strong">CatalystOps</td><td data-label="Abr" class="num">28</td><td data-label="Mai" class="num">30</td><td data-label="Jun" class="num">32</td><td data-label="Jul" class="num">34</td><td data-label="Ago" class="num">35</td><td data-label="Set" class="num strong">37</td></tr>
+        <tr><td data-label="Produto" class="strong">PrescSign</td><td data-label="Abr" class="num">34</td><td data-label="Mai" class="num">37</td><td data-label="Jun" class="num">40</td><td data-label="Jul" class="num">43</td><td data-label="Ago" class="num">46</td><td data-label="Set" class="num strong">49</td></tr>
+        <tr><td data-label="Produto" class="strong">Ruby Rose</td><td data-label="Abr" class="num muted">0</td><td data-label="Mai" class="num muted">0</td><td data-label="Jun" class="num muted">0</td><td data-label="Jul" class="num muted">0</td><td data-label="Ago" class="num muted">0</td><td data-label="Set" class="num muted">0</td></tr>
+      </tbody>
+      <tfoot><tr><td data-label="">Total</td><td data-label="Abr" class="num">62</td><td data-label="Mai" class="num">67</td><td data-label="Jun" class="num">72</td><td data-label="Jul" class="num">77</td><td data-label="Ago" class="num">81</td><td data-label="Set" class="num">86</td></tr></tfoot>
+    </table>
+  </div>
+  <div class="table-wrap" data-panel="custo" hidden style="border-top:1px solid var(--border)">
+    <table class="table cards">
+      <thead><tr><th>Produto</th><th class="num">Abr</th><th class="num">Mai</th><th class="num">Jun</th><th class="num">Jul</th><th class="num">Ago</th><th class="num">Set</th></tr></thead>
+      <tbody>
+        <tr><td data-label="Produto" class="strong">CatalystOps</td><td data-label="Abr" class="num">R$ 560</td><td data-label="Mai" class="num">R$ 580</td><td data-label="Jun" class="num">R$ 600</td><td data-label="Jul" class="num">R$ 610</td><td data-label="Ago" class="num">R$ 620</td><td data-label="Set" class="num strong">R$ 640</td></tr>
+        <tr><td data-label="Produto" class="strong">PrescSign</td><td data-label="Abr" class="num">R$ 300</td><td data-label="Mai" class="num">R$ 320</td><td data-label="Jun" class="num">R$ 340</td><td data-label="Jul" class="num">R$ 360</td><td data-label="Ago" class="num">R$ 370</td><td data-label="Set" class="num strong">R$ 390</td></tr>
+        <tr><td data-label="Produto" class="strong">Ruby Rose</td><td data-label="Abr" class="num muted">R$ 0</td><td data-label="Mai" class="num muted">R$ 0</td><td data-label="Jun" class="num">R$ 40</td><td data-label="Jul" class="num">R$ 80</td><td data-label="Ago" class="num">R$ 100</td><td data-label="Set" class="num strong">R$ 120</td></tr>
+      </tbody>
+      <tfoot><tr><td data-label="">Total</td><td data-label="Abr" class="num">R$ 860</td><td data-label="Mai" class="num">R$ 900</td><td data-label="Jun" class="num">R$ 980</td><td data-label="Jul" class="num">R$ 1.050</td><td data-label="Ago" class="num">R$ 1.090</td><td data-label="Set" class="num">R$ 1.150</td></tr></tfoot>
+    </table>
+  </div>
+  <div class="pagination"><span>A Plataforma de eBooks (Ideia) ainda não tem série histórica</span><a href="assinaturas.html" style="font-weight:600">Ver assinaturas</a></div>
+</section>
+
+</main>
+</div>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>

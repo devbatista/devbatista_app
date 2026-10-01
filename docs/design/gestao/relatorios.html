@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Relatórios · Admin DevBatista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/app.css">
+<style>
+  .rep { padding: 16px 18px; display: flex; flex-direction: column; gap: 8px; min-height: 132px; }
+  .rep p { margin: 0; font-size: 13px; color: var(--muted); flex: 1; }
+  .rep .r { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .rep.cur { border-color: var(--cyan-line); box-shadow: inset 0 0 0 1px var(--cyan-line); }
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; padding: 0 20px 18px; }
+  .filters .field { min-width: 150px; }
+  .hbar.wide { grid-template-columns: 140px minmax(0, 1fr) 64px; }
+</style>
+</head>
+<body data-group="ges" data-item="Relatórios" data-crumb='[["Gestão"],["Relatórios"]]'>
+<div class="app">
+<aside class="side"></aside>
+<div class="main">
+<header class="top"></header>
+<main class="content">
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Gestão · 19 relatórios em 4 áreas</span>
+    <h1>Relatórios</h1>
+    <p class="lead">Todos filtram por período e exportam CSV; os financeiros também filtram por cliente e por serviço.</p>
+  </div>
+  <div class="actions">
+    <label class="sr-only" for="busca-rel">Buscar relatório</label>
+    <span class="search-field"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M11 18a7 7 0 100-14 7 7 0 000 14zM21 21l-4.3-4.3"/></svg><input class="input" id="busca-rel" type="search" placeholder="Buscar relatório"></span>
+  </div>
+</div>
+
+<section class="stack" aria-labelledby="area-fin">
+  <div class="section-title"><span class="eyebrow" id="area-fin">Financeiro · 6</span><span class="caption">Visível para Administrador e Financeiro</span></div>
+  <div class="grid-kpi">
+    <div class="card rep"><h3>Faturamento</h3><p>Receitas por competência, mês a mês, com recebido, a receber e vencido.</p><div class="r"><span class="caption">Período · cliente · serviço</span><button class="link-btn" type="button">Abrir</button></div></div>
+    <div class="card rep cur"><h3>Receita por cliente</h3><p>Quanto cada cliente faturou e sua fatia do total, recorrente e projeto.</p><div class="r"><span class="badge b-info">Aberto abaixo</span><a class="link-btn" href="#relatorio-aberto">Ver</a></div></div>
+    <div class="card rep"><h3>Receita por serviço</h3><p>Faturamento distribuído pelos serviços do catálogo.</p><div class="r"><span class="caption">Período · cliente · serviço</span><button class="link-btn" type="button">Abrir</button></div></div>
+    <div class="card rep"><h3>Despesas</h3><p>Despesas por categoria, fornecedor e centro de custo.</p><div class="r"><span class="caption">Período · cliente · serviço</span><button class="link-btn" type="button">Abrir</button></div></div>
+    <div class="card rep"><h3>Resultado</h3><p>Faturamento menos despesas e margem do período.</p><div class="r"><span class="caption">Período · cliente · serviço</span><button class="link-btn" type="button">Abrir</button></div></div>
+    <div class="card rep"><h3>MRR</h3><p>Evolução da receita recorrente: novo, expansão, contração e perdido.</p><div class="r"><span class="caption">Período · cliente · serviço</span><button class="link-btn" type="button">Abrir</button></div></div>
+  </div>
+</section>
+
+<section class="stack" aria-labelledby="area-com">
+  <div class="section-title"><span class="eyebrow" id="area-com">Comercial · 5</span></div>
+  <div class="grid-kpi">
+    <div class="card rep"><h3>Leads</h3><p>Leads recebidos no período, por etapa e responsável.</p><div class="r"><span class="caption">Período</span><button class="link-btn" type="button">Abrir</button></div></div>
+    <div class="card rep"><h3>Origem dos leads</h3><p>De onde vieram: WhatsApp, Indicação, Site, Meta Ads, Google Ads e demais.</p><div class="r"><span class="caption">Período</span><button class="link-btn" type="button">Abrir</button></div></div>
+    <div class="card rep"><h3>Oportunidades</h3><p>Oportunidades por etapa do pipeline, valor e motivo de perda.</p><div class="r"><span class="caption">Período</span><button class="link-btn" type="button">Abrir</button></div></div>
+    <div class="card rep"><h3>Propostas</h3><p>Propostas enviadas, visualizadas, aceitas, recusadas e expiradas.</p><div class="r"><span class="caption">Período</span><button class="link-btn" type="button">Abrir</button></div></div>
+    <div class="card rep"><h3>Conversão</h3><p>Negócios fechados sobre leads recebidos, total e por origem.</p><div class="r"><span class="caption">Período</span><button class="link-btn" type="button">Abrir</button></div></div>
+  </div>
+</section>
+
+<section class="stack" aria-labelledby="area-cli">
+  <div class="section-title"><span class="eyebrow" id="area-cli">Clientes · 4</span></div>
+  <div class="grid-kpi">
+    <div class="card rep"><h3>Clientes ativos</h3><p>Empresas ativas com ao menos um serviço contratado vigente.</p><div class="r"><span class="caption">Período</span><button class="link-btn" type="button">Abrir</button></div></div>
+    <div class="card rep"><h3>Novos clientes</h3><p>Empresas que passaram a Ativo no período, com origem e primeiro serviço.</p><div class="r"><span class="caption">Período</span><button class="link-btn" type="button">Abrir</button></div></div>
+    <div class="card rep"><h3>Churn</h3><p>Clientes e MRR perdidos sobre a base do início do período.</p><div class="r"><span class="caption">Período</span><button class="link-btn" type="button">Abrir</button></div></div>
+    <div class="card rep"><h3>MRR por cliente</h3><p>Receita recorrente mensal de cada cliente e sua composição.</p><div class="r"><span class="caption">Período</span><button class="link-btn" type="button">Abrir</button></div></div>
+  </div>
+</section>
+
+<section class="stack" aria-labelledby="area-op">
+  <div class="section-title"><span class="eyebrow" id="area-op">Operação · 4</span></div>
+  <div class="grid-kpi">
+    <div class="card rep"><h3>Projetos</h3><p>Projetos por status, progresso, prazo e atraso.</p><div class="r"><span class="caption">Período</span><button class="link-btn" type="button">Abrir</button></div></div>
+    <div class="card rep"><h3>Horas</h3><p>Horas registradas por cliente, projeto e usuário; faturáveis e não faturáveis.</p><div class="r"><span class="caption">Período</span><button class="link-btn" type="button">Abrir</button></div></div>
+    <div class="card rep"><h3>Chamados</h3><p>Chamados abertos e resolvidos, por prioridade, cliente e tempo de resolução.</p><div class="r"><span class="caption">Período</span><button class="link-btn" type="button">Abrir</button></div></div>
+    <div class="card rep"><h3>Tarefas</h3><p>Tarefas concluídas, abertas e atrasadas por responsável.</p><div class="r"><span class="caption">Período</span><button class="link-btn" type="button">Abrir</button></div></div>
+  </div>
+</section>
+
+<section class="card" id="relatorio-aberto" aria-labelledby="rel-t">
+  <div class="card-head">
+    <div class="stack" style="gap:4px">
+      <span class="eyebrow">Financeiro · relatório</span>
+      <h2 id="rel-t" style="font-size:20px">Receita por cliente</h2>
+      <span class="caption">Faturamento por competência · Setembro/2026 · 14 clientes ativos</span>
+    </div>
+    <button class="btn" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v12M6 10l6 6 6-6M4 20h16"/></svg>Exportar CSV</button>
+  </div>
+  <form class="filters" aria-label="Filtros do relatório" onsubmit="return false">
+    <div class="field"><label for="r-per">Período</label><select class="select" id="r-per"><option>Setembro/2026</option><option>Agosto/2026</option><option>3º trimestre/2026</option><option>2026 até hoje</option><option>Personalizado…</option></select></div>
+    <div class="field"><label for="r-de">De</label><input class="input" id="r-de" type="date" value="2026-09-01"></div>
+    <div class="field"><label for="r-ate">Até</label><input class="input" id="r-ate" type="date" value="2026-09-30"></div>
+    <div class="field"><label for="r-cli">Cliente</label><select class="select" id="r-cli"><option>Todos os clientes</option><option>Empresa ACME</option><option>Empresa XYZ</option><option>Empresa Delta</option><option>Empresa Orion</option><option>Cliente C</option></select></div>
+    <div class="field"><label for="r-svc">Serviço</label><select class="select" id="r-svc"><option>Todos os serviços</option><option>Consultoria de TI</option><option>Desenvolvimento de sistemas</option><option>Manutenção</option><option>Hospedagem</option><option>Suporte</option><option>Publicação de aplicativos</option></select></div>
+    <button class="btn" type="submit">Aplicar</button>
+  </form>
+  <hr class="divider">
+  <div class="cols-2-1" style="padding:20px;gap:24px">
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr><th>Cliente</th><th class="num">Recorrente</th><th class="num">Projetos e avulsos</th><th class="num">Total</th><th class="num">% do total</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Cliente" class="strong">Cliente A</td><td data-label="Recorrente" class="num">R$ 4.500</td><td data-label="Projetos e avulsos" class="num">R$ 5.000</td><td data-label="Total" class="num strong">R$ 9.500</td><td data-label="% do total" class="num">23,1%</td></tr>
+          <tr><td data-label="Cliente" class="strong">Cliente B</td><td data-label="Recorrente" class="num">R$ 2.300</td><td data-label="Projetos e avulsos" class="num">R$ 5.500</td><td data-label="Total" class="num strong">R$ 7.800</td><td data-label="% do total" class="num">18,9%</td></tr>
+          <tr><td data-label="Cliente" class="strong">Cliente C</td><td data-label="Recorrente" class="num">R$ 2.400</td><td data-label="Projetos e avulsos" class="num">R$ 4.000</td><td data-label="Total" class="num strong">R$ 6.400</td><td data-label="% do total" class="num">15,5%</td></tr>
+          <tr><td data-label="Cliente" class="strong">Cliente D</td><td data-label="Recorrente" class="num">R$ 1.200</td><td data-label="Projetos e avulsos" class="num">R$ 4.000</td><td data-label="Total" class="num strong">R$ 5.200</td><td data-label="% do total" class="num">12,6%</td></tr>
+          <tr><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa ACME</a></td><td data-label="Recorrente" class="num">R$ 3.800</td><td data-label="Projetos e avulsos" class="num">R$ 200</td><td data-label="Total" class="num strong">R$ 4.000</td><td data-label="% do total" class="num">9,7%</td></tr>
+          <tr><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa XYZ</a></td><td data-label="Recorrente" class="num">R$ 2.900</td><td data-label="Projetos e avulsos" class="num muted">—</td><td data-label="Total" class="num strong">R$ 2.900</td><td data-label="% do total" class="num">7,0%</td></tr>
+          <tr><td data-label="Cliente" class="strong">Cliente E</td><td data-label="Recorrente" class="num">R$ 600</td><td data-label="Projetos e avulsos" class="num">R$ 1.200</td><td data-label="Total" class="num strong">R$ 1.800</td><td data-label="% do total" class="num">4,4%</td></tr>
+          <tr><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa Delta</a></td><td data-label="Recorrente" class="num">R$ 1.000</td><td data-label="Projetos e avulsos" class="num muted">—</td><td data-label="Total" class="num strong">R$ 1.000</td><td data-label="% do total" class="num">2,4%</td></tr>
+          <tr><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa Orion</a></td><td data-label="Recorrente" class="num">R$ 900</td><td data-label="Projetos e avulsos" class="num muted">—</td><td data-label="Total" class="num strong">R$ 900</td><td data-label="% do total" class="num">2,2%</td></tr>
+          <tr><td data-label="Cliente" class="muted">Demais 5 clientes</td><td data-label="Recorrente" class="num">R$ 800</td><td data-label="Projetos e avulsos" class="num">R$ 900</td><td data-label="Total" class="num strong">R$ 1.700</td><td data-label="% do total" class="num">4,1%</td></tr>
+        </tbody>
+        <tfoot><tr><td data-label="">Total · 14 clientes</td><td data-label="Recorrente" class="num">R$ 20.400</td><td data-label="Projetos e avulsos" class="num">R$ 20.800</td><td data-label="Total" class="num">R$ 41.200</td><td data-label="% do total" class="num">100%</td></tr></tfoot>
+      </table>
+    </div>
+    <div class="stack">
+      <div class="section-title"><h3>Participação no faturamento</h3><span class="unit">R$ MIL</span></div>
+      <div class="hbars" role="img" aria-label="Receita por cliente em setembro: Cliente A 9,5; Cliente B 7,8; Cliente C 6,4; Cliente D 5,2; Empresa ACME 4,0; Empresa XYZ 2,9; demais 5,4 mil">
+        <div class="hbar wide"><span>Cliente A</span><div class="track"><div class="fill" style="width:100%"></div></div><span class="val">9,5</span></div>
+        <div class="hbar wide"><span>Cliente B</span><div class="track"><div class="fill" style="width:82%"></div></div><span class="val">7,8</span></div>
+        <div class="hbar wide"><span>Cliente C</span><div class="track"><div class="fill" style="width:67%"></div></div><span class="val">6,4</span></div>
+        <div class="hbar wide"><span>Cliente D</span><div class="track"><div class="fill" style="width:55%"></div></div><span class="val">5,2</span></div>
+        <div class="hbar wide"><span>Empresa ACME</span><div class="track"><div class="fill" style="width:42%"></div></div><span class="val">4,0</span></div>
+        <div class="hbar wide"><span>Empresa XYZ</span><div class="track"><div class="fill" style="width:31%"></div></div><span class="val">2,9</span></div>
+        <div class="hbar wide"><span>Demais 8</span><div class="track"><div class="fill alt" style="width:57%"></div></div><span class="val">5,4</span></div>
+      </div>
+      <div class="callout"><span>Os 5 maiores clientes concentram <b class="strong">79,8%</b> do faturamento do mês. Recorrente responde por <b class="strong">49,5%</b> (MRR R$ 20.400).</span></div>
+    </div>
+  </div>
+  <div class="card-foot"><span>Gerado em 17/09/2026 14:45 · valores por competência, conforme Receitas</span><span>CSV inclui uma linha por cliente e serviço</span></div>
+</section>
+
+</main>
+</div>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>

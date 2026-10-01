@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard financeiro · Admin DevBatista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/app.css">
+<style>
+  /* Barras agrupadas (receitas × despesas) e barra de composição — específicas desta tela */
+  .bars .pair { display: flex; align-items: flex-end; justify-content: center; gap: 4px; width: 100%; height: 100%; }
+  .bars .pair .bar { max-width: 18px; }
+  .bars .bar.exp { background: var(--faint); }
+  .comp { display: flex; height: 14px; border-radius: 999px; overflow: hidden; background: var(--rule); gap: 2px; }
+  .comp i { display: block; height: 100%; }
+</style>
+</head>
+<body data-group="fin" data-item="Dashboard financeiro" data-crumb='[["Financeiro"],["Dashboard financeiro"]]'>
+<div class="app">
+<aside class="side"></aside>
+<div class="main">
+<header class="top"></header>
+<main class="content">
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Financeiro · Setembro de 2026</span>
+    <h1>Dashboard financeiro</h1>
+    <p class="lead">Posição de hoje, quinta, 17/09/2026. Valores por competência do mês.</p>
+  </div>
+  <div class="actions">
+    <label class="sr-only" for="periodo">Período</label>
+    <select class="select" id="periodo"><option>Setembro/2026</option><option>Agosto/2026</option><option>Julho/2026</option><option>Trimestre atual</option><option>Ano de 2026</option></select>
+    <a class="btn" href="../gestao/relatorios.html">Relatórios</a>
+  </div>
+</div>
+
+<section class="stack" aria-label="Indicadores do mês">
+  <div class="grid-kpi g4">
+    <a class="card kpi" href="receitas.html"><span class="eyebrow">Faturamento</span><span class="v">R$ 41.200</span><span class="f"><span class="badge b-good">+11%</span>competência do mês</span></a>
+    <a class="card kpi" href="receitas.html"><span class="eyebrow">Recebido</span><span class="v">R$ 29.800</span><span class="f">pagamentos confirmados · 72%</span></a>
+    <a class="card kpi" href="contas-receber.html"><span class="eyebrow">A receber</span><span class="v">R$ 7.100</span><span class="f">dentro do prazo · 5 títulos</span></a>
+    <a class="card kpi alert" href="contas-receber.html"><span class="eyebrow">Vencido</span><span class="v">R$ 4.300</span><span class="f"><span class="badge b-crit">3 títulos</span>em atraso</span></a>
+    <a class="card kpi" href="despesas.html"><span class="eyebrow">Despesas</span><span class="v">R$ 22.100</span><span class="f">pagas e previstas</span></a>
+    <div class="card kpi"><span class="eyebrow">Resultado</span><span class="v">R$ 19.100</span><span class="f">faturamento − despesas · margem 46%</span></div>
+    <a class="card kpi" href="recorrencias.html"><span class="eyebrow">MRR</span><span class="v">R$ 20.400</span><span class="f">receita recorrente mensal · ARR R$ 244.800</span></a>
+  </div>
+</section>
+
+<section class="card card-body stack" aria-label="Composição do faturamento">
+  <div class="section-title">
+    <h2>Composição do faturamento</h2>
+    <span class="caption">Faturamento = Recebido + A receber + Vencido</span>
+  </div>
+  <div class="comp" role="img" aria-label="Faturamento de R$ 41.200: recebido R$ 29.800 (72%), a receber R$ 7.100 (17%), vencido R$ 4.300 (10%)">
+    <i style="width:72.3%;background:var(--cyan)"></i>
+    <i style="width:17.2%;background:var(--cyan-800)"></i>
+    <i style="width:10.5%;background:var(--crit-dot)"></i>
+  </div>
+  <div class="row wrap" style="justify-content:space-between">
+    <div class="legend">
+      <span><i style="background:var(--cyan)"></i>Recebido R$ 29.800</span>
+      <span><i style="background:var(--cyan-800)"></i>A receber R$ 7.100</span>
+      <span><i style="background:var(--crit-dot)"></i>Vencido R$ 4.300</span>
+    </div>
+    <span class="strong num">= R$ 41.200</span>
+  </div>
+</section>
+
+<div class="cols-2-1">
+  <section class="card card-body stack" aria-label="Receitas e despesas dos últimos seis meses">
+    <div class="section-title"><h2>Receitas × despesas</h2><span class="unit">R$ MIL · ABR–SET</span></div>
+    <div class="bars" style="height:190px" role="img" aria-label="Receitas e despesas de abril a setembro. Receitas: 33,4; 35,1; 34,8; 36,9; 37,1; 41,2. Despesas: 19,8; 20,5; 21,0; 20,7; 21,6; 22,1">
+      <div class="col" title="Abr: receitas R$ 33,4 mil · despesas R$ 19,8 mil"><div class="pair"><div class="bar cur" style="height:74%"></div><div class="bar exp" style="height:44%"></div></div></div>
+      <div class="col" title="Mai: receitas R$ 35,1 mil · despesas R$ 20,5 mil"><div class="pair"><div class="bar cur" style="height:78%"></div><div class="bar exp" style="height:46%"></div></div></div>
+      <div class="col" title="Jun: receitas R$ 34,8 mil · despesas R$ 21,0 mil"><div class="pair"><div class="bar cur" style="height:77%"></div><div class="bar exp" style="height:47%"></div></div></div>
+      <div class="col" title="Jul: receitas R$ 36,9 mil · despesas R$ 20,7 mil"><div class="pair"><div class="bar cur" style="height:82%"></div><div class="bar exp" style="height:46%"></div></div></div>
+      <div class="col" title="Ago: receitas R$ 37,1 mil · despesas R$ 21,6 mil"><div class="pair"><div class="bar cur" style="height:82%"></div><div class="bar exp" style="height:48%"></div></div></div>
+      <div class="col" title="Set: receitas R$ 41,2 mil · despesas R$ 22,1 mil"><div class="pair"><div class="bar cur" style="height:92%"></div><div class="bar exp" style="height:49%"></div></div></div>
+    </div>
+    <div class="axis"><span>Abr</span><span>Mai</span><span>Jun</span><span>Jul</span><span>Ago</span><span>Set</span></div>
+    <div class="row wrap" style="justify-content:space-between">
+      <div class="legend"><span><i style="background:var(--cyan)"></i>Receitas</span><span><i style="background:var(--faint)"></i>Despesas</span></div>
+      <span class="caption">Setembro: receitas 41,2 · despesas 22,1 · resultado 19,1</span>
+    </div>
+  </section>
+
+  <section class="card card-body stack" aria-label="Despesas por categoria">
+    <div class="section-title"><h2>Despesas por categoria</h2><span class="unit">R$ MIL · SET</span></div>
+    <div class="hbars">
+      <div class="hbar"><span>Colaboradores</span><div class="track"><div class="fill" style="width:100%"></div></div><span class="val">11,5</span></div>
+      <div class="hbar"><span>Infraestrutura</span><div class="track"><div class="fill" style="width:30%"></div></div><span class="val">3,4</span></div>
+      <div class="hbar"><span>Impostos</span><div class="track"><div class="fill" style="width:22%"></div></div><span class="val">2,5</span></div>
+      <div class="hbar"><span>Software</span><div class="track"><div class="fill" style="width:19%"></div></div><span class="val">2,2</span></div>
+      <div class="hbar"><span>Marketing</span><div class="track"><div class="fill" style="width:10%"></div></div><span class="val">1,2</span></div>
+      <div class="hbar"><span>Contabilidade</span><div class="track"><div class="fill" style="width:6%"></div></div><span class="val">0,7</span></div>
+      <div class="hbar"><span>Administrativo</span><div class="track"><div class="fill alt" style="width:3%"></div></div><span class="val">0,3</span></div>
+      <div class="hbar"><span>Comercial</span><div class="track"><div class="fill alt" style="width:3%"></div></div><span class="val">0,3</span></div>
+      <div class="hbar"><span>Outros</span><div class="track"><div class="fill alt" style="width:1%"></div></div><span class="val">0,1</span></div>
+    </div>
+    <a class="caption" href="despesas.html" style="font-weight:600">Total R$ 22.100 · ver despesas →</a>
+  </section>
+</div>
+
+<div class="grid-2">
+  <section class="card" aria-label="Próximos vencimentos a receber">
+    <div class="card-head"><h2>A receber nos próximos 7 dias</h2><span class="badge b-info">R$ 3.200</span></div>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr><th>Vencimento</th><th>Cliente</th><th>Serviço</th><th class="num">Valor</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Vencimento" class="mono">18/09/2026<span class="cell-sub">amanhã</span></td><td data-label="Cliente" class="strong">Cliente A</td><td data-label="Serviço">Hospedagem</td><td data-label="Valor" class="num">R$ 1.500</td><td data-label="Status"><span class="badge b-warn">Pendente</span></td></tr>
+          <tr><td data-label="Vencimento" class="mono">20/09/2026<span class="cell-sub">em 3 dias</span></td><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa Delta</a></td><td data-label="Serviço">Hospedagem</td><td data-label="Valor" class="num">R$ 300</td><td data-label="Status"><span class="badge b-warn">Pendente</span></td></tr>
+          <tr><td data-label="Vencimento" class="mono">22/09/2026<span class="cell-sub">em 5 dias</span></td><td data-label="Cliente" class="strong">Cliente B</td><td data-label="Serviço">Manutenção</td><td data-label="Valor" class="num">R$ 1.400</td><td data-label="Status"><span class="badge b-warn">Pendente</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <a class="more" href="contas-receber.html">Ver contas a receber →</a>
+  </section>
+
+  <section class="card" aria-label="Próximos vencimentos a pagar">
+    <div class="card-head"><h2>A pagar nos próximos 7 dias</h2><span class="badge b-warn">R$ 1.541,30</span></div>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr><th>Vencimento</th><th>Fornecedor</th><th>Descrição</th><th class="num">Valor</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Vencimento" class="mono">18/09/2026</td><td data-label="Fornecedor" class="strong">Railway</td><td data-label="Descrição">Sistema ERP · Empresa XYZ</td><td data-label="Valor" class="num">≈ R$ 112,40<span class="cell-sub">US$ 20,00</span></td></tr>
+          <tr><td data-label="Vencimento" class="mono">18/09/2026</td><td data-label="Fornecedor" class="strong">Railway</td><td data-label="Descrição">Portal ACME · Empresa ACME</td><td data-label="Valor" class="num">≈ R$ 150,00<span class="cell-sub">US$ 26,69</span></td></tr>
+          <tr><td data-label="Vencimento" class="mono">20/09/2026</td><td data-label="Fornecedor" class="strong">Silva &amp; Associados</td><td data-label="Descrição">Honorários contábeis</td><td data-label="Valor" class="num">R$ 650,00</td></tr>
+          <tr><td data-label="Vencimento" class="mono">22/09/2026</td><td data-label="Fornecedor" class="strong">Google Workspace</td><td data-label="Descrição">6 contas de e-mail</td><td data-label="Valor" class="num">R$ 336,00</td></tr>
+          <tr><td data-label="Vencimento" class="mono">23/09/2026</td><td data-label="Fornecedor" class="strong">OpenAI</td><td data-label="Descrição">API · uso interno</td><td data-label="Valor" class="num">≈ R$ 252,90<span class="cell-sub">US$ 45,00</span></td></tr>
+          <tr><td data-label="Vencimento" class="mono">24/09/2026</td><td data-label="Fornecedor" class="strong">Registro.br</td><td data-label="Descrição">Renovação acme.com.br <span class="badge b-warn">sem renovação automática</span></td><td data-label="Valor" class="num">R$ 40,00</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <a class="more" href="contas-pagar.html">Ver contas a pagar →</a>
+  </section>
+</div>
+
+<section class="card" aria-label="Clientes inadimplentes">
+  <div class="card-head">
+    <div class="row"><h2>Inadimplentes</h2><span class="badge b-crit">3 títulos · R$ 4.300</span></div>
+    <a class="btn sm" href="contas-receber.html">Abrir em contas a receber</a>
+  </div>
+  <div class="table-wrap">
+    <table class="table cards">
+      <thead><tr><th>Cliente</th><th>Serviço</th><th>Contrato</th><th>Vencimento</th><th class="num">Valor</th><th>Atraso</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr class="late"><td data-label="Cliente" class="strong">Cliente C</td><td data-label="Serviço">Desenvolvimento</td><td data-label="Contrato"><a href="../clientes/contrato.html">#092</a></td><td data-label="Vencimento" class="mono">01/09/2026</td><td data-label="Valor" class="num">R$ 2.400</td><td data-label="Atraso" style="color:var(--crit);font-weight:600">16 dias</td><td data-label="Status"><span class="badge b-crit">Vencido</span></td></tr>
+        <tr class="late"><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa XYZ</a></td><td data-label="Serviço">Manutenção</td><td data-label="Contrato"><a href="../clientes/contrato.html">#098</a></td><td data-label="Vencimento" class="mono">05/09/2026</td><td data-label="Valor" class="num">R$ 1.200</td><td data-label="Atraso" style="color:var(--crit);font-weight:600">12 dias</td><td data-label="Status"><span class="badge b-crit">Vencido</span></td></tr>
+        <tr class="late"><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa Delta</a></td><td data-label="Serviço">Suporte</td><td data-label="Contrato"><a href="../clientes/contrato.html">#111</a></td><td data-label="Vencimento" class="mono">10/09/2026</td><td data-label="Valor" class="num">R$ 700</td><td data-label="Atraso" style="color:var(--crit);font-weight:600">7 dias</td><td data-label="Status"><span class="badge b-crit">Vencido</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="card-foot"><span>O status muda para Vencido no dia seguinte ao vencimento sem pagamento.</span><a href="contas-receber.html" style="font-weight:600">Ver inadimplentes →</a></div>
+</section>
+
+</main>
+</div>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>

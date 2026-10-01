@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Receitas · Admin DevBatista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/app.css">
+</head>
+<body data-group="fin" data-item="Receitas" data-crumb='[["Financeiro","financeiro.html"],["Receitas"]]'>
+<div class="app">
+<aside class="side"></aside>
+<div class="main">
+<header class="top"></header>
+<main class="content">
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Financeiro · Competência Setembro/2026</span>
+    <h1>Receitas</h1>
+  </div>
+  <div class="actions">
+    <button class="btn" type="button">Exportar CSV</button>
+    <button class="btn pri" type="button" data-open="nova-receita">Nova receita</button>
+  </div>
+</div>
+
+<div class="grid-kpi">
+  <div class="card kpi"><span class="eyebrow">Faturamento da competência</span><span class="v">R$ 41.200</span><span class="f">22 receitas válidas</span></div>
+  <div class="card kpi"><span class="eyebrow">Recebido</span><span class="v">R$ 29.800</span><span class="f"><span class="badge b-good">72%</span>do faturamento</span></div>
+  <div class="card kpi"><span class="eyebrow">Em aberto</span><span class="v">R$ 11.400</span><span class="f">R$ 7.100 no prazo · R$ 4.300 vencido</span></div>
+  <div class="card kpi"><span class="eyebrow">Recorrente</span><span class="v">R$ 20.400</span><span class="f">49,5% vem de serviços recorrentes</span></div>
+</div>
+
+<div class="toolbar">
+  <div class="seg" role="group" aria-label="Filtrar por status" data-filter-group="receitas">
+    <button type="button" class="on" data-filter="todos" aria-pressed="true">Todas <span class="c"></span></button>
+    <button type="button" data-filter="Pendente" aria-pressed="false">Pendente <span class="c"></span></button>
+    <button type="button" data-filter="Pago" aria-pressed="false">Pago <span class="c"></span></button>
+    <button type="button" data-filter="Vencido" aria-pressed="false">Vencido <span class="c"></span></button>
+    <button type="button" data-filter="Cancelado" aria-pressed="false">Cancelado <span class="c"></span></button>
+  </div>
+  <span class="spacer"></span>
+  <label class="search-field"><span class="sr-only">Buscar receita</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M11 18a7 7 0 100-14 7 7 0 000 14zM21 21l-4.3-4.3"/></svg><input class="input" type="search" placeholder="Cliente ou descrição"></label>
+  <label class="sr-only" for="f-comp">Competência</label>
+  <select class="select" id="f-comp"><option>Setembro/2026</option><option>Agosto/2026</option><option>Julho/2026</option><option>Outubro/2026 (previstas)</option></select>
+  <label class="sr-only" for="f-cli">Cliente</label>
+  <select class="select" id="f-cli"><option>Todos os clientes</option><option>Empresa ACME</option><option>Empresa XYZ</option><option>Empresa Delta</option><option>Empresa Orion</option><option>Cliente A</option><option>Cliente B</option><option>Cliente C</option><option>Cliente D</option><option>Cliente E</option></select>
+  <label class="sr-only" for="f-cat">Categoria</label>
+  <select class="select" id="f-cat"><option>Todas as categorias</option><option>Consultoria de TI</option><option>Desenvolvimento de sistemas</option><option>Desenvolvimento de sites</option><option>Manutenção</option><option>Automação/RPA</option><option>Integrações</option><option>Inteligência Artificial</option><option>Hospedagem</option><option>Gestão de infraestrutura</option><option>Suporte</option><option>Publicação de aplicativos</option></select>
+</div>
+
+<section class="card" aria-label="Receitas da competência">
+  <div class="table-wrap">
+    <table class="table cards" data-filter-target="receitas">
+      <thead><tr><th>Cliente</th><th>Descrição</th><th>Categoria</th><th class="num">Valor</th><th>Competência</th><th>Vencimento</th><th>Pagamento</th><th>Status</th><th><span class="sr-only">Ações</span></th></tr></thead>
+      <tbody>
+        <tr data-status="Pago"><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa ACME</a></td><td data-label="Descrição">Consultoria de TI — Setembro/2026<span class="cell-sub">Contrato <a href="../clientes/contrato.html">#104</a> · recorrente</span></td><td data-label="Categoria">Consultoria de TI</td><td data-label="Valor" class="num">R$ 3.000</td><td data-label="Competência" class="mono">09/2026</td><td data-label="Vencimento" class="mono">10/09/2026</td><td data-label="Pagamento" class="mono">10/09/2026</td><td data-label="Status"><span class="badge b-good">Pago</span></td><td data-label="" class="right"><button class="link-btn" type="button" aria-label="Editar receita Consultoria de TI da Empresa ACME">Editar</button></td></tr>
+        <tr data-status="Pago"><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa ACME</a></td><td data-label="Descrição">Manutenção — Setembro/2026<span class="cell-sub">recorrente</span></td><td data-label="Categoria">Manutenção</td><td data-label="Valor" class="num">R$ 500</td><td data-label="Competência" class="mono">09/2026</td><td data-label="Vencimento" class="mono">10/09/2026</td><td data-label="Pagamento" class="mono">10/09/2026</td><td data-label="Status"><span class="badge b-good">Pago</span></td><td data-label="" class="right"><button class="link-btn" type="button" aria-label="Editar receita Manutenção da Empresa ACME">Editar</button></td></tr>
+        <tr data-status="Pago"><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa ACME</a></td><td data-label="Descrição">Hospedagem — Setembro/2026<span class="cell-sub">recorrente</span></td><td data-label="Categoria">Hospedagem</td><td data-label="Valor" class="num">R$ 300</td><td data-label="Competência" class="mono">09/2026</td><td data-label="Vencimento" class="mono">10/09/2026</td><td data-label="Pagamento" class="mono">10/09/2026</td><td data-label="Status"><span class="badge b-good">Pago</span></td><td data-label="" class="right"><button class="link-btn" type="button" aria-label="Editar receita Hospedagem da Empresa ACME">Editar</button></td></tr>
+        <tr data-status="Pago"><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa ACME</a></td><td data-label="Descrição">Publicação do app Portal ACME na App Store<span class="cell-sub">avulso</span></td><td data-label="Categoria">Publicação de aplicativos</td><td data-label="Valor" class="num">R$ 200</td><td data-label="Competência" class="mono">09/2026</td><td data-label="Vencimento" class="mono">15/09/2026</td><td data-label="Pagamento" class="mono">15/09/2026</td><td data-label="Status"><span class="badge b-good">Pago</span></td><td data-label="" class="right"><button class="link-btn" type="button" aria-label="Editar receita Publicação de aplicativo da Empresa ACME">Editar</button></td></tr>
+        <tr data-status="Pago"><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa XYZ</a></td><td data-label="Descrição">Suporte — Setembro/2026<span class="cell-sub">recorrente</span></td><td data-label="Categoria">Suporte</td><td data-label="Valor" class="num">R$ 900</td><td data-label="Competência" class="mono">09/2026</td><td data-label="Vencimento" class="mono">05/09/2026</td><td data-label="Pagamento" class="mono">04/09/2026</td><td data-label="Status"><span class="badge b-good">Pago</span></td><td data-label="" class="right"><button class="link-btn" type="button" aria-label="Editar receita Suporte da Empresa XYZ">Editar</button></td></tr>
+        <tr data-status="Pago"><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa XYZ</a></td><td data-label="Descrição">Hospedagem — Setembro/2026<span class="cell-sub">recorrente</span></td><td data-label="Categoria">Hospedagem</td><td data-label="Valor" class="num">R$ 800</td><td data-label="Competência" class="mono">09/2026</td><td data-label="Vencimento" class="mono">05/09/2026</td><td data-label="Pagamento" class="mono">05/09/2026</td><td data-label="Status"><span class="badge b-good">Pago</span></td><td data-label="" class="right"><button class="link-btn" type="button" aria-label="Editar receita Hospedagem da Empresa XYZ">Editar</button></td></tr>
+        <tr class="late" data-status="Vencido"><td data-label="Cliente" class="strong">Cliente C</td><td data-label="Descrição">ERP Cliente C — parcela 4 de 6<span class="cell-sub">Contrato <a href="../clientes/contrato.html">#092</a> · projeto</span></td><td data-label="Categoria">Desenvolvimento de sistemas</td><td data-label="Valor" class="num">R$ 2.400</td><td data-label="Competência" class="mono">09/2026</td><td data-label="Vencimento" class="mono">01/09/2026</td><td data-label="Pagamento" class="muted">—</td><td data-label="Status"><span class="badge b-crit">Vencido</span></td><td data-label="" class="right"><a class="link-btn" href="contas-receber.html">Cobrar</a></td></tr>
+        <tr class="late" data-status="Vencido"><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa XYZ</a></td><td data-label="Descrição">Manutenção — Setembro/2026<span class="cell-sub">Contrato <a href="../clientes/contrato.html">#098</a> · recorrente</span></td><td data-label="Categoria">Manutenção</td><td data-label="Valor" class="num">R$ 1.200</td><td data-label="Competência" class="mono">09/2026</td><td data-label="Vencimento" class="mono">05/09/2026</td><td data-label="Pagamento" class="muted">—</td><td data-label="Status"><span class="badge b-crit">Vencido</span></td><td data-label="" class="right"><a class="link-btn" href="contas-receber.html">Cobrar</a></td></tr>
+        <tr class="late" data-status="Vencido"><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa Delta</a></td><td data-label="Descrição">Suporte — Setembro/2026<span class="cell-sub">Contrato <a href="../clientes/contrato.html">#111</a> · recorrente</span></td><td data-label="Categoria">Suporte</td><td data-label="Valor" class="num">R$ 700</td><td data-label="Competência" class="mono">09/2026</td><td data-label="Vencimento" class="mono">10/09/2026</td><td data-label="Pagamento" class="muted">—</td><td data-label="Status"><span class="badge b-crit">Vencido</span></td><td data-label="" class="right"><a class="link-btn" href="contas-receber.html">Cobrar</a></td></tr>
+        <tr data-status="Pendente"><td data-label="Cliente" class="strong">Cliente A</td><td data-label="Descrição">Hospedagem — Setembro/2026<span class="cell-sub">recorrente</span></td><td data-label="Categoria">Hospedagem</td><td data-label="Valor" class="num">R$ 1.500</td><td data-label="Competência" class="mono">09/2026</td><td data-label="Vencimento" class="mono">18/09/2026</td><td data-label="Pagamento" class="muted">—</td><td data-label="Status"><span class="badge b-warn">Pendente</span></td><td data-label="" class="right"><button class="link-btn" type="button" aria-label="Editar receita Hospedagem do Cliente A">Editar</button></td></tr>
+        <tr data-status="Pendente"><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa Delta</a></td><td data-label="Descrição">Hospedagem — Setembro/2026<span class="cell-sub">Contrato <a href="../clientes/contrato.html">#111</a> · recorrente</span></td><td data-label="Categoria">Hospedagem</td><td data-label="Valor" class="num">R$ 300</td><td data-label="Competência" class="mono">09/2026</td><td data-label="Vencimento" class="mono">20/09/2026</td><td data-label="Pagamento" class="muted">—</td><td data-label="Status"><span class="badge b-warn">Pendente</span></td><td data-label="" class="right"><button class="link-btn" type="button" aria-label="Editar receita Hospedagem da Empresa Delta">Editar</button></td></tr>
+        <tr data-status="Pendente"><td data-label="Cliente" class="strong">Cliente B</td><td data-label="Descrição">Manutenção — Setembro/2026<span class="cell-sub">recorrente</span></td><td data-label="Categoria">Manutenção</td><td data-label="Valor" class="num">R$ 1.400</td><td data-label="Competência" class="mono">09/2026</td><td data-label="Vencimento" class="mono">22/09/2026</td><td data-label="Pagamento" class="muted">—</td><td data-label="Status"><span class="badge b-warn">Pendente</span></td><td data-label="" class="right"><button class="link-btn" type="button" aria-label="Editar receita Manutenção do Cliente B">Editar</button></td></tr>
+        <tr data-status="Pendente"><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa Orion</a></td><td data-label="Descrição">Suporte — Setembro/2026<span class="cell-sub">Contrato <a href="../clientes/contrato.html">#087</a> · recorrente</span></td><td data-label="Categoria">Suporte</td><td data-label="Valor" class="num">R$ 900</td><td data-label="Competência" class="mono">09/2026</td><td data-label="Vencimento" class="mono">25/09/2026</td><td data-label="Pagamento" class="muted">—</td><td data-label="Status"><span class="badge b-warn">Pendente</span></td><td data-label="" class="right"><button class="link-btn" type="button" aria-label="Editar receita Suporte da Empresa Orion">Editar</button></td></tr>
+        <tr data-status="Pendente"><td data-label="Cliente" class="strong">Cliente D</td><td data-label="Descrição">Integração com marketplace — entrega 2<span class="cell-sub">projeto</span></td><td data-label="Categoria">Integrações</td><td data-label="Valor" class="num">R$ 3.000</td><td data-label="Competência" class="mono">09/2026</td><td data-label="Vencimento" class="mono">30/09/2026</td><td data-label="Pagamento" class="muted">—</td><td data-label="Status"><span class="badge b-warn">Pendente</span></td><td data-label="" class="right"><button class="link-btn" type="button" aria-label="Editar receita Integração do Cliente D">Editar</button></td></tr>
+        <tr data-status="Cancelado"><td data-label="Cliente" class="strong">Cliente E</td><td data-label="Descrição">Publicação de app Android<span class="cell-sub">avulso · cancelada a pedido do cliente</span></td><td data-label="Categoria">Publicação de aplicativos</td><td data-label="Valor" class="num muted" style="text-decoration:line-through">R$ 800</td><td data-label="Competência" class="mono">09/2026</td><td data-label="Vencimento" class="mono">15/09/2026</td><td data-label="Pagamento" class="muted">—</td><td data-label="Status"><span class="badge b-mute">Cancelado</span></td><td data-label="" class="right muted">—</td></tr>
+      </tbody>
+      <tfoot>
+        <tr><td data-label="Nesta página" colspan="3">Nesta página <span class="cell-sub" style="font-weight:500">15 receitas, excluídas as canceladas no total</span></td><td data-label="Valor" class="num">R$ 17.100</td><td data-label="" colspan="5"></td></tr>
+        <tr><td data-label="Total da competência" colspan="3">Total de Setembro/2026 <span class="cell-sub" style="font-weight:500">Pago R$ 29.800 · Pendente R$ 7.100 · Vencido R$ 4.300</span></td><td data-label="Valor" class="num">R$ 41.200</td><td data-label="" colspan="5"></td></tr>
+      </tfoot>
+    </table>
+  </div>
+  <div class="pagination"><span>Mostrando 15 de 23 receitas · ordenadas por status e vencimento</span><div class="pages"><button type="button" class="on" aria-current="page">1</button><button type="button">2</button></div></div>
+</section>
+
+<div class="note">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:1px"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM12 16v-4M12 8h.01"/></svg>
+  <span>Receitas recorrentes são geradas pela rotina de <a href="recorrencias.html">Recorrências</a> a partir dos <a href="../clientes/servicos-contratados.html">serviços contratados</a> ativos. <b>Faturamento</b> considera a competência; <b>Recebido</b>, a data de pagamento. Receitas canceladas não entram no faturamento.</span>
+</div>
+
+</main>
+</div>
+</div>
+
+<!-- Formulário lateral: nova receita -->
+<aside class="drawer" id="nova-receita" role="dialog" aria-modal="true" aria-labelledby="nova-receita-t">
+  <form class="form" style="display:contents">
+    <div class="drawer-head"><h2 id="nova-receita-t">Nova receita</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="drawer-body form">
+      <div class="form-grid">
+        <div class="field full"><label for="r-cli">Cliente <span class="req">*</span></label><select class="select" id="r-cli" required><option value="">Selecione a empresa pagadora</option><option>Empresa ACME</option><option>Empresa XYZ</option><option>Empresa Delta</option><option>Empresa Orion</option><option>Cliente A</option><option>Cliente B</option><option>Cliente C</option><option>Cliente D</option><option>Cliente E</option></select></div>
+        <div class="field full"><label for="r-desc">Descrição <span class="req">*</span></label><input class="input" id="r-desc" required placeholder="Ex.: Consultoria de TI — Outubro/2026"></div>
+        <div class="field full"><label for="r-cat">Categoria <span class="req">*</span></label><select class="select" id="r-cat" required><option value="">Selecione</option><option>Consultoria de TI</option><option>Desenvolvimento de sistemas</option><option>Desenvolvimento de sites</option><option>Manutenção</option><option>Automação/RPA</option><option>Integrações</option><option>Inteligência Artificial</option><option>Hospedagem</option><option>Gestão de infraestrutura</option><option>Suporte</option><option>Publicação de aplicativos</option></select><span class="hint">Sugerida a partir do serviço do <a href="../administracao/catalogo-servicos.html">catálogo</a></span></div>
+        <div class="field"><label for="r-val">Valor (R$) <span class="req">*</span></label><input class="input num" id="r-val" inputmode="decimal" required placeholder="0,00"></div>
+        <div class="field"><label for="r-comp">Competência <span class="req">*</span></label><input class="input" id="r-comp" type="month" value="2026-09" required><span class="hint">Mês a que a receita se refere</span></div>
+        <div class="field"><label for="r-venc">Vencimento <span class="req">*</span></label><input class="input" id="r-venc" type="date" value="2026-09-30" required><span class="hint">Data prevista de recebimento</span></div>
+        <div class="field"><label for="r-pag">Pagamento</label><input class="input" id="r-pag" type="date"><span class="hint">Preencha quando o valor for recebido</span></div>
+        <div class="field full"><label for="r-status">Status <span class="req">*</span></label><select class="select" id="r-status" required><option>Pendente</option><option>Pago</option><option>Vencido</option><option>Cancelado</option></select><span class="hint">Vira Vencido automaticamente no dia seguinte ao vencimento sem pagamento</span></div>
+      </div>
+    </div>
+    <div class="drawer-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Salvar receita</button></div>
+  </form>
+</aside>
+
+<script src="../assets/app.js"></script>
+</body>
+</html>

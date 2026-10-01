@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contas a pagar · Admin DevBatista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/app.css">
+</head>
+<body data-group="fin" data-item="Contas a pagar" data-crumb='[["Financeiro","financeiro.html"],["Contas a pagar"]]'>
+<div class="app">
+<aside class="side"></aside>
+<div class="main">
+<header class="top"></header>
+<main class="content">
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Financeiro · Setembro de 2026</span>
+    <h1>Contas a pagar</h1>
+  </div>
+  <div class="actions">
+    <button class="btn" type="button">Exportar CSV</button>
+    <button class="btn pri" type="button" data-open="novo-titulo-pagar">Novo título</button>
+  </div>
+</div>
+
+<div class="grid-kpi">
+  <div class="card kpi"><span class="eyebrow">Pago</span><span class="v">R$ 7.480</span><span class="f">pagamentos confirmados</span></div>
+  <div class="card kpi"><span class="eyebrow">A pagar</span><span class="v">R$ 14.479,50</span><span class="f">dentro do prazo · R$ 1.541,30 em 7 dias</span></div>
+  <div class="card kpi alert"><span class="eyebrow">Vencido</span><span class="v">R$ 140,50</span><span class="f"><span class="badge b-crit">1 título</span>em atraso</span></div>
+  <div class="card kpi"><span class="eyebrow">Despesas do mês</span><span class="v">R$ 22.100</span><span class="f">pago + a pagar + vencido</span></div>
+</div>
+
+<div class="callout warn">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;color:var(--warn)"><path d="M12 3l9.5 17h-19zM12 10v4M12 17h.01"/></svg>
+  <span>O domínio <a href="../tecnologia/dominios.html">acme.com.br</a> vence em <b class="strong">24/09/2026</b> e está <b class="strong">sem renovação automática</b>. Pague a renovação no Registro.br (R$ 40,00) até 23/09 para evitar a suspensão do <a href="../tecnologia/aplicacao.html">Portal ACME</a>.</span>
+</div>
+
+<div class="toolbar">
+  <div class="seg" role="group" aria-label="Filtrar por status" data-filter-group="pagar">
+    <button type="button" class="on" data-filter="todos" aria-pressed="true">Todos <span class="c"></span></button>
+    <button type="button" data-filter="Pendente" aria-pressed="false">Pendente <span class="c"></span></button>
+    <button type="button" data-filter="Pago" aria-pressed="false">Pago <span class="c"></span></button>
+    <button type="button" data-filter="Vencido" aria-pressed="false">Vencido <span class="c"></span></button>
+    <button type="button" data-filter="Cancelado" aria-pressed="false">Cancelado <span class="c"></span></button>
+  </div>
+  <span class="spacer"></span>
+  <label class="search-field"><span class="sr-only">Buscar título</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M11 18a7 7 0 100-14 7 7 0 000 14zM21 21l-4.3-4.3"/></svg><input class="input" type="search" placeholder="Fornecedor, serviço ou cliente"></label>
+  <label class="sr-only" for="f-forn">Fornecedor</label>
+  <select class="select" id="f-forn"><option>Todos os fornecedores</option><option>AWS</option><option>Railway</option><option>Registro.br</option><option>Cloudflare</option><option>Mailgun</option><option>Amazon SES</option><option>OpenAI</option><option>Google Workspace</option><option>Silva &amp; Associados</option><option>Meta Ads</option></select>
+  <label class="sr-only" for="f-cli">Cliente</label>
+  <select class="select" id="f-cli"><option>Todos os clientes</option><option>Sem cliente (interno)</option><option>Empresa ACME</option><option>Empresa XYZ</option><option>Empresa Delta</option><option>Empresa Orion</option></select>
+</div>
+
+<section class="card" aria-label="Títulos a pagar">
+  <div class="table-wrap">
+    <table class="table cards" data-filter-target="pagar">
+      <thead><tr><th>Vencimento</th><th>Fornecedor</th><th>Serviço externo</th><th>Categoria</th><th>Cliente</th><th class="num">Valor</th><th>Atraso</th><th>Status</th><th><span class="sr-only">Ações</span></th></tr></thead>
+      <tbody>
+        <tr class="late" data-status="Vencido"><td data-label="Vencimento" class="mono">15/09/2026</td><td data-label="Fornecedor"><a class="strong" href="../gestao/fornecedores.html">Cloudflare</a></td><td data-label="Serviço externo"><a href="../tecnologia/servicos-externos.html">Cloudflare Pro — DNS e CDN</a></td><td data-label="Categoria">Infraestrutura</td><td data-label="Cliente" class="muted">Interno</td><td data-label="Valor" class="num">≈ R$ 140,50<span class="cell-sub">US$ 25,00</span></td><td data-label="Atraso" style="color:var(--crit);font-weight:600">2 dias</td><td data-label="Status"><span class="badge b-crit">Vencido</span></td><td data-label="" class="right"><button class="link-btn" type="button" data-open="pagamento">Registrar pagamento</button></td></tr>
+        <tr data-status="Pendente"><td data-label="Vencimento" class="mono">18/09/2026</td><td data-label="Fornecedor"><a class="strong" href="../gestao/fornecedores.html">Railway</a></td><td data-label="Serviço externo"><a href="../tecnologia/servicos-externos.html">Railway — Sistema ERP</a></td><td data-label="Categoria">Infraestrutura</td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa XYZ</a></td><td data-label="Valor" class="num">≈ R$ 112,40<span class="cell-sub">US$ 20,00</span></td><td data-label="Atraso" class="muted">—</td><td data-label="Status"><span class="badge b-warn">Pendente</span></td><td data-label="" class="right"><button class="link-btn" type="button" data-open="pagamento">Registrar pagamento</button></td></tr>
+        <tr data-status="Pendente"><td data-label="Vencimento" class="mono">18/09/2026</td><td data-label="Fornecedor"><a class="strong" href="../gestao/fornecedores.html">Railway</a></td><td data-label="Serviço externo"><a href="../tecnologia/servicos-externos.html">Railway — Portal ACME</a></td><td data-label="Categoria">Infraestrutura</td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa ACME</a></td><td data-label="Valor" class="num">≈ R$ 150,00<span class="cell-sub">US$ 26,69</span></td><td data-label="Atraso" class="muted">—</td><td data-label="Status"><span class="badge b-warn">Pendente</span></td><td data-label="" class="right"><button class="link-btn" type="button" data-open="pagamento">Registrar pagamento</button></td></tr>
+        <tr data-status="Pendente"><td data-label="Vencimento" class="mono">20/09/2026</td><td data-label="Fornecedor"><a class="strong" href="../gestao/fornecedores.html">Silva &amp; Associados</a></td><td data-label="Serviço externo" class="muted">—</td><td data-label="Categoria">Contabilidade</td><td data-label="Cliente" class="muted">Interno</td><td data-label="Valor" class="num">R$ 650,00</td><td data-label="Atraso" class="muted">—</td><td data-label="Status"><span class="badge b-warn">Pendente</span></td><td data-label="" class="right"><button class="link-btn" type="button" data-open="pagamento">Registrar pagamento</button></td></tr>
+        <tr data-status="Pendente"><td data-label="Vencimento" class="mono">22/09/2026</td><td data-label="Fornecedor"><a class="strong" href="../gestao/fornecedores.html">Google Workspace</a></td><td data-label="Serviço externo"><a href="../tecnologia/servicos-externos.html">Google Workspace — e-mail</a></td><td data-label="Categoria">Software</td><td data-label="Cliente" class="muted">Interno</td><td data-label="Valor" class="num">R$ 336,00</td><td data-label="Atraso" class="muted">—</td><td data-label="Status"><span class="badge b-warn">Pendente</span></td><td data-label="" class="right"><button class="link-btn" type="button" data-open="pagamento">Registrar pagamento</button></td></tr>
+        <tr data-status="Pendente"><td data-label="Vencimento" class="mono">23/09/2026</td><td data-label="Fornecedor"><a class="strong" href="../gestao/fornecedores.html">OpenAI</a></td><td data-label="Serviço externo"><a href="../tecnologia/servicos-externos.html">OpenAI API — uso interno</a></td><td data-label="Categoria">Software</td><td data-label="Cliente" class="muted">Interno</td><td data-label="Valor" class="num">≈ R$ 252,90<span class="cell-sub">US$ 45,00</span></td><td data-label="Atraso" class="muted">—</td><td data-label="Status"><span class="badge b-warn">Pendente</span></td><td data-label="" class="right"><button class="link-btn" type="button" data-open="pagamento">Registrar pagamento</button></td></tr>
+        <tr data-status="Pendente"><td data-label="Vencimento" class="mono">24/09/2026</td><td data-label="Fornecedor"><a class="strong" href="../gestao/fornecedores.html">Registro.br</a></td><td data-label="Serviço externo"><a href="../tecnologia/dominios.html">Domínio acme.com.br</a><span class="cell-sub" style="color:var(--warn)">sem renovação automática</span></td><td data-label="Categoria">Infraestrutura</td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa ACME</a></td><td data-label="Valor" class="num">R$ 40,00</td><td data-label="Atraso" class="muted">—</td><td data-label="Status"><span class="badge b-warn">Pendente</span></td><td data-label="" class="right"><button class="link-btn" type="button" data-open="pagamento">Registrar pagamento</button></td></tr>
+        <tr data-status="Pendente"><td data-label="Vencimento" class="mono">25/09/2026</td><td data-label="Fornecedor"><a class="strong" href="../gestao/fornecedores.html">Mailgun</a></td><td data-label="Serviço externo"><a href="../tecnologia/servicos-externos.html">Mailgun — e-mail transacional</a></td><td data-label="Categoria">Software</td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa ACME</a></td><td data-label="Valor" class="num">≈ R$ 80,00<span class="cell-sub">US$ 14,23</span></td><td data-label="Atraso" class="muted">—</td><td data-label="Status"><span class="badge b-warn">Pendente</span></td><td data-label="" class="right"><button class="link-btn" type="button" data-open="pagamento">Registrar pagamento</button></td></tr>
+        <tr data-status="Pendente"><td data-label="Vencimento" class="mono">30/09/2026</td><td data-label="Fornecedor"><a class="strong" href="../gestao/fornecedores.html">Diego Rocha (PJ)</a></td><td data-label="Serviço externo" class="muted">—</td><td data-label="Categoria">Colaboradores</td><td data-label="Cliente" class="muted">Interno</td><td data-label="Valor" class="num">R$ 5.800,00</td><td data-label="Atraso" class="muted">—</td><td data-label="Status"><span class="badge b-warn">Pendente</span></td><td data-label="" class="right"><button class="link-btn" type="button" data-open="pagamento">Registrar pagamento</button></td></tr>
+        <tr data-status="Pendente"><td data-label="Vencimento" class="mono">30/09/2026</td><td data-label="Fornecedor"><a class="strong" href="../gestao/fornecedores.html">Elisa Prado (PJ)</a></td><td data-label="Serviço externo" class="muted">—</td><td data-label="Categoria">Colaboradores</td><td data-label="Cliente" class="muted">Interno</td><td data-label="Valor" class="num">R$ 5.700,00</td><td data-label="Atraso" class="muted">—</td><td data-label="Status"><span class="badge b-warn">Pendente</span></td><td data-label="" class="right"><button class="link-btn" type="button" data-open="pagamento">Registrar pagamento</button></td></tr>
+        <tr data-status="Pago"><td data-label="Vencimento" class="mono">03/09/2026</td><td data-label="Fornecedor"><a class="strong" href="../gestao/fornecedores.html">AWS</a></td><td data-label="Serviço externo"><a href="../tecnologia/servicos-externos.html">AWS — Portal ACME</a></td><td data-label="Categoria">Infraestrutura</td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa ACME</a></td><td data-label="Valor" class="num">R$ 220,00<span class="cell-sub">US$ 39,15 · câmbio 5,62</span></td><td data-label="Atraso" class="muted">—</td><td data-label="Status"><span class="badge b-good">Pago</span></td><td data-label="" class="right muted">03/09</td></tr>
+        <tr data-status="Pago"><td data-label="Vencimento" class="mono">03/09/2026</td><td data-label="Fornecedor"><a class="strong" href="../gestao/fornecedores.html">AWS</a></td><td data-label="Serviço externo"><a href="../tecnologia/servicos-externos.html">AWS — API Delta</a></td><td data-label="Categoria">Infraestrutura</td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa Delta</a></td><td data-label="Valor" class="num">R$ 900,00<span class="cell-sub">US$ 160,14 · câmbio 5,62</span></td><td data-label="Atraso" class="muted">—</td><td data-label="Status"><span class="badge b-good">Pago</span></td><td data-label="" class="right muted">03/09</td></tr>
+        <tr data-status="Pago"><td data-label="Vencimento" class="mono">05/09/2026</td><td data-label="Fornecedor"><a class="strong" href="../gestao/fornecedores.html">Meta Ads</a></td><td data-label="Serviço externo" class="muted">—</td><td data-label="Categoria">Marketing</td><td data-label="Cliente" class="muted">Interno</td><td data-label="Valor" class="num">R$ 1.200,00</td><td data-label="Atraso" class="muted">—</td><td data-label="Status"><span class="badge b-good">Pago</span></td><td data-label="" class="right muted">05/09</td></tr>
+        <tr data-status="Pago"><td data-label="Vencimento" class="mono">10/09/2026</td><td data-label="Fornecedor"><a class="strong" href="../gestao/fornecedores.html">OpenAI</a></td><td data-label="Serviço externo"><a href="../tecnologia/servicos-externos.html">OpenAI API — Portal ACME</a></td><td data-label="Categoria">Software</td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa ACME</a></td><td data-label="Valor" class="num">R$ 120,00<span class="cell-sub">US$ 21,35 · câmbio 5,62</span></td><td data-label="Atraso" class="muted">—</td><td data-label="Status"><span class="badge b-good">Pago</span></td><td data-label="" class="right muted">10/09</td></tr>
+        <tr data-status="Cancelado"><td data-label="Vencimento" class="mono">12/09/2026</td><td data-label="Fornecedor"><a class="strong" href="../gestao/fornecedores.html">Figma</a></td><td data-label="Serviço externo" class="muted">Licença Professional — assinatura encerrada</td><td data-label="Categoria">Software</td><td data-label="Cliente" class="muted">Interno</td><td data-label="Valor" class="num muted" style="text-decoration:line-through">US$ 15,00</td><td data-label="Atraso" class="muted">—</td><td data-label="Status"><span class="badge b-mute">Cancelado</span></td><td data-label="" class="right muted">—</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="pagination"><span>≈ valor em reais estimado pelo câmbio de hoje (US$ 1 = R$ 5,62); o valor definitivo é gravado na data do pagamento</span><div class="pages"><button type="button" class="on" aria-current="page">1</button><button type="button">2</button><button type="button">3</button></div></div>
+</section>
+
+</main>
+</div>
+</div>
+
+<!-- Formulário lateral: novo título a pagar -->
+<aside class="drawer" id="novo-titulo-pagar" role="dialog" aria-modal="true" aria-labelledby="novo-titulo-pagar-t">
+  <form class="form" style="display:contents">
+    <div class="drawer-head"><h2 id="novo-titulo-pagar-t">Novo título a pagar</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="drawer-body form">
+      <span class="fieldset-title">Vínculos</span>
+      <div class="form-grid">
+        <div class="field full"><label for="n-forn">Fornecedor <span class="req">*</span></label><select class="select" id="n-forn" required><option value="">Selecione</option><option>AWS</option><option>Railway</option><option>Registro.br</option><option>Cloudflare</option><option>Mailgun</option><option>Amazon SES</option><option>OpenAI</option><option>Google Workspace</option><option>Silva &amp; Associados</option><option>Meta Ads</option></select></div>
+        <div class="field"><label for="n-ext">Serviço externo</label><select class="select" id="n-ext"><option>Nenhum</option><option>AWS — Portal ACME</option><option>AWS — API Delta</option><option>Railway — Sistema ERP</option><option>Railway — Portal ACME</option><option>Mailgun — e-mail transacional</option><option>OpenAI API — Portal ACME</option></select><span class="hint">Quando houver, ligado em <a href="../tecnologia/servicos-externos.html">Serviços externos</a></span></div>
+        <div class="field"><label for="n-cli">Cliente</label><select class="select" id="n-cli"><option>Nenhum (interno)</option><option>Empresa ACME</option><option>Empresa XYZ</option><option>Empresa Delta</option><option>Empresa Orion</option></select><span class="hint">Com cliente, entra no custo direto dele</span></div>
+      </div>
+      <span class="fieldset-title">Título</span>
+      <div class="form-grid">
+        <div class="field full"><label for="n-desc">Descrição <span class="req">*</span></label><input class="input" id="n-desc" required placeholder="Ex.: Hospedagem — Sistema ERP — Outubro/2026"></div>
+        <div class="field"><label for="n-cat">Categoria <span class="req">*</span></label><select class="select" id="n-cat" required><option value="">Selecione</option><option>Infraestrutura</option><option>Software</option><option>Marketing</option><option>Comercial</option><option>Contabilidade</option><option>Impostos</option><option>Colaboradores</option><option>Administrativo</option><option>Outros</option></select></div>
+        <div class="field"><label for="n-venc">Vencimento <span class="req">*</span></label><input class="input" id="n-venc" type="date" required></div>
+        <div class="field"><label for="n-moeda">Moeda <span class="req">*</span></label><select class="select" id="n-moeda" required><option>BRL — Real</option><option>USD — Dólar americano</option><option>EUR — Euro</option></select></div>
+        <div class="field"><label for="n-orig">Valor original</label><input class="input num" id="n-orig" inputmode="decimal" placeholder="0,00"><span class="hint">Só para moeda estrangeira</span></div>
+        <div class="field full"><label for="n-val">Valor em reais (R$) <span class="req">*</span></label><input class="input num" id="n-val" inputmode="decimal" required placeholder="0,00"><span class="hint">Estimado até o pagamento; definitivo na data do pagamento</span></div>
+        <div class="field full"><span class="label">Recorrente</span><label class="check"><span class="switch"><input type="checkbox" id="n-rec"><span></span></span>Gerar os próximos títulos automaticamente</label></div>
+      </div>
+    </div>
+    <div class="drawer-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Salvar título</button></div>
+  </form>
+</aside>
+
+<!-- Modal: registrar pagamento -->
+<div class="modal" id="pagamento" role="dialog" aria-modal="true" aria-labelledby="pagamento-t">
+  <form class="form" style="display:contents">
+    <div class="modal-head"><h2 id="pagamento-t">Registrar pagamento</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="modal-body form">
+      <div class="callout"><span>Railway · Sistema ERP · Empresa XYZ · venc. 18/09/2026 · <b class="strong">US$ 20,00</b></span></div>
+      <div class="form-grid">
+        <div class="field"><label for="p-data">Data do pagamento <span class="req">*</span></label><input class="input" id="p-data" type="date" value="2026-09-17" required></div>
+        <div class="field"><label for="p-orig">Valor pago (US$) <span class="req">*</span></label><input class="input num" id="p-orig" value="20,00" required></div>
+        <div class="field"><label for="p-cambio">Câmbio do dia (R$)</label><input class="input num" id="p-cambio" value="5,62"></div>
+        <div class="field"><label for="p-val">Valor em reais (R$) <span class="req">*</span></label><input class="input num" id="p-val" value="112,40" required></div>
+      </div>
+      <span class="caption">O valor em reais na data do pagamento passa a ser o valor definitivo da despesa e do custo direto da Empresa XYZ.</span>
+      <div class="field"><label for="p-obs">Observações</label><textarea class="textarea" id="p-obs" placeholder="Cartão usado, IOF, número da fatura…"></textarea></div>
+    </div>
+    <div class="modal-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Confirmar pagamento</button></div>
+  </form>
+</div>
+
+<script src="../assets/app.js"></script>
+</body>
+</html>

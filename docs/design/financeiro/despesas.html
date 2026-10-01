@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Despesas · Admin DevBatista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/app.css">
+</head>
+<body data-group="fin" data-item="Despesas" data-crumb='[["Financeiro","financeiro.html"],["Despesas"]]'>
+<div class="app">
+<aside class="side"></aside>
+<div class="main">
+<header class="top"></header>
+<main class="content">
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Financeiro · Setembro de 2026</span>
+    <h1>Despesas</h1>
+  </div>
+  <div class="actions">
+    <button class="btn" type="button">Exportar CSV</button>
+    <button class="btn pri" type="button" data-open="nova-despesa">Nova despesa</button>
+  </div>
+</div>
+
+<div class="cols-2-1">
+  <div class="stack" style="min-width:0">
+    <div class="grid-kpi">
+      <div class="card kpi"><span class="eyebrow">Despesas do mês</span><span class="v">R$ 22.100</span><span class="f">pagas e previstas · 34 lançamentos</span></div>
+      <div class="card kpi"><span class="eyebrow">Pagas</span><span class="v">R$ 7.480</span><span class="f">34% do total</span></div>
+      <div class="card kpi"><span class="eyebrow">Em aberto</span><span class="v">R$ 14.620</span><span class="f"><span class="badge b-crit">R$ 140,50</span>vencido</span></div>
+      <a class="card kpi" href="../gestao/rentabilidade.html"><span class="eyebrow">Custo direto de clientes</span><span class="v">R$ 2.860</span><span class="f">centro de custo em 6 clientes</span></a>
+      <div class="card kpi"><span class="eyebrow">Em moeda estrangeira</span><span class="v">R$ 3.080</span><span class="f">US$ 548 convertidos</span></div>
+    </div>
+    <div class="callout"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;color:var(--cyan)"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM12 16v-4M12 8h.01"/></svg><span>Despesas em moeda estrangeira guardam o <b class="strong">valor original</b>, a moeda e o <b class="strong">valor em reais na data do pagamento</b>. Até o pagamento, o valor em reais é estimado pelo câmbio do dia (≈). Despesas com centro de custo em um cliente entram no custo direto dele em <a href="../gestao/rentabilidade.html">Rentabilidade</a>.</span></div>
+  </div>
+
+  <section class="card card-body stack" aria-label="Despesas por categoria">
+    <div class="section-title"><h2>Por categoria</h2><span class="unit">R$ MIL · SET</span></div>
+    <div class="hbars">
+      <div class="hbar"><span>Colaboradores</span><div class="track"><div class="fill" style="width:100%"></div></div><span class="val">11,5</span></div>
+      <div class="hbar"><span>Infraestrutura</span><div class="track"><div class="fill" style="width:30%"></div></div><span class="val">3,4</span></div>
+      <div class="hbar"><span>Impostos</span><div class="track"><div class="fill" style="width:22%"></div></div><span class="val">2,5</span></div>
+      <div class="hbar"><span>Software</span><div class="track"><div class="fill" style="width:19%"></div></div><span class="val">2,2</span></div>
+      <div class="hbar"><span>Marketing</span><div class="track"><div class="fill" style="width:10%"></div></div><span class="val">1,2</span></div>
+      <div class="hbar"><span>Contabilidade</span><div class="track"><div class="fill" style="width:6%"></div></div><span class="val">0,7</span></div>
+      <div class="hbar"><span>Administrativo</span><div class="track"><div class="fill alt" style="width:3%"></div></div><span class="val">0,3</span></div>
+      <div class="hbar"><span>Comercial</span><div class="track"><div class="fill alt" style="width:3%"></div></div><span class="val">0,3</span></div>
+      <div class="hbar"><span>Outros</span><div class="track"><div class="fill alt" style="width:1%"></div></div><span class="val">0,1</span></div>
+    </div>
+  </section>
+</div>
+
+<div class="toolbar">
+  <div class="seg" role="group" aria-label="Filtrar por categoria" data-filter-group="despesas">
+    <button type="button" class="on" data-filter="todos" aria-pressed="true">Todas <span class="c"></span></button>
+    <button type="button" data-filter="Infraestrutura" aria-pressed="false">Infraestrutura <span class="c"></span></button>
+    <button type="button" data-filter="Software" aria-pressed="false">Software <span class="c"></span></button>
+    <button type="button" data-filter="Marketing" aria-pressed="false">Marketing <span class="c"></span></button>
+    <button type="button" data-filter="Comercial" aria-pressed="false">Comercial <span class="c"></span></button>
+    <button type="button" data-filter="Contabilidade" aria-pressed="false">Contabilidade <span class="c"></span></button>
+    <button type="button" data-filter="Impostos" aria-pressed="false">Impostos <span class="c"></span></button>
+    <button type="button" data-filter="Colaboradores" aria-pressed="false">Colaboradores <span class="c"></span></button>
+    <button type="button" data-filter="Administrativo" aria-pressed="false">Administrativo <span class="c"></span></button>
+    <button type="button" data-filter="Outros" aria-pressed="false">Outros <span class="c"></span></button>
+  </div>
+  <span class="spacer"></span>
+  <label class="search-field"><span class="sr-only">Buscar despesa</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M11 18a7 7 0 100-14 7 7 0 000 14zM21 21l-4.3-4.3"/></svg><input class="input" type="search" placeholder="Fornecedor ou descrição"></label>
+  <label class="sr-only" for="f-cc">Centro de custo</label>
+  <select class="select" id="f-cc"><option>Todos os centros de custo</option><optgroup label="Áreas internas"><option>Administrativo</option><option>Comercial e marketing</option><option>Operação</option><option>Infraestrutura interna</option><option>Produtos próprios</option></optgroup><optgroup label="Clientes"><option>Empresa ACME</option><option>Empresa XYZ</option><option>Empresa Delta</option><option>Empresa Orion</option></optgroup></select>
+  <label class="sr-only" for="f-rec">Recorrência</label>
+  <select class="select" id="f-rec"><option>Recorrentes e avulsas</option><option>Somente recorrentes</option><option>Somente avulsas</option></select>
+</div>
+
+<section class="card" aria-label="Despesas do mês">
+  <div class="table-wrap">
+    <table class="table cards" data-filter-target="despesas">
+      <thead><tr><th>Fornecedor</th><th>Categoria</th><th>Descrição</th><th class="num">Valor</th><th>Vencimento</th><th>Pagamento</th><th>Recorrente</th><th>Centro de custo</th><th><span class="sr-only">Ações</span></th></tr></thead>
+      <tbody>
+        <tr data-status="Colaboradores"><td data-label="Fornecedor" class="strong">Diego Rocha (PJ)</td><td data-label="Categoria">Colaboradores</td><td data-label="Descrição">Desenvolvimento — Setembro/2026</td><td data-label="Valor" class="num">R$ 5.800,00</td><td data-label="Vencimento" class="mono">30/09/2026</td><td data-label="Pagamento"><span class="badge b-warn">A pagar</span></td><td data-label="Recorrente">Sim</td><td data-label="Centro de custo">Operação</td><td data-label="" class="right"><button class="link-btn" type="button" aria-label="Editar despesa Diego Rocha">Editar</button></td></tr>
+        <tr data-status="Colaboradores"><td data-label="Fornecedor" class="strong">Elisa Prado (PJ)</td><td data-label="Categoria">Colaboradores</td><td data-label="Descrição">Desenvolvimento — Setembro/2026</td><td data-label="Valor" class="num">R$ 5.700,00</td><td data-label="Vencimento" class="mono">30/09/2026</td><td data-label="Pagamento"><span class="badge b-warn">A pagar</span></td><td data-label="Recorrente">Sim</td><td data-label="Centro de custo">Operação</td><td data-label="" class="right"><button class="link-btn" type="button" aria-label="Editar despesa Elisa Prado">Editar</button></td></tr>
+        <tr data-status="Impostos"><td data-label="Fornecedor" class="strong">Receita Federal</td><td data-label="Categoria">Impostos</td><td data-label="Descrição">DAS Simples Nacional — competência Agosto/2026</td><td data-label="Valor" class="num">R$ 2.480,00</td><td data-label="Vencimento" class="mono">20/09/2026</td><td data-label="Pagamento" class="mono">15/09/2026</td><td data-label="Recorrente">Sim</td><td data-label="Centro de custo">Administrativo</td><td data-label="" class="right"><button class="link-btn" type="button" aria-label="Editar despesa DAS">Editar</button></td></tr>
+        <tr data-status="Infraestrutura"><td data-label="Fornecedor" class="strong">AWS</td><td data-label="Categoria">Infraestrutura</td><td data-label="Descrição">EC2 + RDS — <a href="../tecnologia/aplicacao.html">Portal ACME</a></td><td data-label="Valor" class="num">R$ 220,00<span class="cell-sub">US$ 39,15</span></td><td data-label="Vencimento" class="mono">03/09/2026</td><td data-label="Pagamento" class="mono">03/09/2026</td><td data-label="Recorrente">Sim</td><td data-label="Centro de custo"><a href="../clientes/empresa.html">Empresa ACME</a></td><td data-label="" class="right"><button class="link-btn" type="button" aria-label="Editar despesa AWS Portal ACME">Editar</button></td></tr>
+        <tr data-status="Infraestrutura"><td data-label="Fornecedor" class="strong">AWS</td><td data-label="Categoria">Infraestrutura</td><td data-label="Descrição">EC2 + S3 — <a href="../tecnologia/aplicacao.html">API Delta</a></td><td data-label="Valor" class="num">R$ 900,00<span class="cell-sub">US$ 160,14</span></td><td data-label="Vencimento" class="mono">03/09/2026</td><td data-label="Pagamento" class="mono">03/09/2026</td><td data-label="Recorrente">Sim</td><td data-label="Centro de custo"><a href="../clientes/empresa.html">Empresa Delta</a></td><td data-label="" class="right"><button class="link-btn" type="button" aria-label="Editar despesa AWS API Delta">Editar</button></td></tr>
+        <tr data-status="Infraestrutura"><td data-label="Fornecedor" class="strong">Railway</td><td data-label="Categoria">Infraestrutura</td><td data-label="Descrição">Hospedagem — <a href="../tecnologia/aplicacao.html">Sistema ERP</a></td><td data-label="Valor" class="num">≈ R$ 112,40<span class="cell-sub">US$ 20,00 · câmbio de hoje</span></td><td data-label="Vencimento" class="mono">18/09/2026</td><td data-label="Pagamento"><span class="badge b-warn">A pagar</span></td><td data-label="Recorrente">Sim</td><td data-label="Centro de custo"><a href="../clientes/empresa.html">Empresa XYZ</a></td><td data-label="" class="right"><button class="link-btn" type="button" aria-label="Editar despesa Railway Sistema ERP">Editar</button></td></tr>
+        <tr data-status="Infraestrutura"><td data-label="Fornecedor" class="strong">Railway</td><td data-label="Categoria">Infraestrutura</td><td data-label="Descrição">Hospedagem — <a href="../tecnologia/aplicacao.html">Portal ACME</a></td><td data-label="Valor" class="num">≈ R$ 150,00<span class="cell-sub">US$ 26,69 · câmbio de hoje</span></td><td data-label="Vencimento" class="mono">18/09/2026</td><td data-label="Pagamento"><span class="badge b-warn">A pagar</span></td><td data-label="Recorrente">Sim</td><td data-label="Centro de custo"><a href="../clientes/empresa.html">Empresa ACME</a></td><td data-label="" class="right"><button class="link-btn" type="button" aria-label="Editar despesa Railway Portal ACME">Editar</button></td></tr>
+        <tr class="late" data-status="Infraestrutura"><td data-label="Fornecedor" class="strong">Cloudflare</td><td data-label="Categoria">Infraestrutura</td><td data-label="Descrição">Plano Pro — DNS e CDN</td><td data-label="Valor" class="num">≈ R$ 140,50<span class="cell-sub">US$ 25,00 · câmbio de hoje</span></td><td data-label="Vencimento" class="mono">15/09/2026</td><td data-label="Pagamento"><span class="badge b-crit">Vencida</span></td><td data-label="Recorrente">Sim</td><td data-label="Centro de custo">Infraestrutura interna</td><td data-label="" class="right"><a class="link-btn" href="contas-pagar.html">Pagar</a></td></tr>
+        <tr data-status="Infraestrutura"><td data-label="Fornecedor" class="strong">Registro.br</td><td data-label="Categoria">Infraestrutura</td><td data-label="Descrição">Renovação anual — <a href="../tecnologia/dominios.html">acme.com.br</a></td><td data-label="Valor" class="num">R$ 40,00</td><td data-label="Vencimento" class="mono">24/09/2026</td><td data-label="Pagamento"><span class="badge b-warn">A pagar</span></td><td data-label="Recorrente">Sim · anual</td><td data-label="Centro de custo"><a href="../clientes/empresa.html">Empresa ACME</a></td><td data-label="" class="right"><button class="link-btn" type="button" aria-label="Editar despesa Registro.br">Editar</button></td></tr>
+        <tr data-status="Software"><td data-label="Fornecedor" class="strong">OpenAI</td><td data-label="Categoria">Software</td><td data-label="Descrição">API — assistente do <a href="../tecnologia/aplicacao.html">Portal ACME</a></td><td data-label="Valor" class="num">R$ 120,00<span class="cell-sub">US$ 21,35</span></td><td data-label="Vencimento" class="mono">10/09/2026</td><td data-label="Pagamento" class="mono">10/09/2026</td><td data-label="Recorrente">Sim</td><td data-label="Centro de custo"><a href="../clientes/empresa.html">Empresa ACME</a></td><td data-label="" class="right"><button class="link-btn" type="button" aria-label="Editar despesa OpenAI Portal ACME">Editar</button></td></tr>
+        <tr data-status="Software"><td data-label="Fornecedor" class="strong">OpenAI</td><td data-label="Categoria">Software</td><td data-label="Descrição">API — uso interno e Ruby Rose</td><td data-label="Valor" class="num">≈ R$ 252,90<span class="cell-sub">US$ 45,00 · câmbio de hoje</span></td><td data-label="Vencimento" class="mono">23/09/2026</td><td data-label="Pagamento"><span class="badge b-warn">A pagar</span></td><td data-label="Recorrente">Sim</td><td data-label="Centro de custo">Produtos próprios</td><td data-label="" class="right"><button class="link-btn" type="button" aria-label="Editar despesa OpenAI uso interno">Editar</button></td></tr>
+        <tr data-status="Software"><td data-label="Fornecedor" class="strong">Mailgun</td><td data-label="Categoria">Software</td><td data-label="Descrição">E-mail transacional — Portal ACME</td><td data-label="Valor" class="num">≈ R$ 80,00<span class="cell-sub">US$ 14,23 · câmbio de hoje</span></td><td data-label="Vencimento" class="mono">25/09/2026</td><td data-label="Pagamento"><span class="badge b-warn">A pagar</span></td><td data-label="Recorrente">Sim</td><td data-label="Centro de custo"><a href="../clientes/empresa.html">Empresa ACME</a></td><td data-label="" class="right"><button class="link-btn" type="button" aria-label="Editar despesa Mailgun">Editar</button></td></tr>
+        <tr data-status="Software"><td data-label="Fornecedor" class="strong">Amazon SES</td><td data-label="Categoria">Software</td><td data-label="Descrição">E-mails do Sistema ERP</td><td data-label="Valor" class="num">R$ 33,72<span class="cell-sub">US$ 6,00</span></td><td data-label="Vencimento" class="mono">05/09/2026</td><td data-label="Pagamento" class="mono">05/09/2026</td><td data-label="Recorrente">Sim</td><td data-label="Centro de custo"><a href="../clientes/empresa.html">Empresa XYZ</a></td><td data-label="" class="right"><button class="link-btn" type="button" aria-label="Editar despesa Amazon SES">Editar</button></td></tr>
+        <tr data-status="Software"><td data-label="Fornecedor" class="strong">Google Workspace</td><td data-label="Categoria">Software</td><td data-label="Descrição">6 contas de e-mail corporativo</td><td data-label="Valor" class="num">R$ 336,00</td><td data-label="Vencimento" class="mono">22/09/2026</td><td data-label="Pagamento"><span class="badge b-warn">A pagar</span></td><td data-label="Recorrente">Sim</td><td data-label="Centro de custo">Administrativo</td><td data-label="" class="right"><button class="link-btn" type="button" aria-label="Editar despesa Google Workspace">Editar</button></td></tr>
+        <tr data-status="Software"><td data-label="Fornecedor" class="strong">GitHub</td><td data-label="Categoria">Software</td><td data-label="Descrição">Plano Team — 6 usuários</td><td data-label="Valor" class="num">R$ 134,88<span class="cell-sub">US$ 24,00</span></td><td data-label="Vencimento" class="mono">08/09/2026</td><td data-label="Pagamento" class="mono">08/09/2026</td><td data-label="Recorrente">Sim</td><td data-label="Centro de custo">Operação</td><td data-label="" class="right"><button class="link-btn" type="button" aria-label="Editar despesa GitHub">Editar</button></td></tr>
+        <tr data-status="Marketing"><td data-label="Fornecedor" class="strong">Meta Ads</td><td data-label="Categoria">Marketing</td><td data-label="Descrição">Campanha de captação — setembro</td><td data-label="Valor" class="num">R$ 1.200,00</td><td data-label="Vencimento" class="mono">05/09/2026</td><td data-label="Pagamento" class="mono">05/09/2026</td><td data-label="Recorrente">Não</td><td data-label="Centro de custo">Comercial e marketing</td><td data-label="" class="right"><button class="link-btn" type="button" aria-label="Editar despesa Meta Ads">Editar</button></td></tr>
+        <tr data-status="Contabilidade"><td data-label="Fornecedor" class="strong">Silva &amp; Associados</td><td data-label="Categoria">Contabilidade</td><td data-label="Descrição">Honorários contábeis — Setembro/2026</td><td data-label="Valor" class="num">R$ 650,00</td><td data-label="Vencimento" class="mono">20/09/2026</td><td data-label="Pagamento"><span class="badge b-warn">A pagar</span></td><td data-label="Recorrente">Sim</td><td data-label="Centro de custo">Administrativo</td><td data-label="" class="right"><button class="link-btn" type="button" aria-label="Editar despesa Silva e Associados">Editar</button></td></tr>
+        <tr data-status="Comercial"><td data-label="Fornecedor" class="strong">Lima Consultoria</td><td data-label="Categoria">Comercial</td><td data-label="Descrição">Comissão de indicação — Empresa Delta</td><td data-label="Valor" class="num">R$ 300,00</td><td data-label="Vencimento" class="mono">12/09/2026</td><td data-label="Pagamento" class="mono">12/09/2026</td><td data-label="Recorrente">Não</td><td data-label="Centro de custo">Comercial e marketing</td><td data-label="" class="right"><button class="link-btn" type="button" aria-label="Editar despesa Lima Consultoria">Editar</button></td></tr>
+        <tr data-status="Administrativo"><td data-label="Fornecedor" class="strong">Coworking Central</td><td data-label="Categoria">Administrativo</td><td data-label="Descrição">Sala de reunião — 4 diárias</td><td data-label="Valor" class="num">R$ 320,00</td><td data-label="Vencimento" class="mono">10/09/2026</td><td data-label="Pagamento" class="mono">10/09/2026</td><td data-label="Recorrente">Não</td><td data-label="Centro de custo">Administrativo</td><td data-label="" class="right"><button class="link-btn" type="button" aria-label="Editar despesa Coworking Central">Editar</button></td></tr>
+        <tr data-status="Outros"><td data-label="Fornecedor" class="strong">Banco Inter</td><td data-label="Categoria">Outros</td><td data-label="Descrição">Tarifas bancárias e boletos</td><td data-label="Valor" class="num">R$ 100,00</td><td data-label="Vencimento" class="mono">30/09/2026</td><td data-label="Pagamento"><span class="badge b-warn">A pagar</span></td><td data-label="Recorrente">Sim</td><td data-label="Centro de custo">Administrativo</td><td data-label="" class="right"><button class="link-btn" type="button" aria-label="Editar despesa Banco Inter">Editar</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="pagination"><span>Mostrando 20 de 34 despesas · valores em moeda estrangeira convertidos na data do pagamento</span><div class="pages"><button type="button" class="on" aria-current="page">1</button><button type="button">2</button></div></div>
+</section>
+
+</main>
+</div>
+</div>
+
+<!-- Formulário lateral: nova despesa -->
+<aside class="drawer" id="nova-despesa" role="dialog" aria-modal="true" aria-labelledby="nova-despesa-t">
+  <form class="form" style="display:contents">
+    <div class="drawer-head"><h2 id="nova-despesa-t">Nova despesa</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="drawer-body form">
+      <span class="fieldset-title">Identificação</span>
+      <div class="form-grid">
+        <div class="field full"><label for="d-forn">Fornecedor <span class="req">*</span></label><select class="select" id="d-forn" required><option value="">Selecione um fornecedor cadastrado</option><option>AWS</option><option>Railway</option><option>Registro.br</option><option>Cloudflare</option><option>Mailgun</option><option>Amazon SES</option><option>OpenAI</option><option>Google Workspace</option><option>GitHub</option><option>Meta Ads</option><option>Silva &amp; Associados</option><option>Receita Federal</option></select><span class="hint">Não encontrou? <a href="../gestao/fornecedores.html">Cadastre em Fornecedores</a></span></div>
+        <div class="field"><label for="d-cat">Categoria <span class="req">*</span></label><select class="select" id="d-cat" required><option value="">Selecione</option><option>Infraestrutura</option><option>Software</option><option>Marketing</option><option>Comercial</option><option>Contabilidade</option><option>Impostos</option><option>Colaboradores</option><option>Administrativo</option><option>Outros</option></select></div>
+        <div class="field"><label for="d-desc">Descrição <span class="req">*</span></label><input class="input" id="d-desc" required placeholder="Ex.: Hospedagem — Sistema ERP"></div>
+      </div>
+
+      <span class="fieldset-title">Valor</span>
+      <div class="form-grid">
+        <div class="field"><label for="d-moeda">Moeda <span class="req">*</span></label><select class="select" id="d-moeda" required><option>BRL — Real</option><option selected>USD — Dólar americano</option><option>EUR — Euro</option></select></div>
+        <div class="field"><label for="d-orig">Valor original</label><input class="input num" id="d-orig" inputmode="decimal" value="20,00"><span class="hint">Na moeda da fatura (US$)</span></div>
+        <div class="field full"><label for="d-val">Valor em reais (R$) <span class="req">*</span></label><input class="input num" id="d-val" inputmode="decimal" value="112,40" required><span class="hint">Estimado pelo câmbio de hoje (US$ 1 = R$ 5,62). O valor definitivo é gravado na data do pagamento.</span></div>
+      </div>
+
+      <span class="fieldset-title">Datas e recorrência</span>
+      <div class="form-grid">
+        <div class="field"><label for="d-venc">Vencimento <span class="req">*</span></label><input class="input" id="d-venc" type="date" value="2026-10-18" required></div>
+        <div class="field"><label for="d-pag">Pagamento</label><input class="input" id="d-pag" type="date"><span class="hint">Data do pagamento efetivo</span></div>
+        <fieldset class="field full" style="border:0;padding:0;margin:0">
+          <legend class="label" style="padding:0;margin-bottom:6px">Recorrente <span class="req">*</span></legend>
+          <div class="row wrap" style="gap:20px">
+            <label class="check"><input type="radio" name="d-rec" value="sim" checked> Sim</label>
+            <label class="check"><input type="radio" name="d-rec" value="nao"> Não</label>
+          </div>
+          <span class="hint">Despesas recorrentes geram os próximos títulos em <a href="contas-pagar.html">Contas a pagar</a> pela rotina de <a href="recorrencias.html">Recorrências</a>.</span>
+        </fieldset>
+      </div>
+
+      <span class="fieldset-title">Centro de custo</span>
+      <div class="field"><label for="d-cc">Centro de custo <span class="req">*</span></label><select class="select" id="d-cc" required>
+        <option value="">Selecione área interna ou cliente</option>
+        <optgroup label="Áreas internas"><option>Administrativo</option><option>Comercial e marketing</option><option>Operação</option><option>Infraestrutura interna</option><option>Produtos próprios</option></optgroup>
+        <optgroup label="Clientes"><option>Empresa ACME</option><option selected>Empresa XYZ</option><option>Empresa Delta</option><option>Empresa Orion</option><option>Cliente A</option><option>Cliente B</option><option>Cliente C</option><option>Cliente D</option></optgroup>
+      </select></div>
+      <div class="callout">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;color:var(--cyan)"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM12 16v-4M12 8h.01"/></svg>
+        <span>Com um <b class="strong">cliente</b> como centro de custo, esta despesa passa a compor o custo direto dele e entra no cálculo de <a href="../gestao/rentabilidade.html">rentabilidade do cliente</a>.</span>
+      </div>
+    </div>
+    <div class="drawer-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Salvar despesa</button></div>
+  </form>
+</aside>
+
+<script src="../assets/app.js"></script>
+</body>
+</html>

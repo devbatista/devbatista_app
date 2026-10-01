@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Leads · Admin DevBatista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/app.css">
+<style>
+  /* Modais longos rolam por dentro */
+  .modal { max-height: 84vh; flex-direction: column; }
+  .modal.open { display: flex; }
+  .modal .modal-body { overflow-y: auto; }
+  .hbar { grid-template-columns: 96px minmax(0, 1fr) 32px; }
+</style>
+</head>
+<body data-group="com" data-item="Leads" data-crumb='[["Comercial","pipeline.html"],["Leads"]]'>
+<div class="app">
+<aside class="side"></aside>
+<div class="main">
+<header class="top"></header>
+<main class="content">
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Comercial · Setembro de 2026</span>
+    <h1>Leads</h1>
+  </div>
+  <div class="actions">
+    <a class="btn" href="pipeline.html">Ver no pipeline</a>
+    <button class="btn" type="button">Exportar CSV</button>
+    <button class="btn pri" type="button" data-open="novo-lead">Novo lead</button>
+  </div>
+</div>
+
+<div class="grid-kpi">
+  <div class="card kpi"><span class="eyebrow">Novos no mês</span><span class="v">16</span><span class="f"><span class="badge b-good">+4</span>vs. agosto (12)</span></div>
+  <div class="card kpi"><span class="eyebrow">Em aberto</span><span class="v">7</span><span class="f"><span class="badge b-warn">3</span>ainda sem contato</span></div>
+  <div class="card kpi"><span class="eyebrow">Taxa de conversão</span><span class="v">6,3%</span><span class="f">1 negócio fechado ÷ 16 leads no mês</span></div>
+  <div class="card kpi"><span class="eyebrow">Perdidos no mês</span><span class="v">2</span><span class="f">Preço · Optou por concorrente</span></div>
+</div>
+
+<section class="card" aria-labelledby="origem-t">
+  <div class="card-head"><h2 id="origem-t">Leads por origem</h2><span class="unit">SETEMBRO · 16 LEADS</span></div>
+  <div class="card-body grid-2" style="padding-top:0">
+    <div class="hbars">
+      <div class="hbar"><span>WhatsApp</span><div class="track"><div class="fill" style="width:100%"></div></div><span class="val">4</span></div>
+      <div class="hbar"><span>Indicação</span><div class="track"><div class="fill" style="width:75%"></div></div><span class="val">3</span></div>
+      <div class="hbar"><span>Site</span><div class="track"><div class="fill" style="width:50%"></div></div><span class="val">2</span></div>
+      <div class="hbar"><span>Diagnóstico</span><div class="track"><div class="fill" style="width:50%"></div></div><span class="val">2</span></div>
+      <div class="hbar"><span>Meta Ads</span><div class="track"><div class="fill" style="width:50%"></div></div><span class="val">2</span></div>
+    </div>
+    <div class="hbars">
+      <div class="hbar"><span>Google Ads</span><div class="track"><div class="fill" style="width:25%"></div></div><span class="val">1</span></div>
+      <div class="hbar"><span>LinkedIn</span><div class="track"><div class="fill" style="width:25%"></div></div><span class="val">1</span></div>
+      <div class="hbar"><span>Outbound</span><div class="track"><div class="fill" style="width:25%"></div></div><span class="val">1</span></div>
+      <div class="hbar"><span>Outros</span><div class="track"><div class="fill alt" style="width:0"></div></div><span class="val">0</span></div>
+      <p class="caption" style="margin:0">Conversão por origem no mês: Indicação 33% (1 de 3); demais origens ainda sem negócio fechado.</p>
+    </div>
+  </div>
+</section>
+
+<div class="toolbar">
+  <div class="seg" role="group" aria-label="Filtrar por etapa do pipeline" data-filter-group="leads">
+    <button type="button" class="on" data-filter="todos" aria-pressed="true">Todos <span class="c"></span></button>
+    <button type="button" data-filter="Novo Lead" aria-pressed="false">Novo Lead <span class="c"></span></button>
+    <button type="button" data-filter="Contato Realizado" aria-pressed="false">Contato Realizado <span class="c"></span></button>
+    <button type="button" data-filter="Qualificado" aria-pressed="false">Qualificado <span class="c"></span></button>
+    <button type="button" data-filter="Reunião" aria-pressed="false">Reunião <span class="c"></span></button>
+    <button type="button" data-filter="Proposta" aria-pressed="false">Proposta <span class="c"></span></button>
+    <button type="button" data-filter="Negociação" aria-pressed="false">Negociação <span class="c"></span></button>
+    <button type="button" data-filter="Fechado" aria-pressed="false">Fechado <span class="c"></span></button>
+    <button type="button" data-filter="Perdido" aria-pressed="false">Perdido <span class="c"></span></button>
+  </div>
+</div>
+<div class="toolbar" style="margin-top:-12px">
+  <label class="search-field"><span class="sr-only">Buscar lead</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M11 18a7 7 0 100-14 7 7 0 000 14zM21 21l-4.3-4.3"/></svg><input class="input" type="search" placeholder="Nome, empresa, telefone ou e-mail"></label>
+  <label class="sr-only" for="f-origem">Origem</label>
+  <select class="select" id="f-origem"><option>Todas as origens</option><option>WhatsApp</option><option>Indicação</option><option>Site</option><option>Diagnóstico</option><option>Meta Ads</option><option>Google Ads</option><option>LinkedIn</option><option>Outbound</option><option>Outros</option></select>
+  <label class="sr-only" for="f-resp">Responsável</label>
+  <select class="select" id="f-resp"><option>Todos os responsáveis</option><option>Rafael</option><option>Ana Souza</option></select>
+  <label class="sr-only" for="f-per">Período de entrada</label>
+  <select class="select" id="f-per"><option>Entrada: últimos 60 dias</option><option>Setembro/2026</option><option>Agosto/2026</option><option>Personalizado…</option></select>
+</div>
+
+<section class="card" aria-label="Lista de leads">
+  <div class="table-wrap">
+    <table class="table cards" data-filter-target="leads">
+      <thead><tr><th>Nome</th><th>Empresa</th><th>Contato / WhatsApp</th><th>Origem</th><th>Serviço de interesse</th><th>Responsável</th><th>Status</th><th>Entrada</th><th><span class="sr-only">Ações</span></th></tr></thead>
+      <tbody>
+        <tr data-status="Novo Lead">
+          <td data-label="Nome"><a class="strong" href="lead.html">Paulo Lima</a></td>
+          <td data-label="Empresa">Transportes Lima</td>
+          <td data-label="Contato / WhatsApp" class="mono">(11) 98712-4410<span class="cell-sub">paulo@transporteslima.com.br</span></td>
+          <td data-label="Origem"><span class="chip">WhatsApp</span></td>
+          <td data-label="Serviço de interesse">Automação/RPA</td>
+          <td data-label="Responsável">Ana Souza</td>
+          <td data-label="Status"><span class="badge b-warn">Novo Lead</span></td>
+          <td data-label="Entrada" class="mono">17/09/2026</td>
+          <td data-label="" class="right nowrap"><button class="link-btn" type="button" data-open="converter">Converter</button> · <button class="link-btn" type="button" data-open="perdido">Perdido</button></td>
+        </tr>
+        <tr data-status="Novo Lead">
+          <td data-label="Nome"><a class="strong" href="lead.html">Fernanda Reis</a></td>
+          <td data-label="Empresa">Clínica Bem Estar</td>
+          <td data-label="Contato / WhatsApp" class="mono">(11) 99234-1187<span class="cell-sub">contato@clinicabemestar.com.br</span></td>
+          <td data-label="Origem"><span class="chip">Site</span></td>
+          <td data-label="Serviço de interesse">Desenvolvimento de sites</td>
+          <td data-label="Responsável">Ana Souza</td>
+          <td data-label="Status"><span class="badge b-warn">Novo Lead</span></td>
+          <td data-label="Entrada" class="mono">16/09/2026</td>
+          <td data-label="" class="right nowrap"><button class="link-btn" type="button" data-open="converter">Converter</button> · <button class="link-btn" type="button" data-open="perdido">Perdido</button></td>
+        </tr>
+        <tr data-status="Novo Lead">
+          <td data-label="Nome"><a class="strong" href="lead.html">Márcia Tavares</a></td>
+          <td data-label="Empresa">Colégio Horizonte</td>
+          <td data-label="Contato / WhatsApp" class="mono">(19) 99611-0042<span class="cell-sub">marcia.tavares@colegiohorizonte.com.br</span></td>
+          <td data-label="Origem"><span class="chip">Indicação</span></td>
+          <td data-label="Serviço de interesse">Desenvolvimento de sistemas</td>
+          <td data-label="Responsável">Rafael</td>
+          <td data-label="Status"><span class="badge b-warn">Novo Lead</span></td>
+          <td data-label="Entrada" class="mono">15/09/2026</td>
+          <td data-label="" class="right nowrap"><button class="link-btn" type="button" data-open="converter">Converter</button> · <button class="link-btn" type="button" data-open="perdido">Perdido</button></td>
+        </tr>
+        <tr data-status="Contato Realizado">
+          <td data-label="Nome"><a class="strong" href="lead.html">Rodrigo Campos</a></td>
+          <td data-label="Empresa"><a href="../clientes/empresa.html">Agro Campos</a></td>
+          <td data-label="Contato / WhatsApp" class="mono">(34) 99876-2201<span class="cell-sub">rodrigo@agrocampos.com.br</span></td>
+          <td data-label="Origem"><span class="chip">Meta Ads</span></td>
+          <td data-label="Serviço de interesse">Integrações</td>
+          <td data-label="Responsável">Ana Souza</td>
+          <td data-label="Status"><span class="badge b-info">Contato Realizado</span></td>
+          <td data-label="Entrada" class="mono">11/09/2026</td>
+          <td data-label="" class="right nowrap"><button class="link-btn" type="button" data-open="converter">Converter</button> · <button class="link-btn" type="button" data-open="perdido">Perdido</button></td>
+        </tr>
+        <tr data-status="Contato Realizado">
+          <td data-label="Nome"><a class="strong" href="lead.html">Juliana Arantes</a></td>
+          <td data-label="Empresa">Ótica Visão Clara</td>
+          <td data-label="Contato / WhatsApp" class="mono">(11) 98455-7310<span class="cell-sub">juliana@oticavisaoclara.com.br</span></td>
+          <td data-label="Origem"><span class="chip">LinkedIn</span></td>
+          <td data-label="Serviço de interesse">Desenvolvimento de sites</td>
+          <td data-label="Responsável">Ana Souza</td>
+          <td data-label="Status"><span class="badge b-info">Contato Realizado</span></td>
+          <td data-label="Entrada" class="mono">09/09/2026</td>
+          <td data-label="" class="right nowrap"><button class="link-btn" type="button" data-open="converter">Converter</button> · <button class="link-btn" type="button" data-open="perdido">Perdido</button></td>
+        </tr>
+        <tr data-status="Qualificado">
+          <td data-label="Nome"><a class="strong" href="lead.html">Sérgio Nunes</a></td>
+          <td data-label="Empresa">Padaria Trigo Bom</td>
+          <td data-label="Contato / WhatsApp" class="mono">(11) 97733-5120<span class="cell-sub">sergio@trigobom.com.br</span></td>
+          <td data-label="Origem"><span class="chip">Google Ads</span></td>
+          <td data-label="Serviço de interesse">Hospedagem</td>
+          <td data-label="Responsável">Ana Souza</td>
+          <td data-label="Status"><span class="badge b-info">Qualificado</span></td>
+          <td data-label="Entrada" class="mono">05/09/2026</td>
+          <td data-label="" class="right nowrap"><button class="link-btn" type="button" data-open="converter">Converter</button> · <button class="link-btn" type="button" data-open="perdido">Perdido</button></td>
+        </tr>
+        <tr data-status="Qualificado">
+          <td data-label="Nome"><a class="strong" href="lead.html">Henrique Duarte</a></td>
+          <td data-label="Empresa"><a href="../clientes/empresa.html">Grupo Norte Logística</a></td>
+          <td data-label="Contato / WhatsApp" class="mono">(11) 99102-3344<span class="cell-sub">henrique.duarte@gruponorte.com.br</span></td>
+          <td data-label="Origem"><span class="chip">Diagnóstico</span></td>
+          <td data-label="Serviço de interesse">Consultoria de TI</td>
+          <td data-label="Responsável">Rafael</td>
+          <td data-label="Status"><span class="badge b-info">Qualificado</span></td>
+          <td data-label="Entrada" class="mono">03/09/2026</td>
+          <td data-label="" class="right nowrap"><button class="link-btn" type="button" data-open="converter">Converter</button> · <button class="link-btn" type="button" data-open="perdido">Perdido</button></td>
+        </tr>
+        <tr data-status="Fechado">
+          <td data-label="Nome"><a class="strong" href="lead.html">Tiago Moreira</a></td>
+          <td data-label="Empresa"><a href="../clientes/empresa.html">Cliente E</a></td>
+          <td data-label="Contato / WhatsApp" class="mono">(11) 99540-2276<span class="cell-sub">tiago@clientee.com.br</span></td>
+          <td data-label="Origem"><span class="chip">Indicação</span></td>
+          <td data-label="Serviço de interesse">Desenvolvimento de sistemas</td>
+          <td data-label="Responsável">Ana Souza</td>
+          <td data-label="Status"><span class="badge b-good">Fechado</span><span class="cell-sub">convertido em 08/09</span></td>
+          <td data-label="Entrada" class="mono">12/08/2026</td>
+          <td data-label="" class="right nowrap"><a class="link-btn" href="oportunidades.html">Ver oportunidade</a></td>
+        </tr>
+        <tr data-status="Perdido">
+          <td data-label="Nome"><a class="strong" href="lead.html">Vanessa Lopes</a></td>
+          <td data-label="Empresa">Ótica Visão Clara</td>
+          <td data-label="Contato / WhatsApp" class="mono">(11) 98877-1209<span class="cell-sub">vanessa@visaoclara.com.br</span></td>
+          <td data-label="Origem"><span class="chip">Google Ads</span></td>
+          <td data-label="Serviço de interesse">Desenvolvimento de sites</td>
+          <td data-label="Responsável">Ana Souza</td>
+          <td data-label="Status"><span class="badge b-mute">Perdido</span><span class="cell-sub">Motivo: Preço</span></td>
+          <td data-label="Entrada" class="mono">02/09/2026</td>
+          <td data-label="" class="right nowrap"><button class="link-btn" type="button">Reabrir</button></td>
+        </tr>
+        <tr data-status="Perdido">
+          <td data-label="Nome"><a class="strong" href="lead.html">Eduardo Matos</a></td>
+          <td data-label="Empresa">Construtora Alicerce</td>
+          <td data-label="Contato / WhatsApp" class="mono">(31) 99214-6630<span class="cell-sub">eduardo.matos@alicerce.eng.br</span></td>
+          <td data-label="Origem"><span class="chip">Outbound</span></td>
+          <td data-label="Serviço de interesse">Gestão de infraestrutura</td>
+          <td data-label="Responsável">Rafael</td>
+          <td data-label="Status"><span class="badge b-mute">Perdido</span><span class="cell-sub">Motivo: Optou por concorrente</span></td>
+          <td data-label="Entrada" class="mono">21/08/2026</td>
+          <td data-label="" class="right nowrap"><button class="link-btn" type="button">Reabrir</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="pagination"><span>Mostrando 10 de 31 leads · leads em Reunião, Proposta e Negociação seguem como <a href="oportunidades.html">oportunidades</a></span><div class="pages"><button type="button" class="on" aria-current="page">1</button><button type="button">2</button><button type="button">3</button></div></div>
+</section>
+
+</main>
+</div>
+</div>
+
+<!-- Drawer: novo lead -->
+<aside class="drawer" id="novo-lead" role="dialog" aria-modal="true" aria-labelledby="novo-lead-t">
+  <form class="form" style="display:contents">
+    <div class="drawer-head"><h2 id="novo-lead-t">Novo lead</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="drawer-body form">
+      <span class="fieldset-title">Contato</span>
+      <div class="form-grid">
+        <div class="field full"><label for="l-nome">Nome <span class="req">*</span></label><input class="input" id="l-nome" required placeholder="Nome da pessoa de contato"></div>
+        <div class="field full"><label for="l-emp">Empresa</label><input class="input" id="l-emp" placeholder="Empresa do lead, quando houver"></div>
+        <div class="field"><label for="l-tel">Telefone</label><input class="input mono" id="l-tel" type="tel" placeholder="(11) 3456-7890"></div>
+        <div class="field"><label for="l-wa">WhatsApp</label><input class="input mono" id="l-wa" type="tel" placeholder="(11) 98765-4321"></div>
+        <div class="field full"><label for="l-mail">E-mail</label><input class="input" id="l-mail" type="email" placeholder="nome@empresa.com.br"><span class="hint">Informe ao menos um meio de contato: telefone, WhatsApp ou e-mail.</span></div>
+      </div>
+      <span class="fieldset-title">Qualificação</span>
+      <div class="form-grid">
+        <div class="field"><label for="l-orig">Origem <span class="req">*</span></label><select class="select" id="l-orig" required><option value="">Selecione</option><option>WhatsApp</option><option>Indicação</option><option>Site</option><option>Diagnóstico</option><option>Meta Ads</option><option>Google Ads</option><option>LinkedIn</option><option>Outbound</option><option>Outros</option></select></div>
+        <div class="field"><label for="l-svc">Serviço de interesse</label><select class="select" id="l-svc"><option value="">Selecione do catálogo</option><option>Consultoria de TI</option><option>Desenvolvimento de sistemas</option><option>Desenvolvimento de sites</option><option>Manutenção</option><option>Automação/RPA</option><option>Integrações</option><option>Inteligência Artificial</option><option>Hospedagem</option><option>Gestão de infraestrutura</option><option>Suporte</option><option>Publicação de aplicativos</option></select><span class="hint"><a href="../administracao/catalogo-servicos.html">Ver catálogo de serviços</a></span></div>
+        <div class="field"><label for="l-resp">Responsável <span class="req">*</span></label><select class="select" id="l-resp" required><option>Ana Souza</option><option>Rafael</option><option>Bruno Lima</option><option>Carla Mendes</option><option>Diego Rocha</option><option>Elisa Prado</option></select></div>
+        <div class="field"><label for="l-st">Status <span class="req">*</span></label><select class="select" id="l-st" required><option selected>Novo Lead</option><option>Contato Realizado</option><option>Qualificado</option><option>Reunião</option><option>Proposta</option><option>Negociação</option><option>Fechado</option></select><span class="hint">Perdido é marcado pela ação própria, com motivo.</span></div>
+        <div class="field"><label for="l-data">Data de entrada</label><input class="input mono" id="l-data" value="17/09/2026" readonly aria-readonly="true"><span class="hint">Preenchida automaticamente</span></div>
+        <div class="field full"><label for="l-obs">Observações</label><textarea class="textarea" id="l-obs" placeholder="Contexto do primeiro contato, necessidade, prazo desejado…"></textarea></div>
+      </div>
+    </div>
+    <div class="drawer-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Salvar lead</button></div>
+  </form>
+</aside>
+
+<!-- Modal: converter lead -->
+<div class="modal" id="converter" role="dialog" aria-modal="true" aria-labelledby="converter-t">
+  <form class="form" style="display:contents">
+    <div class="modal-head"><h2 id="converter-t">Converter lead</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="modal-body form">
+      <div class="callout"><span>Henrique Duarte · Grupo Norte Logística · <b class="strong">Qualificado</b>. Os campos abaixo vêm do lead; revise antes de confirmar.</span></div>
+      <div class="callout warn" role="alert"><span><b class="strong">Já existe uma empresa com este CNPJ.</b> 27.418.553/0001-06 pertence a <a href="../clientes/empresa.html">Grupo Norte Logística</a> (Prospect). O contato e a oportunidade serão vinculados a ela, sem criar empresa duplicada.</span></div>
+      <span class="fieldset-title">Empresa</span>
+      <div class="form-grid">
+        <div class="field"><label for="c-fant">Nome fantasia <span class="req">*</span></label><input class="input" id="c-fant" value="Grupo Norte Logística" required></div>
+        <div class="field"><label for="c-cnpj">CNPJ <span class="req">*</span></label><input class="input mono" id="c-cnpj" value="27.418.553/0001-06" required></div>
+        <div class="field full"><label class="check"><input type="checkbox" checked> Vincular à empresa existente (recomendado)</label></div>
+      </div>
+      <span class="fieldset-title">Contato</span>
+      <div class="form-grid">
+        <div class="field"><label for="c-nome">Nome <span class="req">*</span></label><input class="input" id="c-nome" value="Henrique Duarte" required></div>
+        <div class="field"><label for="c-cargo">Cargo</label><input class="input" id="c-cargo" value="Diretor de operações"></div>
+        <div class="field"><label for="c-wa">WhatsApp</label><input class="input mono" id="c-wa" value="(11) 99102-3344"></div>
+        <div class="field"><label for="c-mail">E-mail</label><input class="input" id="c-mail" value="henrique.duarte@gruponorte.com.br"></div>
+        <div class="field full"><label class="check"><input type="checkbox" checked> Contato principal da empresa</label></div>
+      </div>
+      <span class="fieldset-title">Oportunidade</span>
+      <div class="form-grid">
+        <div class="field"><label for="c-svc">Serviço <span class="req">*</span></label><select class="select" id="c-svc" required><option selected>Consultoria de TI</option><option>Desenvolvimento de sistemas</option><option>Integrações</option><option>Automação/RPA</option></select></div>
+        <div class="field"><label for="c-val">Valor estimado (R$) <span class="req">*</span></label><input class="input num" id="c-val" inputmode="decimal" value="3.000,00" required></div>
+        <div class="field"><label for="c-prob">Probabilidade (%) <span class="req">*</span></label><input class="input num" id="c-prob" type="number" min="0" max="100" value="30" required></div>
+        <div class="field"><label for="c-prev">Previsão de fechamento <span class="req">*</span></label><input class="input" id="c-prev" type="date" value="2026-10-15" required></div>
+        <div class="field"><label for="c-etapa">Etapa inicial</label><select class="select" id="c-etapa"><option>Qualificado</option><option selected>Reunião</option><option>Proposta</option></select></div>
+        <div class="field"><label for="c-resp">Responsável</label><select class="select" id="c-resp"><option selected>Rafael</option><option>Ana Souza</option></select></div>
+      </div>
+    </div>
+    <div class="modal-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Converter</button></div>
+  </form>
+</div>
+
+<!-- Modal: marcar como perdido -->
+<div class="modal" id="perdido" role="dialog" aria-modal="true" aria-labelledby="perdido-t">
+  <form class="form" style="display:contents">
+    <div class="modal-head"><h2 id="perdido-t">Marcar lead como perdido</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="modal-body form">
+      <div class="callout"><span>Sérgio Nunes · Padaria Trigo Bom · Hospedagem · etapa <b class="strong">Qualificado</b></span></div>
+      <div class="field"><label for="pd-mot">Motivo da perda <span class="req">*</span></label><select class="select" id="pd-mot" required><option value="">Selecione</option><option>Preço</option><option>Prazo</option><option>Sem retorno</option><option>Optou por concorrente</option><option>Sem orçamento</option><option>Fora do perfil</option><option>Outro</option></select><span class="hint">Obrigatório. A lista é configurável em Administração → Configurações.</span></div>
+      <div class="field"><label for="pd-obs">Detalhes</label><textarea class="textarea" id="pd-obs" placeholder="O que aconteceu? Vale retomar o contato no futuro?"></textarea></div>
+    </div>
+    <div class="modal-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn danger" type="submit">Marcar como perdido</button></div>
+  </form>
+</div>
+
+<script src="../assets/app.js"></script>
+</body>
+</html>

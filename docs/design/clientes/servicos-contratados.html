@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Serviços contratados · Admin DevBatista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/app.css">
+<style>
+  .mrr-rule { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0; border-top: 1px solid var(--rule); }
+  .mrr-rule div { padding: 14px 20px; border-left: 1px solid var(--rule); display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
+  .mrr-rule div:first-child { border-left: 0; }
+  .mrr-rule b { color: var(--text); font-size: 15px; font-weight: 600; }
+  .mrr-rule .off b { color: var(--muted); }
+  .table tr.off td { color: var(--muted); }
+  @media (max-width: 960px) {
+    .mrr-rule { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .mrr-rule div { border-left: 0; border-top: 1px solid var(--rule); }
+  }
+</style>
+</head>
+<body data-group="cli" data-item="Serviços contratados" data-crumb='[["Clientes","empresas.html"],["Serviços contratados"]]'>
+<div class="app">
+<aside class="side"></aside>
+<div class="main">
+<header class="top"></header>
+<main class="content">
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Clientes · Setembro de 2026</span>
+    <h1>Serviços contratados</h1>
+    <p class="lead">Vínculo entre cliente e serviço do catálogo, com valor e recorrência acordados. É daqui que saem o MRR e as recorrências financeiras.</p>
+  </div>
+  <div class="actions">
+    <button class="btn" type="button">Exportar CSV</button>
+    <button class="btn pri" type="button" data-open="novo-servico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Novo serviço contratado</button>
+  </div>
+</div>
+
+<div class="grid-kpi">
+  <div class="card kpi"><span class="eyebrow">MRR total</span><span class="v">R$ 20.400</span><span class="f">ARR R$ 244.800 · 9 clientes</span></div>
+  <div class="card kpi"><span class="eyebrow">Serviços recorrentes ativos</span><span class="v">18</span><span class="f">15 mensais · 3 mensalizados</span></div>
+  <div class="card kpi"><span class="eyebrow">Avulsos ativos</span><span class="v">R$ 200</span><span class="f">fora do MRR · 1 em aberto neste mês</span></div>
+  <div class="card kpi warn"><span class="eyebrow">Suspensos</span><span class="v">1</span><span class="f"><span class="badge b-warn">R$ 600/mês</span>fora do MRR</span></div>
+</div>
+
+<section class="card" aria-labelledby="mrr-t">
+  <div class="card-head"><div><h2 id="mrr-t">Como o MRR é calculado</h2><span class="caption">Serviços com recorrência diferente de mensal são mensalizados. Só serviços com status Ativo entram.</span></div><span class="badge b-info">R$ 20.400</span></div>
+  <div class="mrr-rule">
+    <div><span class="eyebrow">Mensal</span><b>valor integral</b><span>15 serviços · R$ 15.400</span></div>
+    <div><span class="eyebrow">Trimestral</span><b>÷ 3</b><span>R$ 3.600 → R$ 1.200/mês</span></div>
+    <div><span class="eyebrow">Semestral</span><b>÷ 6</b><span>R$ 18.000 → R$ 3.000/mês</span></div>
+    <div><span class="eyebrow">Anual</span><b>÷ 12</b><span>R$ 9.600 → R$ 800/mês</span></div>
+    <div class="off"><span class="eyebrow">Avulsa</span><b>fora do MRR</b><span>cobrança única</span></div>
+  </div>
+</section>
+
+<div class="toolbar">
+  <div class="seg" role="group" aria-label="Filtrar por status" data-filter-group="servicos">
+    <button type="button" class="on" data-filter="todos" aria-pressed="true">Todos <span class="n">29</span></button>
+    <button type="button" data-filter="Ativo" aria-pressed="false">Ativo <span class="n">27</span></button>
+    <button type="button" data-filter="Suspenso" aria-pressed="false">Suspenso <span class="n">1</span></button>
+    <button type="button" data-filter="Encerrado" aria-pressed="false">Encerrado <span class="n">1</span></button>
+  </div>
+  <span class="spacer"></span>
+  <label class="search-field"><span class="sr-only">Buscar serviço contratado</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M11 18a7 7 0 100-14 7 7 0 000 14zM21 21l-4.3-4.3"/></svg><input class="input" type="search" placeholder="Cliente, serviço ou contrato"></label>
+  <label class="sr-only" for="f-cli">Cliente</label>
+  <select class="select" id="f-cli"><option>Todos os clientes</option><option>Empresa ACME</option><option>Empresa XYZ</option><option>Empresa Delta</option><option>Empresa Orion</option><option>Cliente A</option><option>Cliente B</option><option>Cliente C</option><option>Cliente D</option><option>Cliente E</option></select>
+  <label class="sr-only" for="f-rec">Recorrência</label>
+  <select class="select" id="f-rec"><option>Toda recorrência</option><option>Mensal</option><option>Trimestral</option><option>Semestral</option><option>Anual</option><option>Avulsa</option></select>
+  <label class="sr-only" for="f-svc">Serviço</label>
+  <select class="select" id="f-svc"><option>Todos os serviços</option><option>Consultoria de TI</option><option>Desenvolvimento de sistemas</option><option>Manutenção</option><option>Hospedagem</option><option>Suporte</option><option>Gestão de infraestrutura</option></select>
+</div>
+
+<section class="card" aria-label="Lista de serviços contratados">
+  <div class="table-wrap">
+    <table class="table cards" data-filter-target="servicos">
+      <thead><tr><th>Cliente</th><th>Serviço</th><th class="num">Valor</th><th class="num">MRR</th><th>Vencimento</th><th>Contrato</th><th>Status</th><th><span class="sr-only">Ações</span></th></tr></thead>
+      <tbody>
+        <tr data-status="Ativo"><td data-label="Cliente"><a class="strong" href="empresa.html">Empresa ACME</a></td><td data-label="Serviço">Consultoria de TI<span class="cell-sub">desde 12/03/2026</span></td><td data-label="Valor" class="num nowrap">R$ 3.000<span class="cell-sub">Mensal</span></td><td data-label="MRR" class="num nowrap strong">R$ 3.000</td><td data-label="Vencimento">Dia 10</td><td data-label="Contrato"><a href="contrato.html">#104</a></td><td data-label="Status"><span class="badge b-good">Ativo</span></td><td data-label="" class="right"><button class="link-btn" type="button" data-open="alterar-status">Suspender</button></td></tr>
+        <tr data-status="Ativo"><td data-label="Cliente"><a class="strong" href="empresa.html">Empresa ACME</a></td><td data-label="Serviço">Manutenção<span class="cell-sub">desde 01/07/2026</span></td><td data-label="Valor" class="num nowrap">R$ 500<span class="cell-sub">Mensal</span></td><td data-label="MRR" class="num nowrap strong">R$ 500</td><td data-label="Vencimento">Dia 10</td><td data-label="Contrato"><span class="badge b-warn">Sem contrato</span></td><td data-label="Status"><span class="badge b-good">Ativo</span></td><td data-label="" class="right"><button class="link-btn" type="button" data-open="alterar-status">Suspender</button></td></tr>
+        <tr data-status="Ativo"><td data-label="Cliente"><a class="strong" href="empresa.html">Empresa ACME</a></td><td data-label="Serviço">Hospedagem<span class="cell-sub">desde 01/07/2026</span></td><td data-label="Valor" class="num nowrap">R$ 300<span class="cell-sub">Mensal</span></td><td data-label="MRR" class="num nowrap strong">R$ 300</td><td data-label="Vencimento">Dia 10</td><td data-label="Contrato"><span class="badge b-warn">Sem contrato</span></td><td data-label="Status"><span class="badge b-good">Ativo</span></td><td data-label="" class="right"><button class="link-btn" type="button" data-open="alterar-status">Suspender</button></td></tr>
+        <tr data-status="Ativo"><td data-label="Cliente"><a class="strong" href="empresa.html">Empresa ACME</a></td><td data-label="Serviço">Gestão de infraestrutura<span class="cell-sub">Migração de DNS e e-mail corporativo</span></td><td data-label="Valor" class="num nowrap">R$ 200<span class="cell-sub">Avulsa</span></td><td data-label="MRR" class="num nowrap muted">fora do MRR</td><td data-label="Vencimento" class="mono">25/09/2026</td><td data-label="Contrato" class="muted">—</td><td data-label="Status"><span class="badge b-good">Ativo</span></td><td data-label="" class="right muted">—</td></tr>
+        <tr data-status="Ativo"><td data-label="Cliente"><a class="strong" href="empresa.html">Cliente A</a></td><td data-label="Serviço">Consultoria de TI<span class="cell-sub">desde 01/02/2026</span></td><td data-label="Valor" class="num nowrap">R$ 18.000<span class="cell-sub">Semestral</span></td><td data-label="MRR" class="num nowrap strong">R$ 3.000<span class="cell-sub">18.000 ÷ 6</span></td><td data-label="Vencimento">Dia 5</td><td data-label="Contrato"><a href="contrato.html">#101</a></td><td data-label="Status"><span class="badge b-good">Ativo</span></td><td data-label="" class="right"><button class="link-btn" type="button" data-open="alterar-status">Suspender</button></td></tr>
+        <tr data-status="Ativo"><td data-label="Cliente"><a class="strong" href="empresa.html">Cliente A</a></td><td data-label="Serviço">Hospedagem<span class="cell-sub">desde 18/01/2026</span></td><td data-label="Valor" class="num nowrap">R$ 1.500<span class="cell-sub">Mensal</span></td><td data-label="MRR" class="num nowrap strong">R$ 1.500</td><td data-label="Vencimento">Dia 18</td><td data-label="Contrato"><span class="badge b-warn">Sem contrato</span></td><td data-label="Status"><span class="badge b-good">Ativo</span></td><td data-label="" class="right"><button class="link-btn" type="button" data-open="alterar-status">Suspender</button></td></tr>
+        <tr data-status="Ativo"><td data-label="Cliente"><a class="strong" href="empresa.html">Cliente B</a></td><td data-label="Serviço">Manutenção<span class="cell-sub">desde 22/11/2025</span></td><td data-label="Valor" class="num nowrap">R$ 1.400<span class="cell-sub">Mensal</span></td><td data-label="MRR" class="num nowrap strong">R$ 1.400</td><td data-label="Vencimento">Dia 22</td><td data-label="Contrato"><span class="badge b-warn">Sem contrato</span></td><td data-label="Status"><span class="badge b-good">Ativo</span></td><td data-label="" class="right"><button class="link-btn" type="button" data-open="alterar-status">Suspender</button></td></tr>
+        <tr data-status="Ativo"><td data-label="Cliente"><a class="strong" href="empresa.html">Cliente B</a></td><td data-label="Serviço">Gestão de infraestrutura<span class="cell-sub">desde 15/04/2026</span></td><td data-label="Valor" class="num nowrap">R$ 3.600<span class="cell-sub">Trimestral</span></td><td data-label="MRR" class="num nowrap strong">R$ 1.200<span class="cell-sub">3.600 ÷ 3</span></td><td data-label="Vencimento">Dia 15</td><td data-label="Contrato"><span class="badge b-warn">Sem contrato</span></td><td data-label="Status"><span class="badge b-good">Ativo</span></td><td data-label="" class="right"><button class="link-btn" type="button" data-open="alterar-status">Suspender</button></td></tr>
+        <tr data-status="Ativo"><td data-label="Cliente"><a class="strong" href="empresa.html">Cliente B</a></td><td data-label="Serviço">Suporte<span class="cell-sub">desde 01/01/2026</span></td><td data-label="Valor" class="num nowrap">R$ 600<span class="cell-sub">Mensal</span></td><td data-label="MRR" class="num nowrap strong">R$ 600</td><td data-label="Vencimento">Dia 22</td><td data-label="Contrato"><a href="contrato.html">#099</a></td><td data-label="Status"><span class="badge b-good">Ativo</span></td><td data-label="" class="right"><button class="link-btn" type="button" data-open="alterar-status">Suspender</button></td></tr>
+        <tr data-status="Ativo"><td data-label="Cliente"><a class="strong" href="empresa.html">Empresa XYZ</a></td><td data-label="Serviço">Manutenção<span class="cell-sub">desde 18/10/2025</span></td><td data-label="Valor" class="num nowrap">R$ 1.200<span class="cell-sub">Mensal</span></td><td data-label="MRR" class="num nowrap strong">R$ 1.200</td><td data-label="Vencimento">Dia 5</td><td data-label="Contrato"><a href="contrato.html">#098</a><span class="cell-sub" style="color:var(--warn)">termina 17/10/2026</span></td><td data-label="Status"><span class="badge b-good">Ativo</span></td><td data-label="" class="right"><button class="link-btn" type="button" data-open="alterar-status">Suspender</button></td></tr>
+        <tr data-status="Ativo"><td data-label="Cliente"><a class="strong" href="empresa.html">Empresa XYZ</a></td><td data-label="Serviço">Suporte<span class="cell-sub">desde 05/01/2026</span></td><td data-label="Valor" class="num nowrap">R$ 900<span class="cell-sub">Mensal</span></td><td data-label="MRR" class="num nowrap strong">R$ 900</td><td data-label="Vencimento">Dia 5</td><td data-label="Contrato"><span class="badge b-warn">Sem contrato</span></td><td data-label="Status"><span class="badge b-good">Ativo</span></td><td data-label="" class="right"><button class="link-btn" type="button" data-open="alterar-status">Suspender</button></td></tr>
+        <tr data-status="Ativo"><td data-label="Cliente"><a class="strong" href="empresa.html">Empresa XYZ</a></td><td data-label="Serviço">Hospedagem<span class="cell-sub">desde 05/01/2026</span></td><td data-label="Valor" class="num nowrap">R$ 800<span class="cell-sub">Mensal</span></td><td data-label="MRR" class="num nowrap strong">R$ 800</td><td data-label="Vencimento">Dia 5</td><td data-label="Contrato"><span class="badge b-warn">Sem contrato</span></td><td data-label="Status"><span class="badge b-good">Ativo</span></td><td data-label="" class="right"><button class="link-btn" type="button" data-open="alterar-status">Suspender</button></td></tr>
+        <tr data-status="Ativo"><td data-label="Cliente"><a class="strong" href="empresa.html">Cliente C</a></td><td data-label="Serviço">Desenvolvimento de sistemas<span class="cell-sub">ERP Cliente C · desde 01/09/2025</span></td><td data-label="Valor" class="num nowrap">R$ 2.400<span class="cell-sub">Mensal</span></td><td data-label="MRR" class="num nowrap strong">R$ 2.400</td><td data-label="Vencimento">Dia 1</td><td data-label="Contrato"><a href="contrato.html">#092</a></td><td data-label="Status"><span class="badge b-good">Ativo</span></td><td data-label="" class="right"><button class="link-btn" type="button" data-open="alterar-status">Suspender</button></td></tr>
+        <tr data-status="Ativo"><td data-label="Cliente"><a class="strong" href="empresa.html">Cliente D</a></td><td data-label="Serviço">Suporte<span class="cell-sub">desde 06/11/2025</span></td><td data-label="Valor" class="num nowrap">R$ 9.600<span class="cell-sub">Anual</span></td><td data-label="MRR" class="num nowrap strong">R$ 800<span class="cell-sub">9.600 ÷ 12</span></td><td data-label="Vencimento">Dia 6</td><td data-label="Contrato"><a href="contrato.html">#095</a><span class="cell-sub" style="color:var(--warn)">termina 05/11/2026</span></td><td data-label="Status"><span class="badge b-good">Ativo</span></td><td data-label="" class="right"><button class="link-btn" type="button" data-open="alterar-status">Suspender</button></td></tr>
+        <tr data-status="Ativo"><td data-label="Cliente"><a class="strong" href="empresa.html">Cliente D</a></td><td data-label="Serviço">Hospedagem<span class="cell-sub">desde 10/06/2026</span></td><td data-label="Valor" class="num nowrap">R$ 600<span class="cell-sub">Mensal</span></td><td data-label="MRR" class="num nowrap strong">R$ 600</td><td data-label="Vencimento">Dia 10</td><td data-label="Contrato"><a href="contrato.html">#108</a></td><td data-label="Status"><span class="badge b-good">Ativo</span></td><td data-label="" class="right"><button class="link-btn" type="button" data-open="alterar-status">Suspender</button></td></tr>
+        <tr data-status="Ativo"><td data-label="Cliente"><a class="strong" href="empresa.html">Empresa Delta</a></td><td data-label="Serviço">Suporte<span class="cell-sub">desde 20/07/2026</span></td><td data-label="Valor" class="num nowrap">R$ 700<span class="cell-sub">Mensal</span></td><td data-label="MRR" class="num nowrap strong">R$ 700</td><td data-label="Vencimento">Dia 10</td><td data-label="Contrato"><a href="contrato.html">#111</a></td><td data-label="Status"><span class="badge b-good">Ativo</span></td><td data-label="" class="right"><button class="link-btn" type="button" data-open="alterar-status">Suspender</button></td></tr>
+        <tr data-status="Ativo"><td data-label="Cliente"><a class="strong" href="empresa.html">Empresa Delta</a></td><td data-label="Serviço">Hospedagem<span class="cell-sub">desde 20/07/2026</span></td><td data-label="Valor" class="num nowrap">R$ 300<span class="cell-sub">Mensal</span></td><td data-label="MRR" class="num nowrap strong">R$ 300</td><td data-label="Vencimento">Dia 20</td><td data-label="Contrato"><a href="contrato.html">#111</a></td><td data-label="Status"><span class="badge b-good">Ativo</span></td><td data-label="" class="right"><button class="link-btn" type="button" data-open="alterar-status">Suspender</button></td></tr>
+        <tr data-status="Ativo"><td data-label="Cliente"><a class="strong" href="empresa.html">Empresa Orion</a></td><td data-label="Serviço">Suporte<span class="cell-sub">desde 16/11/2024</span></td><td data-label="Valor" class="num nowrap">R$ 900<span class="cell-sub">Mensal</span></td><td data-label="MRR" class="num nowrap strong">R$ 900</td><td data-label="Vencimento">Dia 25</td><td data-label="Contrato"><a href="contrato.html">#087</a><span class="cell-sub" style="color:var(--warn)">termina 15/11/2026</span></td><td data-label="Status"><span class="badge b-good">Ativo</span></td><td data-label="" class="right"><button class="link-btn" type="button" data-open="alterar-status">Suspender</button></td></tr>
+        <tr data-status="Ativo"><td data-label="Cliente"><a class="strong" href="empresa.html">Cliente E</a></td><td data-label="Serviço">Hospedagem<span class="cell-sub">desde 20/04/2026</span></td><td data-label="Valor" class="num nowrap">R$ 300<span class="cell-sub">Mensal</span></td><td data-label="MRR" class="num nowrap strong">R$ 300</td><td data-label="Vencimento">Dia 20</td><td data-label="Contrato"><a href="contrato.html">#105</a></td><td data-label="Status"><span class="badge b-good">Ativo</span></td><td data-label="" class="right"><button class="link-btn" type="button" data-open="alterar-status">Suspender</button></td></tr>
+        <tr class="off" data-status="Suspenso"><td data-label="Cliente"><a class="strong" href="empresa.html">Empresa Orion</a></td><td data-label="Serviço">Manutenção<span class="cell-sub">App Orion · suspenso em 01/08/2026 com o projeto pausado</span></td><td data-label="Valor" class="num nowrap">R$ 600<span class="cell-sub">Mensal</span></td><td data-label="MRR" class="num nowrap muted">fora do MRR</td><td data-label="Vencimento">Dia 25</td><td data-label="Contrato" class="muted">—</td><td data-label="Status"><span class="badge b-warn">Suspenso</span></td><td data-label="" class="right"><button class="link-btn" type="button" data-open="alterar-status">Reativar</button></td></tr>
+        <tr class="off" data-status="Encerrado"><td data-label="Cliente"><a class="strong" href="empresa.html">Empresa Orion</a></td><td data-label="Serviço">Hospedagem<span class="cell-sub">encerrado em 14/09/2026 · 3 previsões canceladas</span></td><td data-label="Valor" class="num nowrap">R$ 200<span class="cell-sub">Mensal</span></td><td data-label="MRR" class="num nowrap muted">—</td><td data-label="Vencimento">Dia 25</td><td data-label="Contrato" class="muted">—</td><td data-label="Status"><span class="badge b-mute">Encerrado</span></td><td data-label="" class="right muted">—</td></tr>
+      </tbody>
+      <tfoot><tr><td data-label="" colspan="4">MRR total (serviços ativos, mensalizados)</td><td data-label="MRR total" class="num nowrap">R$ 20.400</td><td data-label="" colspan="4"></td></tr></tfoot>
+    </table>
+  </div>
+  <div class="pagination"><span>Mostrando 21 de 29 · demais são avulsos de projetos · regras de cobrança em <a href="../financeiro/recorrencias.html">Recorrências</a></span><div class="pages"><button type="button" class="on" aria-current="page">1</button><button type="button">2</button></div></div>
+</section>
+
+</main>
+</div>
+</div>
+
+<!-- Formulário lateral: novo serviço contratado -->
+<aside class="drawer" id="novo-servico" role="dialog" aria-modal="true" aria-labelledby="novo-servico-t">
+  <form class="form" style="display:contents">
+    <div class="drawer-head"><h2 id="novo-servico-t">Novo serviço contratado</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="drawer-body form">
+      <div class="form-grid">
+        <div class="field full"><label for="s-cli">Cliente <span class="req">*</span></label><select class="select" id="s-cli" required><option value="">Selecione</option><option>Empresa ACME</option><option>Empresa XYZ</option><option>Empresa Delta</option><option>Empresa Orion</option><option>Cliente A</option><option>Cliente B</option><option>Cliente C</option><option>Cliente D</option><option>Cliente E</option></select></div>
+        <div class="field full"><label for="s-svc">Serviço <span class="req">*</span></label><select class="select" id="s-svc" required><option value="">Selecione do catálogo</option><option>Desenvolvimento de sistemas</option><option>Desenvolvimento de sites</option><option>Consultoria de TI</option><option>Manutenção</option><option>Suporte</option><option>Hospedagem</option><option>Gestão de infraestrutura</option><option>Automação/RPA</option><option>Integrações</option><option>Inteligência Artificial</option><option>Publicação de aplicativos</option><option>Treinamento de equipes</option></select><span class="hint">Itens do <a href="../administracao/catalogo-servicos.html">Catálogo de serviços</a></span></div>
+        <div class="field"><label for="s-val">Valor (R$) <span class="req">*</span></label><input class="input num" id="s-val" inputmode="decimal" required placeholder="0,00"><span class="hint">Valor acordado para este cliente</span></div>
+        <div class="field"><label for="s-rec">Recorrência <span class="req">*</span></label><select class="select" id="s-rec" required><option>Mensal</option><option>Trimestral</option><option>Semestral</option><option>Anual</option><option>Avulsa</option></select></div>
+        <div class="field"><label for="s-ini">Início <span class="req">*</span></label><input class="input" id="s-ini" type="date" value="2026-10-01" required></div>
+        <div class="field"><label for="s-venc">Dia de vencimento <span class="req">*</span></label><input class="input num" id="s-venc" type="number" min="1" max="31" value="10" required><span class="hint">Dia do mês da cobrança</span></div>
+        <div class="field full"><label for="s-ctr">Contrato</label><select class="select" id="s-ctr"><option value="">Sem contrato</option><option>#104 — Consultoria de TI · Empresa ACME</option><option>#111 — Hospedagem e suporte · Empresa Delta</option><option>#098 — Manutenção · Empresa XYZ</option></select><span class="hint">Contrato que formaliza o serviço, quando houver</span></div>
+        <div class="field full"><label for="s-st">Status <span class="req">*</span></label><select class="select" id="s-st" required><option selected>Ativo</option><option>Suspenso</option><option>Encerrado</option></select></div>
+      </div>
+      <div class="field"><label for="s-obs">Observações</label><textarea class="textarea" id="s-obs" placeholder="Condições específicas: escopo, franquia de horas, reajuste…"></textarea></div>
+      <div class="kv" style="padding:12px 0;border-top:1px solid var(--rule)"><span>Entra no MRR como</span><b id="s-mrr">—</b></div>
+      <div class="callout"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color:var(--cyan);flex:none"><path d="M4 12a8 8 0 0114-5.3M20 12a8 8 0 01-14 5.3M18 3v4h-4M6 21v-4h4"/></svg><span>Ao salvar, <b class="strong">as recorrências financeiras serão geradas automaticamente</b> a partir do início, da recorrência e do dia de vencimento, e os títulos aparecerão em <a href="../financeiro/contas-receber.html">Contas a receber</a>. Serviços avulsos geram um único título.</span></div>
+    </div>
+    <div class="drawer-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Salvar serviço</button></div>
+  </form>
+</aside>
+
+<!-- Modal: suspender, encerrar ou reativar -->
+<div class="modal" id="alterar-status" role="dialog" aria-modal="true" aria-labelledby="alterar-status-t">
+  <form class="form" style="display:contents">
+    <div class="modal-head"><h2 id="alterar-status-t">Alterar status do serviço</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="modal-body form">
+      <div class="callout"><span>Empresa ACME · Manutenção · <b class="strong">R$ 500 / mês</b> · vencimento dia 10</span></div>
+      <div class="form-grid">
+        <div class="field"><label for="a-st">Novo status <span class="req">*</span></label><select class="select" id="a-st" required><option>Ativo</option><option selected>Suspenso</option><option>Encerrado</option></select></div>
+        <div class="field"><label for="a-data">A partir de <span class="req">*</span></label><input class="input" id="a-data" type="date" value="2026-10-01" required></div>
+      </div>
+      <div class="field"><label for="a-mot">Motivo</label><textarea class="textarea" id="a-mot" placeholder="Pedido do cliente, projeto pausado, migração…"></textarea></div>
+      <div class="callout warn"><span>Suspenso ou Encerrado: o serviço sai do MRR e as previsões futuras da recorrência são canceladas. Títulos já emitidos não são alterados.</span></div>
+    </div>
+    <div class="modal-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Confirmar</button></div>
+  </form>
+</div>
+
+<script src="../assets/app.js"></script>
+<script>
+  // Prévia do MRR mensalizado no formulário
+  (function () {
+    var val = document.getElementById('s-val'), rec = document.getElementById('s-rec'), out = document.getElementById('s-mrr');
+    var div = { 'Mensal': 1, 'Trimestral': 3, 'Semestral': 6, 'Anual': 12 };
+    var brl = function (n) { return 'R$ ' + n.toLocaleString('pt-BR', { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 }); };
+    function render() {
+      var v = parseFloat(val.value.replace(/\./g, '').replace(',', '.'));
+      if (rec.value === 'Avulsa') { out.textContent = 'fora do MRR (avulso)'; out.style.color = 'var(--muted)'; return; }
+      out.style.color = '';
+      if (!v) { out.textContent = '—'; return; }
+      var d = div[rec.value];
+      out.textContent = brl(Math.round(v / d * 100) / 100) + ' / mês' + (d > 1 ? ' (' + brl(v) + ' ÷ ' + d + ')' : '');
+    }
+    val.addEventListener('input', render);
+    rec.addEventListener('change', render);
+  })();
+</script>
+</body>
+</html>

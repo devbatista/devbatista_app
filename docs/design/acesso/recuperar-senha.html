@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Recuperar senha · Admin DevBatista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/app.css">
+<style>
+  .auth-foot { margin-top: 20px; text-align: center; }
+  .sent-ic { width: 48px; height: 48px; border-radius: 12px; background: var(--good-bg); box-shadow: inset 0 0 0 1px var(--good-line); color: var(--good); display: flex; align-items: center; justify-content: center; }
+  .state-switch { display: flex; justify-content: center; margin-top: 12px; }
+</style>
+</head>
+<body>
+<main class="auth">
+  <div style="width:min(420px,100%)">
+
+    <!-- Estado 1: pedir o link -->
+    <div class="card auth-card" id="pedir">
+      <div class="row" style="justify-content:space-between">
+        <img class="logo" src="../assets/logo-devbatista-branco.png" alt="DevBatista">
+        <span class="badge b-info">Admin</span>
+      </div>
+      <div class="stack" style="gap:6px">
+        <h1 style="font-size:24px">Recuperar senha</h1>
+        <p class="lead">Informe o e-mail cadastrado. Enviaremos um link para você criar uma nova senha.</p>
+      </div>
+      <form class="form" id="form-rec" novalidate>
+        <div class="field">
+          <label for="email">E-mail</label>
+          <input class="input" id="email" type="email" autocomplete="username" placeholder="voce@devbatista.com" required>
+        </div>
+        <button class="btn pri block" type="submit">Enviar link de redefinição</button>
+      </form>
+      <div class="callout"><span style="font-size:13px">O link é de <b class="strong">uso único</b> e expira em <b class="strong">30 minutos</b>. Se o e-mail não estiver cadastrado, nenhuma mensagem será enviada.</span></div>
+      <a href="login.html" style="font-size:13px;font-weight:600">← Voltar para o login</a>
+    </div>
+
+    <!-- Estado 2: link enviado -->
+    <div class="card auth-card" id="enviado" hidden>
+      <div class="row" style="justify-content:space-between">
+        <img class="logo" src="../assets/logo-devbatista-branco.png" alt="DevBatista">
+        <span class="badge b-info">Admin</span>
+      </div>
+      <span class="sent-ic" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18v12H3z"/><path d="M3 7l9 6 9-6"/></svg></span>
+      <div class="stack" style="gap:6px" role="status">
+        <h1 style="font-size:24px">Verifique seu e-mail</h1>
+        <p class="lead">Se <b class="strong" id="email-eco">rafael@devbatista.com</b> estiver cadastrado, você receberá em instantes um link para redefinir a senha.</p>
+      </div>
+      <div class="kv" style="padding:12px 0"><span>Validade do link</span><b>30 minutos · uso único</b></div>
+      <div class="kv" style="padding:12px 0;border-bottom:1px solid var(--rule)"><span>Não chegou?</span><span class="caption">confira a caixa de spam</span></div>
+      <div class="row wrap">
+        <button class="btn" type="button" id="reenviar">Reenviar link</button>
+        <a class="btn pri" href="login.html" style="flex:1">Voltar para o login</a>
+      </div>
+      <p class="caption" style="margin:0">Ao gerar um novo link, o anterior deixa de valer.</p>
+    </div>
+
+    <div class="state-switch">
+      <div class="seg" role="group" aria-label="Estado da tela (protótipo)">
+        <button type="button" class="on" data-state="pedir" aria-pressed="true">Pedido</button>
+        <button type="button" data-state="enviado" aria-pressed="false">Link enviado</button>
+      </div>
+    </div>
+    <p class="caption auth-foot">© 2026 DevBatista · conexão segura</p>
+  </div>
+</main>
+<script>
+  // Comportamento local: alterna os dois estados da tela (também por #enviado na URL)
+  (function () {
+    var pedir = document.getElementById('pedir');
+    var enviado = document.getElementById('enviado');
+    var sw = document.querySelectorAll('[data-state]');
+    function show(st) {
+      pedir.hidden = st !== 'pedir';
+      enviado.hidden = st !== 'enviado';
+      sw.forEach(function (b) { var on = b.dataset.state === st; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
+    }
+    sw.forEach(function (b) { b.addEventListener('click', function () { show(b.dataset.state); }); });
+    document.getElementById('form-rec').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var v = document.getElementById('email').value.trim();
+      if (v) document.getElementById('email-eco').textContent = v;
+      show('enviado');
+    });
+    document.getElementById('reenviar').addEventListener('click', function () { this.textContent = 'Link reenviado'; this.disabled = true; });
+    if (location.hash === '#enviado') show('enviado');
+  })();
+</script>
+</body>
+</html>

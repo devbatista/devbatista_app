@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Logs · Admin DevBatista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/app.css">
+<style>
+  .who { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
+  .chg { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; font-variant-numeric: tabular-nums; }
+  .chg s { color: var(--muted); text-decoration-color: var(--faint); }
+  .chg b { color: var(--text); font-weight: 600; }
+  .chg svg { color: var(--faint); flex: none; }
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; }
+  .filters .field { min-width: 160px; }
+</style>
+</head>
+<body data-group="adm" data-item="Logs" data-crumb='[["Administração"],["Logs"]]'>
+<div class="app">
+<aside class="side"></aside>
+<div class="main">
+<header class="top"></header>
+<main class="content">
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Administração · Trilha de auditoria</span>
+    <h1>Logs e auditoria</h1>
+    <p class="lead">Toda ação relevante, com usuário, data e hora, registro afetado e valores anterior e novo.</p>
+  </div>
+  <div class="actions">
+    <button class="btn" type="button">Exportar CSV</button>
+  </div>
+</div>
+
+<div class="callout warn">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;color:var(--warn)"><path d="M6 11h12v10H6zM8 11V7a4 4 0 018 0v4"/></svg>
+  <span><b class="strong">Trilha imutável:</b> os registros não podem ser editados nem excluídos, por nenhum perfil. Esta tela é visível apenas para o perfil Administrador.</span>
+</div>
+
+<form class="filters" aria-label="Filtros da auditoria" onsubmit="return false">
+  <div class="field"><label for="l-usr">Usuário</label><select class="select" id="l-usr"><option>Todos os usuários</option><option>Rafael</option><option>Ana Souza</option><option>Bruno Lima</option><option>Carla Mendes</option><option>Diego Rocha</option><option>Elisa Prado</option><option>Sistema (rotinas automáticas)</option></select></div>
+  <div class="field"><label for="l-mod">Módulo</label><select class="select" id="l-mod"><option>Todos os módulos</option><option>Comercial</option><option>Clientes e contatos</option><option>Contratos e serviços contratados</option><option>Projetos e tarefas</option><option>Horas trabalhadas</option><option>Suporte</option><option>Financeiro</option><option>Tecnologia</option><option>Produtos</option><option>Fornecedores</option><option>Documentos</option><option>Administração</option></select></div>
+  <div class="field"><label for="l-de">De</label><input class="input" id="l-de" type="date" value="2026-09-11"></div>
+  <div class="field"><label for="l-ate">Até</label><input class="input" id="l-ate" type="date" value="2026-09-17"></div>
+  <label class="search-field"><span class="sr-only">Buscar registro afetado</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M11 18a7 7 0 100-14 7 7 0 000 14zM21 21l-4.3-4.3"/></svg><input class="input" type="search" placeholder="Registro afetado, ex.: #104"></label>
+</form>
+
+<div class="toolbar">
+  <div class="seg" role="group" aria-label="Filtrar por tipo de evento" data-filter-group="logs">
+    <button type="button" class="on" data-filter="todos" aria-pressed="true">Todos <span class="c"></span></button>
+    <button type="button" data-filter="Criação" aria-pressed="false">Criação <span class="c"></span></button>
+    <button type="button" data-filter="Alteração" aria-pressed="false">Alteração <span class="c"></span></button>
+    <button type="button" data-filter="Exclusão" aria-pressed="false">Exclusão <span class="c"></span></button>
+    <button type="button" data-filter="Mudança de status" aria-pressed="false">Mudança de status <span class="c"></span></button>
+    <button type="button" data-filter="Login" aria-pressed="false">Login <span class="c"></span></button>
+    <button type="button" data-filter="Movimentações financeiras" aria-pressed="false">Movimentações financeiras <span class="c"></span></button>
+  </div>
+</div>
+
+<section class="card" aria-label="Registros de auditoria">
+  <div class="table-wrap">
+    <table class="table cards" data-filter-target="logs">
+      <thead><tr><th>Data e hora</th><th>Usuário</th><th>Evento</th><th>Registro afetado</th><th>Valor anterior → novo</th></tr></thead>
+      <tbody>
+        <tr data-status="Alteração"><td data-label="Data e hora" class="mono nowrap">17/09/2026 14:32</td><td data-label="Usuário"><span class="who"><span class="avatar sm">R</span>Rafael</span></td><td data-label="Evento"><span class="badge b-info">Alteração</span></td><td data-label="Registro afetado">Rafael alterou o contrato <a href="../clientes/contrato.html">#104</a><span class="cell-sub">Contratos · Empresa ACME · campo Valor mensal</span></td><td data-label="Valor anterior → novo"><span class="chg"><s>R$ 2.500</s><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-label="para"><path d="M5 12h14M13 6l6 6-6 6"/></svg><b>R$ 3.000</b></span></td></tr>
+        <tr data-status="Mudança de status"><td data-label="Data e hora" class="mono nowrap">17/09/2026 14:05</td><td data-label="Usuário"><span class="who"><span class="avatar sm">CM</span>Carla Mendes</span></td><td data-label="Evento"><span class="badge b-warn">Mudança de status</span></td><td data-label="Registro afetado">Chamado <a href="../operacao/chamado.html">#2394</a> — Sistema fora do ar<span class="cell-sub">Suporte · Empresa Delta</span></td><td data-label="Valor anterior → novo"><span class="chg"><s>Aberto</s><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-label="para"><path d="M5 12h14M13 6l6 6-6 6"/></svg><b>Em atendimento</b></span></td></tr>
+        <tr data-status="Criação"><td data-label="Data e hora" class="mono nowrap">17/09/2026 13:48</td><td data-label="Usuário"><span class="who"><span class="avatar sm">CM</span>Carla Mendes</span></td><td data-label="Evento"><span class="badge b-good">Criação</span></td><td data-label="Registro afetado">Chamado <a href="../operacao/chamado.html">#2394</a> — prioridade Crítica<span class="cell-sub">Suporte · Empresa Delta</span></td><td data-label="Valor anterior → novo" class="muted">—</td></tr>
+        <tr data-status="Mudança de status"><td data-label="Data e hora" class="mono nowrap">17/09/2026 13:10</td><td data-label="Usuário"><span class="who"><span class="avatar sm">AS</span>Ana Souza</span></td><td data-label="Evento"><span class="badge b-warn">Mudança de status</span></td><td data-label="Registro afetado">Proposta <a href="../comercial/proposta.html">Portal de Pedidos</a><span class="cell-sub">Comercial · Empresa XYZ</span></td><td data-label="Valor anterior → novo"><span class="chg"><s>Rascunho</s><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-label="para"><path d="M5 12h14M13 6l6 6-6 6"/></svg><b>Enviada</b></span></td></tr>
+        <tr data-status="Mudança de status"><td data-label="Data e hora" class="mono nowrap">17/09/2026 11:45</td><td data-label="Usuário"><span class="who"><span class="avatar sm">CM</span>Carla Mendes</span></td><td data-label="Evento"><span class="badge b-warn">Mudança de status</span></td><td data-label="Registro afetado">Chamado <a href="../operacao/chamado.html">#2381</a> — Erro ao gerar relatório<span class="cell-sub">Suporte · Empresa ACME</span></td><td data-label="Valor anterior → novo"><span class="chg"><s>Em atendimento</s><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-label="para"><path d="M5 12h14M13 6l6 6-6 6"/></svg><b>Resolvido</b></span></td></tr>
+        <tr data-status="Movimentações financeiras"><td data-label="Data e hora" class="mono nowrap">17/09/2026 10:20</td><td data-label="Usuário"><span class="who"><span class="avatar sm">BL</span>Bruno Lima</span></td><td data-label="Evento"><span class="badge b-blue">Movimentação financeira</span></td><td data-label="Registro afetado">Pagamento recebido — fatura Setembro/2026<span class="cell-sub">Financeiro · <a href="../clientes/empresa.html">Empresa ACME</a> · R$ 3.800</span></td><td data-label="Valor anterior → novo"><span class="chg"><s>Pendente</s><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-label="para"><path d="M5 12h14M13 6l6 6-6 6"/></svg><b>Pago</b></span></td></tr>
+        <tr data-status="Criação"><td data-label="Data e hora" class="mono nowrap">17/09/2026 09:05</td><td data-label="Usuário"><span class="who"><span class="avatar sm">AS</span>Ana Souza</span></td><td data-label="Evento"><span class="badge b-good">Criação</span></td><td data-label="Registro afetado">Lead <a href="../comercial/lead.html">Agro Campos</a> — origem WhatsApp<span class="cell-sub">Comercial</span></td><td data-label="Valor anterior → novo" class="muted">—</td></tr>
+        <tr data-status="Login"><td data-label="Data e hora" class="mono nowrap">17/09/2026 08:52</td><td data-label="Usuário"><span class="who"><span class="avatar sm">R</span>Rafael</span></td><td data-label="Evento"><span class="badge b-mute">Login</span></td><td data-label="Registro afetado">Sessão iniciada<span class="cell-sub">Navegador Chrome · macOS</span></td><td data-label="Valor anterior → novo" class="muted">—</td></tr>
+        <tr data-status="Login"><td data-label="Data e hora" class="mono nowrap">17/09/2026 08:31</td><td data-label="Usuário"><span class="who"><span class="avatar sm">DR</span>Diego Rocha</span></td><td data-label="Evento"><span class="badge b-crit">Login recusado</span></td><td data-label="Registro afetado">Senha inválida na 3ª tentativa — acesso bloqueado temporariamente<span class="cell-sub">Navegador Firefox · Linux · login concluído às 08:47</span></td><td data-label="Valor anterior → novo" class="muted">—</td></tr>
+        <tr data-status="Alteração"><td data-label="Data e hora" class="mono nowrap">16/09/2026 18:12</td><td data-label="Usuário"><span class="who"><span class="avatar sm">EP</span>Elisa Prado</span></td><td data-label="Evento"><span class="badge b-info">Alteração</span></td><td data-label="Registro afetado">Tarefa “Migração do cadastro de estoque”<span class="cell-sub">Projetos · <a href="../operacao/projeto.html">ERP Cliente C</a> · campo Responsável</span></td><td data-label="Valor anterior → novo"><span class="chg"><s>Diego Rocha</s><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-label="para"><path d="M5 12h14M13 6l6 6-6 6"/></svg><b>Elisa Prado</b></span></td></tr>
+        <tr data-status="Exclusão"><td data-label="Data e hora" class="mono nowrap">16/09/2026 17:40</td><td data-label="Usuário"><span class="who"><span class="avatar sm">BL</span>Bruno Lima</span></td><td data-label="Evento"><span class="badge b-crit">Exclusão</span></td><td data-label="Registro afetado">Despesa “Figma — licença lançada em duplicidade”<span class="cell-sub">Financeiro · <a href="../gestao/fornecedores.html">Figma</a> · dados excluídos guardados no log</span></td><td data-label="Valor anterior → novo"><span class="chg"><s>US$ 15,00</s><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-label="para"><path d="M5 12h14M13 6l6 6-6 6"/></svg><b>Excluída</b></span></td></tr>
+        <tr data-status="Movimentações financeiras"><td data-label="Data e hora" class="mono nowrap">15/09/2026 09:30</td><td data-label="Usuário"><span class="who"><span class="avatar sm">BL</span>Bruno Lima</span></td><td data-label="Evento"><span class="badge b-blue">Movimentação financeira</span></td><td data-label="Registro afetado">Pagamento efetuado — DAS Simples Nacional<span class="cell-sub">Financeiro · <a href="../gestao/fornecedores.html">Receita Federal</a> · R$ 2.480,00</span></td><td data-label="Valor anterior → novo"><span class="chg"><s>A pagar</s><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-label="para"><path d="M5 12h14M13 6l6 6-6 6"/></svg><b>Pago</b></span></td></tr>
+        <tr data-status="Mudança de status"><td data-label="Data e hora" class="mono nowrap">11/09/2026 07:00</td><td data-label="Usuário"><span class="who"><span class="avatar sm soft">S</span>Sistema</span></td><td data-label="Evento"><span class="badge b-warn">Mudança de status</span></td><td data-label="Registro afetado">Título a receber — Suporte, vencido em 10/09/2026<span class="cell-sub">Financeiro · <a href="../clientes/empresa.html">Empresa Delta</a> · R$ 700</span></td><td data-label="Valor anterior → novo"><span class="chg"><s>Pendente</s><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-label="para"><path d="M5 12h14M13 6l6 6-6 6"/></svg><b>Vencido</b></span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="pagination"><span>Mostrando 13 de 1.284 registros no período · somente leitura</span><div class="pages"><button type="button" class="on" aria-current="page">1</button><button type="button">2</button><button type="button">3</button><button type="button" aria-label="Próxima página">›</button></div></div>
+</section>
+
+</main>
+</div>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>

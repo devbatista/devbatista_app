@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contatos · Admin DevBatista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/app.css">
+<style>
+  .p-cell { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .wa { display: inline-flex; align-items: center; gap: 6px; }
+  .wa svg { color: var(--good); flex: none; }
+  .switch-row { display: flex; align-items: flex-start; gap: 12px; }
+  .switch-row label { cursor: pointer; }
+  @media (max-width: 960px) { .p-cell .avatar { display: none; } }
+</style>
+</head>
+<body data-group="cli" data-item="Contatos" data-crumb='[["Clientes","empresas.html"],["Contatos"]]'>
+<div class="app">
+<aside class="side"></aside>
+<div class="main">
+<header class="top"></header>
+<main class="content">
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Clientes</span>
+    <h1>Contatos</h1>
+    <p class="lead">Pessoas de cada empresa. O contato principal é sugerido por padrão em propostas, chamados e cobranças.</p>
+  </div>
+  <div class="actions">
+    <button class="btn" type="button">Exportar CSV</button>
+    <button class="btn pri" type="button" data-open="novo-contato"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Novo contato</button>
+  </div>
+</div>
+
+<div class="grid-kpi">
+  <div class="card kpi"><span class="eyebrow">Contatos cadastrados</span><span class="v">41</span><span class="f">em 19 empresas</span></div>
+  <div class="card kpi"><span class="eyebrow">Contatos principais</span><span class="v">18</span><span class="f">um por empresa</span></div>
+  <a class="card kpi warn" href="empresas.html"><span class="eyebrow">Sem contato principal</span><span class="v">1</span><span class="f"><span class="badge b-warn">Studio Arq</span>prospect</span></a>
+  <div class="card kpi"><span class="eyebrow">Com WhatsApp</span><span class="v">34</span><span class="f">83% dos contatos</span></div>
+</div>
+
+<div class="toolbar">
+  <div class="seg" role="group" aria-label="Filtrar por tipo de contato" data-filter-group="contatos">
+    <button type="button" class="on" data-filter="todos" aria-pressed="true">Todos <span class="n">41</span></button>
+    <button type="button" data-filter="Principal" aria-pressed="false">Principais <span class="n">18</span></button>
+    <button type="button" data-filter="Demais" aria-pressed="false">Demais contatos <span class="n">23</span></button>
+  </div>
+  <span class="spacer"></span>
+  <label class="search-field"><span class="sr-only">Buscar contato</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M11 18a7 7 0 100-14 7 7 0 000 14zM21 21l-4.3-4.3"/></svg><input class="input" type="search" placeholder="Nome, e-mail ou telefone"></label>
+  <label class="sr-only" for="f-emp">Empresa</label>
+  <select class="select" id="f-emp"><option>Todas as empresas</option><option>Empresa ACME</option><option>Empresa XYZ</option><option>Empresa Delta</option><option>Empresa Orion</option><option>Cliente A</option><option>Cliente B</option><option>Cliente C</option><option>Cliente D</option><option>Cliente E</option><option>Grupo Norte Logística</option><option>Agro Campos</option><option>Studio Arq</option></select>
+  <label class="sr-only" for="f-est">Status da empresa</label>
+  <select class="select" id="f-est"><option>Clientes e prospects</option><option>Só clientes ativos</option><option>Só prospects</option><option>Empresas inativas</option></select>
+</div>
+
+<section class="card" aria-label="Lista de contatos">
+  <div class="table-wrap">
+    <table class="table cards" data-filter-target="contatos">
+      <thead><tr><th>Contato</th><th>Empresa</th><th>Telefone</th><th>E-mail</th><th>Principal</th><th><span class="sr-only">Ações</span></th></tr></thead>
+      <tbody>
+        <tr data-status="Principal">
+          <td data-label="Contato"><div class="p-cell"><span class="avatar sm soft">MA</span><div><span class="strong">Marcos Andrade</span><span class="cell-sub">Diretor de Operações</span></div></div></td>
+          <td data-label="Empresa"><a href="empresa.html">Empresa ACME</a></td>
+          <td data-label="Telefone" class="nowrap"><a href="tel:+551134567801">(11) 3456-7801</a><span class="cell-sub"><a class="wa" href="https://wa.me/5511987654321"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1.4-4.2A8 8 0 1112 20a8 8 0 01-3.8-1z"/></svg>(11) 98765-4321</a></span></td>
+          <td data-label="E-mail"><a href="mailto:marcos.andrade@acme.com.br">marcos.andrade@acme.com.br</a></td>
+          <td data-label="Principal"><span class="badge b-info">Principal</span></td>
+          <td data-label="" class="right"><button class="link-btn" type="button" data-open="editar-contato">Editar</button></td>
+        </tr>
+        <tr data-status="Demais">
+          <td data-label="Contato"><div class="p-cell"><span class="avatar sm soft">JF</span><div><span class="strong">Juliana Ferraz</span><span class="cell-sub">Analista financeira · recebe as cobranças</span></div></div></td>
+          <td data-label="Empresa"><a href="empresa.html">Empresa ACME</a></td>
+          <td data-label="Telefone" class="nowrap"><a href="tel:+551134567815">(11) 3456-7815</a><span class="cell-sub"><a class="wa" href="https://wa.me/5511998123344"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1.4-4.2A8 8 0 1112 20a8 8 0 01-3.8-1z"/></svg>(11) 99812-3344</a></span></td>
+          <td data-label="E-mail"><a href="mailto:financeiro@acme.com.br">financeiro@acme.com.br</a></td>
+          <td data-label="Principal" class="muted">—</td>
+          <td data-label="" class="right"><button class="link-btn" type="button" data-open="tornar-principal">Tornar principal</button></td>
+        </tr>
+        <tr data-status="Demais">
+          <td data-label="Contato"><div class="p-cell"><span class="avatar sm soft">PR</span><div><span class="strong">Paulo Reis</span><span class="cell-sub">Coordenador de TI · abre chamados</span></div></div></td>
+          <td data-label="Empresa"><a href="empresa.html">Empresa ACME</a></td>
+          <td data-label="Telefone" class="nowrap"><a href="tel:+551134567820">(11) 3456-7820</a><span class="cell-sub"><a class="wa" href="https://wa.me/5511976541122"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1.4-4.2A8 8 0 1112 20a8 8 0 01-3.8-1z"/></svg>(11) 97654-1122</a></span></td>
+          <td data-label="E-mail"><a href="mailto:paulo.reis@acme.com.br">paulo.reis@acme.com.br</a></td>
+          <td data-label="Principal" class="muted">—</td>
+          <td data-label="" class="right"><button class="link-btn" type="button" data-open="tornar-principal">Tornar principal</button></td>
+        </tr>
+        <tr data-status="Principal">
+          <td data-label="Contato"><div class="p-cell"><span class="avatar sm soft">FL</span><div><span class="strong">Fernanda Lopes</span><span class="cell-sub">Gerente de TI</span></div></div></td>
+          <td data-label="Empresa"><a href="empresa.html">Empresa XYZ</a></td>
+          <td data-label="Telefone" class="nowrap"><a href="tel:+551932104400">(19) 3210-4400</a><span class="cell-sub"><a class="wa" href="https://wa.me/5519991237788"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1.4-4.2A8 8 0 1112 20a8 8 0 01-3.8-1z"/></svg>(19) 99123-7788</a></span></td>
+          <td data-label="E-mail"><a href="mailto:fernanda.lopes@xyz.com.br">fernanda.lopes@xyz.com.br</a></td>
+          <td data-label="Principal"><span class="badge b-info">Principal</span></td>
+          <td data-label="" class="right"><button class="link-btn" type="button" data-open="editar-contato">Editar</button></td>
+        </tr>
+        <tr data-status="Demais">
+          <td data-label="Contato"><div class="p-cell"><span class="avatar sm soft">RN</span><div><span class="strong">Rodrigo Nunes</span><span class="cell-sub">Contas a pagar</span></div></div></td>
+          <td data-label="Empresa"><a href="empresa.html">Empresa XYZ</a></td>
+          <td data-label="Telefone" class="nowrap"><a href="tel:+551932104415">(19) 3210-4415</a></td>
+          <td data-label="E-mail"><a href="mailto:financeiro@xyz.com.br">financeiro@xyz.com.br</a></td>
+          <td data-label="Principal" class="muted">—</td>
+          <td data-label="" class="right"><button class="link-btn" type="button" data-open="tornar-principal">Tornar principal</button></td>
+        </tr>
+        <tr data-status="Principal">
+          <td data-label="Contato"><div class="p-cell"><span class="avatar sm soft">HM</span><div><span class="strong">Henrique Matos</span><span class="cell-sub">Sócio-diretor</span></div></div></td>
+          <td data-label="Empresa"><a href="empresa.html">Empresa Delta</a></td>
+          <td data-label="Telefone" class="nowrap"><a href="tel:+553132459000">(31) 3245-9000</a><span class="cell-sub"><a class="wa" href="https://wa.me/5531988746120"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1.4-4.2A8 8 0 1112 20a8 8 0 01-3.8-1z"/></svg>(31) 98874-6120</a></span></td>
+          <td data-label="E-mail"><a href="mailto:henrique@deltaservicos.com.br">henrique@deltaservicos.com.br</a></td>
+          <td data-label="Principal"><span class="badge b-info">Principal</span></td>
+          <td data-label="" class="right"><button class="link-btn" type="button" data-open="editar-contato">Editar</button></td>
+        </tr>
+        <tr data-status="Demais">
+          <td data-label="Contato"><div class="p-cell"><span class="avatar sm soft">MT</span><div><span class="strong">Marcos Teixeira</span><span class="cell-sub">Gerente de TI · abre chamados</span></div></div></td>
+          <td data-label="Empresa"><a href="empresa.html">Empresa Delta</a></td>
+          <td data-label="Telefone" class="nowrap"><a href="tel:+553132459012">(31) 3245-9012</a><span class="cell-sub"><a class="wa" href="https://wa.me/5531991452208"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1.4-4.2A8 8 0 1112 20a8 8 0 01-3.8-1z"/></svg>(31) 99145-2208</a></span></td>
+          <td data-label="E-mail"><a href="mailto:marcos@deltaservicos.com.br">marcos@deltaservicos.com.br</a></td>
+          <td data-label="Principal" class="muted">—</td>
+          <td data-label="" class="right"><button class="link-btn" type="button" data-open="tornar-principal">Tornar principal</button></td>
+        </tr>
+        <tr data-status="Principal">
+          <td data-label="Contato"><div class="p-cell"><span class="avatar sm soft">LV</span><div><span class="strong">Lucas Viana</span><span class="cell-sub">CEO</span></div></div></td>
+          <td data-label="Empresa"><a href="empresa.html">Empresa Orion</a></td>
+          <td data-label="Telefone" class="nowrap"><a href="tel:+554130228810">(41) 3022-8810</a><span class="cell-sub"><a class="wa" href="https://wa.me/5541996607731"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1.4-4.2A8 8 0 1112 20a8 8 0 01-3.8-1z"/></svg>(41) 99660-7731</a></span></td>
+          <td data-label="E-mail"><a href="mailto:lucas@orion.app">lucas@orion.app</a></td>
+          <td data-label="Principal"><span class="badge b-info">Principal</span></td>
+          <td data-label="" class="right"><button class="link-btn" type="button" data-open="editar-contato">Editar</button></td>
+        </tr>
+        <tr data-status="Principal">
+          <td data-label="Contato"><div class="p-cell"><span class="avatar sm soft">EP</span><div><span class="strong">Eduardo Pires</span><span class="cell-sub">Diretor de TI</span></div></div></td>
+          <td data-label="Empresa"><a href="empresa.html">Cliente A</a></td>
+          <td data-label="Telefone" class="nowrap"><a href="tel:+551140028100">(11) 4002-8100</a><span class="cell-sub"><a class="wa" href="https://wa.me/5511991004512"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1.4-4.2A8 8 0 1112 20a8 8 0 01-3.8-1z"/></svg>(11) 99100-4512</a></span></td>
+          <td data-label="E-mail"><a href="mailto:eduardo.pires@clientea.com.br">eduardo.pires@clientea.com.br</a></td>
+          <td data-label="Principal"><span class="badge b-info">Principal</span></td>
+          <td data-label="" class="right"><button class="link-btn" type="button" data-open="editar-contato">Editar</button></td>
+        </tr>
+        <tr data-status="Principal">
+          <td data-label="Contato"><div class="p-cell"><span class="avatar sm soft">RS</span><div><span class="strong">Renata Siqueira</span><span class="cell-sub">Gerente administrativa</span></div></div></td>
+          <td data-label="Empresa"><a href="empresa.html">Cliente B</a></td>
+          <td data-label="Telefone" class="nowrap"><a href="tel:+554133214500">(41) 3321-4500</a><span class="cell-sub"><a class="wa" href="https://wa.me/5541988213390"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1.4-4.2A8 8 0 1112 20a8 8 0 01-3.8-1z"/></svg>(41) 98821-3390</a></span></td>
+          <td data-label="E-mail"><a href="mailto:renata@clienteb.com.br">renata@clienteb.com.br</a></td>
+          <td data-label="Principal"><span class="badge b-info">Principal</span></td>
+          <td data-label="" class="right"><button class="link-btn" type="button" data-open="editar-contato">Editar</button></td>
+        </tr>
+        <tr data-status="Principal">
+          <td data-label="Contato"><div class="p-cell"><span class="avatar sm soft">PG</span><div><span class="strong">Patrícia Gomes</span><span class="cell-sub">Gerente de projetos</span></div></div></td>
+          <td data-label="Empresa"><a href="empresa.html">Cliente C</a></td>
+          <td data-label="Telefone" class="nowrap"><a href="tel:+556232417700">(62) 3241-7700</a><span class="cell-sub"><a class="wa" href="https://wa.me/5562992318845"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1.4-4.2A8 8 0 1112 20a8 8 0 01-3.8-1z"/></svg>(62) 99231-8845</a></span></td>
+          <td data-label="E-mail"><a href="mailto:patricia.gomes@clientec.com.br">patricia.gomes@clientec.com.br</a></td>
+          <td data-label="Principal"><span class="badge b-info">Principal</span></td>
+          <td data-label="" class="right"><button class="link-btn" type="button" data-open="editar-contato">Editar</button></td>
+        </tr>
+        <tr data-status="Principal">
+          <td data-label="Contato"><div class="p-cell"><span class="avatar sm soft">VR</span><div><span class="strong">Vanessa Rocha</span><span class="cell-sub">Coordenadora administrativa</span></div></div></td>
+          <td data-label="Empresa"><a href="empresa.html">Cliente D</a></td>
+          <td data-label="Telefone" class="nowrap"><a href="tel:+555130129600">(51) 3012-9600</a></td>
+          <td data-label="E-mail"><a href="mailto:vanessa.rocha@cliented.com.br">vanessa.rocha@cliented.com.br</a></td>
+          <td data-label="Principal"><span class="badge b-info">Principal</span></td>
+          <td data-label="" class="right"><button class="link-btn" type="button" data-open="editar-contato">Editar</button></td>
+        </tr>
+        <tr data-status="Principal">
+          <td data-label="Contato"><div class="p-cell"><span class="avatar sm soft">GL</span><div><span class="strong">Gustavo Lima</span><span class="cell-sub">Coordenador pedagógico</span></div></div></td>
+          <td data-label="Empresa"><a href="empresa.html">Cliente E</a></td>
+          <td data-label="Telefone" class="nowrap"><a href="tel:+551130458820">(11) 3045-8820</a><span class="cell-sub"><a class="wa" href="https://wa.me/5511994017756"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1.4-4.2A8 8 0 1112 20a8 8 0 01-3.8-1z"/></svg>(11) 99401-7756</a></span></td>
+          <td data-label="E-mail"><a href="mailto:gustavo@clientee.com.br">gustavo@clientee.com.br</a></td>
+          <td data-label="Principal"><span class="badge b-info">Principal</span></td>
+          <td data-label="" class="right"><button class="link-btn" type="button" data-open="editar-contato">Editar</button></td>
+        </tr>
+        <tr data-status="Principal">
+          <td data-label="Contato"><div class="p-cell"><span class="avatar sm soft">RA</span><div><span class="strong">Roberto Almeida</span><span class="cell-sub">Diretor de logística</span></div></div></td>
+          <td data-label="Empresa"><a href="empresa.html">Grupo Norte Logística</a> <span class="badge b-info">Prospect</span></td>
+          <td data-label="Telefone" class="nowrap"><a href="tel:+559232148000">(92) 3214-8000</a><span class="cell-sub"><a class="wa" href="https://wa.me/5592981127734"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1.4-4.2A8 8 0 1112 20a8 8 0 01-3.8-1z"/></svg>(92) 98112-7734</a></span></td>
+          <td data-label="E-mail"><a href="mailto:roberto.almeida@gruponorte.com.br">roberto.almeida@gruponorte.com.br</a></td>
+          <td data-label="Principal"><span class="badge b-info">Principal</span></td>
+          <td data-label="" class="right"><button class="link-btn" type="button" data-open="editar-contato">Editar</button></td>
+        </tr>
+        <tr data-status="Principal">
+          <td data-label="Contato"><div class="p-cell"><span class="avatar sm soft">CR</span><div><span class="strong">Camila Rezende</span><span class="cell-sub">Gestora administrativa</span></div></div></td>
+          <td data-label="Empresa"><a href="empresa.html">Agro Campos</a> <span class="badge b-info">Prospect</span></td>
+          <td data-label="Telefone" class="nowrap"><a href="tel:+556434127050">(64) 3412-7050</a><span class="cell-sub"><a class="wa" href="https://wa.me/5564999024418"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1.4-4.2A8 8 0 1112 20a8 8 0 01-3.8-1z"/></svg>(64) 99902-4418</a></span></td>
+          <td data-label="E-mail"><a href="mailto:camila@agrocampos.com.br">camila@agrocampos.com.br</a></td>
+          <td data-label="Principal"><span class="badge b-info">Principal</span></td>
+          <td data-label="" class="right"><button class="link-btn" type="button" data-open="editar-contato">Editar</button></td>
+        </tr>
+        <tr data-status="Demais">
+          <td data-label="Contato"><div class="p-cell"><span class="avatar sm soft">BT</span><div><span class="strong">Beatriz Toledo</span><span class="cell-sub">Sócia · arquiteta</span></div></div></td>
+          <td data-label="Empresa"><a href="empresa.html">Studio Arq</a> <span class="badge b-info">Prospect</span></td>
+          <td data-label="Telefone" class="muted">—<span class="cell-sub"><a class="wa" href="https://wa.me/5511985530192"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1.4-4.2A8 8 0 1112 20a8 8 0 01-3.8-1z"/></svg>(11) 98553-0192</a></span></td>
+          <td data-label="E-mail"><a href="mailto:beatriz@studioarq.com.br">beatriz@studioarq.com.br</a></td>
+          <td data-label="Principal"><span class="badge b-warn">Empresa sem principal</span></td>
+          <td data-label="" class="right"><button class="link-btn" type="button" data-open="tornar-principal">Tornar principal</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="pagination"><span>Mostrando 16 de 41 contatos · ordenados por empresa</span><div class="pages"><button type="button" class="on" aria-current="page">1</button><button type="button">2</button><button type="button">3</button></div></div>
+</section>
+
+</main>
+</div>
+</div>
+
+<!-- Formulário lateral: novo contato -->
+<aside class="drawer" id="novo-contato" role="dialog" aria-modal="true" aria-labelledby="novo-contato-t">
+  <form class="form" style="display:contents">
+    <div class="drawer-head"><h2 id="novo-contato-t">Novo contato</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="drawer-body form">
+      <div class="form-grid">
+        <div class="field full"><label for="ct-emp">Empresa <span class="req">*</span></label><select class="select" id="ct-emp" required><option value="">Selecione</option><option>Empresa ACME</option><option>Empresa XYZ</option><option>Empresa Delta</option><option>Empresa Orion</option><option>Cliente A</option><option>Cliente B</option><option>Cliente C</option><option>Cliente D</option><option>Cliente E</option><option>Grupo Norte Logística</option><option>Agro Campos</option><option>Studio Arq</option></select></div>
+        <div class="field full"><label for="ct-nome">Nome <span class="req">*</span></label><input class="input" id="ct-nome" required placeholder="Nome completo do contato"></div>
+        <div class="field full"><label for="ct-cargo">Cargo</label><input class="input" id="ct-cargo" placeholder="Ex.: Gerente de TI"><span class="hint">Função na empresa</span></div>
+        <div class="field"><label for="ct-tel">Telefone</label><input class="input" id="ct-tel" type="tel" placeholder="(11) 3456-7800"><span class="hint">Telefone direto</span></div>
+        <div class="field"><label for="ct-wa">WhatsApp</label><input class="input" id="ct-wa" type="tel" placeholder="(11) 98765-4321"></div>
+        <div class="field full"><label for="ct-mail">E-mail</label><input class="input" id="ct-mail" type="email" placeholder="nome@empresa.com.br"></div>
+      </div>
+      <span class="fieldset-title">Contato principal</span>
+      <div class="switch-row">
+        <span class="switch"><input type="checkbox" id="ct-princ" aria-describedby="ct-princ-h"><span></span></span>
+        <div><label for="ct-princ" class="strong">Marcar como contato principal</label><span class="hint" id="ct-princ-h" style="display:block">Sugerido por padrão em propostas, chamados e cobranças da empresa</span></div>
+      </div>
+      <div class="callout warn" id="ct-aviso"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color:var(--warn);flex:none"><path d="M12 3l10 18H2zM12 10v4M12 17h.01"/></svg><span id="ct-aviso-t">Cada empresa tem apenas um contato principal. Ao marcar este contato como principal, <b class="strong">o principal atual da empresa é desmarcado automaticamente</b>.</span></div>
+    </div>
+    <div class="drawer-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Salvar contato</button></div>
+  </form>
+</aside>
+
+<!-- Formulário lateral: editar contato -->
+<aside class="drawer" id="editar-contato" role="dialog" aria-modal="true" aria-labelledby="editar-contato-t">
+  <form class="form" style="display:contents">
+    <div class="drawer-head"><h2 id="editar-contato-t">Editar contato</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="drawer-body form">
+      <div class="form-grid">
+        <div class="field full"><label for="ed-emp">Empresa <span class="req">*</span></label><select class="select" id="ed-emp" required><option selected>Empresa ACME</option><option>Empresa XYZ</option><option>Empresa Delta</option><option>Empresa Orion</option></select></div>
+        <div class="field full"><label for="ed-nome">Nome <span class="req">*</span></label><input class="input" id="ed-nome" required value="Marcos Andrade"></div>
+        <div class="field full"><label for="ed-cargo">Cargo</label><input class="input" id="ed-cargo" value="Diretor de Operações"></div>
+        <div class="field"><label for="ed-tel">Telefone</label><input class="input" id="ed-tel" type="tel" value="(11) 3456-7801"></div>
+        <div class="field"><label for="ed-wa">WhatsApp</label><input class="input" id="ed-wa" type="tel" value="(11) 98765-4321"></div>
+        <div class="field full"><label for="ed-mail">E-mail</label><input class="input" id="ed-mail" type="email" value="marcos.andrade@acme.com.br"></div>
+      </div>
+      <div class="switch-row">
+        <span class="switch"><input type="checkbox" id="ed-princ" checked><span></span></span>
+        <div><label for="ed-princ" class="strong">Contato principal</label><span class="hint" style="display:block">Para trocar o principal, marque outro contato da empresa como principal</span></div>
+      </div>
+    </div>
+    <div class="drawer-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Salvar alterações</button></div>
+  </form>
+</aside>
+
+<!-- Modal: tornar principal -->
+<div class="modal" id="tornar-principal" role="dialog" aria-modal="true" aria-labelledby="tornar-principal-t">
+  <form class="form" style="display:contents">
+    <div class="modal-head"><h2 id="tornar-principal-t">Tornar contato principal</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="modal-body form">
+      <p style="margin:0">Marcar <b class="strong">Juliana Ferraz</b> como contato principal da <b class="strong">Empresa ACME</b>?</p>
+      <div class="callout warn"><span><b class="strong">Marcos Andrade</b> deixa de ser o contato principal. Novas propostas, chamados e cobranças passam a sugerir Juliana Ferraz; registros já existentes não mudam.</span></div>
+    </div>
+    <div class="modal-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Confirmar troca</button></div>
+  </form>
+</div>
+
+<script src="../assets/app.js"></script>
+<script>
+  // Aviso do contato principal: mostra quem será desmarcado na empresa escolhida
+  (function () {
+    var atual = { 'Empresa ACME': 'Marcos Andrade', 'Empresa XYZ': 'Fernanda Lopes', 'Empresa Delta': 'Henrique Matos', 'Empresa Orion': 'Lucas Viana', 'Cliente A': 'Eduardo Pires', 'Cliente B': 'Renata Siqueira', 'Cliente C': 'Patrícia Gomes', 'Cliente D': 'Vanessa Rocha', 'Cliente E': 'Gustavo Lima', 'Grupo Norte Logística': 'Roberto Almeida', 'Agro Campos': 'Camila Rezende' };
+    var emp = document.getElementById('ct-emp'), chk = document.getElementById('ct-princ'), t = document.getElementById('ct-aviso-t');
+    var padrao = t.innerHTML;
+    function render() {
+      var nome = atual[emp.value];
+      if (!emp.value) { t.innerHTML = padrao; return; }
+      if (!nome) { t.innerHTML = '<b class="strong">' + emp.value + '</b> ainda não tem contato principal. Marque esta opção para defini-lo.'; return; }
+      t.innerHTML = chk.checked
+        ? 'Ao salvar, <b class="strong">' + nome + '</b> deixa de ser o contato principal da ' + emp.value + '. Só pode haver um principal por empresa.'
+        : 'O contato principal atual da ' + emp.value + ' é <b class="strong">' + nome + '</b>. Marcar esta opção o desmarca automaticamente.';
+    }
+    emp.addEventListener('change', render);
+    chk.addEventListener('change', render);
+  })();
+</script>
+</body>
+</html>

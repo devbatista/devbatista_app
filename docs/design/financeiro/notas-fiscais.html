@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Notas fiscais · Admin DevBatista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/app.css">
+<style>
+  /* Campo de upload — não existe no app.css */
+  .input[type="file"]::file-selector-button:hover { color: var(--white); border-color: var(--faint); }
+  .files { display: inline-flex; gap: 10px; }
+</style>
+</head>
+<body data-group="fin" data-item="Notas fiscais" data-crumb='[["Financeiro","financeiro.html"],["Notas fiscais"]]'>
+<div class="app">
+<aside class="side"></aside>
+<div class="main">
+<header class="top"></header>
+<main class="content">
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Financeiro · Competência Setembro/2026</span>
+    <h1>Notas fiscais</h1>
+  </div>
+  <div class="actions">
+    <button class="btn" type="button">Exportar CSV</button>
+    <button class="btn pri" type="button" data-open="nova-nota">Registrar nota fiscal</button>
+  </div>
+</div>
+
+<div class="grid-kpi">
+  <div class="card kpi"><span class="eyebrow">Faturamento a notar</span><span class="v">R$ 41.200</span><span class="f">competência do mês · 22 receitas</span></div>
+  <div class="card kpi"><span class="eyebrow">Emitidas</span><span class="v">R$ 34.100</span><span class="f"><span class="badge b-good">17 notas</span>83% do faturamento</span></div>
+  <div class="card kpi" style="border-color:var(--warn-line)"><span class="eyebrow" style="color:var(--warn)">Pendentes de emissão</span><span class="v">R$ 7.100</span><span class="f"><span class="badge b-warn">5 notas</span>até 30/09</span></div>
+  <div class="card kpi"><span class="eyebrow">Canceladas</span><span class="v">R$ 800</span><span class="f">1 nota · fora do faturamento</span></div>
+</div>
+
+<div class="callout">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;color:var(--cyan)"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM12 16v-4M12 8h.01"/></svg>
+  <span><b class="strong">A emissão automática chega na V1.1;</b> no MVP a nota é emitida no sistema da prefeitura e registrada aqui, com número, competência, valor e o PDF, XML ou link.</span>
+</div>
+
+<section class="card" style="border-color:var(--warn-line)" aria-labelledby="pend-t">
+  <div class="card-head">
+    <div class="row wrap"><h2 id="pend-t">Pendentes de emissão em Setembro</h2><span class="badge b-warn">5 notas · R$ 7.100</span></div>
+    <span class="caption">Emita antes do vencimento do título</span>
+  </div>
+  <div class="table-wrap">
+    <table class="table cards">
+      <thead><tr><th>Cliente</th><th>Receita</th><th class="num">Valor</th><th>Vencimento do título</th><th><span class="sr-only">Ações</span></th></tr></thead>
+      <tbody>
+        <tr><td data-label="Cliente" class="strong">Cliente A</td><td data-label="Receita">Hospedagem — Setembro/2026</td><td data-label="Valor" class="num">R$ 1.500</td><td data-label="Vencimento do título" class="mono">18/09/2026 <span class="badge b-warn">amanhã</span></td><td data-label="" class="right"><button class="link-btn" type="button" data-open="nova-nota">Registrar nota</button></td></tr>
+        <tr><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa Delta</a></td><td data-label="Receita">Hospedagem — Setembro/2026</td><td data-label="Valor" class="num">R$ 300</td><td data-label="Vencimento do título" class="mono">20/09/2026</td><td data-label="" class="right"><button class="link-btn" type="button" data-open="nova-nota">Registrar nota</button></td></tr>
+        <tr><td data-label="Cliente" class="strong">Cliente B</td><td data-label="Receita">Manutenção — Setembro/2026</td><td data-label="Valor" class="num">R$ 1.400</td><td data-label="Vencimento do título" class="mono">22/09/2026</td><td data-label="" class="right"><button class="link-btn" type="button" data-open="nova-nota">Registrar nota</button></td></tr>
+        <tr><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa Orion</a></td><td data-label="Receita">Suporte — Setembro/2026</td><td data-label="Valor" class="num">R$ 900</td><td data-label="Vencimento do título" class="mono">25/09/2026</td><td data-label="" class="right"><button class="link-btn" type="button" data-open="nova-nota">Registrar nota</button></td></tr>
+        <tr><td data-label="Cliente" class="strong">Cliente D</td><td data-label="Receita">Integração com marketplace — entrega 2</td><td data-label="Valor" class="num">R$ 3.000</td><td data-label="Vencimento do título" class="mono">30/09/2026</td><td data-label="" class="right"><button class="link-btn" type="button" data-open="nova-nota">Registrar nota</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="toolbar">
+  <div class="seg" role="group" aria-label="Filtrar por status" data-filter-group="notas">
+    <button type="button" class="on" data-filter="todos" aria-pressed="true">Todas <span class="c"></span></button>
+    <button type="button" data-filter="Pendente de emissão" aria-pressed="false">Pendente de emissão <span class="c"></span></button>
+    <button type="button" data-filter="Emitida" aria-pressed="false">Emitida <span class="c"></span></button>
+    <button type="button" data-filter="Cancelada" aria-pressed="false">Cancelada <span class="c"></span></button>
+  </div>
+  <span class="spacer"></span>
+  <label class="search-field"><span class="sr-only">Buscar nota fiscal</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M11 18a7 7 0 100-14 7 7 0 000 14zM21 21l-4.3-4.3"/></svg><input class="input" type="search" placeholder="Cliente ou número"></label>
+  <label class="sr-only" for="f-comp">Competência</label>
+  <select class="select" id="f-comp"><option>Setembro/2026</option><option>Agosto/2026</option><option>Julho/2026</option></select>
+  <label class="sr-only" for="f-cli">Cliente</label>
+  <select class="select" id="f-cli"><option>Todos os clientes</option><option>Empresa ACME</option><option>Empresa XYZ</option><option>Empresa Delta</option><option>Empresa Orion</option><option>Cliente A</option><option>Cliente B</option><option>Cliente C</option><option>Cliente D</option><option>Cliente E</option></select>
+</div>
+
+<section class="card" aria-label="Notas fiscais">
+  <div class="table-wrap">
+    <table class="table cards" data-filter-target="notas">
+      <thead><tr><th>Cliente</th><th>Número</th><th>Competência</th><th class="num">Valor</th><th>Emissão</th><th>Arquivo</th><th>Status</th><th><span class="sr-only">Ações</span></th></tr></thead>
+      <tbody>
+        <tr data-status="Emitida"><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa ACME</a><span class="cell-sub">Consultoria, manutenção e hospedagem</span></td><td data-label="Número" class="mono strong">000418</td><td data-label="Competência" class="mono">09/2026</td><td data-label="Valor" class="num">R$ 3.800</td><td data-label="Emissão" class="mono">08/09/2026</td><td data-label="Arquivo"><span class="files"><button class="link-btn" type="button" aria-label="Baixar PDF da nota 000418">PDF</button><button class="link-btn" type="button" aria-label="Baixar XML da nota 000418">XML</button></span></td><td data-label="Status"><span class="badge b-good">Emitida</span></td><td data-label="" class="right"><button class="link-btn" type="button" aria-label="Editar nota 000418">Editar</button></td></tr>
+        <tr data-status="Emitida"><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa ACME</a><span class="cell-sub">Publicação de aplicativo</span></td><td data-label="Número" class="mono strong">000421</td><td data-label="Competência" class="mono">09/2026</td><td data-label="Valor" class="num">R$ 200</td><td data-label="Emissão" class="mono">15/09/2026</td><td data-label="Arquivo"><span class="files"><button class="link-btn" type="button" aria-label="Abrir link da nota 000421 no portal da prefeitura">Link</button></span></td><td data-label="Status"><span class="badge b-good">Emitida</span></td><td data-label="" class="right"><button class="link-btn" type="button" aria-label="Editar nota 000421">Editar</button></td></tr>
+        <tr data-status="Emitida"><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa XYZ</a><span class="cell-sub">Manutenção, suporte e hospedagem</span></td><td data-label="Número" class="mono strong">000414</td><td data-label="Competência" class="mono">09/2026</td><td data-label="Valor" class="num">R$ 2.900</td><td data-label="Emissão" class="mono">01/09/2026</td><td data-label="Arquivo"><span class="files"><button class="link-btn" type="button" aria-label="Baixar PDF da nota 000414">PDF</button><button class="link-btn" type="button" aria-label="Baixar XML da nota 000414">XML</button></span></td><td data-label="Status"><span class="badge b-good">Emitida</span></td><td data-label="" class="right"><button class="link-btn" type="button" aria-label="Editar nota 000414">Editar</button></td></tr>
+        <tr data-status="Emitida"><td data-label="Cliente" class="strong">Cliente C<span class="cell-sub" style="font-weight:500">ERP Cliente C — parcela 4 de 6</span></td><td data-label="Número" class="mono strong">000411</td><td data-label="Competência" class="mono">09/2026</td><td data-label="Valor" class="num">R$ 2.400</td><td data-label="Emissão" class="mono">28/08/2026</td><td data-label="Arquivo"><span class="files"><button class="link-btn" type="button" aria-label="Baixar PDF da nota 000411">PDF</button></span></td><td data-label="Status"><span class="badge b-good">Emitida</span></td><td data-label="" class="right"><button class="link-btn" type="button" aria-label="Editar nota 000411">Editar</button></td></tr>
+        <tr data-status="Emitida"><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa Delta</a><span class="cell-sub">Suporte</span></td><td data-label="Número" class="mono strong">000416</td><td data-label="Competência" class="mono">09/2026</td><td data-label="Valor" class="num">R$ 700</td><td data-label="Emissão" class="mono">05/09/2026</td><td data-label="Arquivo"><span class="files"><button class="link-btn" type="button" aria-label="Baixar PDF da nota 000416">PDF</button><button class="link-btn" type="button" aria-label="Baixar XML da nota 000416">XML</button></span></td><td data-label="Status"><span class="badge b-good">Emitida</span></td><td data-label="" class="right"><button class="link-btn" type="button" aria-label="Editar nota 000416">Editar</button></td></tr>
+        <tr data-status="Pendente de emissão"><td data-label="Cliente" class="strong">Cliente A<span class="cell-sub" style="font-weight:500">Hospedagem</span></td><td data-label="Número" class="muted">—</td><td data-label="Competência" class="mono">09/2026</td><td data-label="Valor" class="num">R$ 1.500</td><td data-label="Emissão" class="muted">—</td><td data-label="Arquivo" class="muted">—</td><td data-label="Status"><span class="badge b-warn">Pendente de emissão</span></td><td data-label="" class="right"><button class="link-btn" type="button" data-open="nova-nota">Registrar</button></td></tr>
+        <tr data-status="Pendente de emissão"><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa Delta</a><span class="cell-sub">Hospedagem</span></td><td data-label="Número" class="muted">—</td><td data-label="Competência" class="mono">09/2026</td><td data-label="Valor" class="num">R$ 300</td><td data-label="Emissão" class="muted">—</td><td data-label="Arquivo" class="muted">—</td><td data-label="Status"><span class="badge b-warn">Pendente de emissão</span></td><td data-label="" class="right"><button class="link-btn" type="button" data-open="nova-nota">Registrar</button></td></tr>
+        <tr data-status="Pendente de emissão"><td data-label="Cliente" class="strong">Cliente B<span class="cell-sub" style="font-weight:500">Manutenção</span></td><td data-label="Número" class="muted">—</td><td data-label="Competência" class="mono">09/2026</td><td data-label="Valor" class="num">R$ 1.400</td><td data-label="Emissão" class="muted">—</td><td data-label="Arquivo" class="muted">—</td><td data-label="Status"><span class="badge b-warn">Pendente de emissão</span></td><td data-label="" class="right"><button class="link-btn" type="button" data-open="nova-nota">Registrar</button></td></tr>
+        <tr data-status="Pendente de emissão"><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa Orion</a><span class="cell-sub">Suporte</span></td><td data-label="Número" class="muted">—</td><td data-label="Competência" class="mono">09/2026</td><td data-label="Valor" class="num">R$ 900</td><td data-label="Emissão" class="muted">—</td><td data-label="Arquivo" class="muted">—</td><td data-label="Status"><span class="badge b-warn">Pendente de emissão</span></td><td data-label="" class="right"><button class="link-btn" type="button" data-open="nova-nota">Registrar</button></td></tr>
+        <tr data-status="Pendente de emissão"><td data-label="Cliente" class="strong">Cliente D<span class="cell-sub" style="font-weight:500">Integração com marketplace</span></td><td data-label="Número" class="muted">—</td><td data-label="Competência" class="mono">09/2026</td><td data-label="Valor" class="num">R$ 3.000</td><td data-label="Emissão" class="muted">—</td><td data-label="Arquivo" class="muted">—</td><td data-label="Status"><span class="badge b-warn">Pendente de emissão</span></td><td data-label="" class="right"><button class="link-btn" type="button" data-open="nova-nota">Registrar</button></td></tr>
+        <tr data-status="Cancelada"><td data-label="Cliente" class="strong">Cliente E<span class="cell-sub" style="font-weight:500">Publicação de app — serviço cancelado</span></td><td data-label="Número" class="mono muted">000420</td><td data-label="Competência" class="mono">09/2026</td><td data-label="Valor" class="num muted" style="text-decoration:line-through">R$ 800</td><td data-label="Emissão" class="mono">10/09/2026</td><td data-label="Arquivo"><span class="files"><button class="link-btn" type="button" aria-label="Baixar PDF da nota cancelada 000420">PDF</button></span></td><td data-label="Status"><span class="badge b-mute">Cancelada</span></td><td data-label="" class="right muted">—</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="pagination"><span>Mostrando 11 de 23 notas da competência</span><div class="pages"><button type="button" class="on" aria-current="page">1</button><button type="button">2</button><button type="button">3</button></div></div>
+</section>
+
+</main>
+</div>
+</div>
+
+<!-- Formulário lateral: registrar nota fiscal -->
+<aside class="drawer" id="nova-nota" role="dialog" aria-modal="true" aria-labelledby="nova-nota-t">
+  <form class="form" style="display:contents">
+    <div class="drawer-head"><h2 id="nova-nota-t">Registrar nota fiscal</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="drawer-body form">
+      <div class="callout"><span>Emita a nota no sistema da prefeitura e registre aqui o número e o arquivo. Emissão automática: V1.1.</span></div>
+      <span class="fieldset-title">Nota</span>
+      <div class="form-grid">
+        <div class="field full"><label for="n-cli">Cliente <span class="req">*</span></label><select class="select" id="n-cli" required><option value="">Selecione a empresa tomadora</option><option>Empresa ACME</option><option>Empresa XYZ</option><option>Empresa Delta</option><option>Empresa Orion</option><option selected>Cliente A</option><option>Cliente B</option><option>Cliente C</option><option>Cliente D</option><option>Cliente E</option></select></div>
+        <div class="field full"><label for="n-rec">Receita vinculada</label><select class="select" id="n-rec"><option>Nenhuma</option><option selected>Hospedagem — Setembro/2026 · R$ 1.500</option></select><span class="hint">Preenche competência e valor a partir da receita</span></div>
+        <div class="field"><label for="n-num">Número <span class="req">*</span></label><input class="input mono" id="n-num" required placeholder="Ex.: 000422"></div>
+        <div class="field"><label for="n-comp">Competência <span class="req">*</span></label><input class="input" id="n-comp" type="month" value="2026-09" required></div>
+        <div class="field"><label for="n-val">Valor (R$) <span class="req">*</span></label><input class="input num" id="n-val" inputmode="decimal" value="1.500,00" required></div>
+        <div class="field"><label for="n-emi">Data de emissão</label><input class="input" id="n-emi" type="date" value="2026-09-17"><span class="hint">Obrigatória quando Emitida</span></div>
+        <div class="field full"><label for="n-status">Status <span class="req">*</span></label><select class="select" id="n-status" required><option>Pendente de emissão</option><option selected>Emitida</option><option>Cancelada</option></select></div>
+      </div>
+      <span class="fieldset-title">Arquivo ou link</span>
+      <div class="field"><label for="n-arq">Arquivo da nota (PDF ou XML)</label><input class="input" id="n-arq" type="file" accept=".pdf,.xml,application/pdf,application/xml,text/xml" multiple><span class="hint">Até 10 MB por arquivo. Você pode enviar o PDF e o XML juntos.</span></div>
+      <div class="field"><label for="n-link">Ou link da nota</label><input class="input" id="n-link" type="url" placeholder="https://nfse.prefeitura…/consulta?codigo=…"><span class="hint">Endereço de consulta no portal da prefeitura</span></div>
+    </div>
+    <div class="drawer-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Salvar nota</button></div>
+  </form>
+</aside>
+
+<script src="../assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Suporte · Admin DevBatista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/app.css">
+</head>
+<body data-group="op" data-item="Suporte" data-crumb='[["Operação"],["Suporte"]]'>
+<div class="app">
+<aside class="side"></aside>
+<div class="main">
+<header class="top"></header>
+<main class="content">
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Operação · Chamados</span>
+    <h1>Suporte</h1>
+  </div>
+  <div class="actions">
+    <button class="btn" type="button">Exportar CSV</button>
+    <button class="btn pri" type="button" data-open="novo-chamado">Novo chamado</button>
+  </div>
+</div>
+
+<div class="grid-kpi">
+  <div class="card kpi"><span class="eyebrow">Chamados abertos</span><span class="v">9</span><span class="f">aberto, em análise, em atendimento ou aguardando</span></div>
+  <a class="card kpi alert" href="chamado.html"><span class="eyebrow">Críticos</span><span class="v">1</span><span class="f"><span class="badge b-crit">#2394</span>Empresa Delta · em atendimento</span></a>
+  <div class="card kpi"><span class="eyebrow">Aguardando cliente</span><span class="v">2</span><span class="f">#2396 Empresa Orion · #2391 Cliente D</span></div>
+  <div class="card kpi"><span class="eyebrow">Tempo médio de resolução</span><span class="v">5h 20min</span><span class="f"><span class="badge b-good">−18%</span>14 resolvidos em setembro</span></div>
+</div>
+
+<a class="callout crit" href="chamado.html" style="color:inherit">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color:var(--crit);flex:none;margin-top:1px"><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg>
+  <span><b class="strong">Chamado crítico #2394 — Sistema fora do ar.</b> Empresa Delta · API Delta indisponível desde 08:30 · em atendimento com Carla Mendes · aberto hoje às 08:47. <span style="color:var(--cyan);font-weight:600">Abrir chamado →</span></span>
+</a>
+
+<div class="toolbar">
+  <div class="seg" role="group" aria-label="Filtrar por status" data-filter-group="chamados">
+    <button type="button" class="on" data-filter="todos" aria-pressed="true">Todos <span class="c"></span></button>
+    <button type="button" data-filter="Aberto" aria-pressed="false">Aberto <span class="c"></span></button>
+    <button type="button" data-filter="Em análise" aria-pressed="false">Em análise <span class="c"></span></button>
+    <button type="button" data-filter="Em atendimento" aria-pressed="false">Em atendimento <span class="c"></span></button>
+    <button type="button" data-filter="Aguardando cliente" aria-pressed="false">Aguardando cliente <span class="c"></span></button>
+    <button type="button" data-filter="Resolvido" aria-pressed="false">Resolvido <span class="c"></span></button>
+    <button type="button" data-filter="Fechado" aria-pressed="false">Fechado <span class="c"></span></button>
+  </div>
+  <span class="spacer"></span>
+  <label class="search-field"><span class="sr-only">Buscar chamado</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M11 18a7 7 0 100-14 7 7 0 000 14zM21 21l-4.3-4.3"/></svg><input class="input" type="search" placeholder="Número, assunto ou cliente"></label>
+  <label class="sr-only" for="f-prio">Prioridade</label>
+  <select class="select" id="f-prio"><option>Todas as prioridades</option><option>Baixa</option><option>Normal</option><option>Alta</option><option>Crítica</option></select>
+  <label class="sr-only" for="f-cat">Categoria</label>
+  <select class="select" id="f-cat"><option>Todas as categorias</option><option>Erro</option><option>Dúvida</option><option>Melhoria</option><option>Infraestrutura</option><option>Acesso</option></select>
+  <label class="sr-only" for="f-resp">Responsável</label>
+  <select class="select" id="f-resp"><option>Todos os responsáveis</option><option>Carla Mendes</option><option>Diego Rocha</option><option>Elisa Prado</option></select>
+</div>
+
+<section class="card" aria-label="Lista de chamados">
+  <div class="table-wrap">
+    <table class="table cards" data-filter-target="chamados">
+      <thead><tr><th>Nº</th><th>Assunto</th><th>Cliente</th><th>Categoria</th><th>Prioridade</th><th>Responsável</th><th>Abertura</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr class="late" data-status="Em atendimento"><td data-label="Nº" class="mono"><a class="strong" href="chamado.html">#2394</a></td><td data-label="Assunto"><a class="strong" href="chamado.html" style="color:var(--text)">Sistema fora do ar</a><span class="cell-sub">Aplicação afetada: API Delta</span></td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa Delta</a></td><td data-label="Categoria">Infraestrutura</td><td data-label="Prioridade"><span class="badge b-crit dot-l">Crítica</span></td><td data-label="Responsável">Carla Mendes</td><td data-label="Abertura" class="mono">17/09/2026 08:47</td><td data-label="Status"><span class="badge b-warn">Em atendimento</span></td></tr>
+        <tr data-status="Aberto"><td data-label="Nº" class="mono"><a href="chamado.html">#2399</a></td><td data-label="Assunto"><a href="chamado.html" style="color:var(--text)">Usuário sem acesso ao painel</a></td><td data-label="Cliente">Cliente A</td><td data-label="Categoria">Acesso</td><td data-label="Prioridade"><span class="badge b-info">Normal</span></td><td data-label="Responsável">Carla Mendes</td><td data-label="Abertura" class="mono">17/09/2026 11:52</td><td data-label="Status"><span class="badge b-info">Aberto</span></td></tr>
+        <tr data-status="Aberto"><td data-label="Nº" class="mono"><a href="chamado.html">#2398</a></td><td data-label="Assunto"><a href="chamado.html" style="color:var(--text)">Lentidão na emissão de pedidos</a><span class="cell-sub">Aplicação: Sistema ERP</span></td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa XYZ</a></td><td data-label="Categoria">Erro</td><td data-label="Prioridade"><span class="badge b-warn">Alta</span></td><td data-label="Responsável">Diego Rocha</td><td data-label="Abertura" class="mono">17/09/2026 11:15</td><td data-label="Status"><span class="badge b-info">Aberto</span></td></tr>
+        <tr data-status="Em análise"><td data-label="Nº" class="mono"><a href="chamado.html">#2397</a></td><td data-label="Assunto"><a href="chamado.html" style="color:var(--text)">Incluir filtro por período no relatório</a></td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa ACME</a></td><td data-label="Categoria">Melhoria</td><td data-label="Prioridade"><span class="badge b-mute">Baixa</span></td><td data-label="Responsável">Diego Rocha</td><td data-label="Abertura" class="mono">17/09/2026 10:40</td><td data-label="Status"><span class="badge b-info">Em análise</span></td></tr>
+        <tr data-status="Aguardando cliente"><td data-label="Nº" class="mono"><a href="chamado.html">#2396</a></td><td data-label="Assunto"><a href="chamado.html" style="color:var(--text)">Renovação do certificado SSL do app</a><span class="cell-sub">Aguardando acesso ao DNS de orion.app</span></td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa Orion</a></td><td data-label="Categoria">Infraestrutura</td><td data-label="Prioridade"><span class="badge b-info">Normal</span></td><td data-label="Responsável">Carla Mendes</td><td data-label="Abertura" class="mono">17/09/2026 10:05</td><td data-label="Status"><span class="badge b-warn">Aguardando cliente</span></td></tr>
+        <tr data-status="Em análise"><td data-label="Nº" class="mono"><a href="chamado.html">#2395</a></td><td data-label="Assunto"><a href="chamado.html" style="color:var(--text)">Pedidos não sincronizados após a queda</a><span class="cell-sub">Relacionado ao #2394</span></td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa Delta</a></td><td data-label="Categoria">Erro</td><td data-label="Prioridade"><span class="badge b-warn">Alta</span></td><td data-label="Responsável">Diego Rocha</td><td data-label="Abertura" class="mono">17/09/2026 09:58</td><td data-label="Status"><span class="badge b-info">Em análise</span></td></tr>
+        <tr data-status="Em atendimento"><td data-label="Nº" class="mono"><a href="chamado.html">#2393</a></td><td data-label="Assunto"><a href="chamado.html" style="color:var(--text)">Dúvida sobre fechamento de estoque</a></td><td data-label="Cliente">Cliente C</td><td data-label="Categoria">Dúvida</td><td data-label="Prioridade"><span class="badge b-info">Normal</span></td><td data-label="Responsável">Elisa Prado</td><td data-label="Abertura" class="mono">16/09/2026 15:30</td><td data-label="Status"><span class="badge b-warn">Em atendimento</span></td></tr>
+        <tr data-status="Resolvido"><td data-label="Nº" class="mono"><a href="chamado.html">#2392</a></td><td data-label="Assunto"><a href="chamado.html" style="color:var(--text)">Novo usuário para o financeiro</a></td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa XYZ</a></td><td data-label="Categoria">Acesso</td><td data-label="Prioridade"><span class="badge b-mute">Baixa</span></td><td data-label="Responsável">Carla Mendes</td><td data-label="Abertura" class="mono">16/09/2026 10:12</td><td data-label="Status"><span class="badge b-good">Resolvido</span></td></tr>
+        <tr data-status="Aguardando cliente"><td data-label="Nº" class="mono"><a href="chamado.html">#2391</a></td><td data-label="Assunto"><a href="chamado.html" style="color:var(--text)">Restaurar backup do banco de março</a><span class="cell-sub">Aguardando confirmação da data exata</span></td><td data-label="Cliente">Cliente D</td><td data-label="Categoria">Infraestrutura</td><td data-label="Prioridade"><span class="badge b-info">Normal</span></td><td data-label="Responsável">Carla Mendes</td><td data-label="Abertura" class="mono">15/09/2026 14:20</td><td data-label="Status"><span class="badge b-warn">Aguardando cliente</span></td></tr>
+        <tr data-status="Em análise"><td data-label="Nº" class="mono"><a href="chamado.html">#2390</a></td><td data-label="Assunto"><a href="chamado.html" style="color:var(--text)">Ajuste no layout do comprovante de pedido</a></td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa ACME</a></td><td data-label="Categoria">Melhoria</td><td data-label="Prioridade"><span class="badge b-mute">Baixa</span></td><td data-label="Responsável">Diego Rocha</td><td data-label="Abertura" class="mono">14/09/2026 09:35</td><td data-label="Status"><span class="badge b-info">Em análise</span></td></tr>
+        <tr data-status="Fechado"><td data-label="Nº" class="mono"><a href="chamado.html">#2389</a></td><td data-label="Assunto"><a href="chamado.html" style="color:var(--text)">Erro no login pelo aplicativo</a></td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa Orion</a></td><td data-label="Categoria">Erro</td><td data-label="Prioridade"><span class="badge b-warn">Alta</span></td><td data-label="Responsável">Diego Rocha</td><td data-label="Abertura" class="mono">11/09/2026 16:48</td><td data-label="Status"><span class="badge b-mute">Fechado</span></td></tr>
+        <tr data-status="Resolvido"><td data-label="Nº" class="mono"><a href="chamado.html">#2381</a></td><td data-label="Assunto"><a href="chamado.html" style="color:var(--text)">Erro ao gerar relatório</a><span class="cell-sub">Resolvido hoje às 11:45</span></td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa ACME</a></td><td data-label="Categoria">Erro</td><td data-label="Prioridade"><span class="badge b-info">Normal</span></td><td data-label="Responsável">Diego Rocha</td><td data-label="Abertura" class="mono">08/09/2026 10:02</td><td data-label="Status"><span class="badge b-good">Resolvido</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="pagination"><span>Críticos primeiro, depois por abertura mais recente · 12 de 41 chamados em setembro</span><div class="pages"><button type="button" class="on" aria-current="page">1</button><button type="button">2</button><button type="button">3</button><button type="button">4</button></div></div>
+</section>
+
+</main>
+</div>
+</div>
+
+<!-- Formulário lateral: novo chamado -->
+<aside class="drawer" id="novo-chamado" role="dialog" aria-modal="true" aria-labelledby="novo-chamado-t">
+  <form class="form" style="display:contents">
+    <div class="drawer-head"><h2 id="novo-chamado-t">Novo chamado</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="drawer-body form">
+      <div class="callout"><span>O número (#2400) e a data de abertura são registrados automaticamente. O chamado nasce com status <b class="strong">Aberto</b>.</span></div>
+      <div class="form-grid">
+        <div class="field"><label for="c-cli">Cliente <span class="req">*</span></label><select class="select" id="c-cli" required><option value="">Selecione</option><option>Empresa ACME</option><option>Empresa XYZ</option><option>Empresa Delta</option><option>Empresa Orion</option><option>Cliente A</option><option>Cliente B</option><option>Cliente C</option><option>Cliente D</option><option>Cliente E</option></select></div>
+        <div class="field"><label for="c-cont">Contato</label><select class="select" id="c-cont"><option value="">Selecione o cliente primeiro</option></select><span class="hint">O contato principal é sugerido por padrão</span></div>
+        <div class="field full"><label for="c-ass">Assunto <span class="req">*</span></label><input class="input" id="c-ass" required placeholder="Resumo do chamado"></div>
+        <div class="field full"><label for="c-desc">Descrição <span class="req">*</span></label><textarea class="textarea" id="c-desc" required placeholder="Detalhamento do problema ou pedido: o que aconteceu, quando, quem foi afetado"></textarea></div>
+        <div class="field"><label for="c-prio">Prioridade <span class="req">*</span></label><select class="select" id="c-prio" required><option>Baixa</option><option selected>Normal</option><option>Alta</option><option>Crítica</option></select><span class="hint">Crítica notifica a equipe na hora</span></div>
+        <div class="field"><label for="c-cat">Categoria <span class="req">*</span></label><select class="select" id="c-cat" required><option value="">Selecione</option><option>Erro</option><option>Dúvida</option><option>Melhoria</option><option>Infraestrutura</option><option>Acesso</option></select></div>
+        <div class="field full"><label for="c-resp">Responsável</label><select class="select" id="c-resp"><option value="">Sem responsável</option><option>Carla Mendes</option><option>Diego Rocha</option><option>Elisa Prado</option><option>Rafael</option></select></div>
+      </div>
+    </div>
+    <div class="drawer-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Abrir chamado</button></div>
+  </form>
+</aside>
+
+<script src="../assets/app.js"></script>
+</body>
+</html>

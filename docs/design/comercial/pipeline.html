@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pipeline · Admin DevBatista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/app.css">
+<style>
+  a.kcard, a.kcard:hover { color: var(--text-2); }
+  .kcard.dragging { opacity: .45; }
+  .lane.over { border-color: var(--cyan); background: var(--cyan-tint); }
+  .lane.drop.over { border-color: var(--crit-dot); background: var(--crit-bg); color: var(--crit); }
+  .lane.drop { min-height: 520px; gap: 10px; }
+  .board { grid-auto-columns: minmax(232px, 1fr); }
+</style>
+</head>
+<body data-group="com" data-item="Pipeline" data-crumb='[["Comercial","pipeline.html"],["Pipeline"]]'>
+<div class="app">
+<aside class="side"></aside>
+<div class="main">
+<header class="top"></header>
+<main class="content wide">
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Comercial · Setembro de 2026</span>
+    <h1>Pipeline</h1>
+  </div>
+  <div class="actions">
+    <a class="btn" href="oportunidades.html">Ver em lista</a>
+    <button class="btn pri" type="button" data-open="novo-lead">Novo lead</button>
+  </div>
+</div>
+
+<div class="grid-kpi">
+  <a class="card kpi" href="propostas.html"><span class="eyebrow">Propostas abertas</span><span class="v">R$ 38.000</span><span class="f"><span class="badge b-info">5</span>em Proposta e Negociação</span></a>
+  <a class="card kpi" href="oportunidades.html"><span class="eyebrow">Previsão ponderada</span><span class="v">R$ 28.800</span><span class="f">valor × probabilidade, de Reunião a Negociação</span></a>
+  <div class="card kpi"><span class="eyebrow">Fechado no mês</span><span class="v">R$ 7.200</span><span class="f"><span class="badge b-good">1 negócio</span>Cliente E</span></div>
+  <a class="card kpi" href="leads.html"><span class="eyebrow">Negócios em aberto</span><span class="v">14</span><span class="f">7 leads · 7 oportunidades</span></a>
+</div>
+
+<div class="toolbar">
+  <label class="search-field"><span class="sr-only">Buscar no pipeline</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M11 18a7 7 0 100-14 7 7 0 000 14zM21 21l-4.3-4.3"/></svg><input class="input" type="search" placeholder="Empresa, lead ou serviço"></label>
+  <label class="sr-only" for="f-resp">Responsável</label>
+  <select class="select" id="f-resp"><option>Todos os responsáveis</option><option>Rafael</option><option>Ana Souza</option></select>
+  <label class="sr-only" for="f-orig">Origem</label>
+  <select class="select" id="f-orig"><option>Todas as origens</option><option>WhatsApp</option><option>Indicação</option><option>Site</option><option>Diagnóstico</option><option>Meta Ads</option><option>Google Ads</option><option>LinkedIn</option><option>Outbound</option><option>Outros</option></select>
+  <label class="sr-only" for="f-svc">Serviço</label>
+  <select class="select" id="f-svc"><option>Todos os serviços</option><option>Consultoria de TI</option><option>Desenvolvimento de sistemas</option><option>Desenvolvimento de sites</option><option>Manutenção</option><option>Automação/RPA</option><option>Integrações</option><option>Inteligência Artificial</option><option>Hospedagem</option><option>Gestão de infraestrutura</option><option>Suporte</option><option>Publicação de aplicativos</option></select>
+  <span class="spacer"></span>
+  <span class="caption">Arraste os cartões entre as etapas · até Qualificado: leads; de Reunião em diante: oportunidades</span>
+</div>
+
+<div class="board" id="board">
+
+  <section class="lane" data-lane="Novo Lead" aria-labelledby="ln1">
+    <div class="lane-head"><b id="ln1">Novo Lead</b><span class="badge b-mute" data-count>3</span></div>
+    <div class="lane-sum" data-sum>3 leads · sem valor estimado</div>
+    <a class="kcard" href="lead.html" draggable="true" id="k1">
+      <span class="n">Transportes Lima</span><span class="s">Automação/RPA</span>
+      <span class="r"><span class="badge b-mute">WhatsApp</span><span class="avatar sm soft" aria-hidden="true">AS</span><span class="sr-only">Responsável: Ana Souza</span></span>
+      <span class="meta">Paulo Lima · entrada hoje</span>
+    </a>
+    <a class="kcard" href="lead.html" draggable="true" id="k2">
+      <span class="n">Clínica Bem Estar</span><span class="s">Desenvolvimento de sites</span>
+      <span class="r"><span class="badge b-mute">Site</span><span class="avatar sm soft" aria-hidden="true">AS</span><span class="sr-only">Responsável: Ana Souza</span></span>
+      <span class="meta">Fernanda Reis · entrada 16/09</span>
+    </a>
+    <a class="kcard" href="lead.html" draggable="true" id="k3">
+      <span class="n">Colégio Horizonte</span><span class="s">Desenvolvimento de sistemas</span>
+      <span class="r"><span class="badge b-mute">Indicação</span><span class="avatar sm soft" aria-hidden="true">R</span><span class="sr-only">Responsável: Rafael</span></span>
+      <span class="meta">Márcia Tavares · entrada 15/09</span>
+    </a>
+  </section>
+
+  <section class="lane" data-lane="Contato Realizado" aria-labelledby="ln2">
+    <div class="lane-head"><b id="ln2">Contato Realizado</b><span class="badge b-mute" data-count>2</span></div>
+    <div class="lane-sum" data-sum>2 leads · sem valor estimado</div>
+    <a class="kcard" href="lead.html" draggable="true" id="k4">
+      <span class="n">Agro Campos</span><span class="s">Integrações</span>
+      <span class="r"><span class="badge b-mute">Meta Ads</span><span class="avatar sm soft" aria-hidden="true">AS</span><span class="sr-only">Responsável: Ana Souza</span></span>
+      <span class="meta">Rodrigo Campos · último contato 15/09</span>
+    </a>
+    <a class="kcard" href="lead.html" draggable="true" id="k5">
+      <span class="n">Ótica Visão Clara</span><span class="s">Desenvolvimento de sites</span>
+      <span class="r"><span class="badge b-mute">LinkedIn</span><span class="avatar sm soft" aria-hidden="true">AS</span><span class="sr-only">Responsável: Ana Souza</span></span>
+      <span class="meta">Juliana Arantes · último contato 14/09</span>
+    </a>
+  </section>
+
+  <section class="lane" data-lane="Qualificado" aria-labelledby="ln3">
+    <div class="lane-head"><b id="ln3">Qualificado</b><span class="badge b-mute" data-count>2</span></div>
+    <div class="lane-sum" data-sum>2 leads · sem valor estimado</div>
+    <a class="kcard" href="lead.html" draggable="true" id="k6">
+      <span class="n">Grupo Norte Logística</span><span class="s">Consultoria de TI</span>
+      <span class="r"><span class="badge b-mute">Diagnóstico</span><span class="avatar sm soft" aria-hidden="true">R</span><span class="sr-only">Responsável: Rafael</span></span>
+      <span class="meta">Henrique Duarte · reunião 22/09</span>
+    </a>
+    <a class="kcard" href="lead.html" draggable="true" id="k7">
+      <span class="n">Padaria Trigo Bom</span><span class="s">Hospedagem</span>
+      <span class="r"><span class="badge b-mute">Google Ads</span><span class="avatar sm soft" aria-hidden="true">AS</span><span class="sr-only">Responsável: Ana Souza</span></span>
+      <span class="meta">Sérgio Nunes · qualificado 11/09</span>
+    </a>
+  </section>
+
+  <section class="lane" data-lane="Reunião" aria-labelledby="ln4">
+    <div class="lane-head"><b id="ln4">Reunião</b><span class="badge b-mute" data-count>2</span></div>
+    <div class="lane-sum" data-sum>R$ 18.000 · ponderado R$ 5.400</div>
+    <a class="kcard" href="oportunidades.html" draggable="true" id="k8" data-v="12000" data-p="30">
+      <span class="n">Grupo Norte Logística</span><span class="s">Desenvolvimento de sistemas</span>
+      <span class="r"><span class="val">R$ 12.000</span><span class="badge b-info">30%</span></span>
+      <span class="r meta"><span>Previsão 30/10/2026</span><span class="avatar sm soft" aria-hidden="true">R</span><span class="sr-only">Responsável: Rafael</span></span>
+    </a>
+    <a class="kcard" href="oportunidades.html" draggable="true" id="k9" data-v="6000" data-p="30">
+      <span class="n">Empresa Orion</span><span class="s">Inteligência Artificial</span>
+      <span class="r"><span class="val">R$ 6.000</span><span class="badge b-info">30%</span></span>
+      <span class="r meta"><span>Previsão 15/10/2026</span><span class="avatar sm soft" aria-hidden="true">R</span><span class="sr-only">Responsável: Rafael</span></span>
+    </a>
+  </section>
+
+  <section class="lane" data-lane="Proposta" aria-labelledby="ln5">
+    <div class="lane-head"><b id="ln5">Proposta</b><span class="badge b-mute" data-count>3</span></div>
+    <div class="lane-sum" data-sum>R$ 25.000 · ponderado R$ 13.450</div>
+    <a class="kcard" href="proposta.html" draggable="true" id="k10" data-v="14000" data-p="60">
+      <span class="n">Empresa XYZ</span><span class="s">Portal de Pedidos</span>
+      <span class="r"><span class="val">R$ 14.000</span><span class="badge b-info">60%</span></span>
+      <span class="r meta"><span>Enviada hoje · val. 02/10</span><span class="avatar sm soft" aria-hidden="true">AS</span><span class="sr-only">Responsável: Ana Souza</span></span>
+    </a>
+    <a class="kcard" href="oportunidades.html" draggable="true" id="k11" data-v="6500" data-p="50">
+      <span class="n">Empresa Delta</span><span class="s">Gestão de infraestrutura</span>
+      <span class="r"><span class="val">R$ 6.500</span><span class="badge b-info">50%</span></span>
+      <span class="r meta"><span>Visualizada · val. 30/09</span><span class="avatar sm soft" aria-hidden="true">R</span><span class="sr-only">Responsável: Rafael</span></span>
+    </a>
+    <a class="kcard" href="oportunidades.html" draggable="true" id="k12" data-v="4500" data-p="40">
+      <span class="n">Cliente C</span><span class="s">Integrações</span>
+      <span class="r"><span class="val">R$ 4.500</span><span class="badge b-info">40%</span></span>
+      <span class="r meta"><span class="badge b-warn">expira em 2 dias</span><span class="avatar sm soft" aria-hidden="true">AS</span><span class="sr-only">Responsável: Ana Souza</span></span>
+    </a>
+  </section>
+
+  <section class="lane" data-lane="Negociação" aria-labelledby="ln6">
+    <div class="lane-head"><b id="ln6">Negociação</b><span class="badge b-mute" data-count>2</span></div>
+    <div class="lane-sum" data-sum>R$ 13.000 · ponderado R$ 9.950</div>
+    <a class="kcard" href="oportunidades.html" draggable="true" id="k13" data-v="9000" data-p="75">
+      <span class="n">Agro Campos</span><span class="s">Automação/RPA</span>
+      <span class="r"><span class="val">R$ 9.000</span><span class="badge b-info">75%</span></span>
+      <span class="r meta"><span>Previsão 25/09/2026</span><span class="avatar sm soft" aria-hidden="true">AS</span><span class="sr-only">Responsável: Ana Souza</span></span>
+    </a>
+    <a class="kcard" href="oportunidades.html" draggable="true" id="k14" data-v="4000" data-p="80">
+      <span class="n">Studio Arq</span><span class="s">Desenvolvimento de sites</span>
+      <span class="r"><span class="val">R$ 4.000</span><span class="badge b-info">80%</span></span>
+      <span class="r meta"><span>Previsão 22/09/2026</span><span class="avatar sm soft" aria-hidden="true">AS</span><span class="sr-only">Responsável: Ana Souza</span></span>
+    </a>
+  </section>
+
+  <section class="lane" data-lane="Fechado" data-closed aria-labelledby="ln7">
+    <div class="lane-head"><b id="ln7">Fechado</b><span class="badge b-good" data-count>1</span></div>
+    <div class="lane-sum" data-sum>R$ 7.200 ganhos em setembro</div>
+    <a class="kcard" href="../clientes/contrato.html" draggable="true" id="k15" data-v="7200" data-p="100">
+      <span class="n">Cliente E</span><span class="s">Desenvolvimento de sistemas</span>
+      <span class="r"><span class="val">R$ 7.200</span><span class="badge b-good">Ganho</span></span>
+      <span class="r meta"><span>Fechado 08/09/2026</span><span class="avatar sm soft" aria-hidden="true">AS</span><span class="sr-only">Responsável: Ana Souza</span></span>
+    </a>
+  </section>
+
+  <section class="lane drop" data-lane="Perdido" aria-labelledby="ln8">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21a9 9 0 100-18 9 9 0 000 18zM15 9l-6 6M9 9l6 6"/></svg>
+    <b id="ln8" style="color:var(--text)">Perdido</b>
+    <span>Solte um cartão aqui para encerrar o negócio sem contratação.</span>
+    <span class="caption">O motivo da perda é obrigatório.</span>
+    <button class="btn sm" type="button" data-open="perdido" id="perdido-trigger">Marcar como perdido…</button>
+    <a href="leads.html" style="font-size:12px;font-weight:600">2 perdidos em setembro →</a>
+  </section>
+
+</div>
+
+</main>
+</div>
+</div>
+
+<!-- Modal: marcar como perdido -->
+<div class="modal" id="perdido" role="dialog" aria-modal="true" aria-labelledby="perdido-t">
+  <form class="form" style="display:contents">
+    <div class="modal-head"><h2 id="perdido-t">Marcar como perdido</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="modal-body form">
+      <div class="field"><label for="pd-neg">Negócio <span class="req">*</span></label>
+        <select class="select" id="pd-neg" required>
+          <option>Transportes Lima — Automação/RPA</option><option>Clínica Bem Estar — Desenvolvimento de sites</option><option>Colégio Horizonte — Desenvolvimento de sistemas</option>
+          <option>Agro Campos — Integrações</option><option>Ótica Visão Clara — Desenvolvimento de sites</option>
+          <option>Grupo Norte Logística — Consultoria de TI</option><option>Padaria Trigo Bom — Hospedagem</option>
+          <option>Grupo Norte Logística — Desenvolvimento de sistemas</option><option>Empresa Orion — Inteligência Artificial</option>
+          <option>Empresa XYZ — Portal de Pedidos</option><option>Empresa Delta — Gestão de infraestrutura</option><option>Cliente C — Integrações</option>
+          <option>Agro Campos — Automação/RPA</option><option>Studio Arq — Desenvolvimento de sites</option>
+        </select>
+        <span class="hint">Pode ser marcado a partir de qualquer etapa aberta.</span>
+      </div>
+      <div class="field"><label for="pd-mot">Motivo da perda <span class="req">*</span></label><select class="select" id="pd-mot" required><option value="">Selecione</option><option>Preço</option><option>Prazo</option><option>Sem retorno</option><option>Optou por concorrente</option><option>Sem orçamento</option><option>Fora do perfil</option><option>Outro</option></select></div>
+      <div class="field"><label for="pd-obs">Detalhes</label><textarea class="textarea" id="pd-obs" placeholder="O que aconteceu? Vale retomar o contato no futuro?"></textarea></div>
+    </div>
+    <div class="modal-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn danger" type="submit">Marcar como perdido</button></div>
+  </form>
+</div>
+
+<!-- Drawer: novo lead -->
+<aside class="drawer" id="novo-lead" role="dialog" aria-modal="true" aria-labelledby="novo-lead-t">
+  <form class="form" style="display:contents">
+    <div class="drawer-head"><h2 id="novo-lead-t">Novo lead</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="drawer-body form">
+      <span class="fieldset-title">Contato</span>
+      <div class="form-grid">
+        <div class="field full"><label for="l-nome">Nome <span class="req">*</span></label><input class="input" id="l-nome" required placeholder="Nome da pessoa de contato"></div>
+        <div class="field full"><label for="l-emp">Empresa</label><input class="input" id="l-emp" placeholder="Empresa do lead, quando houver"></div>
+        <div class="field"><label for="l-tel">Telefone</label><input class="input mono" id="l-tel" type="tel" placeholder="(11) 3456-7890"></div>
+        <div class="field"><label for="l-wa">WhatsApp</label><input class="input mono" id="l-wa" type="tel" placeholder="(11) 98765-4321"></div>
+        <div class="field full"><label for="l-mail">E-mail</label><input class="input" id="l-mail" type="email" placeholder="nome@empresa.com.br"></div>
+      </div>
+      <span class="fieldset-title">Qualificação</span>
+      <div class="form-grid">
+        <div class="field"><label for="l-orig">Origem <span class="req">*</span></label><select class="select" id="l-orig" required><option value="">Selecione</option><option>WhatsApp</option><option>Indicação</option><option>Site</option><option>Diagnóstico</option><option>Meta Ads</option><option>Google Ads</option><option>LinkedIn</option><option>Outbound</option><option>Outros</option></select></div>
+        <div class="field"><label for="l-svc">Serviço de interesse</label><select class="select" id="l-svc"><option value="">Selecione do catálogo</option><option>Consultoria de TI</option><option>Desenvolvimento de sistemas</option><option>Desenvolvimento de sites</option><option>Manutenção</option><option>Automação/RPA</option><option>Integrações</option><option>Inteligência Artificial</option><option>Hospedagem</option><option>Gestão de infraestrutura</option><option>Suporte</option><option>Publicação de aplicativos</option></select></div>
+        <div class="field"><label for="l-resp">Responsável <span class="req">*</span></label><select class="select" id="l-resp" required><option>Ana Souza</option><option>Rafael</option><option>Bruno Lima</option><option>Carla Mendes</option><option>Diego Rocha</option><option>Elisa Prado</option></select></div>
+        <div class="field"><label for="l-st">Status <span class="req">*</span></label><select class="select" id="l-st" required><option selected>Novo Lead</option><option>Contato Realizado</option><option>Qualificado</option><option>Reunião</option><option>Proposta</option><option>Negociação</option><option>Fechado</option></select></div>
+        <div class="field"><label for="l-data">Data de entrada</label><input class="input mono" id="l-data" value="17/09/2026" readonly aria-readonly="true"><span class="hint">Preenchida automaticamente</span></div>
+        <div class="field full"><label for="l-obs">Observações</label><textarea class="textarea" id="l-obs" placeholder="Contexto do primeiro contato, necessidade, prazo desejado…"></textarea></div>
+      </div>
+    </div>
+    <div class="drawer-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Salvar lead</button></div>
+  </form>
+</aside>
+
+<script src="../assets/app.js"></script>
+<script>
+  // Arrastar e soltar entre etapas; soltar em Perdido abre o modal com motivo obrigatório
+  (function () {
+    var board = document.getElementById('board');
+    var brl = function (n) { return 'R$ ' + Math.round(n).toLocaleString('pt-BR'); };
+    var refresh = function (lane) {
+      var cards = lane.querySelectorAll('.kcard');
+      var count = lane.querySelector('[data-count]'), sum = lane.querySelector('[data-sum]');
+      if (!count || !sum) return;
+      count.textContent = cards.length;
+      var t = 0, w = 0;
+      cards.forEach(function (c) { var v = +c.dataset.v || 0; t += v; w += v * (+c.dataset.p || 0) / 100; });
+      if (lane.hasAttribute('data-closed')) sum.textContent = brl(t) + ' ganhos em setembro';
+      else sum.textContent = t ? brl(t) + ' · ponderado ' + brl(w) : cards.length + (cards.length === 1 ? ' lead' : ' leads') + ' · sem valor estimado';
+    };
+    var dragged = null;
+    board.querySelectorAll('.kcard').forEach(function (c) {
+      c.addEventListener('dragstart', function (e) { dragged = c; c.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', c.id); });
+      c.addEventListener('dragend', function () { c.classList.remove('dragging'); board.querySelectorAll('.over').forEach(function (l) { l.classList.remove('over'); }); });
+    });
+    board.querySelectorAll('.lane').forEach(function (lane) {
+      lane.addEventListener('dragover', function (e) { e.preventDefault(); lane.classList.add('over'); });
+      lane.addEventListener('dragleave', function (e) { if (!lane.contains(e.relatedTarget)) lane.classList.remove('over'); });
+      lane.addEventListener('drop', function (e) {
+        e.preventDefault(); lane.classList.remove('over');
+        if (!dragged) return;
+        if (lane.dataset.lane === 'Perdido') {
+          var name = dragged.querySelector('.n').textContent + ' — ' + dragged.querySelector('.s').textContent;
+          var sel = document.getElementById('pd-neg');
+          [].some.call(sel.options, function (o, i) { if (o.text.indexOf(name) === 0) { sel.selectedIndex = i; return true; } });
+          document.getElementById('perdido-trigger').click();
+          return;
+        }
+        var from = dragged.closest('.lane');
+        lane.appendChild(dragged);
+        refresh(from); refresh(lane);
+      });
+    });
+  })();
+</script>
+</body>
+</html>

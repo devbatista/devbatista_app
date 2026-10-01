@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grupo Norte Logística · Admin DevBatista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/app.css">
+<style>
+  .modal { max-height: 84vh; flex-direction: column; }
+  .modal.open { display: flex; }
+  .modal .modal-body { overflow-y: auto; }
+  .step small { display: block; font-weight: 500; color: var(--muted); margin-top: 2px; }
+  .tl .who { color: var(--muted); font-size: 12px; }
+</style>
+</head>
+<body data-group="com" data-item="Leads" data-crumb='[["Comercial","pipeline.html"],["Leads","leads.html"],["Grupo Norte Logística"]]'>
+<div class="app">
+<aside class="side"></aside>
+<div class="main">
+<header class="top"></header>
+<main class="content">
+
+<div class="page-head">
+  <div class="row" style="align-items:flex-end;gap:16px">
+    <span class="co-avatar" aria-hidden="true">GN</span>
+    <div class="titles">
+      <span class="section-label">Lead · Diagnóstico</span>
+      <h1>Grupo Norte Logística</h1>
+      <div class="row wrap" style="gap:8px"><span class="badge b-info">Qualificado</span><span class="chip">Consultoria de TI</span><span class="caption">Henrique Duarte · Diretor de operações · entrada em 03/09/2026</span></div>
+    </div>
+  </div>
+  <div class="actions">
+    <button class="btn" type="button" data-open="editar-lead">Editar</button>
+    <button class="btn danger" type="button" data-open="perdido">Marcar como perdido</button>
+    <button class="btn pri" type="button" data-open="converter">Converter</button>
+  </div>
+</div>
+
+<section class="card" aria-labelledby="etapa-t">
+  <div class="card-head"><h2 id="etapa-t">Etapa no pipeline</h2><a href="pipeline.html" style="font-size:13px;font-weight:600">Abrir pipeline →</a></div>
+  <div class="card-body" style="padding-top:0">
+    <ol class="steps" aria-label="Etapas do pipeline" style="list-style:none;margin:0;padding:0">
+      <li class="step done">Novo Lead<small>03/09</small></li>
+      <li class="step done">Contato Realizado<small>04/09</small></li>
+      <li class="step cur" aria-current="step">Qualificado<small>12/09 · há 5 dias</small></li>
+      <li class="step">Reunião<small>agendada 22/09</small></li>
+      <li class="step">Proposta</li>
+      <li class="step">Negociação</li>
+      <li class="step">Fechado</li>
+    </ol>
+  </div>
+</section>
+
+<div class="cols-2-1">
+  <div class="stack">
+    <section class="card" aria-labelledby="dados-t">
+      <div class="card-head"><h2 id="dados-t">Dados do lead</h2><button class="link-btn" type="button" data-open="editar-lead">Editar</button></div>
+      <dl class="dl" style="padding-top:0;margin:0">
+        <div><dt>Nome</dt><dd>Henrique Duarte</dd></div>
+        <div><dt>Empresa</dt><dd><a href="../clientes/empresa.html">Grupo Norte Logística</a></dd></div>
+        <div><dt>Telefone</dt><dd class="mono">(11) 3214-8800</dd></div>
+        <div><dt>WhatsApp</dt><dd class="mono">(11) 99102-3344</dd></div>
+        <div><dt>E-mail</dt><dd>henrique.duarte@gruponorte.com.br</dd></div>
+        <div><dt>Origem</dt><dd>Diagnóstico</dd></div>
+        <div><dt>Serviço de interesse</dt><dd>Consultoria de TI</dd></div>
+        <div><dt>Responsável</dt><dd class="row" style="gap:8px"><span class="avatar sm soft" aria-hidden="true">R</span>Rafael</dd></div>
+        <div><dt>Status</dt><dd><span class="badge b-info">Qualificado</span></dd></div>
+        <div><dt>Data de entrada</dt><dd class="mono">03/09/2026</dd></div>
+      </dl>
+    </section>
+
+    <section class="card" aria-labelledby="int-t">
+      <div class="card-head"><h2 id="int-t">Interações</h2><span class="caption">6 registros</span></div>
+      <form class="card-body form" style="padding-top:0;gap:12px" onsubmit="event.preventDefault()">
+        <div class="row wrap" style="align-items:flex-end">
+          <div class="field" style="width:180px"><label for="i-tipo">Tipo</label><select class="select" id="i-tipo"><option>Ligação</option><option>WhatsApp</option><option>E-mail</option><option>Reunião</option><option>Nota</option></select></div>
+          <div class="field" style="width:180px"><label for="i-data">Data</label><input class="input" id="i-data" type="date" value="2026-09-17"></div>
+        </div>
+        <div class="field"><label for="i-txt">Registro</label><textarea class="textarea" id="i-txt" style="min-height:72px" placeholder="O que foi conversado e qual o próximo passo?"></textarea></div>
+        <div class="row" style="justify-content:flex-end"><button class="btn sm pri" type="submit">Registrar interação</button></div>
+      </form>
+      <div class="tl"><i></i><div><span class="strong">Ligação</span> — confirmou orçamento para consultoria a partir de outubro. Decisão conjunta com o CFO; pediu reunião para apresentar o plano de trabalho.<small>16/09/2026 14:20 · Rafael</small></div></div>
+      <div class="tl"><i></i><div><span class="strong">Status alterado</span> — Contato Realizado → Qualificado. Necessidade, perfil e capacidade de contratação confirmados.<small>12/09/2026 17:05 · Rafael</small></div></div>
+      <div class="tl"><i></i><div><span class="strong">E-mail</span> — enviado o relatório do diagnóstico (12 páginas) com 3 frentes priorizadas: integração TMS × ERP, roteirização e indicadores de entrega.<small>12/09/2026 16:48 · Rafael</small></div></div>
+      <div class="tl"><i></i><div><span class="strong">Reunião</span> — diagnóstico online (1h) com Henrique e a coordenadora de TI. Mapeados TMS próprio, ERP sem integração e roteirização em planilhas.<small>10/09/2026 10:00 · Rafael</small></div></div>
+      <div class="tl"><i></i><div><span class="strong">WhatsApp</span> — primeiro contato; diagnóstico agendado para 10/09. Status: Novo Lead → Contato Realizado.<small>04/09/2026 09:32 · Rafael</small></div></div>
+      <div class="tl"><i style="background:var(--faint)"></i><div><span class="strong">Lead criado</span> pelo formulário de diagnóstico do site devbatista.com · origem Diagnóstico.<small>03/09/2026 21:14 · Sistema</small></div></div>
+    </section>
+  </div>
+
+  <div class="stack">
+    <section class="card" aria-labelledby="prox-t">
+      <div class="card-head"><h2 id="prox-t">Próximo passo</h2></div>
+      <div class="card-body" style="padding-top:0">
+        <div class="callout"><span><b class="strong">Reunião de plano de trabalho</b><br>Terça, 22/09/2026 às 10:00 · online<br><span class="caption">Converter antes da reunião para registrar a oportunidade de Consultoria de TI.</span></span></div>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="obs-t">
+      <div class="card-head"><h2 id="obs-t">Observações</h2><button class="link-btn" type="button" data-open="editar-lead">Editar</button></div>
+      <div class="card-body" style="padding-top:0">
+        <p style="margin:0">Transportadora com 3 filiais (SP, Campinas e Sorocaba) e cerca de 120 veículos. Chegou pelo diagnóstico gratuito após anúncio sobre integração de sistemas. Quer consultoria contínua para organizar a TI antes de investir em novo sistema. Sensível a prazo: quer começar em outubro.</p>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="rel-t">
+      <div class="card-head"><h2 id="rel-t">Relacionados</h2></div>
+      <div class="kv"><span>Empresa</span><a href="../clientes/empresa.html">Grupo Norte Logística <span class="badge b-mute">Prospect</span></a></div>
+      <div class="kv"><span>Oportunidade aberta</span><a href="oportunidades.html">Desenv. de sistemas · R$ 12.000</a></div>
+      <div class="kv"><span>Etapa da oportunidade</span><b>Reunião · 30%</b></div>
+      <div class="kv"><span>Proposta</span><a href="propostas.html">Sistema de roteirização · Rascunho</a></div>
+    </section>
+
+    <section class="card" aria-labelledby="reg-t">
+      <div class="card-head"><h2 id="reg-t">Registro</h2></div>
+      <div class="kv"><span>Criado por</span><b>Formulário do site</b></div>
+      <div class="kv"><span>Última atualização</span><b>16/09/2026 14:20</b></div>
+      <div class="kv"><span>Dias no pipeline</span><b>14</b></div>
+    </section>
+  </div>
+</div>
+
+</main>
+</div>
+</div>
+
+<!-- Drawer: editar lead -->
+<aside class="drawer" id="editar-lead" role="dialog" aria-modal="true" aria-labelledby="editar-lead-t">
+  <form class="form" style="display:contents">
+    <div class="drawer-head"><h2 id="editar-lead-t">Editar lead</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="drawer-body form">
+      <span class="fieldset-title">Contato</span>
+      <div class="form-grid">
+        <div class="field full"><label for="e-nome">Nome <span class="req">*</span></label><input class="input" id="e-nome" value="Henrique Duarte" required></div>
+        <div class="field full"><label for="e-emp">Empresa</label><input class="input" id="e-emp" value="Grupo Norte Logística"></div>
+        <div class="field"><label for="e-tel">Telefone</label><input class="input mono" id="e-tel" type="tel" value="(11) 3214-8800"></div>
+        <div class="field"><label for="e-wa">WhatsApp</label><input class="input mono" id="e-wa" type="tel" value="(11) 99102-3344"></div>
+        <div class="field full"><label for="e-mail">E-mail</label><input class="input" id="e-mail" type="email" value="henrique.duarte@gruponorte.com.br"></div>
+      </div>
+      <span class="fieldset-title">Qualificação</span>
+      <div class="form-grid">
+        <div class="field"><label for="e-orig">Origem <span class="req">*</span></label><select class="select" id="e-orig" required><option>WhatsApp</option><option>Indicação</option><option>Site</option><option selected>Diagnóstico</option><option>Meta Ads</option><option>Google Ads</option><option>LinkedIn</option><option>Outbound</option><option>Outros</option></select></div>
+        <div class="field"><label for="e-svc">Serviço de interesse</label><select class="select" id="e-svc"><option selected>Consultoria de TI</option><option>Desenvolvimento de sistemas</option><option>Desenvolvimento de sites</option><option>Manutenção</option><option>Automação/RPA</option><option>Integrações</option><option>Inteligência Artificial</option><option>Hospedagem</option><option>Gestão de infraestrutura</option><option>Suporte</option><option>Publicação de aplicativos</option></select></div>
+        <div class="field"><label for="e-resp">Responsável <span class="req">*</span></label><select class="select" id="e-resp" required><option selected>Rafael</option><option>Ana Souza</option><option>Bruno Lima</option><option>Carla Mendes</option><option>Diego Rocha</option><option>Elisa Prado</option></select></div>
+        <div class="field"><label for="e-st">Status <span class="req">*</span></label><select class="select" id="e-st" required><option>Novo Lead</option><option>Contato Realizado</option><option selected>Qualificado</option><option>Reunião</option><option>Proposta</option><option>Negociação</option><option>Fechado</option></select></div>
+        <div class="field"><label for="e-data">Data de entrada</label><input class="input mono" id="e-data" value="03/09/2026" readonly aria-readonly="true"><span class="hint">Preenchida automaticamente</span></div>
+        <div class="field full"><label for="e-obs">Observações</label><textarea class="textarea" id="e-obs">Transportadora com 3 filiais (SP, Campinas e Sorocaba) e cerca de 120 veículos. Quer consultoria contínua para organizar a TI antes de investir em novo sistema. Quer começar em outubro.</textarea></div>
+      </div>
+    </div>
+    <div class="drawer-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Salvar alterações</button></div>
+  </form>
+</aside>
+
+<!-- Modal: converter lead -->
+<div class="modal" id="converter" role="dialog" aria-modal="true" aria-labelledby="converter-t">
+  <form class="form" style="display:contents">
+    <div class="modal-head"><h2 id="converter-t">Converter lead</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="modal-body form">
+      <div class="callout"><span>A conversão cria <b class="strong">empresa, contato e oportunidade</b> com os dados do lead, sem redigitar.</span></div>
+      <div class="callout warn" role="alert"><span><b class="strong">Já existe uma empresa com este CNPJ.</b> 27.418.553/0001-06 pertence a <a href="../clientes/empresa.html">Grupo Norte Logística</a> (Prospect). O contato e a oportunidade serão vinculados a ela, sem criar empresa duplicada.</span></div>
+      <span class="fieldset-title">Empresa</span>
+      <div class="form-grid">
+        <div class="field"><label for="c-fant">Nome fantasia <span class="req">*</span></label><input class="input" id="c-fant" value="Grupo Norte Logística" required></div>
+        <div class="field"><label for="c-cnpj">CNPJ <span class="req">*</span></label><input class="input mono" id="c-cnpj" value="27.418.553/0001-06" required></div>
+        <div class="field full"><label class="check"><input type="checkbox" checked> Vincular à empresa existente (recomendado)</label></div>
+      </div>
+      <span class="fieldset-title">Contato</span>
+      <div class="form-grid">
+        <div class="field"><label for="c-nome">Nome <span class="req">*</span></label><input class="input" id="c-nome" value="Henrique Duarte" required></div>
+        <div class="field"><label for="c-cargo">Cargo</label><input class="input" id="c-cargo" value="Diretor de operações"></div>
+        <div class="field"><label for="c-wa">WhatsApp</label><input class="input mono" id="c-wa" value="(11) 99102-3344"></div>
+        <div class="field"><label for="c-mail">E-mail</label><input class="input" id="c-mail" value="henrique.duarte@gruponorte.com.br"></div>
+        <div class="field full"><label class="check"><input type="checkbox" checked> Contato principal da empresa</label></div>
+      </div>
+      <span class="fieldset-title">Oportunidade</span>
+      <div class="form-grid">
+        <div class="field"><label for="c-svc">Serviço <span class="req">*</span></label><select class="select" id="c-svc" required><option selected>Consultoria de TI</option><option>Desenvolvimento de sistemas</option><option>Integrações</option></select></div>
+        <div class="field"><label for="c-val">Valor estimado (R$) <span class="req">*</span></label><input class="input num" id="c-val" inputmode="decimal" value="3.000,00" required><span class="hint">Preço padrão do catálogo (mensal)</span></div>
+        <div class="field"><label for="c-prob">Probabilidade (%) <span class="req">*</span></label><input class="input num" id="c-prob" type="number" min="0" max="100" value="30" required></div>
+        <div class="field"><label for="c-prev">Previsão de fechamento <span class="req">*</span></label><input class="input" id="c-prev" type="date" value="2026-10-15" required></div>
+        <div class="field"><label for="c-etapa">Etapa inicial</label><select class="select" id="c-etapa"><option>Qualificado</option><option selected>Reunião</option><option>Proposta</option></select></div>
+        <div class="field"><label for="c-resp">Responsável</label><select class="select" id="c-resp"><option selected>Rafael</option><option>Ana Souza</option></select></div>
+      </div>
+    </div>
+    <div class="modal-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Converter</button></div>
+  </form>
+</div>
+
+<!-- Modal: marcar como perdido -->
+<div class="modal" id="perdido" role="dialog" aria-modal="true" aria-labelledby="perdido-t">
+  <form class="form" style="display:contents">
+    <div class="modal-head"><h2 id="perdido-t">Marcar lead como perdido</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="modal-body form">
+      <div class="callout"><span>Henrique Duarte · Grupo Norte Logística · etapa <b class="strong">Qualificado</b></span></div>
+      <div class="field"><label for="pd-mot">Motivo da perda <span class="req">*</span></label><select class="select" id="pd-mot" required><option value="">Selecione</option><option>Preço</option><option>Prazo</option><option>Sem retorno</option><option>Optou por concorrente</option><option>Sem orçamento</option><option>Fora do perfil</option><option>Outro</option></select><span class="hint">Obrigatório para encerrar o lead.</span></div>
+      <div class="field"><label for="pd-obs">Detalhes</label><textarea class="textarea" id="pd-obs" placeholder="O que aconteceu? Vale retomar o contato no futuro?"></textarea></div>
+    </div>
+    <div class="modal-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn danger" type="submit">Marcar como perdido</button></div>
+  </form>
+</div>
+
+<script src="../assets/app.js"></script>
+</body>
+</html>

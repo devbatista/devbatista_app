@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Configurações · Admin DevBatista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/app.css">
+<style>
+  .days { display: inline-flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .days .input { width: 64px; height: 34px; text-align: center; padding: 0 6px; }
+  .days .u { font-size: 12px; color: var(--muted); }
+  .reason { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto auto; gap: 12px; align-items: center; padding: 10px 20px; border-top: 1px solid var(--rule); }
+  .reason .grip { color: var(--faint); }
+  .reason .input { height: 36px; width: 100%; }
+  .int { display: flex; gap: 16px; align-items: flex-start; padding: 20px; }
+  .int .logo { width: 48px; height: 48px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--orange); flex: none; }
+  .panel-foot { display: flex; justify-content: flex-end; gap: 8px; padding: 16px 20px; border-top: 1px solid var(--rule); }
+  @media (max-width: 960px) { .reason { grid-template-columns: minmax(0, 1fr) auto auto; } .reason .grip { display: none; } }
+</style>
+</head>
+<body data-group="adm" data-item="Configurações" data-crumb='[["Administração"],["Configurações"]]'>
+<div class="app">
+<aside class="side"></aside>
+<div class="main">
+<header class="top"></header>
+<main class="content" data-tabs-scope>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Administração · Parâmetros do sistema</span>
+    <h1>Configurações</h1>
+    <p class="lead">Listas e prazos ajustáveis sem novo deploy. Toda alteração fica registrada em <a href="logs.html">Logs</a>.</p>
+  </div>
+</div>
+
+<div class="tabs" role="tablist" aria-label="Seções das configurações" data-tabs>
+  <button class="tab on" type="button" role="tab" aria-selected="true" data-tab="geral">Geral</button>
+  <button class="tab" type="button" role="tab" aria-selected="false" data-tab="alertas">Alertas</button>
+  <button class="tab" type="button" role="tab" aria-selected="false" data-tab="motivos">Motivos de perda</button>
+  <button class="tab" type="button" role="tab" aria-selected="false" data-tab="catalogo">Catálogo de serviços</button>
+  <button class="tab" type="button" role="tab" aria-selected="false" data-tab="integracoes">Integrações futuras</button>
+</div>
+
+<!-- Geral -->
+<form class="card" data-panel="geral" role="tabpanel" aria-label="Geral" onsubmit="return false">
+  <div class="card-head"><h2>Empresa e região</h2></div>
+  <div class="card-body">
+    <div class="form-grid">
+      <div class="field"><label for="g-nome">Nome da empresa <span class="req">*</span></label><input class="input" id="g-nome" value="DevBatista" required></div>
+      <div class="field"><label for="g-razao">Razão social</label><input class="input" id="g-razao" value="DevBatista Tecnologia Ltda."></div>
+      <div class="field"><label for="g-mail">E-mail remetente das notificações <span class="req">*</span></label><input class="input" id="g-mail" type="email" value="admin@devbatista.com.br" required></div>
+      <div class="field"><label for="g-site">Site</label><input class="input" id="g-site" type="url" value="https://devbatista.com"></div>
+      <div class="field"><label for="g-fuso">Fuso horário <span class="req">*</span></label><select class="select" id="g-fuso" required><option selected>America/Sao_Paulo (UTC−03:00)</option><option>America/Manaus (UTC−04:00)</option><option>America/Noronha (UTC−02:00)</option></select><span class="hint">Usado nas rotinas diárias, vencimentos e na trilha de auditoria</span></div>
+      <div class="field"><label for="g-moeda">Moeda <span class="req">*</span></label><select class="select" id="g-moeda" required><option selected>BRL — Real (R$)</option></select><span class="hint">Despesas em outra moeda guardam o valor original e o convertido em reais</span></div>
+      <div class="field"><label for="g-data">Formato de data</label><select class="select" id="g-data"><option selected>dd/mm/aaaa</option></select></div>
+      <div class="field"><label for="g-hora">Horário da rotina diária</label><input class="input" id="g-hora" type="time" value="07:00"><span class="hint">Virada de status por vencimento, recorrências e alertas</span></div>
+    </div>
+  </div>
+  <div class="panel-foot"><button class="btn" type="reset">Descartar</button><button class="btn pri" type="submit">Salvar</button></div>
+</form>
+
+<!-- Alertas -->
+<form class="card" data-panel="alertas" role="tabpanel" aria-label="Alertas" hidden onsubmit="return false">
+  <div class="card-head">
+    <div><h2>Antecedência dos alertas</h2><span class="caption">Gerados uma vez por dia na central de notificações</span></div>
+    <label class="check"><span class="switch"><input type="checkbox" checked aria-label="Permitir envio de alertas por e-mail"><span></span></span>Permitir envio por e-mail</label>
+  </div>
+  <div class="table-wrap">
+    <table class="table cards">
+      <thead><tr><th>Alerta</th><th>Gatilho</th><th>Destinatários</th><th>E-mail</th></tr></thead>
+      <tbody>
+        <tr><td data-label="Alerta" class="strong">Contratos vencendo</td><td data-label="Gatilho"><span class="days"><label class="sr-only" for="a-c1">Contratos, 1º aviso</label><input class="input num" id="a-c1" value="60"><label class="sr-only" for="a-c2">Contratos, 2º aviso</label><input class="input num" id="a-c2" value="30"><label class="sr-only" for="a-c3">Contratos, 3º aviso</label><input class="input num" id="a-c3" value="15"><span class="u">dias antes do término</span></span></td><td data-label="Destinatários">Comercial · Administrador</td><td data-label="E-mail"><span class="switch"><input type="checkbox" checked aria-label="E-mail para contratos vencendo"><span></span></span></td></tr>
+        <tr><td data-label="Alerta" class="strong">Domínios vencendo</td><td data-label="Gatilho"><span class="days"><label class="sr-only" for="a-d1">Domínios, 1º aviso</label><input class="input num" id="a-d1" value="60"><label class="sr-only" for="a-d2">Domínios, 2º aviso</label><input class="input num" id="a-d2" value="30"><label class="sr-only" for="a-d3">Domínios, 3º aviso</label><input class="input num" id="a-d3" value="7"><span class="u">dias antes do vencimento</span></span></td><td data-label="Destinatários">Desenvolvedor · Administrador</td><td data-label="E-mail"><span class="switch"><input type="checkbox" checked aria-label="E-mail para domínios vencendo"><span></span></span></td></tr>
+        <tr><td data-label="Alerta" class="strong">Propostas expirando</td><td data-label="Gatilho"><span class="days"><label class="sr-only" for="a-p1">Propostas, antecedência</label><input class="input num" id="a-p1" value="3"><span class="u">dias antes do fim da validade</span></span></td><td data-label="Destinatários">Responsável pela proposta</td><td data-label="E-mail"><span class="switch"><input type="checkbox" aria-label="E-mail para propostas expirando"><span></span></span></td></tr>
+        <tr><td data-label="Alerta" class="strong">Pagamentos vencidos</td><td data-label="Gatilho" class="muted">Dia seguinte ao vencimento sem pagamento</td><td data-label="Destinatários">Financeiro · Administrador</td><td data-label="E-mail"><span class="switch"><input type="checkbox" checked aria-label="E-mail para pagamentos vencidos"><span></span></span></td></tr>
+        <tr><td data-label="Alerta" class="strong">Tarefas atrasadas</td><td data-label="Gatilho" class="muted">Prazo ultrapassado e tarefa não concluída</td><td data-label="Destinatários">Responsável pela tarefa</td><td data-label="E-mail"><span class="switch"><input type="checkbox" aria-label="E-mail para tarefas atrasadas"><span></span></span></td></tr>
+        <tr><td data-label="Alerta" class="strong">Projetos atrasados</td><td data-label="Gatilho" class="muted">Previsão ultrapassada e projeto não concluído</td><td data-label="Destinatários">Responsável pelo projeto · Administrador</td><td data-label="E-mail"><span class="switch"><input type="checkbox" checked aria-label="E-mail para projetos atrasados"><span></span></span></td></tr>
+        <tr><td data-label="Alerta" class="strong">Chamados críticos</td><td data-label="Gatilho" class="muted">Abertura ou mudança para prioridade Crítica — imediato</td><td data-label="Destinatários">Suporte · Desenvolvedor · Administrador</td><td data-label="E-mail"><span class="switch"><input type="checkbox" checked aria-label="E-mail para chamados críticos"><span></span></span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="card-foot"><span>Cada usuário ainda pode desligar o e-mail no próprio cadastro.</span><span class="row"><button class="btn sm" type="reset">Restaurar sugestões</button><button class="btn pri sm" type="submit">Salvar</button></span></div>
+</form>
+
+<!-- Motivos de perda -->
+<form class="card" data-panel="motivos" role="tabpanel" aria-label="Motivos de perda" hidden onsubmit="return false">
+  <div class="card-head">
+    <div><h2>Motivos de perda</h2><span class="caption">Obrigatório quando um lead ou oportunidade vai para Perdido</span></div>
+    <span class="badge b-mute">7 motivos</span>
+  </div>
+  <div class="reason"><svg class="grip" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6h.01M9 12h.01M9 18h.01M15 6h.01M15 12h.01M15 18h.01"/></svg><label class="sr-only" for="m1">Motivo 1</label><input class="input" id="m1" value="Preço"><span class="caption nowrap">usado 9×</span><label class="switch"><input type="checkbox" checked aria-label="Motivo Preço ativo"><span></span></label></div>
+  <div class="reason"><svg class="grip" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6h.01M9 12h.01M9 18h.01M15 6h.01M15 12h.01M15 18h.01"/></svg><label class="sr-only" for="m2">Motivo 2</label><input class="input" id="m2" value="Prazo"><span class="caption nowrap">usado 3×</span><label class="switch"><input type="checkbox" checked aria-label="Motivo Prazo ativo"><span></span></label></div>
+  <div class="reason"><svg class="grip" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6h.01M9 12h.01M9 18h.01M15 6h.01M15 12h.01M15 18h.01"/></svg><label class="sr-only" for="m3">Motivo 3</label><input class="input" id="m3" value="Sem retorno"><span class="caption nowrap">usado 14×</span><label class="switch"><input type="checkbox" checked aria-label="Motivo Sem retorno ativo"><span></span></label></div>
+  <div class="reason"><svg class="grip" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6h.01M9 12h.01M9 18h.01M15 6h.01M15 12h.01M15 18h.01"/></svg><label class="sr-only" for="m4">Motivo 4</label><input class="input" id="m4" value="Optou por concorrente"><span class="caption nowrap">usado 5×</span><label class="switch"><input type="checkbox" checked aria-label="Motivo Optou por concorrente ativo"><span></span></label></div>
+  <div class="reason"><svg class="grip" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6h.01M9 12h.01M9 18h.01M15 6h.01M15 12h.01M15 18h.01"/></svg><label class="sr-only" for="m5">Motivo 5</label><input class="input" id="m5" value="Sem orçamento"><span class="caption nowrap">usado 7×</span><label class="switch"><input type="checkbox" checked aria-label="Motivo Sem orçamento ativo"><span></span></label></div>
+  <div class="reason"><svg class="grip" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6h.01M9 12h.01M9 18h.01M15 6h.01M15 12h.01M15 18h.01"/></svg><label class="sr-only" for="m6">Motivo 6</label><input class="input" id="m6" value="Fora do perfil"><span class="caption nowrap">usado 4×</span><label class="switch"><input type="checkbox" checked aria-label="Motivo Fora do perfil ativo"><span></span></label></div>
+  <div class="reason"><svg class="grip" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M9 6h.01M9 12h.01M9 18h.01M15 6h.01M15 12h.01M15 18h.01"/></svg><label class="sr-only" for="m7">Motivo 7</label><input class="input" id="m7" value="Outro"><span class="caption nowrap">usado 2×</span><label class="switch"><input type="checkbox" checked aria-label="Motivo Outro ativo"><span></span></label></div>
+  <div class="reason" style="grid-template-columns:minmax(0,1fr) auto"><label class="sr-only" for="m-novo">Novo motivo</label><input class="input" id="m-novo" placeholder="Novo motivo, ex.: Projeto adiado"><button class="btn sm" type="button">Adicionar</button></div>
+  <div class="card-foot"><span>Motivos já usados não podem ser excluídos — desative para tirá-los da lista.</span><button class="btn pri sm" type="submit">Salvar</button></div>
+</form>
+
+<!-- Catálogo -->
+<section class="card" data-panel="catalogo" role="tabpanel" aria-label="Catálogo de serviços" hidden>
+  <div class="card-head">
+    <div><h2>Catálogo de serviços</h2><span class="caption">O que a DevBatista vende — usado em leads, propostas, serviços contratados e relatórios</span></div>
+    <a class="btn pri" href="catalogo-servicos.html">Abrir catálogo</a>
+  </div>
+  <div class="dl" style="border-top:1px solid var(--rule)">
+    <div><span class="k">Serviços</span><span class="v">12 · 11 ativos</span></div>
+    <div><span class="k">Recorrentes</span><span class="v">5</span></div>
+    <div><span class="k">Projeto</span><span class="v">5</span></div>
+    <div><span class="k">Avulsos</span><span class="v">2 · 1 ativo</span></div>
+  </div>
+  <div class="kv"><span>Consultoria de TI</span><b>R$ 3.000/mês · Recorrente</b></div>
+  <div class="kv"><span>Desenvolvimento de sistemas</span><b>a partir de R$ 24.000 · Projeto</b></div>
+  <div class="kv"><span>Manutenção</span><b>R$ 1.200/mês · Recorrente</b></div>
+  <a class="more" href="catalogo-servicos.html">Ver os 12 serviços →</a>
+</section>
+
+<!-- Integrações -->
+<section class="card" data-panel="integracoes" role="tabpanel" aria-label="Integrações futuras" hidden>
+  <div class="card-head"><h2>Integrações futuras</h2></div>
+  <div class="int" style="border-top:1px solid var(--rule)">
+    <span class="logo" aria-hidden="true">H</span>
+    <div class="stack" style="gap:8px;flex:1;min-width:0">
+      <div class="row wrap"><h3>HubSpot</h3><span class="badge b-mute">Previsto V1.1</span></div>
+      <p class="muted" style="margin:0">Sincronização de contatos e empresas nos dois sentidos; negócios, etapas do pipeline e origem dos leads do HubSpot para o Admin. Empresas, contatos, leads e oportunidades já guardam o identificador externo desde a V1.</p>
+      <div class="row wrap"><span class="chip">Contatos ⇄</span><span class="chip">Empresas ⇄</span><span class="chip">Negócios →</span><span class="chip">Pipeline →</span><span class="chip">Origem dos leads →</span></div>
+    </div>
+    <div class="stack" style="gap:8px;align-items:flex-end">
+      <label class="check" style="opacity:.5;cursor:not-allowed"><span class="switch"><input type="checkbox" disabled aria-label="Ativar integração HubSpot"><span></span></span>Desativada</label>
+      <button class="btn" type="button" disabled style="opacity:.5;cursor:not-allowed">Conectar conta</button>
+    </div>
+  </div>
+  <div class="card-foot"><span>Durante o MVP, o HubSpot segue como CRM comercial; o Admin assume a partir do fechamento.</span></div>
+</section>
+
+</main>
+</div>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>

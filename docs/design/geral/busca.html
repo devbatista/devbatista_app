@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Busca · Admin DevBatista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/app.css">
+<style>
+  .res { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 14px 20px; border-top: 1px solid var(--rule); color: var(--text-2); }
+  .res:hover { background: var(--surface-hover); color: var(--text-2); }
+  .res .t { color: var(--text); font-weight: 600; }
+  .res .ic { width: 36px; height: 36px; border-radius: 10px; background: var(--cyan-tint); color: var(--cyan); display: flex; align-items: center; justify-content: center; }
+  mark { background: var(--cyan-tint); color: var(--cyan-300); border-radius: 3px; padding: 0 2px; }
+  .big-search { position: relative; display: flex; align-items: center; max-width: 640px; }
+  .big-search svg { position: absolute; left: 14px; color: var(--muted); pointer-events: none; }
+  .big-search .input { width: 100%; height: 48px; padding-left: 42px; font-size: 16px; }
+  @media (max-width: 960px) { .res { grid-template-columns: 36px minmax(0, 1fr); } .res .badge { grid-column: 2; justify-self: start; } }
+</style>
+</head>
+<body data-group="" data-item="" data-crumb='[["Busca"]]'>
+<div class="app">
+<aside class="side"></aside>
+<div class="main">
+<header class="top"></header>
+<main class="content">
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Busca global</span>
+    <h1>Resultados para “acme”</h1>
+    <p class="lead">13 resultados em 8 tipos · apenas registros que o seu perfil pode ver</p>
+  </div>
+</div>
+
+<form class="big-search" role="search" onsubmit="event.preventDefault()">
+  <label class="sr-only" for="q">Termo de busca</label>
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M11 18a7 7 0 100-14 7 7 0 000 14zM21 21l-4.3-4.3"/></svg>
+  <input class="input" id="q" type="search" value="acme" placeholder="Buscar em clientes, contatos, projetos, propostas, contratos, chamados, faturas e aplicações">
+</form>
+
+<div class="toolbar">
+  <div class="seg" role="group" aria-label="Filtrar por tipo" data-filter-group="busca">
+    <button type="button" class="on" data-filter="todos" aria-pressed="true">Todos <span class="n">13</span></button>
+    <button type="button" data-filter="Clientes" aria-pressed="false">Clientes <span class="n">1</span></button>
+    <button type="button" data-filter="Contratos" aria-pressed="false">Contratos <span class="n">1</span></button>
+    <button type="button" data-filter="Chamados" aria-pressed="false">Chamados <span class="n">2</span></button>
+    <button type="button" data-filter="Faturas" aria-pressed="false">Faturas <span class="n">3</span></button>
+    <button type="button" data-filter="Aplicações" aria-pressed="false">Aplicações <span class="n">1</span></button>
+    <button type="button" data-filter="Projetos" aria-pressed="false">Projetos <span class="n">2</span></button>
+    <button type="button" data-filter="Propostas" aria-pressed="false">Propostas <span class="n">1</span></button>
+    <button type="button" data-filter="Contatos" aria-pressed="false">Contatos <span class="n">2</span></button>
+  </div>
+</div>
+
+<div class="stack" data-filter-target="busca">
+
+  <section class="card" data-status="Clientes" aria-label="Clientes">
+    <div class="card-head"><h2>Clientes</h2><span class="caption">1 resultado</span></div>
+    <a class="res" href="../clientes/empresa.html"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V6l8-3v17M12 9h8v11M2 20h20"/></svg></span><span><span class="t">Empresa <mark>ACME</mark></span><span class="cell-sub">Cliente desde 12/03/2026 · MRR R$ 3.800 · contrato #104</span></span><span class="badge b-good">Ativo</span></a>
+  </section>
+
+  <section class="card" data-status="Contratos" aria-label="Contratos">
+    <div class="card-head"><h2>Contratos</h2><span class="caption">1 resultado</span></div>
+    <a class="res" href="../clientes/contrato.html"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h9l4 4v14H6zM14 3v5h5M9 13h7M9 17h5"/></svg></span><span><span class="t">#104 — Consultoria de TI</span><span class="cell-sub">Empresa <mark>ACME</mark> · R$ 3.000/mês</span></span><span class="badge b-good">Ativo</span></a>
+  </section>
+
+  <section class="card" data-status="Chamados" aria-label="Chamados">
+    <div class="card-head"><h2>Chamados</h2><span class="caption">2 resultados</span></div>
+    <a class="res" href="../operacao/chamado.html"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H8l-4 4z"/></svg></span><span><span class="t">#2397 — Incluir filtro por período no relatório</span><span class="cell-sub">Empresa <mark>ACME</mark> · Melhoria · aberto em 17/09/2026</span></span><span class="badge b-info">Em análise</span></a>
+    <a class="res" href="../operacao/chamado.html"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H8l-4 4z"/></svg></span><span><span class="t">#2381 — Erro ao gerar relatório</span><span class="cell-sub">Empresa <mark>ACME</mark> · Erro · resolvido em 17/09/2026</span></span><span class="badge b-good">Resolvido</span></a>
+  </section>
+
+  <section class="card" data-status="Faturas" aria-label="Faturas">
+    <div class="card-head"><h2>Faturas</h2><span class="caption">3 resultados</span></div>
+    <a class="res" href="../financeiro/contas-receber.html"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6"/></svg></span><span><span class="t">Outubro/2026 — R$ 3.800</span><span class="cell-sub">Empresa <mark>ACME</mark> · vencimento 10/10/2026</span></span><span class="badge b-warn">Pendente</span></a>
+    <a class="res" href="../financeiro/contas-receber.html"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6"/></svg></span><span><span class="t">Setembro/2026 — R$ 3.800</span><span class="cell-sub">Empresa <mark>ACME</mark> · pago em 10/09/2026</span></span><span class="badge b-good">Pago</span></a>
+    <a class="res" href="../financeiro/contas-receber.html"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6"/></svg></span><span><span class="t">Agosto/2026 — R$ 3.800</span><span class="cell-sub">Empresa <mark>ACME</mark> · pago em 10/08/2026</span></span><span class="badge b-good">Pago</span></a>
+  </section>
+
+  <section class="card" data-status="Aplicações" aria-label="Aplicações">
+    <div class="card-head"><h2>Aplicações</h2><span class="caption">1 resultado</span></div>
+    <a class="res" href="../tecnologia/aplicacao.html"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16v6H4zM4 14h16v6H4zM8 7h.01M8 17h.01"/></svg></span><span><span class="t">Portal <mark>ACME</mark></span><span class="cell-sub">Empresa <mark>ACME</mark> · Rails · hospedado no Railway</span></span><span class="badge b-good">Produção</span></a>
+  </section>
+
+  <section class="card" data-status="Projetos" aria-label="Projetos">
+    <div class="card-head"><h2>Projetos</h2><span class="caption">2 resultados</span></div>
+    <a class="res" href="../operacao/projeto.html"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></svg></span><span><span class="t">Portal <mark>ACME</mark> — Fase 2</span><span class="cell-sub">Empresa <mark>ACME</mark> · Diego Rocha · 62% · previsão 30/10/2026</span></span><span class="badge b-info">Em andamento</span></a>
+    <a class="res" href="../operacao/projeto.html"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></svg></span><span><span class="t">Portal <mark>ACME</mark> — Fase 1</span><span class="cell-sub">Empresa <mark>ACME</mark> · entregue em 26/06/2026</span></span><span class="badge b-good">Concluído</span></a>
+  </section>
+
+  <section class="card" data-status="Propostas" aria-label="Propostas">
+    <div class="card-head"><h2>Propostas</h2><span class="caption">1 resultado</span></div>
+    <a class="res" href="../comercial/proposta.html"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h9l4 4v14H6zM14 3v5h5M9 14l2 2 4-4"/></svg></span><span><span class="t">Portal <mark>ACME</mark> — Fase 2</span><span class="cell-sub">Empresa <mark>ACME</mark> · R$ 24.000 · aprovada em 30/07/2026</span></span><span class="badge b-good">Aprovada</span></a>
+  </section>
+
+  <section class="card" data-status="Contatos" aria-label="Contatos">
+    <div class="card-head"><h2>Contatos</h2><span class="caption">2 resultados</span></div>
+    <a class="res" href="../clientes/contatos.html"><span class="avatar sm soft" style="width:36px;height:36px;font-size:13px">MA</span><span><span class="t">Marcos Andrade</span><span class="cell-sub">Diretor de Operações · Empresa <mark>ACME</mark> · marcos.andrade@<mark>acme</mark>.com.br</span></span><span class="badge b-info">Principal</span></a>
+    <a class="res" href="../clientes/contatos.html"><span class="avatar sm soft" style="width:36px;height:36px;font-size:13px">JF</span><span><span class="t">Juliana Ferraz</span><span class="cell-sub">Analista financeira · Empresa <mark>ACME</mark> · financeiro@<mark>acme</mark>.com.br</span></span><span class="badge b-mute">Cobranças</span></a>
+  </section>
+
+</div>
+
+<p class="caption" style="margin:0">Dica: use <span class="kbd">⌘K</span> ou <span class="kbd">Ctrl K</span> em qualquer tela para abrir a busca rápida.</p>
+
+</main>
+</div>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>

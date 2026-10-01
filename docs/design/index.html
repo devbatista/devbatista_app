@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Telas · Admin DevBatista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="assets/app.css">
+<style>
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 40px 24px 80px; display: flex; flex-direction: column; gap: 32px; }
+  .hero { display: flex; flex-direction: column; gap: 14px; }
+  .hero img { height: 32px; width: auto; align-self: flex-start; }
+  .areas { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+  .area { padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+  .area ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+  .area li a { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-top: 1px solid var(--rule); color: var(--text-2); font-size: 14px; }
+  .area li:first-child a { border-top: 0; }
+  .area li a:hover { color: var(--white); }
+  .area li a span:last-child { color: var(--muted); font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <img src="assets/logo-devbatista-branco.png" alt="DevBatista">
+    <span class="section-label">Design do MVP</span>
+    <h1>Admin DevBatista: todas as telas</h1>
+    <p class="lead">Protótipo navegável em HTML estático. Abra qualquer tela; o menu lateral, a busca (⌘K) e as notificações funcionam em todas. Os dados são ilustrativos e coerentes entre as telas. Specs em <code>docs/specs/admin-devbatista-mvp/</code>.</p>
+    <div class="row wrap"><a class="btn pri" href="dashboard/dashboard.html">Abrir o Dashboard</a><a class="btn" href="acesso/login.html">Ver o login</a></div>
+  </header>
+
+  <div class="areas">
+    <section class="card area"><h2>Acesso e geral</h2><ul>
+      <li><a href="acesso/login.html"><span>Login</span><span>acesso/login.html</span></a></li>
+      <li><a href="acesso/recuperar-senha.html"><span>Recuperar senha</span><span>acesso/recuperar-senha.html</span></a></li>
+      <li><a href="dashboard/dashboard.html"><span>Dashboard executivo</span><span>dashboard/dashboard.html</span></a></li>
+      <li><a href="geral/notificacoes.html"><span>Central de notificações</span><span>geral/notificacoes.html</span></a></li>
+      <li><a href="geral/busca.html"><span>Resultados da busca global</span><span>geral/busca.html</span></a></li>
+    </ul></section>
+
+    <section class="card area"><h2>Comercial</h2><ul>
+      <li><a href="comercial/leads.html"><span>Leads</span><span>comercial/leads.html</span></a></li>
+      <li><a href="comercial/lead.html"><span>Detalhe do lead</span><span>comercial/lead.html</span></a></li>
+      <li><a href="comercial/oportunidades.html"><span>Oportunidades</span><span>comercial/oportunidades.html</span></a></li>
+      <li><a href="comercial/propostas.html"><span>Propostas</span><span>comercial/propostas.html</span></a></li>
+      <li><a href="comercial/proposta.html"><span>Proposta (editor)</span><span>comercial/proposta.html</span></a></li>
+      <li><a href="comercial/pipeline.html"><span>Pipeline</span><span>comercial/pipeline.html</span></a></li>
+    </ul></section>
+
+    <section class="card area"><h2>Clientes</h2><ul>
+      <li><a href="clientes/empresas.html"><span>Empresas</span><span>clientes/empresas.html</span></a></li>
+      <li><a href="clientes/empresa.html"><span>Visão 360º do cliente</span><span>clientes/empresa.html</span></a></li>
+      <li><a href="clientes/contatos.html"><span>Contatos</span><span>clientes/contatos.html</span></a></li>
+      <li><a href="clientes/contratos.html"><span>Contratos</span><span>clientes/contratos.html</span></a></li>
+      <li><a href="clientes/contrato.html"><span>Detalhe do contrato</span><span>clientes/contrato.html</span></a></li>
+      <li><a href="clientes/servicos-contratados.html"><span>Serviços contratados</span><span>clientes/servicos-contratados.html</span></a></li>
+    </ul></section>
+
+    <section class="card area"><h2>Operação</h2><ul>
+      <li><a href="operacao/projetos.html"><span>Projetos</span><span>operacao/projetos.html</span></a></li>
+      <li><a href="operacao/projeto.html"><span>Detalhe do projeto</span><span>operacao/projeto.html</span></a></li>
+      <li><a href="operacao/tarefas.html"><span>Tarefas</span><span>operacao/tarefas.html</span></a></li>
+      <li><a href="operacao/chamados.html"><span>Suporte: chamados</span><span>operacao/chamados.html</span></a></li>
+      <li><a href="operacao/chamado.html"><span>Detalhe do chamado</span><span>operacao/chamado.html</span></a></li>
+      <li><a href="operacao/horas.html"><span>Horas trabalhadas</span><span>operacao/horas.html</span></a></li>
+    </ul></section>
+
+    <section class="card area"><h2>Financeiro</h2><ul>
+      <li><a href="financeiro/financeiro.html"><span>Dashboard financeiro</span><span>financeiro/financeiro.html</span></a></li>
+      <li><a href="financeiro/receitas.html"><span>Receitas</span><span>financeiro/receitas.html</span></a></li>
+      <li><a href="financeiro/despesas.html"><span>Despesas</span><span>financeiro/despesas.html</span></a></li>
+      <li><a href="financeiro/contas-receber.html"><span>Contas a receber</span><span>financeiro/contas-receber.html</span></a></li>
+      <li><a href="financeiro/contas-pagar.html"><span>Contas a pagar</span><span>financeiro/contas-pagar.html</span></a></li>
+      <li><a href="financeiro/recorrencias.html"><span>Recorrências</span><span>financeiro/recorrencias.html</span></a></li>
+      <li><a href="financeiro/notas-fiscais.html"><span>Notas fiscais</span><span>financeiro/notas-fiscais.html</span></a></li>
+    </ul></section>
+
+    <section class="card area"><h2>Tecnologia</h2><ul>
+      <li><a href="tecnologia/aplicacoes.html"><span>Aplicações</span><span>tecnologia/aplicacoes.html</span></a></li>
+      <li><a href="tecnologia/aplicacao.html"><span>Detalhe da aplicação</span><span>tecnologia/aplicacao.html</span></a></li>
+      <li><a href="tecnologia/servidores.html"><span>Servidores</span><span>tecnologia/servidores.html</span></a></li>
+      <li><a href="tecnologia/dominios.html"><span>Domínios</span><span>tecnologia/dominios.html</span></a></li>
+      <li><a href="tecnologia/bancos-dados.html"><span>Bancos de dados</span><span>tecnologia/bancos-dados.html</span></a></li>
+      <li><a href="tecnologia/integracoes.html"><span>Integrações</span><span>tecnologia/integracoes.html</span></a></li>
+      <li><a href="tecnologia/servicos-externos.html"><span>Serviços externos</span><span>tecnologia/servicos-externos.html</span></a></li>
+    </ul></section>
+
+    <section class="card area"><h2>Produtos</h2><ul>
+      <li><a href="produtos/produtos.html"><span>Produtos próprios</span><span>produtos/produtos.html</span></a></li>
+      <li><a href="produtos/assinaturas.html"><span>Assinaturas</span><span>produtos/assinaturas.html</span></a></li>
+      <li><a href="produtos/produtos-indicadores.html"><span>Indicadores dos produtos</span><span>produtos/produtos-indicadores.html</span></a></li>
+    </ul></section>
+
+    <section class="card area"><h2>Gestão</h2><ul>
+      <li><a href="gestao/fornecedores.html"><span>Fornecedores</span><span>gestao/fornecedores.html</span></a></li>
+      <li><a href="gestao/documentos.html"><span>Documentos</span><span>gestao/documentos.html</span></a></li>
+      <li><a href="gestao/relatorios.html"><span>Relatórios</span><span>gestao/relatorios.html</span></a></li>
+      <li><a href="gestao/indicadores.html"><span>Indicadores</span><span>gestao/indicadores.html</span></a></li>
+      <li><a href="gestao/rentabilidade.html"><span>Rentabilidade por cliente</span><span>gestao/rentabilidade.html</span></a></li>
+    </ul></section>
+
+    <section class="card area"><h2>Administração</h2><ul>
+      <li><a href="administracao/usuarios.html"><span>Usuários</span><span>administracao/usuarios.html</span></a></li>
+      <li><a href="administracao/permissoes.html"><span>Permissões</span><span>administracao/permissoes.html</span></a></li>
+      <li><a href="administracao/logs.html"><span>Logs e auditoria</span><span>administracao/logs.html</span></a></li>
+      <li><a href="administracao/configuracoes.html"><span>Configurações</span><span>administracao/configuracoes.html</span></a></li>
+      <li><a href="administracao/catalogo-servicos.html"><span>Catálogo de serviços</span><span>administracao/catalogo-servicos.html</span></a></li>
+    </ul></section>
+  </div>
+</div>
+</body>
+</html>

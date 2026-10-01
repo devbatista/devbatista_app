@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Produtos próprios · Admin DevBatista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/app.css">
+<style>
+  .prod { display: flex; flex-direction: column; }
+  .prod .card-head { align-items: flex-start; }
+  .prod .desc { padding: 0 20px 4px; margin: 0; color: var(--text-2); }
+  .prod .dl { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px 16px; }
+  .prod .dl .v { font-size: 17px; font-weight: 700; color: var(--white); font-variant-numeric: tabular-nums; }
+  .prod .card-foot { margin-top: auto; }
+  @media (max-width: 960px) { .prod .dl { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+</style>
+</head>
+<body data-group="prod" data-item="Produtos próprios" data-crumb='[["Produtos","produtos.html"],["Produtos próprios"]]'>
+<div class="app">
+<aside class="side"></aside>
+<div class="main">
+<header class="top"></header>
+<main class="content">
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Produtos · Setembro de 2026</span>
+    <h1>Produtos próprios</h1>
+    <p class="lead">Produtos da DevBatista acompanhados como unidades de negócio: quanto faturam, quantos clientes têm e quanto custam.</p>
+  </div>
+  <div class="actions">
+    <a class="btn" href="produtos-indicadores.html">Ver indicadores</a>
+    <button class="btn pri" type="button" data-open="novo-produto">Novo produto</button>
+  </div>
+</div>
+
+<div class="grid-kpi">
+  <a class="card kpi" href="produtos-indicadores.html"><span class="eyebrow">MRR dos produtos</span><span class="v">R$ 3.650</span><span class="f"><span class="badge b-good">+5,8%</span>vs. agosto</span></a>
+  <a class="card kpi" href="assinaturas.html"><span class="eyebrow">Clientes ativos</span><span class="v">86</span><span class="f">CatalystOps 37 · PrescSign 49</span></a>
+  <div class="card kpi"><span class="eyebrow">Custo mensal</span><span class="v">R$ 1.150</span><span class="f">infraestrutura e serviços</span></div>
+  <div class="card kpi"><span class="eyebrow">Margem</span><span class="v">68,5%</span><span class="f">R$ 2.500 no mês</span></div>
+</div>
+
+<div class="toolbar">
+  <div class="seg" role="group" aria-label="Filtrar por status" data-filter-group="produtos">
+    <button type="button" class="on" data-filter="todos" aria-pressed="true">Todos <span class="c"></span></button>
+    <button type="button" data-filter="Ideia" aria-pressed="false">Ideia <span class="c"></span></button>
+    <button type="button" data-filter="Em desenvolvimento" aria-pressed="false">Em desenvolvimento <span class="c"></span></button>
+    <button type="button" data-filter="Em operação" aria-pressed="false">Em operação <span class="c"></span></button>
+    <button type="button" data-filter="Descontinuado" aria-pressed="false">Descontinuado <span class="c"></span></button>
+  </div>
+</div>
+
+<div class="grid-2" data-filter-target="produtos">
+
+  <article class="card prod" data-status="Em operação">
+    <div class="card-head">
+      <div class="row"><span class="co-avatar" aria-hidden="true">CO</span><div><h2>CatalystOps</h2><span class="caption mono">catalystops.com.br</span></div></div>
+      <span class="badge b-good dot-l">Em operação</span>
+    </div>
+    <p class="desc">SaaS de gestão operacional para pequenas equipes: rotinas, checklists e indicadores em um só painel.</p>
+    <dl class="dl">
+      <div><dt>MRR</dt><dd class="v">R$ 2.180</dd></div>
+      <div><dt>Clientes</dt><dd class="v">37</dd></div>
+      <div><dt>Custo mensal</dt><dd class="v">R$ 640</dd></div>
+      <div><dt>Margem</dt><dd class="v" style="color:var(--good)">70,6%</dd></div>
+    </dl>
+    <div class="card-foot"><span>+2 assinantes em setembro</span><span class="row" style="gap:16px"><a href="assinaturas.html" style="font-weight:600">Assinaturas</a><a href="produtos-indicadores.html" style="font-weight:600">Indicadores</a></span></div>
+  </article>
+
+  <article class="card prod" data-status="Em operação">
+    <div class="card-head">
+      <div class="row"><span class="co-avatar" aria-hidden="true">PS</span><div><h2>PrescSign</h2><span class="caption mono">prescsign.com.br</span></div></div>
+      <span class="badge b-good dot-l">Em operação</span>
+    </div>
+    <p class="desc">Emissão e assinatura digital de prescrições para profissionais de saúde, com plano mensal por profissional.</p>
+    <dl class="dl">
+      <div><dt>MRR</dt><dd class="v">R$ 1.470</dd></div>
+      <div><dt>Clientes</dt><dd class="v">49</dd></div>
+      <div><dt>Custo mensal</dt><dd class="v">R$ 390</dd></div>
+      <div><dt>Margem</dt><dd class="v" style="color:var(--good)">73,5%</dd></div>
+    </dl>
+    <div class="card-foot"><span>+3 assinantes em setembro</span><span class="row" style="gap:16px"><a href="assinaturas.html" style="font-weight:600">Assinaturas</a><a href="produtos-indicadores.html" style="font-weight:600">Indicadores</a></span></div>
+  </article>
+
+  <article class="card prod" data-status="Em desenvolvimento">
+    <div class="card-head">
+      <div class="row"><span class="co-avatar" aria-hidden="true">RR</span><div><h2>Ruby Rose</h2><span class="caption mono">rubyrose.devbatista.com</span></div></div>
+      <span class="badge b-info dot-l">Em desenvolvimento</span>
+    </div>
+    <p class="desc">Novo produto em desenvolvimento, com beta fechado para usuários convidados. Lançamento comercial previsto para o 1º trimestre de 2027.</p>
+    <dl class="dl">
+      <div><dt>MRR</dt><dd class="v muted">R$ 0</dd></div>
+      <div><dt>Clientes</dt><dd class="v muted">0</dd></div>
+      <div><dt>Custo mensal</dt><dd class="v">R$ 120</dd></div>
+      <div><dt>Margem</dt><dd class="v" style="color:var(--crit)">− R$ 120</dd></div>
+    </dl>
+    <div class="card-foot"><span>6 usuários no beta, sem cobrança</span><span class="row" style="gap:16px"><a href="assinaturas.html" style="font-weight:600">Assinaturas</a><a href="produtos-indicadores.html" style="font-weight:600">Indicadores</a></span></div>
+  </article>
+
+  <article class="card prod" data-status="Ideia">
+    <div class="card-head">
+      <div class="row"><span class="co-avatar" aria-hidden="true">EB</span><div><h2>Plataforma de eBooks</h2><span class="caption">Domínio a definir</span></div></div>
+      <span class="badge b-blue dot-l">Ideia</span>
+    </div>
+    <p class="desc">Plataforma de produtos digitais para venda e entrega de eBooks e materiais técnicos da DevBatista.</p>
+    <dl class="dl">
+      <div><dt>MRR</dt><dd class="v muted">—</dd></div>
+      <div><dt>Clientes</dt><dd class="v muted">—</dd></div>
+      <div><dt>Custo mensal</dt><dd class="v muted">R$ 0</dd></div>
+      <div><dt>Margem</dt><dd class="v muted">—</dd></div>
+    </dl>
+    <div class="card-foot"><span>Em avaliação desde 08/2026</span><span class="muted">Sem assinaturas</span></div>
+  </article>
+
+</div>
+
+<div class="note">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;color:var(--cyan)"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM12 16v-4M12 8h.01"/></svg>
+  <span><b>Margem = (MRR − custo mensal) ÷ MRR.</b> A receita dos produtos próprios é acompanhada à parte do MRR de serviços da DevBatista. A base de assinantes de cada produto fica em <a href="assinaturas.html">Assinaturas</a>.</span>
+</div>
+
+</main>
+</div>
+</div>
+
+<!-- Formulário lateral: novo produto -->
+<aside class="drawer" id="novo-produto" role="dialog" aria-modal="true" aria-labelledby="novo-produto-t">
+  <form class="form" style="display:contents">
+    <div class="drawer-head"><h2 id="novo-produto-t">Novo produto</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="drawer-body form">
+      <div class="form-grid">
+        <div class="field full"><label for="p-nome">Nome <span class="req">*</span></label><input class="input" id="p-nome" required placeholder="Ex.: CatalystOps"></div>
+        <div class="field full"><label for="p-dom">Domínio</label><input class="input" id="p-dom" type="url" placeholder="https://"><span class="hint">Endereço principal do produto</span></div>
+        <div class="field full"><label for="p-desc">Descrição</label><textarea class="textarea" id="p-desc" placeholder="Proposta de valor e público"></textarea></div>
+        <div class="field full"><label for="p-status">Status <span class="req">*</span></label><select class="select" id="p-status" required><option>Ideia</option><option>Em desenvolvimento</option><option>Em operação</option><option>Descontinuado</option></select></div>
+        <div class="field"><label for="p-mrr">MRR (R$)</label><input class="input num" id="p-mrr" inputmode="decimal" placeholder="0,00"><span class="hint">Receita recorrente mensal</span></div>
+        <div class="field"><label for="p-cli">Clientes</label><input class="input num" id="p-cli" type="number" min="0" placeholder="0"><span class="hint">Clientes ou assinantes ativos</span></div>
+        <div class="field full"><label for="p-custo">Custo mensal (R$)</label><input class="input num" id="p-custo" inputmode="decimal" placeholder="0,00"><span class="hint">Infraestrutura e serviços necessários para operar</span></div>
+      </div>
+    </div>
+    <div class="drawer-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Salvar produto</button></div>
+  </form>
+</aside>
+
+<script src="../assets/app.js"></script>
+</body>
+</html>

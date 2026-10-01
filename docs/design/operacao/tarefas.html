@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tarefas · Admin DevBatista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/app.css">
+<style>
+  .kcard.late { border-color: var(--crit-line); background: linear-gradient(var(--crit-bg), var(--crit-bg)), var(--surface-2); }
+  .kcard .proj { font-size: 12px; font-weight: 600; }
+  .kcard .hrs { display: flex; flex-direction: column; gap: 4px; }
+  .kcard .hrs .meta { display: flex; justify-content: space-between; }
+  .over { color: var(--crit); font-weight: 600; }
+</style>
+</head>
+<body data-group="op" data-item="Tarefas" data-crumb='[["Operação"],["Tarefas"]]'>
+<div class="app">
+<aside class="side"></aside>
+<div class="main">
+<header class="top"></header>
+<main class="content wide">
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Operação · todos os projetos</span>
+    <h1>Tarefas</h1>
+  </div>
+  <div class="actions">
+    <button class="btn pri" type="button" data-open="nova-tarefa">Nova tarefa</button>
+  </div>
+</div>
+
+<div class="toolbar">
+  <div class="seg" role="tablist" aria-label="Modo de exibição" data-tabs>
+    <button type="button" class="on" role="tab" aria-selected="true" data-tab="quadro">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h4v16H4zM10 4h4v10h-4zM16 4h4v13h-4z"/></svg>Quadro</button>
+    <button type="button" role="tab" aria-selected="false" data-tab="lista">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></svg>Lista</button>
+  </div>
+  <span class="spacer"></span>
+  <label class="search-field"><span class="sr-only">Buscar tarefa</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M11 18a7 7 0 100-14 7 7 0 000 14zM21 21l-4.3-4.3"/></svg><input class="input" type="search" placeholder="Título da tarefa"></label>
+  <label class="sr-only" for="f-proj">Projeto</label>
+  <select class="select" id="f-proj"><option>Todos os projetos</option><option>Portal ACME — Fase 2</option><option>ERP Cliente C</option><option>Painel de indicadores</option><option>Automação de NF Delta</option><option>App Orion</option></select>
+  <label class="sr-only" for="f-resp">Responsável</label>
+  <select class="select" id="f-resp"><option>Todos os responsáveis</option><option>Diego Rocha</option><option>Elisa Prado</option><option>Carla Mendes</option><option>Rafael</option></select>
+  <label class="sr-only" for="f-prio">Prioridade</label>
+  <select class="select" id="f-prio"><option>Todas as prioridades</option><option>Baixa</option><option>Normal</option><option>Alta</option><option>Urgente</option></select>
+  <label class="check"><input type="checkbox"> Só atrasadas</label>
+</div>
+
+<!-- Quadro -->
+<section data-panel="quadro" aria-label="Quadro de tarefas">
+  <div class="board">
+    <div class="lane">
+      <div class="lane-head"><b>Backlog</b><span class="badge b-mute">3</span></div>
+      <div class="lane-sum">est. 20h</div>
+      <div class="kcard">
+        <span class="n">Exportar relatório em Excel</span>
+        <a class="proj" href="projeto.html">Portal ACME — Fase 2</a>
+        <div class="r"><span class="badge b-info">Normal</span><span class="meta">prazo 16/10</span></div>
+        <div class="r"><span class="row" style="gap:6px"><span class="avatar sm soft" title="Diego Rocha">DR</span><span class="meta">Diego</span></span><span class="meta">0h / 8h</span></div>
+      </div>
+      <div class="kcard">
+        <span class="n">Histórico de pedidos no portal</span>
+        <a class="proj" href="projeto.html">Portal ACME — Fase 2</a>
+        <div class="r"><span class="badge b-mute">Baixa</span><span class="meta">prazo 20/10</span></div>
+        <div class="r"><span class="row" style="gap:6px"><span class="avatar sm soft" title="Diego Rocha">DR</span><span class="meta">Diego</span></span><span class="meta">0h / 6h</span></div>
+      </div>
+      <div class="kcard">
+        <span class="n">Tela de parâmetros fiscais</span>
+        <a class="proj" href="projeto.html">Automação de NF Delta</a>
+        <div class="r"><span class="badge b-mute">Baixa</span><span class="meta">prazo 15/10</span></div>
+        <div class="r"><span class="row" style="gap:6px"><span class="avatar sm soft" title="Elisa Prado">EP</span><span class="meta">Elisa</span></span><span class="meta">0h / 6h</span></div>
+      </div>
+    </div>
+
+    <div class="lane">
+      <div class="lane-head"><b>A fazer</b><span class="badge b-mute">3</span></div>
+      <div class="lane-sum">est. 26h</div>
+      <div class="kcard">
+        <span class="n">Integração com ERP — pedidos</span>
+        <a class="proj" href="projeto.html">Portal ACME — Fase 2</a>
+        <div class="r"><span class="badge b-warn">Alta</span><span class="meta">prazo 25/09</span></div>
+        <div class="r"><span class="row" style="gap:6px"><span class="avatar sm soft" title="Diego Rocha">DR</span><span class="meta">Diego</span></span><span class="meta">0h / 16h</span></div>
+      </div>
+      <div class="kcard">
+        <span class="n">Recuperação de senha do cliente</span>
+        <a class="proj" href="projeto.html">Portal ACME — Fase 2</a>
+        <div class="r"><span class="badge b-info">Normal</span><span class="meta">prazo 29/09</span></div>
+        <div class="r"><span class="row" style="gap:6px"><span class="avatar sm soft" title="Diego Rocha">DR</span><span class="meta">Diego</span></span><span class="meta">0h / 6h</span></div>
+      </div>
+      <div class="kcard">
+        <span class="n">Mapear layout de NF-e</span>
+        <a class="proj" href="projeto.html">Automação de NF Delta</a>
+        <div class="r"><span class="badge b-info">Normal</span><span class="meta">prazo 30/09</span></div>
+        <div class="r"><span class="row" style="gap:6px"><span class="avatar sm soft" title="Elisa Prado">EP</span><span class="meta">Elisa</span></span><span class="meta">0h / 4h</span></div>
+      </div>
+    </div>
+
+    <div class="lane">
+      <div class="lane-head"><b>Em andamento</b><span class="badge b-info">4</span></div>
+      <div class="lane-sum">est. 64h · reg. 55h</div>
+      <div class="kcard late">
+        <div class="r"><span class="badge b-crit dot-l">Atrasada 6 dias</span><span class="badge b-crit">Urgente</span></div>
+        <span class="n">Fechamento de estoque</span>
+        <a class="proj" href="projeto.html">ERP Cliente C</a>
+        <div class="r"><span class="meta" style="color:var(--crit);font-weight:600">prazo 11/09</span><span class="row" style="gap:6px"><span class="avatar sm soft" title="Elisa Prado">EP</span><span class="meta">Elisa</span></span></div>
+        <div class="hrs"><div class="progress crit" aria-hidden="true"><i style="width:100%"></i></div><span class="meta"><span>registradas × estimativa</span><span class="over">26h / 20h</span></span></div>
+      </div>
+      <div class="kcard">
+        <span class="n">Módulo de relatórios</span>
+        <a class="proj" href="projeto.html">Portal ACME — Fase 2</a>
+        <div class="r"><span class="badge b-warn">Alta</span><span class="meta">prazo 22/09</span></div>
+        <div class="r"><span class="row" style="gap:6px"><span class="avatar sm soft" title="Diego Rocha">DR</span><span class="meta">Diego</span></span></div>
+        <div class="hrs"><div class="progress" aria-hidden="true"><i style="width:75%"></i></div><span class="meta"><span>registradas × estimativa</span><span>18h / 24h</span></span></div>
+      </div>
+      <div class="kcard">
+        <span class="n">Permissões por usuário do cliente</span>
+        <a class="proj" href="projeto.html">Portal ACME — Fase 2</a>
+        <div class="r"><span class="badge b-info">Normal</span><span class="meta">prazo 24/09</span></div>
+        <div class="r"><span class="row" style="gap:6px"><span class="avatar sm soft" title="Diego Rocha">DR</span><span class="meta">Diego</span></span></div>
+        <div class="hrs"><div class="progress" aria-hidden="true"><i style="width:40%"></i></div><span class="meta"><span>registradas × estimativa</span><span>4h / 10h</span></span></div>
+      </div>
+      <div class="kcard">
+        <span class="n">Gráficos de vendas</span>
+        <a class="proj" href="projeto.html">Painel de indicadores</a>
+        <div class="r"><span class="badge b-info">Normal</span><span class="meta">prazo 30/09</span></div>
+        <div class="r"><span class="row" style="gap:6px"><span class="avatar sm soft" title="Elisa Prado">EP</span><span class="meta">Elisa</span></span></div>
+        <div class="hrs"><div class="progress" aria-hidden="true"><i style="width:70%"></i></div><span class="meta"><span>registradas × estimativa</span><span>7h / 10h</span></span></div>
+      </div>
+    </div>
+
+    <div class="lane">
+      <div class="lane-head"><b>Em revisão</b><span class="badge b-mute">3</span></div>
+      <div class="lane-sum">est. 32h · reg. 32h30</div>
+      <div class="kcard">
+        <span class="n">Área do cliente — login</span>
+        <a class="proj" href="projeto.html">Portal ACME — Fase 2</a>
+        <div class="r"><span class="badge b-info">Normal</span><span class="meta">prazo 18/09</span></div>
+        <div class="r"><span class="row" style="gap:6px"><span class="avatar sm soft" title="Diego Rocha">DR</span><span class="meta">Diego</span></span><span class="meta">11h / 12h</span></div>
+      </div>
+      <div class="kcard">
+        <span class="n">Envio de e-mails transacionais</span>
+        <a class="proj" href="projeto.html">Portal ACME — Fase 2</a>
+        <div class="r"><span class="badge b-info">Normal</span><span class="meta">prazo 19/09</span></div>
+        <div class="r"><span class="row" style="gap:6px"><span class="avatar sm soft" title="Diego Rocha">DR</span><span class="meta">Diego</span></span><span class="meta">6h / 6h</span></div>
+      </div>
+      <div class="kcard">
+        <span class="n">Importação de produtos</span>
+        <a class="proj" href="projeto.html">ERP Cliente C</a>
+        <div class="r"><span class="badge b-warn">Alta</span><span class="meta">prazo 21/09</span></div>
+        <div class="r"><span class="row" style="gap:6px"><span class="avatar sm soft" title="Elisa Prado">EP</span><span class="meta">Elisa</span></span><span class="meta over">15h30 / 14h</span></div>
+      </div>
+    </div>
+
+    <div class="lane">
+      <div class="lane-head"><b>Concluída</b><span class="badge b-good">3</span></div>
+      <div class="lane-sum">últimos 14 dias · reg. 37h30</div>
+      <div class="kcard">
+        <span class="n">Modelagem do banco de relatórios</span>
+        <a class="proj" href="projeto.html">Portal ACME — Fase 2</a>
+        <div class="r"><span class="badge b-good">Concluída 15/09</span><span class="meta">9h / 8h</span></div>
+      </div>
+      <div class="kcard">
+        <span class="n">Cadastro de clientes</span>
+        <a class="proj" href="projeto.html">ERP Cliente C</a>
+        <div class="r"><span class="badge b-good">Concluída 10/09</span><span class="meta over">21h / 18h</span></div>
+      </div>
+      <div class="kcard">
+        <span class="n">Layout da área do cliente</span>
+        <a class="proj" href="projeto.html">Portal ACME — Fase 2</a>
+        <div class="r"><span class="badge b-good">Concluída 04/09</span><span class="meta">7h30 / 8h</span></div>
+      </div>
+    </div>
+  </div>
+  <p class="caption" style="margin:8px 0 0">Arraste os cartões entre as colunas para mudar o status. Horas registradas acima da estimativa aparecem em vermelho.</p>
+</section>
+
+<!-- Lista -->
+<section data-panel="lista" hidden class="stack" aria-label="Lista de tarefas">
+  <div class="toolbar">
+    <div class="seg" role="group" aria-label="Filtrar por status" data-filter-group="tarefas">
+      <button type="button" class="on" data-filter="todos" aria-pressed="true">Todas <span class="c"></span></button>
+      <button type="button" data-filter="Backlog" aria-pressed="false">Backlog <span class="c"></span></button>
+      <button type="button" data-filter="A fazer" aria-pressed="false">A fazer <span class="c"></span></button>
+      <button type="button" data-filter="Em andamento" aria-pressed="false">Em andamento <span class="c"></span></button>
+      <button type="button" data-filter="Em revisão" aria-pressed="false">Em revisão <span class="c"></span></button>
+      <button type="button" data-filter="Concluída" aria-pressed="false">Concluída <span class="c"></span></button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="table-wrap">
+      <table class="table cards" data-filter-target="tarefas">
+        <thead><tr><th>Tarefa</th><th>Responsável</th><th>Prioridade</th><th>Prazo</th><th class="num">Registradas × estimativa</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr class="late" data-status="Em andamento"><td data-label="Tarefa"><span class="strong">Fechamento de estoque</span><span class="cell-sub"><a href="projeto.html">ERP Cliente C</a></span></td><td data-label="Responsável">Elisa Prado</td><td data-label="Prioridade"><span class="badge b-crit">Urgente</span></td><td data-label="Prazo" class="mono" style="color:var(--crit);font-weight:600">11/09/2026<span class="cell-sub" style="color:var(--crit)">6 dias de atraso</span></td><td data-label="Horas" class="num over">26h / 20h</td><td data-label="Status"><span class="badge b-info">Em andamento</span></td></tr>
+          <tr data-status="Em revisão"><td data-label="Tarefa"><span class="strong">Área do cliente — login</span><span class="cell-sub"><a href="projeto.html">Portal ACME — Fase 2</a></span></td><td data-label="Responsável">Diego Rocha</td><td data-label="Prioridade"><span class="badge b-info">Normal</span></td><td data-label="Prazo" class="mono">18/09/2026</td><td data-label="Horas" class="num">11h / 12h</td><td data-label="Status"><span class="badge b-warn">Em revisão</span></td></tr>
+          <tr data-status="Em revisão"><td data-label="Tarefa"><span class="strong">Envio de e-mails transacionais</span><span class="cell-sub"><a href="projeto.html">Portal ACME — Fase 2</a></span></td><td data-label="Responsável">Diego Rocha</td><td data-label="Prioridade"><span class="badge b-info">Normal</span></td><td data-label="Prazo" class="mono">19/09/2026</td><td data-label="Horas" class="num">6h / 6h</td><td data-label="Status"><span class="badge b-warn">Em revisão</span></td></tr>
+          <tr data-status="Em revisão"><td data-label="Tarefa"><span class="strong">Importação de produtos</span><span class="cell-sub"><a href="projeto.html">ERP Cliente C</a></span></td><td data-label="Responsável">Elisa Prado</td><td data-label="Prioridade"><span class="badge b-warn">Alta</span></td><td data-label="Prazo" class="mono">21/09/2026</td><td data-label="Horas" class="num over">15h30 / 14h</td><td data-label="Status"><span class="badge b-warn">Em revisão</span></td></tr>
+          <tr data-status="Em andamento"><td data-label="Tarefa"><span class="strong">Módulo de relatórios</span><span class="cell-sub"><a href="projeto.html">Portal ACME — Fase 2</a></span></td><td data-label="Responsável">Diego Rocha</td><td data-label="Prioridade"><span class="badge b-warn">Alta</span></td><td data-label="Prazo" class="mono">22/09/2026</td><td data-label="Horas" class="num">18h / 24h</td><td data-label="Status"><span class="badge b-info">Em andamento</span></td></tr>
+          <tr data-status="Em andamento"><td data-label="Tarefa"><span class="strong">Permissões por usuário do cliente</span><span class="cell-sub"><a href="projeto.html">Portal ACME — Fase 2</a></span></td><td data-label="Responsável">Diego Rocha</td><td data-label="Prioridade"><span class="badge b-info">Normal</span></td><td data-label="Prazo" class="mono">24/09/2026</td><td data-label="Horas" class="num">4h / 10h</td><td data-label="Status"><span class="badge b-info">Em andamento</span></td></tr>
+          <tr data-status="A fazer"><td data-label="Tarefa"><span class="strong">Integração com ERP — pedidos</span><span class="cell-sub"><a href="projeto.html">Portal ACME — Fase 2</a></span></td><td data-label="Responsável">Diego Rocha</td><td data-label="Prioridade"><span class="badge b-warn">Alta</span></td><td data-label="Prazo" class="mono">25/09/2026</td><td data-label="Horas" class="num">0h / 16h</td><td data-label="Status"><span class="badge b-mute">A fazer</span></td></tr>
+          <tr data-status="A fazer"><td data-label="Tarefa"><span class="strong">Recuperação de senha do cliente</span><span class="cell-sub"><a href="projeto.html">Portal ACME — Fase 2</a></span></td><td data-label="Responsável">Diego Rocha</td><td data-label="Prioridade"><span class="badge b-info">Normal</span></td><td data-label="Prazo" class="mono">29/09/2026</td><td data-label="Horas" class="num">0h / 6h</td><td data-label="Status"><span class="badge b-mute">A fazer</span></td></tr>
+          <tr data-status="Em andamento"><td data-label="Tarefa"><span class="strong">Gráficos de vendas</span><span class="cell-sub"><a href="projeto.html">Painel de indicadores</a></span></td><td data-label="Responsável">Elisa Prado</td><td data-label="Prioridade"><span class="badge b-info">Normal</span></td><td data-label="Prazo" class="mono">30/09/2026</td><td data-label="Horas" class="num">7h / 10h</td><td data-label="Status"><span class="badge b-info">Em andamento</span></td></tr>
+          <tr data-status="A fazer"><td data-label="Tarefa"><span class="strong">Mapear layout de NF-e</span><span class="cell-sub"><a href="projeto.html">Automação de NF Delta</a></span></td><td data-label="Responsável">Elisa Prado</td><td data-label="Prioridade"><span class="badge b-info">Normal</span></td><td data-label="Prazo" class="mono">30/09/2026</td><td data-label="Horas" class="num">0h / 4h</td><td data-label="Status"><span class="badge b-mute">A fazer</span></td></tr>
+          <tr data-status="Backlog"><td data-label="Tarefa"><span class="strong">Tela de parâmetros fiscais</span><span class="cell-sub"><a href="projeto.html">Automação de NF Delta</a></span></td><td data-label="Responsável">Elisa Prado</td><td data-label="Prioridade"><span class="badge b-mute">Baixa</span></td><td data-label="Prazo" class="mono">15/10/2026</td><td data-label="Horas" class="num">0h / 6h</td><td data-label="Status"><span class="badge b-mute">Backlog</span></td></tr>
+          <tr data-status="Backlog"><td data-label="Tarefa"><span class="strong">Exportar relatório em Excel</span><span class="cell-sub"><a href="projeto.html">Portal ACME — Fase 2</a></span></td><td data-label="Responsável">Diego Rocha</td><td data-label="Prioridade"><span class="badge b-info">Normal</span></td><td data-label="Prazo" class="mono">16/10/2026</td><td data-label="Horas" class="num">0h / 8h</td><td data-label="Status"><span class="badge b-mute">Backlog</span></td></tr>
+          <tr data-status="Backlog"><td data-label="Tarefa"><span class="strong">Histórico de pedidos no portal</span><span class="cell-sub"><a href="projeto.html">Portal ACME — Fase 2</a></span></td><td data-label="Responsável">Diego Rocha</td><td data-label="Prioridade"><span class="badge b-mute">Baixa</span></td><td data-label="Prazo" class="mono">20/10/2026</td><td data-label="Horas" class="num">0h / 6h</td><td data-label="Status"><span class="badge b-mute">Backlog</span></td></tr>
+          <tr data-status="Concluída"><td data-label="Tarefa"><span class="strong">Modelagem do banco de relatórios</span><span class="cell-sub"><a href="projeto.html">Portal ACME — Fase 2</a></span></td><td data-label="Responsável">Diego Rocha</td><td data-label="Prioridade"><span class="badge b-info">Normal</span></td><td data-label="Prazo" class="mono">15/09/2026</td><td data-label="Horas" class="num">9h / 8h</td><td data-label="Status"><span class="badge b-good">Concluída</span></td></tr>
+          <tr data-status="Concluída"><td data-label="Tarefa"><span class="strong">Cadastro de clientes</span><span class="cell-sub"><a href="projeto.html">ERP Cliente C</a></span></td><td data-label="Responsável">Elisa Prado</td><td data-label="Prioridade"><span class="badge b-warn">Alta</span></td><td data-label="Prazo" class="mono">10/09/2026</td><td data-label="Horas" class="num over">21h / 18h</td><td data-label="Status"><span class="badge b-good">Concluída</span></td></tr>
+          <tr data-status="Concluída"><td data-label="Tarefa"><span class="strong">Layout da área do cliente</span><span class="cell-sub"><a href="projeto.html">Portal ACME — Fase 2</a></span></td><td data-label="Responsável">Diego Rocha</td><td data-label="Prioridade"><span class="badge b-info">Normal</span></td><td data-label="Prazo" class="mono">05/09/2026</td><td data-label="Horas" class="num">7h30 / 8h</td><td data-label="Status"><span class="badge b-good">Concluída</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination"><span>Ordenado por prazo · tarefa atrasada = prazo ultrapassado e não concluída</span><div class="pages"><button type="button" class="on" aria-current="page">1</button><button type="button">2</button></div></div>
+  </div>
+</section>
+
+</main>
+</div>
+</div>
+
+<!-- Formulário lateral: nova tarefa -->
+<aside class="drawer" id="nova-tarefa" role="dialog" aria-modal="true" aria-labelledby="nova-tarefa-t">
+  <form class="form" style="display:contents">
+    <div class="drawer-head"><h2 id="nova-tarefa-t">Nova tarefa</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="drawer-body form">
+      <div class="form-grid">
+        <div class="field full"><label for="t-tit">Título <span class="req">*</span></label><input class="input" id="t-tit" required placeholder="Ex.: Exportar relatório em PDF"></div>
+        <div class="field full"><label for="t-desc">Descrição</label><textarea class="textarea" id="t-desc" placeholder="Detalhamento e critérios de aceite"></textarea></div>
+        <div class="field full"><label for="t-proj">Projeto <span class="req">*</span></label><select class="select" id="t-proj" required><option value="">Selecione</option><option>Portal ACME — Fase 2 · Empresa ACME</option><option>ERP Cliente C · Cliente C</option><option>Painel de indicadores · Cliente A</option><option>Automação de NF Delta · Empresa Delta</option><option>Portal de Pedidos · Empresa XYZ</option><option>App Orion · Empresa Orion</option></select></div>
+        <div class="field"><label for="t-resp">Responsável</label><select class="select" id="t-resp"><option value="">Sem responsável</option><option>Diego Rocha</option><option>Elisa Prado</option><option>Carla Mendes</option><option>Rafael</option></select></div>
+        <div class="field"><label for="t-prio">Prioridade <span class="req">*</span></label><select class="select" id="t-prio" required><option>Baixa</option><option selected>Normal</option><option>Alta</option><option>Urgente</option></select></div>
+        <div class="field"><label for="t-prazo">Prazo</label><input class="input" id="t-prazo" type="date"></div>
+        <div class="field"><label for="t-status">Status <span class="req">*</span></label><select class="select" id="t-status" required><option selected>Backlog</option><option>A fazer</option><option>Em andamento</option><option>Em revisão</option><option>Concluída</option></select></div>
+        <div class="field"><label for="t-est">Estimativa de horas</label><input class="input num" id="t-est" type="number" min="0" step="0.5" placeholder="Ex.: 8"><span class="hint">Comparada às horas registradas</span></div>
+      </div>
+    </div>
+    <div class="drawer-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Criar tarefa</button></div>
+  </form>
+</aside>
+
+<script src="../assets/app.js"></script>
+</body>
+</html>

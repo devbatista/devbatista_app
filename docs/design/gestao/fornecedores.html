@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fornecedores · Admin DevBatista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/app.css">
+</head>
+<body data-group="ges" data-item="Fornecedores" data-crumb='[["Gestão"],["Fornecedores"]]'>
+<div class="app">
+<aside class="side"></aside>
+<div class="main">
+<header class="top"></header>
+<main class="content">
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Gestão · Setembro de 2026</span>
+    <h1>Fornecedores</h1>
+    <p class="lead">Quem a DevBatista paga. Cada fornecedor liga despesas, contas a pagar e serviços externos ao custo de cada cliente.</p>
+  </div>
+  <div class="actions">
+    <button class="btn" type="button">Exportar CSV</button>
+    <button class="btn pri" type="button" data-open="novo-fornecedor">Novo fornecedor</button>
+  </div>
+</div>
+
+<div class="grid-kpi">
+  <div class="card kpi"><span class="eyebrow">Fornecedores ativos</span><span class="v">18</span><span class="f">nas 9 categorias de despesa</span></div>
+  <a class="card kpi" href="../financeiro/despesas.html"><span class="eyebrow">Gasto no mês</span><span class="v">R$ 22.100</span><span class="f">34 lançamentos em despesas</span></a>
+  <a class="card kpi" href="../financeiro/despesas.html"><span class="eyebrow">Cobrança em dólar</span><span class="v">8</span><span class="f">fornecedores · US$ 1 = R$ 5,62</span></a>
+  <a class="card kpi" href="../tecnologia/servicos-externos.html"><span class="eyebrow">Serviços externos vinculados</span><span class="v">6</span><span class="f">5 fornecedores desta lista</span></a>
+</div>
+
+<div class="toolbar">
+  <div class="seg" role="group" aria-label="Filtrar por categoria" data-filter-group="fornecedores">
+    <button type="button" class="on" data-filter="todos" aria-pressed="true">Todas <span class="c"></span></button>
+    <button type="button" data-filter="Colaboradores" aria-pressed="false">Colaboradores <span class="c"></span></button>
+    <button type="button" data-filter="Infraestrutura" aria-pressed="false">Infraestrutura <span class="c"></span></button>
+    <button type="button" data-filter="Impostos" aria-pressed="false">Impostos <span class="c"></span></button>
+    <button type="button" data-filter="Software" aria-pressed="false">Software <span class="c"></span></button>
+    <button type="button" data-filter="Marketing" aria-pressed="false">Marketing <span class="c"></span></button>
+    <button type="button" data-filter="Contabilidade" aria-pressed="false">Contabilidade <span class="c"></span></button>
+    <button type="button" data-filter="Administrativo" aria-pressed="false">Administrativo <span class="c"></span></button>
+    <button type="button" data-filter="Comercial" aria-pressed="false">Comercial <span class="c"></span></button>
+    <button type="button" data-filter="Outros" aria-pressed="false">Outros <span class="c"></span></button>
+  </div>
+  <span class="spacer"></span>
+  <label class="search-field"><span class="sr-only">Buscar fornecedor</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M11 18a7 7 0 100-14 7 7 0 000 14zM21 21l-4.3-4.3"/></svg><input class="input" type="search" placeholder="Empresa, contato ou e-mail"></label>
+  <label class="sr-only" for="f-ord">Ordenar por</label>
+  <select class="select" id="f-ord"><option>Maior gasto no mês</option><option>Nome (A–Z)</option><option>Mais serviços vinculados</option></select>
+</div>
+
+<section class="card" aria-label="Lista de fornecedores">
+  <div class="table-wrap">
+    <table class="table cards" data-filter-target="fornecedores">
+      <thead><tr><th>Empresa</th><th>Categoria</th><th>Contato</th><th>Site / painel</th><th>E-mail</th><th>Telefone</th><th class="num">Gasto no mês</th><th class="num">Serviços externos</th><th><span class="sr-only">Ações</span></th></tr></thead>
+      <tbody>
+        <tr data-status="Colaboradores"><td data-label="Empresa" class="strong">Diego Rocha (PJ)</td><td data-label="Categoria"><span class="badge b-mute">Colaboradores</span></td><td data-label="Contato">Diego Rocha</td><td data-label="Site / painel"><span class="muted">—</span></td><td data-label="E-mail">diego.rocha@devbatista.com.br</td><td data-label="Telefone"><span class="nowrap">(11) 98761-2033</span></td><td data-label="Gasto no mês" class="num">R$ 5.800,00<span class="cell-sub">NF mensal · vence 30/09</span></td><td data-label="Serviços externos" class="num"><span class="muted">—</span></td><td data-label="" class="right"><a class="link-btn" href="../financeiro/despesas.html">Ver despesas</a></td></tr>
+        <tr data-status="Colaboradores"><td data-label="Empresa" class="strong">Elisa Prado (PJ)</td><td data-label="Categoria"><span class="badge b-mute">Colaboradores</span></td><td data-label="Contato">Elisa Prado</td><td data-label="Site / painel"><span class="muted">—</span></td><td data-label="E-mail">elisa.prado@devbatista.com.br</td><td data-label="Telefone"><span class="nowrap">(11) 99420-1187</span></td><td data-label="Gasto no mês" class="num">R$ 5.700,00<span class="cell-sub">NF mensal · vence 30/09</span></td><td data-label="Serviços externos" class="num"><span class="muted">—</span></td><td data-label="" class="right"><a class="link-btn" href="../financeiro/despesas.html">Ver despesas</a></td></tr>
+        <tr data-status="Infraestrutura"><td data-label="Empresa" class="strong">AWS</td><td data-label="Categoria"><span class="badge b-mute">Infraestrutura</span></td><td data-label="Contato">Suporte Business</td><td data-label="Site / painel"><a href="https://console.aws.amazon.com" rel="noopener">console.aws.amazon.com</a></td><td data-label="E-mail">aws-billing@devbatista.com.br</td><td data-label="Telefone"><span class="muted">—</span></td><td data-label="Gasto no mês" class="num">R$ 2.547,10<span class="cell-sub">em US$ · câmbio 5,62</span></td><td data-label="Serviços externos" class="num"><span class="muted">—</span></td><td data-label="" class="right"><a class="link-btn" href="../financeiro/despesas.html">Ver despesas</a></td></tr>
+        <tr data-status="Impostos"><td data-label="Empresa" class="strong">Receita Federal</td><td data-label="Categoria"><span class="badge b-mute">Impostos</span></td><td data-label="Contato"><span class="muted">—</span></td><td data-label="Site / painel"><a href="https://gov.br/receitafederal" rel="noopener">gov.br/receitafederal</a></td><td data-label="E-mail"><span class="muted">—</span></td><td data-label="Telefone"><span class="muted">—</span></td><td data-label="Gasto no mês" class="num">R$ 2.480,00<span class="cell-sub">DAS Simples Nacional</span></td><td data-label="Serviços externos" class="num"><span class="muted">—</span></td><td data-label="" class="right"><a class="link-btn" href="../financeiro/contas-pagar.html">Ver contas a pagar</a></td></tr>
+        <tr data-status="Marketing"><td data-label="Empresa" class="strong">Meta Ads</td><td data-label="Categoria"><span class="badge b-mute">Marketing</span></td><td data-label="Contato">Gerenciador de anúncios</td><td data-label="Site / painel"><a href="https://business.facebook.com" rel="noopener">business.facebook.com</a></td><td data-label="E-mail">marketing@devbatista.com.br</td><td data-label="Telefone"><span class="muted">—</span></td><td data-label="Gasto no mês" class="num">R$ 1.200,00<span class="cell-sub">campanha de captação</span></td><td data-label="Serviços externos" class="num"><span class="muted">—</span></td><td data-label="" class="right"><a class="link-btn" href="../financeiro/despesas.html">Ver despesas</a></td></tr>
+        <tr data-status="Software"><td data-label="Empresa" class="strong">OpenAI</td><td data-label="Categoria"><span class="badge b-mute">Software</span></td><td data-label="Contato">Suporte via painel</td><td data-label="Site / painel"><a href="https://platform.openai.com" rel="noopener">platform.openai.com</a></td><td data-label="E-mail">infra@devbatista.com.br</td><td data-label="Telefone"><span class="muted">—</span></td><td data-label="Gasto no mês" class="num">R$ 924,72<span class="cell-sub">por consumo · em US$</span></td><td data-label="Serviços externos" class="num"><a href="../tecnologia/servicos-externos.html">1</a></td><td data-label="" class="right"><a class="link-btn" href="../financeiro/despesas.html">Ver despesas</a></td></tr>
+        <tr data-status="Software"><td data-label="Empresa" class="strong">GitHub</td><td data-label="Categoria"><span class="badge b-mute">Software</span></td><td data-label="Contato">Suporte via painel</td><td data-label="Site / painel"><a href="https://github.com" rel="noopener">github.com</a></td><td data-label="E-mail">infra@devbatista.com.br</td><td data-label="Telefone"><span class="muted">—</span></td><td data-label="Gasto no mês" class="num">R$ 775,56<span class="cell-sub">Team + Copilot · em US$</span></td><td data-label="Serviços externos" class="num"><span class="muted">—</span></td><td data-label="" class="right"><a class="link-btn" href="../financeiro/despesas.html">Ver despesas</a></td></tr>
+        <tr data-status="Infraestrutura"><td data-label="Empresa" class="strong">Railway</td><td data-label="Categoria"><span class="badge b-mute">Infraestrutura</span></td><td data-label="Contato">Suporte via painel</td><td data-label="Site / painel"><a href="https://railway.app" rel="noopener">railway.app</a></td><td data-label="E-mail">infra@devbatista.com.br</td><td data-label="Telefone"><span class="muted">—</span></td><td data-label="Gasto no mês" class="num">R$ 672,40<span class="cell-sub">em US$ · câmbio 5,62</span></td><td data-label="Serviços externos" class="num"><a href="../tecnologia/servicos-externos.html">2</a></td><td data-label="" class="right"><a class="link-btn" href="../financeiro/despesas.html">Ver despesas</a></td></tr>
+        <tr data-status="Contabilidade"><td data-label="Empresa" class="strong">Silva &amp; Associados</td><td data-label="Categoria"><span class="badge b-mute">Contabilidade</span></td><td data-label="Contato">Marcos Silva</td><td data-label="Site / painel"><a href="https://silvaassociados.com.br" rel="noopener">silvaassociados.com.br</a></td><td data-label="E-mail">marcos@silvaassociados.com.br</td><td data-label="Telefone"><span class="nowrap">(11) 3456-7821</span></td><td data-label="Gasto no mês" class="num">R$ 650,00<span class="cell-sub">honorários mensais</span></td><td data-label="Serviços externos" class="num"><span class="muted">—</span></td><td data-label="" class="right"><a class="link-btn" href="../financeiro/despesas.html">Ver despesas</a></td></tr>
+        <tr data-status="Software"><td data-label="Empresa" class="strong">Google Workspace</td><td data-label="Categoria"><span class="badge b-mute">Software</span></td><td data-label="Contato">Suporte Google</td><td data-label="Site / painel"><a href="https://admin.google.com" rel="noopener">admin.google.com</a></td><td data-label="E-mail">financeiro@devbatista.com.br</td><td data-label="Telefone"><span class="muted">—</span></td><td data-label="Gasto no mês" class="num">R$ 336,00<span class="cell-sub">6 contas</span></td><td data-label="Serviços externos" class="num"><span class="muted">—</span></td><td data-label="" class="right"><a class="link-btn" href="../financeiro/despesas.html">Ver despesas</a></td></tr>
+        <tr data-status="Administrativo"><td data-label="Empresa" class="strong">Coworking Central</td><td data-label="Categoria"><span class="badge b-mute">Administrativo</span></td><td data-label="Contato">Renata Alves</td><td data-label="Site / painel"><a href="https://coworkingcentral.com.br" rel="noopener">coworkingcentral.com.br</a></td><td data-label="E-mail">financeiro@coworkingcentral.com.br</td><td data-label="Telefone"><span class="nowrap">(11) 99812-4410</span></td><td data-label="Gasto no mês" class="num">R$ 320,00<span class="cell-sub">salas de reunião</span></td><td data-label="Serviços externos" class="num"><span class="muted">—</span></td><td data-label="" class="right"><a class="link-btn" href="../financeiro/despesas.html">Ver despesas</a></td></tr>
+        <tr data-status="Comercial"><td data-label="Empresa" class="strong">Lima Consultoria</td><td data-label="Categoria"><span class="badge b-mute">Comercial</span></td><td data-label="Contato">Paulo Lima</td><td data-label="Site / painel"><span class="muted">—</span></td><td data-label="E-mail">paulo@limaconsultoria.com.br</td><td data-label="Telefone"><span class="nowrap">(11) 97733-5120</span></td><td data-label="Gasto no mês" class="num">R$ 300,00<span class="cell-sub">comissão de indicação</span></td><td data-label="Serviços externos" class="num"><span class="muted">—</span></td><td data-label="" class="right"><a class="link-btn" href="../financeiro/despesas.html">Ver despesas</a></td></tr>
+        <tr data-status="Infraestrutura"><td data-label="Empresa" class="strong">Cloudflare</td><td data-label="Categoria"><span class="badge b-mute">Infraestrutura</span></td><td data-label="Contato">Suporte via painel</td><td data-label="Site / painel"><a href="https://dash.cloudflare.com" rel="noopener">dash.cloudflare.com</a></td><td data-label="E-mail">infra@devbatista.com.br</td><td data-label="Telefone"><span class="muted">—</span></td><td data-label="Gasto no mês" class="num">R$ 140,50<span class="cell-sub">em US$ · câmbio 5,62</span></td><td data-label="Serviços externos" class="num"><a href="../tecnologia/servicos-externos.html">1</a></td><td data-label="" class="right"><a class="link-btn" href="../financeiro/despesas.html">Ver despesas</a></td></tr>
+        <tr data-status="Outros"><td data-label="Empresa" class="strong">Banco Inter</td><td data-label="Categoria"><span class="badge b-mute">Outros</span></td><td data-label="Contato">Gerente PJ</td><td data-label="Site / painel"><a href="https://inter.co" rel="noopener">inter.co</a></td><td data-label="E-mail">pj@devbatista.com.br</td><td data-label="Telefone"><span class="nowrap">(31) 3003-4070</span></td><td data-label="Gasto no mês" class="num">R$ 100,00<span class="cell-sub">tarifas bancárias</span></td><td data-label="Serviços externos" class="num"><span class="muted">—</span></td><td data-label="" class="right"><a class="link-btn" href="../financeiro/despesas.html">Ver despesas</a></td></tr>
+        <tr data-status="Software"><td data-label="Empresa" class="strong">Mailgun</td><td data-label="Categoria"><span class="badge b-mute">Software</span></td><td data-label="Contato">Suporte via painel</td><td data-label="Site / painel"><a href="https://app.mailgun.com" rel="noopener">app.mailgun.com</a></td><td data-label="E-mail">infra@devbatista.com.br</td><td data-label="Telefone"><span class="muted">—</span></td><td data-label="Gasto no mês" class="num">R$ 80,00<span class="cell-sub">em US$ · câmbio 5,62</span></td><td data-label="Serviços externos" class="num"><a href="../tecnologia/servicos-externos.html">1</a></td><td data-label="" class="right"><a class="link-btn" href="../financeiro/despesas.html">Ver despesas</a></td></tr>
+        <tr data-status="Infraestrutura"><td data-label="Empresa" class="strong">Registro.br</td><td data-label="Categoria"><span class="badge b-mute">Infraestrutura</span></td><td data-label="Contato">Atendimento NIC.br</td><td data-label="Site / painel"><a href="https://registro.br" rel="noopener">registro.br</a></td><td data-label="E-mail">hostmaster@registro.br</td><td data-label="Telefone"><span class="nowrap">(11) 5509-3500</span></td><td data-label="Gasto no mês" class="num">R$ 40,00<span class="cell-sub">renovação acme.com.br</span></td><td data-label="Serviços externos" class="num"><span class="muted">—</span></td><td data-label="" class="right"><a class="link-btn" href="../tecnologia/dominios.html">Ver domínios</a></td></tr>
+        <tr data-status="Software"><td data-label="Empresa" class="strong">Amazon SES</td><td data-label="Categoria"><span class="badge b-mute">Software</span></td><td data-label="Contato">Suporte Business</td><td data-label="Site / painel"><a href="https://console.aws.amazon.com/ses" rel="noopener">console.aws.amazon.com/ses</a></td><td data-label="E-mail">aws-billing@devbatista.com.br</td><td data-label="Telefone"><span class="muted">—</span></td><td data-label="Gasto no mês" class="num">R$ 33,72<span class="cell-sub">por consumo · em US$</span></td><td data-label="Serviços externos" class="num"><a href="../tecnologia/servicos-externos.html">1</a></td><td data-label="" class="right"><a class="link-btn" href="../financeiro/despesas.html">Ver despesas</a></td></tr>
+        <tr data-status="Software"><td data-label="Empresa" class="strong">Figma</td><td data-label="Categoria"><span class="badge b-mute">Software</span></td><td data-label="Contato">Suporte via painel</td><td data-label="Site / painel"><a href="https://figma.com" rel="noopener">figma.com</a></td><td data-label="E-mail">design@devbatista.com.br</td><td data-label="Telefone"><span class="muted">—</span></td><td data-label="Gasto no mês" class="num muted">R$ 0,00<span class="cell-sub">assinatura cancelada em setembro</span></td><td data-label="Serviços externos" class="num"><span class="muted">—</span></td><td data-label="" class="right"><a class="link-btn" href="../financeiro/contas-pagar.html">Ver contas a pagar</a></td></tr>
+      </tbody>
+      <tfoot><tr><td data-label="">Total do mês</td><td data-label="" colspan="5"></td><td data-label="Gasto no mês" class="num">R$ 22.100,00</td><td data-label="Serviços externos" class="num">6</td><td data-label=""></td></tr></tfoot>
+    </table>
+  </div>
+  <div class="pagination"><span>18 fornecedores · valores em dólar convertidos a R$ 5,62 por US$ 1</span><div class="pages"><button type="button" class="on" aria-current="page">1</button></div></div>
+</section>
+
+<div class="note">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM12 16v-4M12 8h.01"/></svg>
+  <span><b>Fornecedor → despesas e contas a pagar → serviços externos → custo por cliente.</b> Quando a despesa tem centro de custo em um cliente, ou o serviço externo é pago pela DevBatista em nome dele, o valor entra no custo direto em <a href="rentabilidade.html">Rentabilidade</a>.</span>
+</div>
+
+</main>
+</div>
+</div>
+
+<!-- Formulário lateral: novo fornecedor -->
+<aside class="drawer" id="novo-fornecedor" role="dialog" aria-modal="true" aria-labelledby="novo-fornecedor-t">
+  <form class="form" style="display:contents">
+    <div class="drawer-head"><h2 id="novo-fornecedor-t">Novo fornecedor</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="drawer-body form">
+      <div class="form-grid">
+        <div class="field full"><label for="fo-emp">Empresa <span class="req">*</span></label><input class="input" id="fo-emp" required placeholder="Ex.: DigitalOcean"></div>
+        <div class="field full"><label for="fo-cat">Categoria <span class="req">*</span></label><select class="select" id="fo-cat" required><option value="">Selecione</option><option>Infraestrutura</option><option>Software</option><option>Marketing</option><option>Comercial</option><option>Contabilidade</option><option>Impostos</option><option>Colaboradores</option><option>Administrativo</option><option>Outros</option></select><span class="hint">Mesmas categorias usadas nas despesas</span></div>
+        <div class="field"><label for="fo-ctt">Contato</label><input class="input" id="fo-ctt" placeholder="Pessoa de contato"></div>
+        <div class="field"><label for="fo-tel">Telefone</label><input class="input" id="fo-tel" type="tel" placeholder="(11) 0000-0000"></div>
+        <div class="field full"><label for="fo-site">Site</label><input class="input" id="fo-site" type="url" placeholder="https://"><span class="hint">Endereço do site ou do painel de administração</span></div>
+        <div class="field full"><label for="fo-mail">E-mail</label><input class="input" id="fo-mail" type="email" placeholder="contato ou faturamento"></div>
+        <div class="field full"><label for="fo-obs">Observações</label><textarea class="textarea" id="fo-obs" placeholder="Condições comerciais, plano contratado, prazo de pagamento…"></textarea><span class="hint">Não registre senhas, chaves ou tokens — use a referência ao cofre de senhas.</span></div>
+      </div>
+    </div>
+    <div class="drawer-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Salvar fornecedor</button></div>
+  </form>
+</aside>
+
+<script src="../assets/app.js"></script>
+</body>
+</html>

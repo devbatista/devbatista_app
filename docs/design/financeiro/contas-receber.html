@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contas a receber · Admin DevBatista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/app.css">
+</head>
+<body data-group="fin" data-item="Contas a receber" data-crumb='[["Financeiro","financeiro.html"],["Contas a receber"]]'>
+<div class="app">
+<aside class="side"></aside>
+<div class="main">
+<header class="top"></header>
+<main class="content">
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Financeiro · Setembro de 2026</span>
+    <h1>Contas a receber</h1>
+  </div>
+  <div class="actions">
+    <button class="btn" type="button">Exportar CSV</button>
+    <button class="btn pri" type="button" data-open="novo-titulo">Novo título</button>
+  </div>
+</div>
+
+<div class="grid-kpi">
+  <div class="card kpi"><span class="eyebrow">Recebido</span><span class="v">R$ 29.800</span><span class="f">pagamentos confirmados</span></div>
+  <div class="card kpi"><span class="eyebrow">A receber</span><span class="v">R$ 7.100</span><span class="f">dentro do prazo</span></div>
+  <div class="card kpi alert"><span class="eyebrow">Vencido</span><span class="v">R$ 4.300</span><span class="f"><span class="badge b-crit">3 títulos</span>em atraso</span></div>
+  <div class="card kpi"><span class="eyebrow">Faturamento</span><span class="v">R$ 41.200</span><span class="f">recebido + a receber + vencido</span></div>
+</div>
+
+<div class="toolbar">
+  <div class="seg" role="group" aria-label="Filtrar por status" data-filter-group="titulos">
+    <button type="button" class="on" data-filter="todos" aria-pressed="true">Todos <span class="c"></span></button>
+    <button type="button" data-filter="Pendente" aria-pressed="false">Pendente <span class="c"></span></button>
+    <button type="button" data-filter="Pago" aria-pressed="false">Pago <span class="c"></span></button>
+    <button type="button" data-filter="Vencido" aria-pressed="false">Vencido <span class="c"></span></button>
+    <button type="button" data-filter="Cancelado" aria-pressed="false">Cancelado <span class="c"></span></button>
+  </div>
+  <span class="spacer"></span>
+  <label class="search-field"><span class="sr-only">Buscar título</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M11 18a7 7 0 100-14 7 7 0 000 14zM21 21l-4.3-4.3"/></svg><input class="input" type="search" placeholder="Cliente, serviço ou contrato"></label>
+  <label class="sr-only" for="f-cli">Cliente</label>
+  <select class="select" id="f-cli"><option>Todos os clientes</option><option>Empresa ACME</option><option>Empresa XYZ</option><option>Empresa Delta</option><option>Empresa Orion</option></select>
+  <label class="sr-only" for="f-svc">Serviço</label>
+  <select class="select" id="f-svc"><option>Todos os serviços</option><option>Consultoria de TI</option><option>Manutenção</option><option>Hospedagem</option><option>Suporte</option></select>
+</div>
+
+<section class="card" aria-label="Títulos a receber">
+  <div class="table-wrap">
+    <table class="table cards" data-filter-target="titulos">
+      <thead><tr><th>Vencimento</th><th>Cliente</th><th>Serviço</th><th>Contrato</th><th class="num">Valor</th><th>Atraso</th><th>Status</th><th><span class="sr-only">Ações</span></th></tr></thead>
+      <tbody>
+        <tr class="late" data-status="Vencido"><td data-label="Vencimento" class="mono">01/09/2026</td><td data-label="Cliente" class="strong">Cliente C</td><td data-label="Serviço">Desenvolvimento</td><td data-label="Contrato"><a href="../clientes/contrato.html">#092</a></td><td data-label="Valor" class="num">R$ 2.400</td><td data-label="Atraso" style="color:var(--crit);font-weight:600">16 dias</td><td data-label="Status"><span class="badge b-crit">Vencido</span></td><td data-label="" class="right"><button class="link-btn" type="button" data-open="pagamento">Registrar pagamento</button></td></tr>
+        <tr class="late" data-status="Vencido"><td data-label="Vencimento" class="mono">05/09/2026</td><td data-label="Cliente" class="strong">Empresa XYZ</td><td data-label="Serviço">Manutenção</td><td data-label="Contrato"><a href="../clientes/contrato.html">#098</a></td><td data-label="Valor" class="num">R$ 1.200</td><td data-label="Atraso" style="color:var(--crit);font-weight:600">12 dias</td><td data-label="Status"><span class="badge b-crit">Vencido</span></td><td data-label="" class="right"><button class="link-btn" type="button" data-open="pagamento">Registrar pagamento</button></td></tr>
+        <tr class="late" data-status="Vencido"><td data-label="Vencimento" class="mono">10/09/2026</td><td data-label="Cliente" class="strong">Empresa Delta</td><td data-label="Serviço">Suporte</td><td data-label="Contrato"><a href="../clientes/contrato.html">#111</a></td><td data-label="Valor" class="num">R$ 700</td><td data-label="Atraso" style="color:var(--crit);font-weight:600">7 dias</td><td data-label="Status"><span class="badge b-crit">Vencido</span></td><td data-label="" class="right"><button class="link-btn" type="button" data-open="pagamento">Registrar pagamento</button></td></tr>
+        <tr data-status="Pago"><td data-label="Vencimento" class="mono">10/09/2026</td><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa ACME</a></td><td data-label="Serviço">Consultoria TI</td><td data-label="Contrato"><a href="../clientes/contrato.html">#104</a></td><td data-label="Valor" class="num">R$ 3.000</td><td data-label="Atraso" class="muted">—</td><td data-label="Status"><span class="badge b-good">Pago</span></td><td data-label="" class="right muted">10/09</td></tr>
+        <tr data-status="Pago"><td data-label="Vencimento" class="mono">10/09/2026</td><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa ACME</a></td><td data-label="Serviço">Manutenção</td><td data-label="Contrato"><a href="../clientes/contrato.html">#104</a></td><td data-label="Valor" class="num">R$ 500</td><td data-label="Atraso" class="muted">—</td><td data-label="Status"><span class="badge b-good">Pago</span></td><td data-label="" class="right muted">10/09</td></tr>
+        <tr data-status="Pago"><td data-label="Vencimento" class="mono">10/09/2026</td><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa ACME</a></td><td data-label="Serviço">Hospedagem</td><td data-label="Contrato"><a href="../clientes/contrato.html">#104</a></td><td data-label="Valor" class="num">R$ 300</td><td data-label="Atraso" class="muted">—</td><td data-label="Status"><span class="badge b-good">Pago</span></td><td data-label="" class="right muted">10/09</td></tr>
+        <tr data-status="Pendente"><td data-label="Vencimento" class="mono">20/09/2026</td><td data-label="Cliente" class="strong">Empresa Delta</td><td data-label="Serviço">Hospedagem</td><td data-label="Contrato"><a href="../clientes/contrato.html">#111</a></td><td data-label="Valor" class="num">R$ 300</td><td data-label="Atraso" class="muted">—</td><td data-label="Status"><span class="badge b-warn">Pendente</span></td><td data-label="" class="right"><button class="link-btn" type="button" data-open="pagamento">Registrar pagamento</button></td></tr>
+        <tr data-status="Pendente"><td data-label="Vencimento" class="mono">25/09/2026</td><td data-label="Cliente" class="strong">Empresa Orion</td><td data-label="Serviço">Suporte</td><td data-label="Contrato"><a href="../clientes/contrato.html">#087</a></td><td data-label="Valor" class="num">R$ 900</td><td data-label="Atraso" class="muted">—</td><td data-label="Status"><span class="badge b-warn">Pendente</span></td><td data-label="" class="right"><button class="link-btn" type="button" data-open="pagamento">Registrar pagamento</button></td></tr>
+        <tr data-status="Cancelado"><td data-label="Vencimento" class="mono">15/09/2026</td><td data-label="Cliente" class="strong">Cliente E</td><td data-label="Serviço">Publicação de aplicativos</td><td data-label="Contrato" class="muted">—</td><td data-label="Valor" class="num muted" style="text-decoration:line-through">R$ 800</td><td data-label="Atraso" class="muted">—</td><td data-label="Status"><span class="badge b-mute">Cancelado</span></td><td data-label="" class="right muted">—</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="pagination"><span>Atraso calculado automaticamente a partir do vencimento</span><div class="pages"><button type="button" class="on" aria-current="page">1</button><button type="button">2</button><button type="button">3</button></div></div>
+</section>
+
+</main>
+</div>
+</div>
+
+<!-- Formulário lateral: novo título -->
+<aside class="drawer" id="novo-titulo" role="dialog" aria-modal="true" aria-labelledby="novo-titulo-t">
+  <form class="form" style="display:contents">
+    <div class="drawer-head"><h2 id="novo-titulo-t">Novo título a receber</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="drawer-body form">
+      <div class="form-grid">
+        <div class="field full"><label for="t-cli">Cliente <span class="req">*</span></label><select class="select" id="t-cli" required><option value="">Selecione</option><option>Empresa ACME</option><option>Empresa XYZ</option><option>Empresa Delta</option><option>Empresa Orion</option></select></div>
+        <div class="field full"><label for="t-desc">Descrição <span class="req">*</span></label><input class="input" id="t-desc" required placeholder="Ex.: Consultoria TI — Outubro/2026"></div>
+        <div class="field"><label for="t-cat">Categoria</label><select class="select" id="t-cat"><option>Consultoria de TI</option><option>Desenvolvimento de sistemas</option><option>Manutenção</option><option>Hospedagem</option><option>Suporte</option></select><span class="hint">Sugerida a partir do serviço do catálogo</span></div>
+        <div class="field"><label for="t-val">Valor (R$) <span class="req">*</span></label><input class="input num" id="t-val" inputmode="decimal" required placeholder="0,00"></div>
+        <div class="field"><label for="t-comp">Competência <span class="req">*</span></label><input class="input" id="t-comp" type="month" value="2026-10" required></div>
+        <div class="field"><label for="t-venc">Vencimento <span class="req">*</span></label><input class="input" id="t-venc" type="date" value="2026-10-10" required></div>
+        <div class="field full"><label for="t-ctr">Contrato</label><select class="select" id="t-ctr"><option>Nenhum</option><option>#104 — Consultoria de TI</option></select></div>
+      </div>
+    </div>
+    <div class="drawer-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Salvar título</button></div>
+  </form>
+</aside>
+
+<!-- Modal: registrar pagamento -->
+<div class="modal" id="pagamento" role="dialog" aria-modal="true" aria-labelledby="pagamento-t">
+  <form class="form" style="display:contents">
+    <div class="modal-head"><h2 id="pagamento-t">Registrar pagamento</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="modal-body form">
+      <div class="callout"><span>Empresa XYZ · Manutenção · contrato #098 · <b class="strong">R$ 1.200</b></span></div>
+      <div class="form-grid">
+        <div class="field"><label for="p-data">Data do pagamento <span class="req">*</span></label><input class="input" id="p-data" type="date" value="2026-09-17" required></div>
+        <div class="field"><label for="p-val">Valor recebido (R$) <span class="req">*</span></label><input class="input num" id="p-val" value="1.200,00" required></div>
+      </div>
+      <div class="field"><label for="p-obs">Observações</label><textarea class="textarea" id="p-obs" placeholder="Forma de pagamento, juros, desconto…"></textarea></div>
+    </div>
+    <div class="modal-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Confirmar pagamento</button></div>
+  </form>
+</div>
+
+<script src="../assets/app.js"></script>
+</body>
+</html>

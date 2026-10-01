@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Recorrências · Admin DevBatista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/app.css">
+</head>
+<body data-group="fin" data-item="Recorrências" data-crumb='[["Financeiro","financeiro.html"],["Recorrências"]]'>
+<div class="app">
+<aside class="side"></aside>
+<div class="main">
+<header class="top"></header>
+<main class="content">
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Financeiro · Previsões automáticas</span>
+    <h1>Recorrências</h1>
+    <p class="lead">Regras geradas a partir dos serviços contratados ativos. Os títulos dos próximos 3 meses nascem como Previsto.</p>
+  </div>
+  <div class="actions">
+    <a class="btn" href="../clientes/servicos-contratados.html">Serviços contratados</a>
+    <button class="btn pri" type="button" data-open="executar">Executar rotina agora</button>
+  </div>
+</div>
+
+<div class="grid-kpi">
+  <div class="card kpi"><span class="eyebrow">Regras de receita ativas</span><span class="v">22</span><span class="f">MRR R$ 20.400</span></div>
+  <div class="card kpi"><span class="eyebrow">Previsto a receber</span><span class="v">R$ 61.200</span><span class="f">Outubro a Dezembro/2026</span></div>
+  <div class="card kpi"><span class="eyebrow">Regras de despesa ativas</span><span class="v">14</span><span class="f">≈ R$ 15.900 por mês</span></div>
+  <div class="card kpi"><span class="eyebrow">Última execução</span><span class="v">06:00</span><span class="f"><span class="badge b-good dot-l">Concluída</span>hoje, 17/09</span></div>
+</div>
+
+<div class="cols-2-1">
+  <section class="card" style="border-color:var(--border-hover)" aria-labelledby="ex-acme">
+    <div class="card-head">
+      <div class="row"><span class="co-avatar sm" aria-hidden="true">AC</span><div><h2 id="ex-acme">Empresa ACME · Consultoria de TI</h2><span class="caption">Exemplo de regra: R$ 3.000/mês, todo dia 10</span></div></div>
+      <span class="badge b-info">Origem: serviço contratado</span>
+    </div>
+    <dl class="dl" style="padding-top:0">
+      <div><dt>Cliente</dt><dd><a href="../clientes/empresa.html">Empresa ACME</a></dd></div>
+      <div><dt>Serviço</dt><dd>Consultoria de TI</dd></div>
+      <div><dt>Valor</dt><dd class="num">R$ 3.000/mês</dd></div>
+      <div><dt>Vencimento</dt><dd>Todo dia 10</dd></div>
+      <div><dt>Periodicidade</dt><dd>Mensal</dd></div>
+      <div><dt>Contrato</dt><dd><a href="../clientes/contrato.html">#104 — Consultoria de TI</a></dd></div>
+    </dl>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr><th>Competência</th><th>Vencimento</th><th class="num">Valor</th><th>Situação</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Competência" class="muted">Setembro/2026</td><td data-label="Vencimento" class="mono muted">10/09/2026</td><td data-label="Valor" class="num muted">R$ 3.000</td><td data-label="Situação"><span class="badge b-good">Pago</span></td></tr>
+          <tr><td data-label="Competência" class="strong">Outubro/2026</td><td data-label="Vencimento" class="mono">10/10/2026</td><td data-label="Valor" class="num">R$ 3.000</td><td data-label="Situação"><span class="badge b-info">Previsto</span></td></tr>
+          <tr><td data-label="Competência" class="strong">Novembro/2026</td><td data-label="Vencimento" class="mono">10/11/2026</td><td data-label="Valor" class="num">R$ 3.000</td><td data-label="Situação"><span class="badge b-info">Previsto</span></td></tr>
+          <tr><td data-label="Competência" class="strong">Dezembro/2026</td><td data-label="Vencimento" class="mono">10/12/2026</td><td data-label="Valor" class="num">R$ 3.000</td><td data-label="Situação"><span class="badge b-info">Previsto</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card-foot"><span>Títulos gerados uma única vez por competência</span><a href="contas-receber.html" style="font-weight:600">Ver em contas a receber →</a></div>
+  </section>
+
+  <section class="card" aria-labelledby="rotina-t">
+    <div class="card-head"><h2 id="rotina-t">Rotina diária</h2><span class="badge b-good dot-l">Concluída</span></div>
+    <div class="kv"><span>Última execução</span><b>17/09/2026 · 06:00</b></div>
+    <div class="kv"><span>Duração</span><b>4 s</b></div>
+    <div class="kv"><span>Títulos gerados</span><b>0</b></div>
+    <div class="kv"><span>Marcados como vencidos</span><b>0</b></div>
+    <div class="kv"><span>Horizonte coberto</span><b>até Dezembro/2026</b></div>
+    <div class="kv"><span>Próxima execução</span><b>18/09/2026 · 06:00</b></div>
+    <div class="card-head" style="border-top:1px solid var(--rule);padding-bottom:6px"><h3>Execuções anteriores</h3></div>
+    <div class="tl"><i></i><div>16/09 · 3 títulos gerados<small>Novo serviço: Cliente D · Suporte (Out–Dez)</small></div></div>
+    <div class="tl"><i></i><div>15/09 · 3 previsões canceladas<small>Hospedagem da Empresa Orion encerrada em 14/09</small></div></div>
+    <div class="tl"><i style="background:var(--crit-dot)"></i><div>11/09 · 1 título marcado como Vencido<small>Empresa Delta · Suporte · R$ 700</small></div></div>
+    <div class="tl"><i style="background:var(--warn)"></i><div>10/09 · Concluída com aviso<small>Cotação do dólar indisponível; despesas em US$ estimadas com o câmbio de 09/09</small></div></div>
+    <a class="more" href="../administracao/logs.html">Ver histórico completo →</a>
+  </section>
+</div>
+
+<div class="callout">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;color:var(--cyan)"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM12 16v-4M12 8h.01"/></svg>
+  <div class="stack" style="gap:6px">
+    <b class="strong">Como as regras funcionam</b>
+    <span>• A rotina respeita <b class="strong">valor, periodicidade e dia de vencimento</b> do serviço contratado; serviços avulsos não geram recorrência.</span>
+    <span>• Alterar o valor do serviço contratado atualiza <b class="strong">apenas os títulos futuros ainda não pagos</b>.</span>
+    <span>• Encerrar um serviço contratado <b class="strong">cancela os títulos previstos posteriores</b> à data de encerramento.</span>
+    <span>• <b class="strong">Despesas recorrentes</b> seguem a mesma lógica em <a href="contas-pagar.html">Contas a pagar</a>.</span>
+  </div>
+</div>
+
+<section class="card" data-tabs-scope aria-label="Regras de recorrência">
+  <div class="tabs" role="tablist" data-tabs style="padding:0 12px">
+    <button class="tab on" type="button" role="tab" aria-selected="true" data-tab="receitas">Receitas recorrentes <span class="badge b-mute">22</span></button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-tab="despesas">Despesas recorrentes <span class="badge b-mute">14</span></button>
+  </div>
+
+  <div data-panel="receitas">
+    <div class="toolbar" style="padding:16px 20px">
+      <label class="search-field"><span class="sr-only">Buscar regra de receita</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M11 18a7 7 0 100-14 7 7 0 000 14zM21 21l-4.3-4.3"/></svg><input class="input" type="search" placeholder="Cliente ou serviço"></label>
+      <label class="sr-only" for="f-per">Periodicidade</label>
+      <select class="select" id="f-per"><option>Todas as periodicidades</option><option>Mensal</option><option>Trimestral</option><option>Semestral</option><option>Anual</option></select>
+      <label class="sr-only" for="f-st">Situação da regra</label>
+      <select class="select" id="f-st"><option>Ativas e encerradas</option><option>Ativas</option><option>Suspensas</option><option>Encerradas</option></select>
+    </div>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr><th>Cliente</th><th>Serviço</th><th>Contrato</th><th class="num">Valor</th><th>Periodicidade</th><th>Vencimento</th><th>Próximos títulos</th><th>Situação</th></tr></thead>
+        <tbody>
+          <tr style="background:var(--cyan-tint)"><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa ACME</a></td><td data-label="Serviço">Consultoria de TI</td><td data-label="Contrato"><a href="../clientes/contrato.html">#104</a></td><td data-label="Valor" class="num">R$ 3.000</td><td data-label="Periodicidade">Mensal</td><td data-label="Vencimento">Dia 10</td><td data-label="Próximos títulos" class="mono">10/10 · 10/11 · 10/12</td><td data-label="Situação"><span class="badge b-good">Ativa</span></td></tr>
+          <tr><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa ACME</a></td><td data-label="Serviço">Manutenção</td><td data-label="Contrato" class="muted">—</td><td data-label="Valor" class="num">R$ 500</td><td data-label="Periodicidade">Mensal</td><td data-label="Vencimento">Dia 10</td><td data-label="Próximos títulos" class="mono">10/10 · 10/11 · 10/12</td><td data-label="Situação"><span class="badge b-good">Ativa</span></td></tr>
+          <tr><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa ACME</a></td><td data-label="Serviço">Hospedagem</td><td data-label="Contrato" class="muted">—</td><td data-label="Valor" class="num">R$ 300</td><td data-label="Periodicidade">Mensal</td><td data-label="Vencimento">Dia 10</td><td data-label="Próximos títulos" class="mono">10/10 · 10/11 · 10/12</td><td data-label="Situação"><span class="badge b-good">Ativa</span></td></tr>
+          <tr><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa XYZ</a></td><td data-label="Serviço">Manutenção</td><td data-label="Contrato"><a href="../clientes/contrato.html">#098</a><span class="cell-sub" style="color:var(--warn)">termina 17/10/2026</span></td><td data-label="Valor" class="num">R$ 1.200</td><td data-label="Periodicidade">Mensal</td><td data-label="Vencimento">Dia 5</td><td data-label="Próximos títulos" class="mono">05/10 · 05/11 · 05/12</td><td data-label="Situação"><span class="badge b-good">Ativa</span></td></tr>
+          <tr><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa XYZ</a></td><td data-label="Serviço">Suporte</td><td data-label="Contrato" class="muted">—</td><td data-label="Valor" class="num">R$ 900</td><td data-label="Periodicidade">Mensal</td><td data-label="Vencimento">Dia 5</td><td data-label="Próximos títulos" class="mono">05/10 · 05/11 · 05/12</td><td data-label="Situação"><span class="badge b-good">Ativa</span></td></tr>
+          <tr><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa XYZ</a></td><td data-label="Serviço">Hospedagem</td><td data-label="Contrato" class="muted">—</td><td data-label="Valor" class="num">R$ 800</td><td data-label="Periodicidade">Mensal</td><td data-label="Vencimento">Dia 5</td><td data-label="Próximos títulos" class="mono">05/10 · 05/11 · 05/12</td><td data-label="Situação"><span class="badge b-good">Ativa</span></td></tr>
+          <tr><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa Delta</a></td><td data-label="Serviço">Suporte</td><td data-label="Contrato"><a href="../clientes/contrato.html">#111</a></td><td data-label="Valor" class="num">R$ 700</td><td data-label="Periodicidade">Mensal</td><td data-label="Vencimento">Dia 10</td><td data-label="Próximos títulos" class="mono">10/10 · 10/11 · 10/12</td><td data-label="Situação"><span class="badge b-good">Ativa</span></td></tr>
+          <tr><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa Delta</a></td><td data-label="Serviço">Hospedagem</td><td data-label="Contrato"><a href="../clientes/contrato.html">#111</a></td><td data-label="Valor" class="num">R$ 300</td><td data-label="Periodicidade">Mensal</td><td data-label="Vencimento">Dia 20</td><td data-label="Próximos títulos" class="mono">20/10 · 20/11 · 20/12</td><td data-label="Situação"><span class="badge b-good">Ativa</span></td></tr>
+          <tr><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa Orion</a></td><td data-label="Serviço">Suporte</td><td data-label="Contrato"><a href="../clientes/contrato.html">#087</a></td><td data-label="Valor" class="num">R$ 900</td><td data-label="Periodicidade">Mensal</td><td data-label="Vencimento">Dia 25</td><td data-label="Próximos títulos" class="mono">25/10 · 25/11 · 25/12</td><td data-label="Situação"><span class="badge b-good">Ativa</span></td></tr>
+          <tr><td data-label="Cliente" class="strong">Cliente C</td><td data-label="Serviço">Desenvolvimento de sistemas</td><td data-label="Contrato"><a href="../clientes/contrato.html">#092</a></td><td data-label="Valor" class="num">R$ 2.400</td><td data-label="Periodicidade">Mensal</td><td data-label="Vencimento">Dia 1</td><td data-label="Próximos títulos" class="mono">01/10 · 01/11 · 01/12</td><td data-label="Situação"><span class="badge b-good">Ativa</span></td></tr>
+          <tr><td data-label="Cliente" class="strong">Cliente A</td><td data-label="Serviço">Hospedagem</td><td data-label="Contrato" class="muted">—</td><td data-label="Valor" class="num">R$ 1.500</td><td data-label="Periodicidade">Mensal</td><td data-label="Vencimento">Dia 18</td><td data-label="Próximos títulos" class="mono">18/10 · 18/11 · 18/12</td><td data-label="Situação"><span class="badge b-good">Ativa</span></td></tr>
+          <tr><td data-label="Cliente" class="strong">Cliente B</td><td data-label="Serviço">Manutenção</td><td data-label="Contrato" class="muted">—</td><td data-label="Valor" class="num">R$ 1.400</td><td data-label="Periodicidade">Mensal</td><td data-label="Vencimento">Dia 22</td><td data-label="Próximos títulos" class="mono">22/10 · 22/11 · 22/12</td><td data-label="Situação"><span class="badge b-good">Ativa</span></td></tr>
+          <tr><td data-label="Cliente" class="strong">Cliente B</td><td data-label="Serviço">Gestão de infraestrutura</td><td data-label="Contrato" class="muted">—</td><td data-label="Valor" class="num">R$ 3.600<span class="cell-sub">R$ 1.200/mês no MRR</span></td><td data-label="Periodicidade">Trimestral</td><td data-label="Vencimento">Dia 15</td><td data-label="Próximos títulos" class="mono">15/10</td><td data-label="Situação"><span class="badge b-good">Ativa</span></td></tr>
+          <tr><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa Orion</a></td><td data-label="Serviço">Hospedagem</td><td data-label="Contrato" class="muted">—</td><td data-label="Valor" class="num muted">R$ 200</td><td data-label="Periodicidade">Mensal</td><td data-label="Vencimento">Dia 25</td><td data-label="Próximos títulos" class="muted">3 previsões canceladas<span class="cell-sub">encerrado em 14/09/2026</span></td><td data-label="Situação"><span class="badge b-mute">Encerrada</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination"><span>Mostrando 14 de 23 regras · editar valor ou encerrar em <a href="../clientes/servicos-contratados.html">Serviços contratados</a></span><div class="pages"><button type="button" class="on" aria-current="page">1</button><button type="button">2</button></div></div>
+  </div>
+
+  <div data-panel="despesas" hidden>
+    <div class="toolbar" style="padding:16px 20px">
+      <label class="search-field"><span class="sr-only">Buscar regra de despesa</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M11 18a7 7 0 100-14 7 7 0 000 14zM21 21l-4.3-4.3"/></svg><input class="input" type="search" placeholder="Fornecedor ou descrição"></label>
+      <label class="sr-only" for="f-dcat">Categoria</label>
+      <select class="select" id="f-dcat"><option>Todas as categorias</option><option>Infraestrutura</option><option>Software</option><option>Marketing</option><option>Comercial</option><option>Contabilidade</option><option>Impostos</option><option>Colaboradores</option><option>Administrativo</option><option>Outros</option></select>
+      <span class="spacer"></span>
+      <a class="btn sm" href="despesas.html">Nova despesa recorrente</a>
+    </div>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr><th>Fornecedor</th><th>Descrição</th><th>Categoria</th><th class="num">Valor</th><th>Periodicidade</th><th>Vencimento</th><th>Centro de custo</th><th>Próximos títulos</th><th>Situação</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Fornecedor" class="strong">Railway</td><td data-label="Descrição">Hospedagem — <a href="../tecnologia/aplicacao.html">Sistema ERP</a></td><td data-label="Categoria">Infraestrutura</td><td data-label="Valor" class="num">US$ 20,00<span class="cell-sub">≈ R$ 112,40</span></td><td data-label="Periodicidade">Mensal</td><td data-label="Vencimento">Dia 18</td><td data-label="Centro de custo"><a href="../clientes/empresa.html">Empresa XYZ</a></td><td data-label="Próximos títulos" class="mono">18/10 · 18/11 · 18/12</td><td data-label="Situação"><span class="badge b-good">Ativa</span></td></tr>
+          <tr><td data-label="Fornecedor" class="strong">Railway</td><td data-label="Descrição">Hospedagem — <a href="../tecnologia/aplicacao.html">Portal ACME</a></td><td data-label="Categoria">Infraestrutura</td><td data-label="Valor" class="num">US$ 26,69<span class="cell-sub">≈ R$ 150,00</span></td><td data-label="Periodicidade">Mensal</td><td data-label="Vencimento">Dia 18</td><td data-label="Centro de custo"><a href="../clientes/empresa.html">Empresa ACME</a></td><td data-label="Próximos títulos" class="mono">18/10 · 18/11 · 18/12</td><td data-label="Situação"><span class="badge b-good">Ativa</span></td></tr>
+          <tr><td data-label="Fornecedor" class="strong">AWS</td><td data-label="Descrição">EC2 + RDS — Portal ACME<span class="cell-sub">valor variável, ajustado pela fatura</span></td><td data-label="Categoria">Infraestrutura</td><td data-label="Valor" class="num">≈ US$ 39,15<span class="cell-sub">≈ R$ 220,00</span></td><td data-label="Periodicidade">Mensal</td><td data-label="Vencimento">Dia 3</td><td data-label="Centro de custo"><a href="../clientes/empresa.html">Empresa ACME</a></td><td data-label="Próximos títulos" class="mono">03/10 · 03/11 · 03/12</td><td data-label="Situação"><span class="badge b-good">Ativa</span></td></tr>
+          <tr><td data-label="Fornecedor" class="strong">AWS</td><td data-label="Descrição">EC2 + S3 — API Delta<span class="cell-sub">valor variável, ajustado pela fatura</span></td><td data-label="Categoria">Infraestrutura</td><td data-label="Valor" class="num">≈ US$ 160,14<span class="cell-sub">≈ R$ 900,00</span></td><td data-label="Periodicidade">Mensal</td><td data-label="Vencimento">Dia 3</td><td data-label="Centro de custo"><a href="../clientes/empresa.html">Empresa Delta</a></td><td data-label="Próximos títulos" class="mono">03/10 · 03/11 · 03/12</td><td data-label="Situação"><span class="badge b-good">Ativa</span></td></tr>
+          <tr><td data-label="Fornecedor" class="strong">Google Workspace</td><td data-label="Descrição">6 contas de e-mail corporativo</td><td data-label="Categoria">Software</td><td data-label="Valor" class="num">R$ 336,00</td><td data-label="Periodicidade">Mensal</td><td data-label="Vencimento">Dia 22</td><td data-label="Centro de custo">Administrativo</td><td data-label="Próximos títulos" class="mono">22/10 · 22/11 · 22/12</td><td data-label="Situação"><span class="badge b-good">Ativa</span></td></tr>
+          <tr><td data-label="Fornecedor" class="strong">GitHub</td><td data-label="Descrição">Plano Team — 6 usuários</td><td data-label="Categoria">Software</td><td data-label="Valor" class="num">US$ 24,00<span class="cell-sub">≈ R$ 134,88</span></td><td data-label="Periodicidade">Mensal</td><td data-label="Vencimento">Dia 8</td><td data-label="Centro de custo">Operação</td><td data-label="Próximos títulos" class="mono">08/10 · 08/11 · 08/12</td><td data-label="Situação"><span class="badge b-good">Ativa</span></td></tr>
+          <tr><td data-label="Fornecedor" class="strong">Silva &amp; Associados</td><td data-label="Descrição">Honorários contábeis</td><td data-label="Categoria">Contabilidade</td><td data-label="Valor" class="num">R$ 650,00</td><td data-label="Periodicidade">Mensal</td><td data-label="Vencimento">Dia 20</td><td data-label="Centro de custo">Administrativo</td><td data-label="Próximos títulos" class="mono">20/10 · 20/11 · 20/12</td><td data-label="Situação"><span class="badge b-good">Ativa</span></td></tr>
+          <tr><td data-label="Fornecedor" class="strong">Diego Rocha (PJ)</td><td data-label="Descrição">Desenvolvimento</td><td data-label="Categoria">Colaboradores</td><td data-label="Valor" class="num">R$ 5.800,00</td><td data-label="Periodicidade">Mensal</td><td data-label="Vencimento">Dia 30</td><td data-label="Centro de custo">Operação</td><td data-label="Próximos títulos" class="mono">30/10 · 30/11 · 30/12</td><td data-label="Situação"><span class="badge b-good">Ativa</span></td></tr>
+          <tr><td data-label="Fornecedor" class="strong">Elisa Prado (PJ)</td><td data-label="Descrição">Desenvolvimento</td><td data-label="Categoria">Colaboradores</td><td data-label="Valor" class="num">R$ 5.700,00</td><td data-label="Periodicidade">Mensal</td><td data-label="Vencimento">Dia 30</td><td data-label="Centro de custo">Operação</td><td data-label="Próximos títulos" class="mono">30/10 · 30/11 · 30/12</td><td data-label="Situação"><span class="badge b-good">Ativa</span></td></tr>
+          <tr><td data-label="Fornecedor" class="strong">Registro.br</td><td data-label="Descrição">Renovação — <a href="../tecnologia/dominios.html">acme.com.br</a></td><td data-label="Categoria">Infraestrutura</td><td data-label="Valor" class="num">R$ 40,00</td><td data-label="Periodicidade">Anual</td><td data-label="Vencimento">24/09</td><td data-label="Centro de custo"><a href="../clientes/empresa.html">Empresa ACME</a></td><td data-label="Próximos títulos" class="mono">24/09/2026<span class="cell-sub">depois 24/09/2027</span></td><td data-label="Situação"><span class="badge b-good">Ativa</span></td></tr>
+          <tr><td data-label="Fornecedor" class="strong">Figma</td><td data-label="Descrição">Licença Professional</td><td data-label="Categoria">Software</td><td data-label="Valor" class="num muted">US$ 15,00</td><td data-label="Periodicidade">Mensal</td><td data-label="Vencimento">Dia 12</td><td data-label="Centro de custo">Operação</td><td data-label="Próximos títulos" class="muted">3 previsões canceladas<span class="cell-sub">encerrada em 12/09/2026</span></td><td data-label="Situação"><span class="badge b-mute">Encerrada</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination"><span>Mostrando 11 de 15 regras · valores em US$ convertidos na data do pagamento</span><div class="pages"><button type="button" class="on" aria-current="page">1</button><button type="button">2</button></div></div>
+  </div>
+</section>
+
+</main>
+</div>
+</div>
+
+<!-- Modal: executar rotina agora -->
+<div class="modal" id="executar" role="dialog" aria-modal="true" aria-labelledby="executar-t">
+  <form class="form" style="display:contents">
+    <div class="modal-head"><h2 id="executar-t">Executar rotina de recorrências</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="modal-body form">
+      <p class="lead" style="margin:0">A rotina roda sozinha todos os dias às 06:00. Executar agora vai:</p>
+      <div class="stack" style="gap:8px">
+        <span>• gerar os títulos que faltam até <b class="strong">Dezembro/2026</b>, a receber e a pagar;</span>
+        <span>• marcar como <b class="strong">Vencido</b> os títulos sem pagamento após o vencimento;</span>
+        <span>• cancelar previsões de serviços encerrados.</span>
+      </div>
+      <div class="callout"><span>Nada é duplicado: cada título é gerado uma única vez por competência.</span></div>
+    </div>
+    <div class="modal-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Executar agora</button></div>
+  </form>
+</div>
+
+<script src="../assets/app.js"></script>
+</body>
+</html>

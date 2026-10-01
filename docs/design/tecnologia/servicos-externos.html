@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Serviços externos · Admin DevBatista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/app.css">
+</head>
+<body data-group="tec" data-item="Serviços externos" data-crumb='[["Tecnologia","aplicacoes.html"],["Serviços externos"]]'>
+<div class="app">
+<aside class="side"></aside>
+<div class="main">
+<header class="top"></header>
+<main class="content">
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Tecnologia · Setembro de 2026</span>
+    <h1>Serviços externos</h1>
+    <p class="lead">SaaS e infraestrutura de terceiros usados por cliente, com custo na moeda original e quem paga.</p>
+  </div>
+  <div class="actions">
+    <button class="btn" type="button">Exportar CSV</button>
+    <button class="btn pri" type="button" data-open="novo-servico">Novo serviço externo</button>
+  </div>
+</div>
+
+<div class="grid-kpi">
+  <div class="card kpi" style="border-color:var(--cyan-line)"><span class="eyebrow" style="color:var(--cyan-300)">Pago pela DevBatista</span><span class="v">R$ 749/mês</span><span class="f">6 serviços em nome de 4 clientes</span></div>
+  <div class="card kpi"><span class="eyebrow">Pago pelos clientes</span><span class="v">R$ 468/mês</span><span class="f">3 serviços · fora do custo direto</span></div>
+  <div class="card kpi"><span class="eyebrow">Serviços cadastrados</span><span class="v">9</span><span class="f">5 mensais · 3 por consumo · 1 anual</span></div>
+  <div class="card kpi"><span class="eyebrow">Cotação usada</span><span class="v">R$ 5,62</span><span class="f">por US$ 1 · 17/09/2026</span></div>
+</div>
+
+<div class="grid-2">
+  <div class="callout" style="align-items:flex-start">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:1px;color:var(--cyan)"><path d="M4 20V12M10 20V6M16 20v-9M21 20H3"/></svg>
+    <div class="stack" style="gap:8px">
+      <b class="strong">Base da rentabilidade</b>
+      <span>Serviços pagos pela DevBatista em nome de um cliente são custos diretos daquele cliente e alimentam a rentabilidade por cliente. Os pagos pelo próprio cliente ficam só no inventário.</span>
+      <span>Ex.: <a href="../clientes/empresa.html">Empresa ACME</a> tem R$ 350 em serviços externos + R$ 220 de servidor = <b class="strong">R$ 570 de custo direto</b> em setembro.</span>
+      <a class="link-btn" href="../gestao/rentabilidade.html" style="align-self:flex-start">Ver rentabilidade por cliente →</a>
+    </div>
+  </div>
+  <section class="card card-body stack" aria-labelledby="porcli-t">
+    <div class="section-title"><h2 id="porcli-t">Pago pela DevBatista por cliente</h2><span class="unit">R$ · MÊS</span></div>
+    <div class="hbars">
+      <div class="hbar"><span>Empresa ACME</span><div class="track"><div class="fill" style="width:100%"></div></div><span class="val">350</span></div>
+      <div class="hbar"><span>Cliente C</span><div class="track"><div class="fill" style="width:42%"></div></div><span class="val">146</span></div>
+      <div class="hbar"><span>Empresa Delta</span><div class="track"><div class="fill" style="width:40%"></div></div><span class="val">141</span></div>
+      <div class="hbar"><span>Empresa XYZ</span><div class="track"><div class="fill" style="width:32%"></div></div><span class="val">112</span></div>
+    </div>
+  </section>
+</div>
+
+<div class="toolbar">
+  <div class="seg" role="group" aria-label="Filtrar por responsável pelo pagamento" data-filter-group="servicos">
+    <button type="button" class="on" data-filter="todos" aria-pressed="true">Todos <span class="c"></span></button>
+    <button type="button" data-filter="DevBatista" aria-pressed="false">Pago pela DevBatista <span class="c"></span></button>
+    <button type="button" data-filter="Cliente" aria-pressed="false">Pago pelo cliente <span class="c"></span></button>
+  </div>
+  <span class="spacer"></span>
+  <label class="search-field"><span class="sr-only">Buscar serviço</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M11 18a7 7 0 100-14 7 7 0 000 14zM21 21l-4.3-4.3"/></svg><input class="input" type="search" placeholder="Serviço, fornecedor ou aplicação"></label>
+  <label class="sr-only" for="f-per">Periodicidade</label>
+  <select class="select" id="f-per"><option>Toda periodicidade</option><option>Mensal</option><option>Anual</option><option>Por consumo</option></select>
+  <label class="sr-only" for="f-cli">Cliente</label>
+  <select class="select" id="f-cli"><option>Todos os clientes</option><option>Empresa ACME</option><option>Empresa XYZ</option><option>Empresa Delta</option><option>Empresa Orion</option><option>Cliente C</option></select>
+</div>
+
+<section class="card" aria-label="Lista de serviços externos">
+  <div class="table-wrap">
+    <table class="table cards" data-filter-target="servicos">
+      <thead><tr><th>Serviço</th><th>Fornecedor</th><th>Cliente</th><th>Aplicação</th><th class="num">Custo</th><th>Periodicidade</th><th>Responsável pelo pagamento</th></tr></thead>
+      <tbody>
+        <tr data-status="DevBatista"><td data-label="Serviço" class="strong">Railway<span class="cell-sub">Plano Pro · hospedagem</span></td><td data-label="Fornecedor">Railway</td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa ACME</a></td><td data-label="Aplicação"><a href="aplicacao.html">Portal ACME</a></td><td data-label="Custo" class="num">US$ 26,70/mês<span class="cell-sub">≈ R$ 150</span></td><td data-label="Periodicidade">Mensal</td><td data-label="Responsável pelo pagamento"><span class="badge b-info">DevBatista</span></td></tr>
+        <tr data-status="DevBatista"><td data-label="Serviço" class="strong">Railway<span class="cell-sub">Plano Hobby · hospedagem</span></td><td data-label="Fornecedor">Railway</td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa XYZ</a></td><td data-label="Aplicação"><a href="aplicacao.html">Sistema ERP</a></td><td data-label="Custo" class="num">US$ 20,00/mês<span class="cell-sub">≈ R$ 112</span></td><td data-label="Periodicidade">Mensal</td><td data-label="Responsável pelo pagamento"><span class="badge b-info">DevBatista</span></td></tr>
+        <tr data-status="DevBatista"><td data-label="Serviço" class="strong">OpenAI API<span class="cell-sub">Fatura de agosto</span></td><td data-label="Fornecedor">OpenAI</td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa ACME</a></td><td data-label="Aplicação"><a href="aplicacao.html">Portal ACME</a></td><td data-label="Custo" class="num">US$ 21,35<span class="cell-sub">≈ R$ 120</span></td><td data-label="Periodicidade">Por consumo</td><td data-label="Responsável pelo pagamento"><span class="badge b-info">DevBatista</span></td></tr>
+        <tr data-status="DevBatista"><td data-label="Serviço" class="strong">Amazon SES<span class="cell-sub">E-mails transacionais · fatura de agosto</span></td><td data-label="Fornecedor">Amazon SES</td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa ACME</a></td><td data-label="Aplicação"><a href="aplicacao.html">Portal ACME</a></td><td data-label="Custo" class="num">US$ 14,25<span class="cell-sub">≈ R$ 80</span></td><td data-label="Periodicidade">Por consumo</td><td data-label="Responsável pelo pagamento"><span class="badge b-info">DevBatista</span></td></tr>
+        <tr data-status="DevBatista"><td data-label="Serviço" class="strong">Cloudflare Pro<span class="cell-sub">DNS, CDN e WAF</span></td><td data-label="Fornecedor">Cloudflare</td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa Delta</a></td><td data-label="Aplicação"><a href="aplicacao.html">API Delta</a></td><td data-label="Custo" class="num">US$ 25,00/mês<span class="cell-sub">≈ R$ 141</span></td><td data-label="Periodicidade">Mensal</td><td data-label="Responsável pelo pagamento"><span class="badge b-info">DevBatista</span></td></tr>
+        <tr data-status="DevBatista"><td data-label="Serviço" class="strong">Sentry<span class="cell-sub">Plano Team · monitoramento de erros</span></td><td data-label="Fornecedor">Sentry</td><td data-label="Cliente"><a href="../clientes/empresa.html">Cliente C</a></td><td data-label="Aplicação"><a href="aplicacao.html">ERP Cliente C</a></td><td data-label="Custo" class="num">US$ 26,00/mês<span class="cell-sub">≈ R$ 146</span></td><td data-label="Periodicidade">Mensal</td><td data-label="Responsável pelo pagamento"><span class="badge b-info">DevBatista</span></td></tr>
+        <tr data-status="Cliente"><td data-label="Serviço" class="strong">Mailgun<span class="cell-sub">Plano Foundation · conta do cliente</span></td><td data-label="Fornecedor">Mailgun</td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa XYZ</a></td><td data-label="Aplicação"><a href="aplicacao.html">Sistema ERP</a></td><td data-label="Custo" class="num">US$ 35,00/mês<span class="cell-sub">≈ R$ 197</span></td><td data-label="Periodicidade">Mensal</td><td data-label="Responsável pelo pagamento"><span class="badge b-mute">Cliente</span></td></tr>
+        <tr data-status="Cliente"><td data-label="Serviço" class="strong">Twilio<span class="cell-sub">SMS de verificação · estimativa</span></td><td data-label="Fornecedor">Twilio</td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa Orion</a></td><td data-label="Aplicação"><a href="aplicacao.html">App Orion</a></td><td data-label="Custo" class="num">US$ 40,00<span class="cell-sub">≈ R$ 225</span></td><td data-label="Periodicidade">Por consumo</td><td data-label="Responsável pelo pagamento"><span class="badge b-mute">Cliente</span></td></tr>
+        <tr data-status="Cliente"><td data-label="Serviço" class="strong">Apple Developer Program<span class="cell-sub">Publicação na App Store · renova em 03/2027</span></td><td data-label="Fornecedor">Apple</td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa Orion</a></td><td data-label="Aplicação"><a href="aplicacao.html">App Orion</a></td><td data-label="Custo" class="num">US$ 99,00/ano<span class="cell-sub">≈ R$ 46/mês</span></td><td data-label="Periodicidade">Anual</td><td data-label="Responsável pelo pagamento"><span class="badge b-mute">Cliente</span></td></tr>
+      </tbody>
+      <tfoot><tr><td data-label="" colspan="4">Total pago pela DevBatista em nome de clientes · equivalente mensal</td><td data-label="Total" class="num">R$ 749</td><td data-label="" colspan="2"></td></tr></tfoot>
+    </table>
+  </div>
+  <div class="pagination"><span>Moeda original preservada; valor em R$ convertido pela cotação de 17/09/2026</span><div class="pages"><button type="button" class="on" aria-current="page">1</button></div></div>
+</section>
+
+</main>
+</div>
+</div>
+
+<!-- Formulário lateral: novo serviço externo -->
+<aside class="drawer" id="novo-servico" role="dialog" aria-modal="true" aria-labelledby="novo-servico-t">
+  <form class="form" style="display:contents">
+    <div class="drawer-head"><h2 id="novo-servico-t">Novo serviço externo</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="drawer-body form">
+      <div class="form-grid">
+        <div class="field"><label for="x-serv">Serviço <span class="req">*</span></label><input class="input" id="x-serv" required placeholder="Ex.: Railway"></div>
+        <div class="field"><label for="x-forn">Fornecedor <span class="req">*</span></label><select class="select" id="x-forn" required><option value="">Selecione</option><option>AWS</option><option>Railway</option><option>Cloudflare</option><option>Mailgun</option><option>Amazon SES</option><option>OpenAI</option><option>Twilio</option><option>Sentry</option><option>Apple</option></select><span class="hint">Cadastrado em <a href="../gestao/fornecedores.html">Fornecedores</a></span></div>
+        <div class="field"><label for="x-cli">Cliente <span class="req">*</span></label><select class="select" id="x-cli" required><option value="">Selecione</option><option>Empresa ACME</option><option>Empresa XYZ</option><option>Empresa Delta</option><option>Empresa Orion</option><option>Cliente A</option><option>Cliente B</option><option>Cliente C</option></select><span class="hint">Cliente beneficiado</span></div>
+        <div class="field"><label for="x-app">Aplicação</label><select class="select" id="x-app"><option value="">Selecione o cliente primeiro</option><option>Sistema ERP</option><option>Portal de arquivos XYZ</option></select></div>
+        <div class="field"><label for="x-valor">Custo <span class="req">*</span></label><input class="input num" id="x-valor" inputmode="decimal" required placeholder="20,00"></div>
+        <div class="field"><label for="x-moeda">Moeda <span class="req">*</span></label><select class="select" id="x-moeda" required><option>US$ — Dólar</option><option>R$ — Real</option><option>€ — Euro</option></select></div>
+        <div class="field full"><label for="x-per">Periodicidade <span class="req">*</span></label><select class="select" id="x-per" required><option>Mensal</option><option>Anual</option><option>Por consumo</option></select></div>
+        <fieldset class="field full" style="border:0;padding:0;margin:0">
+          <legend class="label" style="margin-bottom:8px">Responsável pelo pagamento <span class="req">*</span></legend>
+          <div class="row wrap" style="gap:20px">
+            <label class="check"><input type="radio" name="x-resp" value="DevBatista" checked required> DevBatista</label>
+            <label class="check"><input type="radio" name="x-resp" value="Cliente"> Cliente</label>
+          </div>
+          <span class="hint" style="margin-top:6px">Só os pagos pela DevBatista entram no custo direto do cliente.</span>
+        </fieldset>
+        <div class="field full"><label for="x-obs">Observações</label><textarea class="textarea" id="x-obs" placeholder="Plano contratado e demais notas"></textarea></div>
+      </div>
+    </div>
+    <div class="drawer-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Salvar serviço</button></div>
+  </form>
+</aside>
+
+<script src="../assets/app.js"></script>
+</body>
+</html>

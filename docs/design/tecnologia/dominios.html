@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Domínios · Admin DevBatista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/app.css">
+<style>
+  .urgent { border: 1px solid var(--crit-line); background: var(--crit-bg); border-radius: var(--radius); padding: 18px 20px; display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+  .urgent .ic { width: 44px; height: 44px; border-radius: 12px; background: rgba(239, 68, 68, 0.18); color: var(--crit); display: flex; align-items: center; justify-content: center; flex: none; }
+  .urgent .txt { flex: 1; min-width: 240px; display: flex; flex-direction: column; gap: 4px; }
+  .urgent .txt b { color: var(--white); font-size: 16px; }
+  .urgent .days { font-size: 30px; font-weight: 700; color: var(--crit); font-variant-numeric: tabular-nums; line-height: 1; text-align: center; }
+  .urgent .days small { display: block; font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; margin-top: 4px; }
+  .table tr.late td:first-child { box-shadow: inset 3px 0 0 var(--crit-dot); }
+  .alert-step { padding: 16px 20px; display: flex; flex-direction: column; gap: 8px; }
+  .alert-step .n { font-size: 22px; font-weight: 700; color: var(--white); font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body data-group="tec" data-item="Domínios" data-crumb='[["Tecnologia","aplicacoes.html"],["Domínios"]]'>
+<div class="app">
+<aside class="side"></aside>
+<div class="main">
+<header class="top"></header>
+<main class="content">
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Tecnologia · Inventário</span>
+    <h1>Domínios</h1>
+    <p class="lead">Domínios dos clientes ordenados pelo vencimento mais próximo.</p>
+  </div>
+  <div class="actions">
+    <button class="btn" type="button">Exportar CSV</button>
+    <button class="btn pri" type="button" data-open="novo-dominio">Novo domínio</button>
+  </div>
+</div>
+
+<div class="urgent" role="alert">
+  <span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l10 18H2zM12 10v4M12 17h.01"/></svg></span>
+  <div class="txt">
+    <b>acme.com.br vence em 24/09/2026 e não tem renovação automática</b>
+    <span>Se expirar, o <a href="aplicacao.html">Portal ACME</a> (portal.acme.com.br) e o site institucional saem do ar. Renovação no Registro.br, paga pela <a href="../clientes/empresa.html">Empresa ACME</a>; a DevBatista acompanha.</span>
+  </div>
+  <div class="days">7<small>dias</small></div>
+  <button class="btn pri" type="button" data-open="renovar">Registrar renovação</button>
+</div>
+
+<div class="grid-kpi">
+  <div class="card kpi"><span class="eyebrow">Domínios</span><span class="v">9</span><span class="f">de 7 clientes</span></div>
+  <div class="card kpi"><span class="eyebrow">Vencem em 60 dias</span><span class="v">3</span><span class="f"><span class="badge b-crit">1 em 7 dias</span><span class="badge b-warn">1 em 30</span></span></div>
+  <div class="card kpi alert"><span class="eyebrow">Sem renovação automática</span><span class="v">2</span><span class="f">acme.com.br e acme.app.br</span></div>
+  <div class="card kpi"><span class="eyebrow">Custo anual de renovação</span><span class="v">R$ 396</span><span class="f">8 × R$ 40 + orion.app</span></div>
+</div>
+
+<section class="stack" aria-labelledby="alertas-t">
+  <div class="section-title"><h2 id="alertas-t">Alertas de vencimento</h2><a class="link-btn" href="../administracao/configuracoes.html">Ajustar antecedência</a></div>
+  <div class="grid-3">
+    <div class="card alert-step" style="border-color:var(--crit-line)"><span class="eyebrow" style="color:var(--crit)">7 dias antes</span><span class="n">1 domínio</span><span class="caption">acme.com.br · alerta enviado hoje, 07:00</span></div>
+    <div class="card alert-step"><span class="eyebrow" style="color:var(--warn)">30 dias antes</span><span class="n">1 domínio</span><span class="caption">lojaacme.com.br · alerta enviado em 14/09/2026</span></div>
+    <div class="card alert-step"><span class="eyebrow">60 dias antes</span><span class="n">1 domínio</span><span class="caption">orion.app · alerta enviado em 06/09/2026</span></div>
+  </div>
+</section>
+
+<div class="toolbar">
+  <div class="seg" role="group" aria-label="Filtrar por prazo de vencimento" data-filter-group="dominios">
+    <button type="button" class="on" data-filter="todos" aria-pressed="true">Todos <span class="c"></span></button>
+    <button type="button" data-filter="Até 7 dias" aria-pressed="false">Até 7 dias <span class="c"></span></button>
+    <button type="button" data-filter="Até 30 dias" aria-pressed="false">Até 30 dias <span class="c"></span></button>
+    <button type="button" data-filter="Até 60 dias" aria-pressed="false">Até 60 dias <span class="c"></span></button>
+    <button type="button" data-filter="Em dia" aria-pressed="false">Em dia <span class="c"></span></button>
+  </div>
+  <span class="spacer"></span>
+  <label class="search-field"><span class="sr-only">Buscar domínio</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M11 18a7 7 0 100-14 7 7 0 000 14zM21 21l-4.3-4.3"/></svg><input class="input" type="search" placeholder="Domínio ou cliente"></label>
+  <label class="sr-only" for="f-reg">Registrador</label>
+  <select class="select" id="f-reg"><option>Todos os registradores</option><option>Registro.br</option><option>Cloudflare</option></select>
+  <label class="sr-only" for="f-auto">Renovação automática</label>
+  <select class="select" id="f-auto"><option>Renovação: todas</option><option>Com renovação automática</option><option>Sem renovação automática</option></select>
+</div>
+
+<section class="card" aria-label="Lista de domínios">
+  <div class="table-wrap">
+    <table class="table cards" data-filter-target="dominios">
+      <thead><tr><th>Domínio</th><th>Cliente</th><th>Registrador</th><th>Registro</th><th>Vencimento</th><th class="num">Dias restantes</th><th>Renovação automática</th><th class="num">Custo</th><th>Alerta</th></tr></thead>
+      <tbody>
+        <tr class="late" data-status="Até 7 dias"><td data-label="Domínio"><span class="strong" style="color:var(--white)">acme.com.br</span><span class="cell-sub">Pago pelo cliente · DNS na Cloudflare</span></td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa ACME</a></td><td data-label="Registrador">Registro.br</td><td data-label="Registro" class="mono">24/09/2018</td><td data-label="Vencimento" class="mono strong" style="color:var(--crit)">24/09/2026</td><td data-label="Dias restantes" class="num" style="color:var(--crit);font-weight:700">7</td><td data-label="Renovação automática"><span class="badge b-crit">Não</span></td><td data-label="Custo" class="num">R$ 40/ano</td><td data-label="Alerta"><span class="badge b-crit dot-l">7 dias</span></td></tr>
+        <tr data-status="Até 30 dias"><td data-label="Domínio"><span class="strong">lojaacme.com.br</span><span class="cell-sub">Pago pelo cliente</span></td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa ACME</a></td><td data-label="Registrador">Registro.br</td><td data-label="Registro" class="mono">14/10/2022</td><td data-label="Vencimento" class="mono">14/10/2026</td><td data-label="Dias restantes" class="num" style="color:var(--warn);font-weight:600">27</td><td data-label="Renovação automática"><span class="badge b-good">Sim</span></td><td data-label="Custo" class="num">R$ 40/ano</td><td data-label="Alerta"><span class="badge b-warn dot-l">30 dias</span></td></tr>
+        <tr data-status="Até 60 dias"><td data-label="Domínio"><span class="strong">orion.app</span><span class="cell-sub">US$ 14,20 · pago pela DevBatista</span></td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa Orion</a></td><td data-label="Registrador">Cloudflare</td><td data-label="Registro" class="mono">05/11/2024</td><td data-label="Vencimento" class="mono">05/11/2026</td><td data-label="Dias restantes" class="num" style="color:var(--warn);font-weight:600">49</td><td data-label="Renovação automática"><span class="badge b-good">Sim</span></td><td data-label="Custo" class="num">R$ 80/ano</td><td data-label="Alerta"><span class="badge b-info dot-l">60 dias</span></td></tr>
+        <tr data-status="Em dia"><td data-label="Domínio"><span class="strong">xyz.com.br</span><span class="cell-sub">Pago pelo cliente</span></td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa XYZ</a></td><td data-label="Registrador">Registro.br</td><td data-label="Registro" class="mono">02/12/2015</td><td data-label="Vencimento" class="mono">02/12/2026</td><td data-label="Dias restantes" class="num">76</td><td data-label="Renovação automática"><span class="badge b-good">Sim</span></td><td data-label="Custo" class="num">R$ 40/ano</td><td data-label="Alerta" class="muted">—</td></tr>
+        <tr data-status="Em dia"><td data-label="Domínio"><span class="strong">deltaservicos.com.br</span><span class="cell-sub">Pago pelo cliente</span></td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa Delta</a></td><td data-label="Registrador">Registro.br</td><td data-label="Registro" class="mono">18/03/2019</td><td data-label="Vencimento" class="mono">18/03/2027</td><td data-label="Dias restantes" class="num">182</td><td data-label="Renovação automática"><span class="badge b-good">Sim</span></td><td data-label="Custo" class="num">R$ 40/ano</td><td data-label="Alerta" class="muted">—</td></tr>
+        <tr data-status="Em dia"><td data-label="Domínio"><span class="strong">acme.app.br</span><span class="cell-sub">Pago pelo cliente · redireciona para acme.com.br</span></td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa ACME</a></td><td data-label="Registrador">Registro.br</td><td data-label="Registro" class="mono">10/05/2025</td><td data-label="Vencimento" class="mono">10/05/2027</td><td data-label="Dias restantes" class="num">235</td><td data-label="Renovação automática"><span class="badge b-warn">Não</span></td><td data-label="Custo" class="num">R$ 40/ano</td><td data-label="Alerta" class="muted">—</td></tr>
+        <tr data-status="Em dia"><td data-label="Domínio"><span class="strong">clientea.com.br</span><span class="cell-sub">Pago pelo cliente</span></td><td data-label="Cliente"><a href="../clientes/empresa.html">Cliente A</a></td><td data-label="Registrador">Registro.br</td><td data-label="Registro" class="mono">21/07/2020</td><td data-label="Vencimento" class="mono">21/07/2027</td><td data-label="Dias restantes" class="num">307</td><td data-label="Renovação automática"><span class="badge b-good">Sim</span></td><td data-label="Custo" class="num">R$ 40/ano</td><td data-label="Alerta" class="muted">—</td></tr>
+        <tr data-status="Em dia"><td data-label="Domínio"><span class="strong">erp-clientec.com.br</span><span class="cell-sub">Pago pela DevBatista</span></td><td data-label="Cliente"><a href="../clientes/empresa.html">Cliente C</a></td><td data-label="Registrador">Registro.br</td><td data-label="Registro" class="mono">12/08/2025</td><td data-label="Vencimento" class="mono">12/08/2027</td><td data-label="Dias restantes" class="num">329</td><td data-label="Renovação automática"><span class="badge b-good">Sim</span></td><td data-label="Custo" class="num">R$ 40/ano</td><td data-label="Alerta" class="muted">—</td></tr>
+        <tr data-status="Em dia"><td data-label="Domínio"><span class="strong">clienteb.com.br</span><span class="cell-sub">Pago pelo cliente</span></td><td data-label="Cliente"><a href="../clientes/empresa.html">Cliente B</a></td><td data-label="Registrador">Registro.br</td><td data-label="Registro" class="mono">30/01/2021</td><td data-label="Vencimento" class="mono">30/01/2028</td><td data-label="Dias restantes" class="num">500</td><td data-label="Renovação automática"><span class="badge b-good">Sim</span></td><td data-label="Custo" class="num">R$ 40/ano</td><td data-label="Alerta" class="muted">—</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="pagination"><span>Dias restantes calculados a partir de hoje, 17/09/2026</span><div class="pages"><button type="button" class="on" aria-current="page">1</button></div></div>
+</section>
+
+</main>
+</div>
+</div>
+
+<!-- Formulário lateral: novo domínio -->
+<aside class="drawer" id="novo-dominio" role="dialog" aria-modal="true" aria-labelledby="novo-dominio-t">
+  <form class="form" style="display:contents">
+    <div class="drawer-head"><h2 id="novo-dominio-t">Novo domínio</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="drawer-body form">
+      <div class="form-grid">
+        <div class="field full"><label for="d-cli">Cliente <span class="req">*</span></label><select class="select" id="d-cli" required><option value="">Selecione</option><option>Empresa ACME</option><option>Empresa XYZ</option><option>Empresa Delta</option><option>Empresa Orion</option><option>Cliente A</option><option>Cliente B</option><option>Cliente C</option></select><span class="hint">Titular ou beneficiário do domínio</span></div>
+        <div class="field full"><label for="d-dom">Domínio <span class="req">*</span></label><input class="input" id="d-dom" required placeholder="Ex.: empresa.com.br"></div>
+        <div class="field full"><label for="d-reg">Registrador <span class="req">*</span></label><input class="input" id="d-reg" list="registradores" required placeholder="Ex.: Registro.br"><datalist id="registradores"><option value="Registro.br"></option><option value="Cloudflare"></option><option value="GoDaddy"></option><option value="Hostinger"></option></datalist></div>
+        <div class="field"><label for="d-data-reg">Registro</label><input class="input" id="d-data-reg" type="date"><span class="hint">Data do registro original</span></div>
+        <div class="field"><label for="d-venc">Vencimento <span class="req">*</span></label><input class="input" id="d-venc" type="date" required></div>
+        <div class="field"><label for="d-custo">Custo da renovação (R$)</label><input class="input num" id="d-custo" inputmode="decimal" placeholder="40,00"></div>
+        <div class="field"><span class="label" id="d-auto-l">Renovação automática</span><div class="row" style="height:40px"><label class="switch"><input type="checkbox" id="d-auto" aria-labelledby="d-auto-l"><span></span></label><span class="caption">Ativa no registrador</span></div></div>
+        <div class="field full"><label for="d-obs">Observações</label><textarea class="textarea" id="d-obs" placeholder="Responsável pelo pagamento, DNS e demais notas"></textarea></div>
+      </div>
+      <div class="callout"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:2px;color:var(--cyan)"><path d="M6 8a6 6 0 1112 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.9 1.9 0 003.4 0"/></svg><span>Alertas automáticos a 60, 30 e 7 dias do vencimento. Sem renovação automática, o domínio ganha destaque na lista.</span></div>
+    </div>
+    <div class="drawer-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Salvar domínio</button></div>
+  </form>
+</aside>
+
+<!-- Modal: registrar renovação -->
+<div class="modal" id="renovar" role="dialog" aria-modal="true" aria-labelledby="renovar-t">
+  <form class="form" style="display:contents">
+    <div class="modal-head"><h2 id="renovar-t">Registrar renovação</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="modal-body form">
+      <div class="callout crit"><span><b class="strong">acme.com.br</b> · Empresa ACME · Registro.br · vence em 24/09/2026</span></div>
+      <div class="form-grid">
+        <div class="field"><label for="r-venc">Novo vencimento <span class="req">*</span></label><input class="input" id="r-venc" type="date" value="2027-09-24" required></div>
+        <div class="field"><label for="r-custo">Custo pago (R$)</label><input class="input num" id="r-custo" value="40,00"></div>
+      </div>
+      <label class="check"><input type="checkbox" checked> Renovação automática ativada no registrador</label>
+      <div class="field"><label for="r-obs">Observações</label><textarea class="textarea" id="r-obs" placeholder="Quem pagou, comprovante, prazo da renovação"></textarea></div>
+    </div>
+    <div class="modal-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Salvar renovação</button></div>
+  </form>
+</div>
+
+<script src="../assets/app.js"></script>
+</body>
+</html>

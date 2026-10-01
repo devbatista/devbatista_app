@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Indicadores · Admin DevBatista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/app.css">
+<style>
+  .kpi .h { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .def { width: 24px; height: 24px; border-radius: 50%; border: 0; background: transparent; color: var(--faint); display: inline-flex; align-items: center; justify-content: center; cursor: help; padding: 0; flex: none; }
+  .def:hover, .def:focus-visible { color: var(--cyan); }
+  .kpi .d { font-size: 12px; color: var(--faint); line-height: 1.45; margin-top: auto; padding-top: 8px; border-top: 1px solid var(--rule); }
+  .kpi { min-height: 172px; }
+  .hbar.wide { grid-template-columns: 96px minmax(0, 1fr) 56px; }
+</style>
+</head>
+<body data-group="ges" data-item="Indicadores" data-crumb='[["Gestão"],["Indicadores"]]'>
+<div class="app">
+<aside class="side"></aside>
+<div class="main">
+<header class="top"></header>
+<main class="content">
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Gestão · Setembro de 2026</span>
+    <h1>Indicadores</h1>
+    <p class="lead">A saúde do negócio em 14 números. Tendência comparada a agosto/2026.</p>
+  </div>
+  <div class="actions">
+    <label class="sr-only" for="ind-per">Período</label>
+    <select class="select" id="ind-per"><option>Setembro/2026</option><option>Agosto/2026</option><option>3º trimestre/2026</option><option>2026 até hoje</option><option>Personalizado…</option></select>
+    <a class="btn" href="relatorios.html">Ver relatórios</a>
+  </div>
+</div>
+
+<div class="note">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16v16H4zM8 15l3-3 2 2 3-4"/></svg>
+  <span><b>Calculados pelo sistema, nenhum é digitado.</b> Cada indicador vem dos registros de serviços contratados, receitas, despesas, leads, propostas e horas. Atualizado em 17/09/2026 às 14:45 (cache de até 15 minutos).</span>
+</div>
+
+<section class="stack" aria-label="Receita e resultado">
+  <span class="eyebrow">Receita e resultado</span>
+  <div class="grid-kpi">
+    <div class="card kpi"><div class="h"><span class="eyebrow">MRR</span><button class="def" type="button" title="Soma mensalizada dos serviços recorrentes ativos." aria-label="Definição de MRR: soma mensalizada dos serviços recorrentes ativos."><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM12 16v-4M12 8h.01"/></svg></button></div><span class="v">R$ 20.400</span><span class="f"><span class="badge b-good">+4,1%</span>agosto: R$ 19.600</span><span class="d">Receita recorrente mensal: soma mensalizada dos serviços recorrentes ativos.</span></div>
+    <div class="card kpi"><div class="h"><span class="eyebrow">ARR</span><button class="def" type="button" title="MRR × 12." aria-label="Definição de ARR: MRR vezes 12."><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM12 16v-4M12 8h.01"/></svg></button></div><span class="v">R$ 244.800</span><span class="f"><span class="badge b-good">+4,1%</span>agosto: R$ 235.200</span><span class="d">Receita recorrente anual: MRR × 12.</span></div>
+    <div class="card kpi"><div class="h"><span class="eyebrow">Faturamento</span><button class="def" type="button" title="Total de receitas por competência no período." aria-label="Definição de Faturamento: total de receitas por competência no período."><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM12 16v-4M12 8h.01"/></svg></button></div><span class="v">R$ 41.200</span><span class="f"><span class="badge b-good">+11%</span>agosto: R$ 37.100</span><span class="d">Total de receitas por competência no período.</span></div>
+    <div class="card kpi"><div class="h"><span class="eyebrow">Margem</span><button class="def" type="button" title="Resultado dividido pelo faturamento; disponível também por cliente." aria-label="Definição de Margem: resultado dividido pelo faturamento; disponível também por cliente."><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM12 16v-4M12 8h.01"/></svg></button></div><span class="v">46,4%</span><span class="f"><span class="badge b-good">+4,6 p.p.</span>agosto: 41,8%</span><span class="d">Resultado ÷ faturamento (R$ 19.100 ÷ R$ 41.200). <a href="rentabilidade.html">Por cliente</a>.</span></div>
+    <div class="card kpi"><div class="h"><span class="eyebrow">Ticket médio</span><button class="def" type="button" title="Faturamento dividido pelo número de clientes ativos." aria-label="Definição de Ticket médio: faturamento dividido pelo número de clientes ativos."><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM12 16v-4M12 8h.01"/></svg></button></div><span class="v">R$ 2.943</span><span class="f"><span class="badge b-good">+3,1%</span>agosto: R$ 2.854</span><span class="d">Faturamento ÷ clientes ativos (R$ 41.200 ÷ 14).</span></div>
+    <div class="card kpi"><div class="h"><span class="eyebrow">Custo de infraestrutura</span><button class="def" type="button" title="Soma de servidores, domínios e serviços externos pagos pela DevBatista." aria-label="Definição de Custo de infraestrutura: soma de servidores, domínios e serviços externos pagos pela DevBatista."><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM12 16v-4M12 8h.01"/></svg></button></div><span class="v">R$ 3.400</span><span class="f"><span class="badge b-warn">+2,4%</span>8,3% do faturamento</span><span class="d">Servidores, domínios e serviços externos pagos pela DevBatista.</span></div>
+  </div>
+</section>
+
+<section class="stack" aria-label="Clientes e comercial">
+  <span class="eyebrow">Clientes e comercial</span>
+  <div class="grid-kpi">
+    <div class="card kpi"><div class="h"><span class="eyebrow">Clientes ativos</span><button class="def" type="button" title="Empresas com status Ativo e ao menos um serviço contratado vigente." aria-label="Definição de Clientes ativos: empresas com status Ativo e ao menos um serviço contratado vigente."><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM12 16v-4M12 8h.01"/></svg></button></div><span class="v">14</span><span class="f"><span class="badge b-good">+1</span>agosto: 13</span><span class="d">Status Ativo e ao menos um serviço contratado vigente.</span></div>
+    <div class="card kpi"><div class="h"><span class="eyebrow">CAC</span><button class="def" type="button" title="Despesas de Marketing e Comercial divididas pelo número de novos clientes no período." aria-label="Definição de CAC: despesas de Marketing e Comercial divididas pelo número de novos clientes no período."><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM12 16v-4M12 8h.01"/></svg></button></div><span class="v">R$ 1.500</span><span class="f"><span class="badge b-good">−7,4%</span>agosto: R$ 1.620</span><span class="d">Marketing + Comercial (R$ 1.500) ÷ novos clientes (1).</span></div>
+    <div class="card kpi"><div class="h"><span class="eyebrow">Churn</span><button class="def" type="button" title="Clientes (ou MRR) perdidos no período em relação à base do início do período." aria-label="Definição de Churn: clientes ou MRR perdidos no período em relação à base do início do período."><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM12 16v-4M12 8h.01"/></svg></button></div><span class="v">0,0%</span><span class="f"><span class="badge b-good">−7,7 p.p.</span>agosto: 1 cliente, R$ 450 de MRR</span><span class="d">Clientes (ou MRR) perdidos ÷ base do início do período.</span></div>
+    <div class="card kpi"><div class="h"><span class="eyebrow">Propostas abertas</span><button class="def" type="button" title="Quantidade e valor das propostas Enviadas ou Visualizadas." aria-label="Definição de Propostas abertas: quantidade e valor das propostas Enviadas ou Visualizadas."><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM12 16v-4M12 8h.01"/></svg></button></div><span class="v">5 · R$ 38.000</span><span class="f"><span class="badge b-info">+1</span>agosto: 4 · R$ 29.500</span><span class="d">Propostas com status Enviada ou Visualizada. <a href="../comercial/propostas.html">Ver propostas</a>.</span></div>
+    <div class="card kpi"><div class="h"><span class="eyebrow">Horas por cliente</span><button class="def" type="button" title="Total de horas registradas por cliente no período." aria-label="Definição de Horas por cliente: total de horas registradas por cliente no período."><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM12 16v-4M12 8h.01"/></svg></button></div><span class="v">186 h</span><span class="f"><span class="badge b-mute">até 17/09</span>Empresa ACME lidera: 42 h</span><span class="d">Total de horas registradas por cliente no período. <a href="../operacao/horas.html">Ver horas</a>.</span></div>
+  </div>
+</section>
+
+<section class="stack" aria-label="Distribuições">
+  <span class="eyebrow">Distribuições</span>
+  <div class="grid-3">
+    <div class="card card-body stack">
+      <div class="section-title"><h2>Receita por cliente</h2><button class="def" type="button" title="Distribuição do faturamento entre os clientes." aria-label="Definição de Receita por cliente: distribuição do faturamento entre os clientes."><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM12 16v-4M12 8h.01"/></svg></button></div>
+      <div class="hbars" role="img" aria-label="Participação no faturamento: Cliente A 23,1%; Cliente B 18,9%; Cliente C 15,5%; Cliente D 12,6%; Empresa ACME 9,7%; demais 20,2%">
+        <div class="hbar wide"><span>Cliente A</span><div class="track"><div class="fill" style="width:100%"></div></div><span class="val">23,1%</span></div>
+        <div class="hbar wide"><span>Cliente B</span><div class="track"><div class="fill" style="width:82%"></div></div><span class="val">18,9%</span></div>
+        <div class="hbar wide"><span>Cliente C</span><div class="track"><div class="fill" style="width:67%"></div></div><span class="val">15,5%</span></div>
+        <div class="hbar wide"><span>Cliente D</span><div class="track"><div class="fill" style="width:55%"></div></div><span class="val">12,6%</span></div>
+        <div class="hbar wide"><span>ACME</span><div class="track"><div class="fill" style="width:42%"></div></div><span class="val">9,7%</span></div>
+        <div class="hbar wide"><span>Demais 9</span><div class="track"><div class="fill alt" style="width:87%"></div></div><span class="val">20,2%</span></div>
+      </div>
+      <span class="f caption"><span class="badge b-warn">Concentração</span> 5 maiores = 79,8% do faturamento</span>
+    </div>
+    <div class="card card-body stack">
+      <div class="section-title"><h2>Receita por serviço</h2><button class="def" type="button" title="Distribuição do faturamento entre os serviços do catálogo." aria-label="Definição de Receita por serviço: distribuição do faturamento entre os serviços do catálogo."><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM12 16v-4M12 8h.01"/></svg></button></div>
+      <div class="hbars" role="img" aria-label="Receita por serviço em R$ mil: Consultoria 14,5; Desenvolvimento 12,0; Manutenção 6,2; Hospedagem 4,1; Suporte 2,6; Outros 1,8">
+        <div class="hbar wide"><span>Consultoria</span><div class="track"><div class="fill" style="width:100%"></div></div><span class="val">14,5</span></div>
+        <div class="hbar wide"><span>Desenvolv.</span><div class="track"><div class="fill" style="width:83%"></div></div><span class="val">12,0</span></div>
+        <div class="hbar wide"><span>Manutenção</span><div class="track"><div class="fill" style="width:43%"></div></div><span class="val">6,2</span></div>
+        <div class="hbar wide"><span>Hospedagem</span><div class="track"><div class="fill" style="width:28%"></div></div><span class="val">4,1</span></div>
+        <div class="hbar wide"><span>Suporte</span><div class="track"><div class="fill" style="width:18%"></div></div><span class="val">2,6</span></div>
+        <div class="hbar wide"><span>Outros</span><div class="track"><div class="fill alt" style="width:12%"></div></div><span class="val">1,8</span></div>
+      </div>
+      <span class="caption">R$ mil · serviços do <a href="../administracao/catalogo-servicos.html">catálogo</a></span>
+    </div>
+    <div class="card card-body stack">
+      <div class="section-title"><h2>Taxa de conversão por origem</h2><button class="def" type="button" title="Negócios fechados divididos pelos leads recebidos no período; disponível por origem." aria-label="Definição de Taxa de conversão: negócios fechados divididos pelos leads recebidos no período; disponível por origem."><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM12 16v-4M12 8h.01"/></svg></button></div>
+      <div class="row" style="align-items:baseline"><span class="strong" style="font-size:26px;letter-spacing:-.02em">11,5%</span><span class="caption">3 fechados ÷ 26 leads · <span class="badge b-good">+2,1 p.p.</span></span></div>
+      <div class="hbars" role="img" aria-label="Conversão por origem: Indicação 33%; Site 14%; WhatsApp 11%; Meta Ads 0%; Google Ads 0%; LinkedIn 0%">
+        <div class="hbar wide"><span>Indicação</span><div class="track"><div class="fill" style="width:100%"></div></div><span class="val">1/3</span></div>
+        <div class="hbar wide"><span>Site</span><div class="track"><div class="fill" style="width:43%"></div></div><span class="val">1/7</span></div>
+        <div class="hbar wide"><span>WhatsApp</span><div class="track"><div class="fill" style="width:33%"></div></div><span class="val">1/9</span></div>
+        <div class="hbar wide"><span>Meta Ads</span><div class="track"><div class="fill alt" style="width:2%"></div></div><span class="val">0/4</span></div>
+        <div class="hbar wide"><span>Google Ads</span><div class="track"><div class="fill alt" style="width:2%"></div></div><span class="val">0/2</span></div>
+        <div class="hbar wide"><span>LinkedIn</span><div class="track"><div class="fill alt" style="width:2%"></div></div><span class="val">0/1</span></div>
+      </div>
+      <span class="caption">fechados / leads recebidos no período</span>
+    </div>
+  </div>
+</section>
+
+</main>
+</div>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>

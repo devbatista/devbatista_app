@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aplicações · Admin DevBatista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/app.css">
+</head>
+<body data-group="tec" data-item="Aplicações" data-crumb='[["Tecnologia","aplicacoes.html"],["Aplicações"]]'>
+<div class="app">
+<aside class="side"></aside>
+<div class="main">
+<header class="top"></header>
+<main class="content">
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Tecnologia · Inventário</span>
+    <h1>Aplicações</h1>
+    <p class="lead">Sistemas, sites e aplicativos desenvolvidos ou mantidos pela DevBatista, com ambiente e hospedagem.</p>
+  </div>
+  <div class="actions">
+    <button class="btn" type="button">Exportar CSV</button>
+    <button class="btn pri" type="button" data-open="nova-aplicacao">Nova aplicação</button>
+  </div>
+</div>
+
+<div class="grid-kpi">
+  <div class="card kpi"><span class="eyebrow">Aplicações cadastradas</span><span class="v">11</span><span class="f">de 7 clientes</span></div>
+  <div class="card kpi"><span class="eyebrow">Em produção</span><span class="v">6</span><span class="f"><span class="badge b-good">Ativas</span>em ambiente de produção</span></div>
+  <div class="card kpi"><span class="eyebrow">Em manutenção</span><span class="v">1</span><span class="f"><span class="badge b-warn">API Delta</span>ligada ao chamado <a href="../operacao/chamado.html">#2394</a></span></div>
+  <a class="card kpi" href="servicos-externos.html"><span class="eyebrow">Custo mensal de infraestrutura</span><span class="v">R$ 2.189</span><span class="f">servidores R$ 1.440 + serviços externos R$ 749</span></a>
+</div>
+
+<div class="toolbar">
+  <div class="seg" role="group" aria-label="Filtrar por status" data-filter-group="apps">
+    <button type="button" class="on" data-filter="todos" aria-pressed="true">Todas <span class="c"></span></button>
+    <button type="button" data-filter="Ativa" aria-pressed="false">Ativa <span class="c"></span></button>
+    <button type="button" data-filter="Em manutenção" aria-pressed="false">Em manutenção <span class="c"></span></button>
+    <button type="button" data-filter="Desativada" aria-pressed="false">Desativada <span class="c"></span></button>
+  </div>
+  <label class="sr-only" for="f-amb">Ambiente</label>
+  <select class="select" id="f-amb"><option>Todos os ambientes</option><option>Desenvolvimento</option><option>Staging</option><option>Produção</option></select>
+  <span class="spacer"></span>
+  <label class="search-field"><span class="sr-only">Buscar aplicação</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M11 18a7 7 0 100-14 7 7 0 000 14zM21 21l-4.3-4.3"/></svg><input class="input" type="search" placeholder="Aplicação, URL ou tecnologia"></label>
+  <label class="sr-only" for="f-cli">Cliente</label>
+  <select class="select" id="f-cli"><option>Todos os clientes</option><option>Empresa ACME</option><option>Empresa XYZ</option><option>Empresa Delta</option><option>Empresa Orion</option><option>Cliente A</option><option>Cliente B</option><option>Cliente C</option></select>
+  <label class="sr-only" for="f-host">Hospedagem</label>
+  <select class="select" id="f-host"><option>Toda hospedagem</option><option>AWS (servidores)</option><option>Railway</option></select>
+</div>
+
+<section class="card" aria-label="Lista de aplicações">
+  <div class="table-wrap">
+    <table class="table cards" data-filter-target="apps">
+      <thead><tr><th>Aplicação</th><th>Cliente</th><th>Ambiente</th><th>URL</th><th>Tecnologia</th><th>Hospedagem</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr data-status="Ativa"><td data-label="Aplicação"><a class="strong" href="aplicacao.html">Portal ACME</a><span class="cell-sub">Pedidos, clientes e relatórios</span></td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa ACME</a></td><td data-label="Ambiente"><span class="badge b-good">Produção</span></td><td data-label="URL" class="mono">portal.acme.com.br</td><td data-label="Tecnologia">Ruby on Rails 7.2 · Hotwire</td><td data-label="Hospedagem">Railway<span class="cell-sub">Serviço externo</span></td><td data-label="Status"><span class="badge b-good dot-l">Ativa</span></td></tr>
+        <tr data-status="Ativa"><td data-label="Aplicação"><a class="strong" href="aplicacao.html">Site institucional ACME</a><span class="cell-sub">Site e blog da empresa</span></td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa ACME</a></td><td data-label="Ambiente"><span class="badge b-good">Produção</span></td><td data-label="URL" class="mono">acme.com.br</td><td data-label="Tecnologia">Astro · site estático</td><td data-label="Hospedagem">acme-worker-01<span class="cell-sub">Servidor · AWS</span></td><td data-label="Status"><span class="badge b-good dot-l">Ativa</span></td></tr>
+        <tr data-status="Ativa"><td data-label="Aplicação"><a class="strong" href="aplicacao.html">Sistema ERP</a><span class="cell-sub">Estoque, faturamento e NF</span></td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa XYZ</a></td><td data-label="Ambiente"><span class="badge b-good">Produção</span></td><td data-label="URL" class="mono">erp.xyz.com.br</td><td data-label="Tecnologia">Ruby on Rails 7.1 · PostgreSQL</td><td data-label="Hospedagem">Railway<span class="cell-sub">Serviço externo</span></td><td data-label="Status"><span class="badge b-good dot-l">Ativa</span></td></tr>
+        <tr data-status="Ativa"><td data-label="Aplicação"><a class="strong" href="aplicacao.html">Portal de arquivos XYZ</a><span class="cell-sub">Compartilhamento interno</span></td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa XYZ</a></td><td data-label="Ambiente"><span class="badge b-good">Produção</span></td><td data-label="URL" class="mono">arquivos.xyz.com.br</td><td data-label="Tecnologia">Nextcloud 29 · PHP</td><td data-label="Hospedagem">xyz-files-01<span class="cell-sub">Servidor · AWS</span></td><td data-label="Status"><span class="badge b-good dot-l">Ativa</span></td></tr>
+        <tr data-status="Em manutenção"><td data-label="Aplicação"><a class="strong" href="aplicacao.html">API Delta</a><span class="cell-sub">Integração de notas fiscais · <a href="../operacao/chamado.html">#2394</a></span></td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa Delta</a></td><td data-label="Ambiente"><span class="badge b-good">Produção</span></td><td data-label="URL" class="mono">api.deltaservicos.com.br</td><td data-label="Tecnologia">Ruby on Rails 7.0 (API)</td><td data-label="Hospedagem">delta-api-prod<span class="cell-sub">Servidor · AWS</span></td><td data-label="Status"><span class="badge b-warn dot-l">Em manutenção</span></td></tr>
+        <tr data-status="Ativa"><td data-label="Aplicação"><a class="strong" href="aplicacao.html">API Delta (staging)</a><span class="cell-sub">Homologação da API</span></td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa Delta</a></td><td data-label="Ambiente"><span class="badge b-info">Staging</span></td><td data-label="URL" class="mono">staging-api.deltaservicos.com.br</td><td data-label="Tecnologia">Ruby on Rails 7.0 (API)</td><td data-label="Hospedagem">delta-api-stg<span class="cell-sub">Servidor · AWS</span></td><td data-label="Status"><span class="badge b-good dot-l">Ativa</span></td></tr>
+        <tr data-status="Ativa"><td data-label="Aplicação"><a class="strong" href="aplicacao.html">App Orion</a><span class="cell-sub">Aplicativo de agendamento · projeto pausado</span></td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa Orion</a></td><td data-label="Ambiente"><span class="badge b-info">Staging</span></td><td data-label="URL" class="mono">staging.orion.app</td><td data-label="Tecnologia">React Native · Rails API</td><td data-label="Hospedagem">orion-stg<span class="cell-sub">Servidor · AWS</span></td><td data-label="Status"><span class="badge b-good dot-l">Ativa</span></td></tr>
+        <tr data-status="Ativa"><td data-label="Aplicação"><a class="strong" href="aplicacao.html">ERP Cliente C</a><span class="cell-sub">Homologação · projeto <a href="../operacao/projeto.html">ERP Cliente C</a></span></td><td data-label="Cliente"><a href="../clientes/empresa.html">Cliente C</a></td><td data-label="Ambiente"><span class="badge b-info">Staging</span></td><td data-label="URL" class="mono">homolog.erp-clientec.com.br</td><td data-label="Tecnologia">Ruby on Rails 7.2 · Vue 3</td><td data-label="Hospedagem">clientec-homolog<span class="cell-sub">Servidor · AWS</span></td><td data-label="Status"><span class="badge b-good dot-l">Ativa</span></td></tr>
+        <tr data-status="Ativa"><td data-label="Aplicação"><a class="strong" href="aplicacao.html">Sistema de agendamento</a><span class="cell-sub">Agenda e lembretes por WhatsApp</span></td><td data-label="Cliente"><a href="../clientes/empresa.html">Cliente A</a></td><td data-label="Ambiente"><span class="badge b-good">Produção</span></td><td data-label="URL" class="mono">agenda.clientea.com.br</td><td data-label="Tecnologia">Ruby on Rails 7.1 · MySQL</td><td data-label="Hospedagem">clientea-prod<span class="cell-sub">Servidor · AWS</span></td><td data-label="Status"><span class="badge b-good dot-l">Ativa</span></td></tr>
+        <tr data-status="Ativa"><td data-label="Aplicação"><a class="strong" href="aplicacao.html">Painel de vendas</a><span class="cell-sub">Dashboard comercial</span></td><td data-label="Cliente"><a href="../clientes/empresa.html">Cliente B</a></td><td data-label="Ambiente"><span class="badge b-mute">Desenvolvimento</span></td><td data-label="URL" class="mono">dev.painel.clienteb.com.br</td><td data-label="Tecnologia">Next.js · Rails API</td><td data-label="Hospedagem">clienteb-dev<span class="cell-sub">Servidor · AWS</span></td><td data-label="Status"><span class="badge b-good dot-l">Ativa</span></td></tr>
+        <tr data-status="Desativada"><td data-label="Aplicação"><a class="strong" href="aplicacao.html">Landing Black Friday 2025</a><span class="cell-sub">Campanha encerrada em 30/11/2025</span></td><td data-label="Cliente"><a href="../clientes/empresa.html">Cliente B</a></td><td data-label="Ambiente"><span class="badge b-good">Produção</span></td><td data-label="URL" class="mono muted">bf.clienteb.com.br</td><td data-label="Tecnologia">HTML estático</td><td data-label="Hospedagem" class="muted">—</td><td data-label="Status"><span class="badge b-mute dot-l">Desativada</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="pagination"><span>11 aplicações · ordenadas por cliente</span><div class="pages"><button type="button" class="on" aria-current="page">1</button></div></div>
+</section>
+
+<div class="note">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;color:var(--cyan)"><path d="M5 11h14v10H5zM8 11V7a4 4 0 018 0v4"/></svg>
+  <span><b>Credenciais não fazem parte do inventário.</b> Nenhuma tela de Tecnologia aceita senha, chave ou token; cada registro guarda só a referência ao item no cofre de senhas.</span>
+</div>
+
+</main>
+</div>
+</div>
+
+<!-- Formulário lateral: nova aplicação -->
+<aside class="drawer" id="nova-aplicacao" role="dialog" aria-modal="true" aria-labelledby="nova-aplicacao-t">
+  <form class="form" style="display:contents">
+    <div class="drawer-head"><h2 id="nova-aplicacao-t">Nova aplicação</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="drawer-body form">
+      <span class="fieldset-title">Identificação</span>
+      <div class="form-grid">
+        <div class="field full"><label for="a-cli">Cliente <span class="req">*</span></label><select class="select" id="a-cli" required><option value="">Selecione</option><option>Empresa ACME</option><option>Empresa XYZ</option><option>Empresa Delta</option><option>Empresa Orion</option><option>Cliente A</option><option>Cliente B</option><option>Cliente C</option></select></div>
+        <div class="field full"><label for="a-nome">Nome <span class="req">*</span></label><input class="input" id="a-nome" required placeholder="Ex.: Portal de Pedidos"></div>
+        <div class="field full"><label for="a-desc">Descrição</label><textarea class="textarea" id="a-desc" placeholder="Finalidade e principais funções"></textarea></div>
+        <div class="field"><label for="a-amb">Ambiente <span class="req">*</span></label><select class="select" id="a-amb" required><option value="">Selecione</option><option>Desenvolvimento</option><option>Staging</option><option>Produção</option></select></div>
+        <div class="field"><label for="a-status">Status <span class="req">*</span></label><select class="select" id="a-status" required><option>Ativa</option><option>Em manutenção</option><option>Desativada</option></select></div>
+      </div>
+      <span class="fieldset-title">Acesso e código</span>
+      <div class="form-grid">
+        <div class="field full"><label for="a-url">URL</label><input class="input" id="a-url" type="url" placeholder="https://"></div>
+        <div class="field full"><label for="a-tec">Tecnologia</label><input class="input" id="a-tec" placeholder="Ex.: Ruby on Rails 7.2 · PostgreSQL"><span class="hint">Linguagens e frameworks principais</span></div>
+        <div class="field full"><label for="a-repo">Repositório</label><input class="input" id="a-repo" type="url" placeholder="https://github.com/devbatista/…"></div>
+      </div>
+      <span class="fieldset-title">Hospedagem e credenciais</span>
+      <div class="form-grid">
+        <div class="field full"><label for="a-host">Hospedagem</label>
+          <select class="select" id="a-host">
+            <option value="">Selecione</option>
+            <optgroup label="Servidores">
+              <option>acme-worker-01 · AWS</option><option>delta-api-prod · AWS</option><option>delta-api-stg · AWS</option><option>orion-stg · AWS</option><option>clientec-homolog · AWS</option><option>xyz-files-01 · AWS</option><option>clientea-prod · AWS</option><option>clienteb-dev · AWS</option>
+            </optgroup>
+            <optgroup label="Serviços externos">
+              <option>Railway · Empresa ACME</option><option>Railway · Empresa XYZ</option>
+            </optgroup>
+          </select>
+          <span class="hint">Servidor ou serviço externo onde a aplicação roda. Não achou? Cadastre em <a href="servidores.html">Servidores</a> ou <a href="servicos-externos.html">Serviços externos</a>.</span>
+        </div>
+        <div class="field full"><label for="a-cofre">Referência no cofre de senhas</label><input class="input" id="a-cofre" placeholder="Ex.: Cofre DevBatista › Clientes › ACME › Portal ACME"><span class="hint">Caminho do item no cofre, nunca a credencial</span></div>
+      </div>
+      <div class="callout">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:2px;color:var(--cyan)"><path d="M5 11h14v10H5zM8 11V7a4 4 0 018 0v4"/></svg>
+        <span>Não informe senhas, chaves ou tokens. O sistema guarda só a referência ao cofre de senhas.</span>
+      </div>
+    </div>
+    <div class="drawer-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Salvar aplicação</button></div>
+  </form>
+</aside>
+
+<script src="../assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Empresas · Admin DevBatista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/app.css">
+<style>
+  tr[data-href] { cursor: pointer; }
+  .co-cell { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  @media (max-width: 960px) { .co-cell .co-avatar { display: none; } }
+</style>
+</head>
+<body data-group="cli" data-item="Empresas" data-crumb='[["Clientes","empresas.html"],["Empresas"]]'>
+<div class="app">
+<aside class="side"></aside>
+<div class="main">
+<header class="top"></header>
+<main class="content">
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Clientes</span>
+    <h1>Empresas</h1>
+    <p class="lead">Cadastro central: toda informação operacional, financeira e tecnológica se liga a uma empresa.</p>
+  </div>
+  <div class="actions">
+    <button class="btn" type="button">Exportar CSV</button>
+    <button class="btn pri" type="button" data-open="nova-empresa"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Nova empresa</button>
+  </div>
+</div>
+
+<div class="grid-kpi">
+  <div class="card kpi"><span class="eyebrow">Clientes ativos</span><span class="v">14</span><span class="f"><span class="badge b-info">2 novos</span>no trimestre</span></div>
+  <div class="card kpi"><span class="eyebrow">Prospects</span><span class="v">3</span><span class="f">em negociação no <a href="../comercial/pipeline.html">pipeline</a></span></div>
+  <a class="card kpi" href="servicos-contratados.html"><span class="eyebrow">MRR total</span><span class="v">R$ 20.400</span><span class="f">ARR R$ 244.800</span></a>
+  <a class="card kpi alert" href="../financeiro/contas-receber.html"><span class="eyebrow">Inadimplentes</span><span class="v">3</span><span class="f"><span class="badge b-crit">R$ 4.300</span>em títulos vencidos</span></a>
+</div>
+
+<div class="toolbar">
+  <div class="seg" role="group" aria-label="Filtrar por status" data-filter-group="empresas">
+    <button type="button" class="on" data-filter="todos" aria-pressed="true">Todas <span class="n">19</span></button>
+    <button type="button" data-filter="Prospect" aria-pressed="false">Prospect <span class="n">3</span></button>
+    <button type="button" data-filter="Ativo" aria-pressed="false">Ativo <span class="n">14</span></button>
+    <button type="button" data-filter="Inativo" aria-pressed="false">Inativo <span class="n">2</span></button>
+  </div>
+  <span class="spacer"></span>
+  <label class="search-field"><span class="sr-only">Buscar empresa</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M11 18a7 7 0 100-14 7 7 0 000 14zM21 21l-4.3-4.3"/></svg><input class="input" type="search" placeholder="Nome, razão social ou CNPJ"></label>
+  <label class="sr-only" for="f-uf">UF</label>
+  <select class="select" id="f-uf"><option>Todas as UFs</option><option>SP</option><option>MG</option><option>PR</option><option>GO</option><option>RS</option></select>
+  <label class="sr-only" for="f-ord">Ordenar por</label>
+  <select class="select" id="f-ord"><option>Maior MRR</option><option>Nome fantasia (A–Z)</option><option>Cliente desde</option><option>Mais contratos</option></select>
+</div>
+
+<section class="card" aria-label="Lista de empresas">
+  <div class="table-wrap">
+    <table class="table cards" data-filter-target="empresas">
+      <thead><tr><th>Empresa</th><th>CNPJ</th><th>Contato principal</th><th class="num">MRR</th><th class="num">Contratos</th><th>Status</th><th><span class="sr-only">Abrir</span></th></tr></thead>
+      <tbody>
+        <tr data-status="Ativo" data-href="empresa.html">
+          <td data-label="Empresa"><div class="co-cell"><span class="co-avatar sm">AC</span><div><a class="strong" href="empresa.html">Empresa ACME</a><span class="cell-sub">ACME Comércio e Serviços Ltda.</span></div></div></td>
+          <td data-label="CNPJ" class="mono nowrap">52.601.815/0001-20</td>
+          <td data-label="Contato principal">Marcos Andrade<span class="cell-sub">Diretor de Operações</span></td>
+          <td data-label="MRR" class="num strong">R$ 3.800</td>
+          <td data-label="Contratos" class="num">1</td>
+          <td data-label="Status"><span class="badge b-good">Ativo</span></td>
+          <td data-label="" class="right"><a href="empresa.html" class="link-btn" aria-label="Abrir Visão 360º da Empresa ACME">Visão 360º →</a></td>
+        </tr>
+        <tr data-status="Ativo" data-href="empresa.html">
+          <td data-label="Empresa"><div class="co-cell"><span class="co-avatar sm">CA</span><div><a class="strong" href="empresa.html">Cliente A</a><span class="cell-sub">Cliente A Indústria e Comércio S.A.</span></div></div></td>
+          <td data-label="CNPJ" class="mono nowrap">08.246.281/0001-79</td>
+          <td data-label="Contato principal">Eduardo Pires<span class="cell-sub">Diretor de TI</span></td>
+          <td data-label="MRR" class="num strong">R$ 4.500</td>
+          <td data-label="Contratos" class="num">2</td>
+          <td data-label="Status"><span class="badge b-good">Ativo</span></td>
+          <td data-label="" class="right"><a href="empresa.html" class="link-btn" aria-label="Abrir Visão 360º do Cliente A">Visão 360º →</a></td>
+        </tr>
+        <tr data-status="Ativo" data-href="empresa.html">
+          <td data-label="Empresa"><div class="co-cell"><span class="co-avatar sm">CB</span><div><a class="strong" href="empresa.html">Cliente B</a><span class="cell-sub">Cliente B Distribuidora Ltda.</span></div></div></td>
+          <td data-label="CNPJ" class="mono nowrap">94.821.993/0001-06</td>
+          <td data-label="Contato principal">Renata Siqueira<span class="cell-sub">Gerente administrativa</span></td>
+          <td data-label="MRR" class="num strong">R$ 3.200</td>
+          <td data-label="Contratos" class="num">2</td>
+          <td data-label="Status"><span class="badge b-good">Ativo</span></td>
+          <td data-label="" class="right"><a href="empresa.html" class="link-btn" aria-label="Abrir Visão 360º do Cliente B">Visão 360º →</a></td>
+        </tr>
+        <tr data-status="Ativo" data-href="empresa.html">
+          <td data-label="Empresa"><div class="co-cell"><span class="co-avatar sm">XY</span><div><a class="strong" href="empresa.html">Empresa XYZ</a><span class="cell-sub">XYZ Tecnologia em Logística Ltda.</span></div></div></td>
+          <td data-label="CNPJ" class="mono nowrap">90.830.166/0001-28</td>
+          <td data-label="Contato principal">Fernanda Lopes<span class="cell-sub">Gerente de TI</span></td>
+          <td data-label="MRR" class="num strong">R$ 2.900</td>
+          <td data-label="Contratos" class="num">1 <span class="badge b-warn" title="Contrato #098 vence em 17/10/2026">vence em 30 dias</span></td>
+          <td data-label="Status"><span class="badge b-good">Ativo</span> <span class="badge b-crit">Inadimplente</span></td>
+          <td data-label="" class="right"><a href="empresa.html" class="link-btn" aria-label="Abrir Visão 360º da Empresa XYZ">Visão 360º →</a></td>
+        </tr>
+        <tr data-status="Ativo" data-href="empresa.html">
+          <td data-label="Empresa"><div class="co-cell"><span class="co-avatar sm">CC</span><div><a class="strong" href="empresa.html">Cliente C</a><span class="cell-sub">Cliente C Comércio Varejista Ltda.</span></div></div></td>
+          <td data-label="CNPJ" class="mono nowrap">51.819.093/0001-11</td>
+          <td data-label="Contato principal">Patrícia Gomes<span class="cell-sub">Gerente de projetos</span></td>
+          <td data-label="MRR" class="num strong">R$ 2.400</td>
+          <td data-label="Contratos" class="num">1</td>
+          <td data-label="Status"><span class="badge b-good">Ativo</span> <span class="badge b-crit">Inadimplente</span></td>
+          <td data-label="" class="right"><a href="empresa.html" class="link-btn" aria-label="Abrir Visão 360º do Cliente C">Visão 360º →</a></td>
+        </tr>
+        <tr data-status="Ativo" data-href="empresa.html">
+          <td data-label="Empresa"><div class="co-cell"><span class="co-avatar sm">CD</span><div><a class="strong" href="empresa.html">Cliente D</a><span class="cell-sub">Cliente D Serviços Médicos Ltda.</span></div></div></td>
+          <td data-label="CNPJ" class="mono nowrap">78.657.975/0001-84</td>
+          <td data-label="Contato principal">Vanessa Rocha<span class="cell-sub">Coordenadora administrativa</span></td>
+          <td data-label="MRR" class="num strong">R$ 1.400</td>
+          <td data-label="Contratos" class="num">2 <span class="badge b-warn" title="Contrato #095 vence em 05/11/2026">vence em 49 dias</span></td>
+          <td data-label="Status"><span class="badge b-good">Ativo</span></td>
+          <td data-label="" class="right"><a href="empresa.html" class="link-btn" aria-label="Abrir Visão 360º do Cliente D">Visão 360º →</a></td>
+        </tr>
+        <tr data-status="Ativo" data-href="empresa.html">
+          <td data-label="Empresa"><div class="co-cell"><span class="co-avatar sm">DE</span><div><a class="strong" href="empresa.html">Empresa Delta</a><span class="cell-sub">Delta Serviços Empresariais Ltda.</span></div></div></td>
+          <td data-label="CNPJ" class="mono nowrap">13.186.091/0001-43</td>
+          <td data-label="Contato principal">Henrique Matos<span class="cell-sub">Sócio-diretor</span></td>
+          <td data-label="MRR" class="num strong">R$ 1.000</td>
+          <td data-label="Contratos" class="num">1</td>
+          <td data-label="Status"><span class="badge b-good">Ativo</span> <span class="badge b-crit">Inadimplente</span></td>
+          <td data-label="" class="right"><a href="empresa.html" class="link-btn" aria-label="Abrir Visão 360º da Empresa Delta">Visão 360º →</a></td>
+        </tr>
+        <tr data-status="Ativo" data-href="empresa.html">
+          <td data-label="Empresa"><div class="co-cell"><span class="co-avatar sm">OR</span><div><a class="strong" href="empresa.html">Empresa Orion</a><span class="cell-sub">Orion Aplicativos e Mídia Ltda.</span></div></div></td>
+          <td data-label="CNPJ" class="mono nowrap">39.099.603/0001-28</td>
+          <td data-label="Contato principal">Lucas Viana<span class="cell-sub">CEO</span></td>
+          <td data-label="MRR" class="num strong">R$ 900</td>
+          <td data-label="Contratos" class="num">1 <span class="badge b-warn" title="Contrato #087 vence em 15/11/2026">vence em 59 dias</span></td>
+          <td data-label="Status"><span class="badge b-good">Ativo</span></td>
+          <td data-label="" class="right"><a href="empresa.html" class="link-btn" aria-label="Abrir Visão 360º da Empresa Orion">Visão 360º →</a></td>
+        </tr>
+        <tr data-status="Ativo" data-href="empresa.html">
+          <td data-label="Empresa"><div class="co-cell"><span class="co-avatar sm">CE</span><div><a class="strong" href="empresa.html">Cliente E</a><span class="cell-sub">Cliente E Educação Online Ltda.</span></div></div></td>
+          <td data-label="CNPJ" class="mono nowrap">43.231.948/0001-60</td>
+          <td data-label="Contato principal">Gustavo Lima<span class="cell-sub">Coordenador pedagógico</span></td>
+          <td data-label="MRR" class="num strong">R$ 300</td>
+          <td data-label="Contratos" class="num">1</td>
+          <td data-label="Status"><span class="badge b-good">Ativo</span></td>
+          <td data-label="" class="right"><a href="empresa.html" class="link-btn" aria-label="Abrir Visão 360º do Cliente E">Visão 360º →</a></td>
+        </tr>
+        <tr data-status="Prospect" data-href="empresa.html">
+          <td data-label="Empresa"><div class="co-cell"><span class="co-avatar sm">GN</span><div><a class="strong" href="empresa.html">Grupo Norte Logística</a><span class="cell-sub">Norte Transportes e Logística S.A.</span></div></div></td>
+          <td data-label="CNPJ" class="mono nowrap">75.749.118/0001-16</td>
+          <td data-label="Contato principal">Roberto Almeida<span class="cell-sub">Diretor de logística</span></td>
+          <td data-label="MRR" class="num muted">—</td>
+          <td data-label="Contratos" class="num muted">1 rascunho</td>
+          <td data-label="Status"><span class="badge b-info">Prospect</span></td>
+          <td data-label="" class="right"><a href="empresa.html" class="link-btn" aria-label="Abrir Grupo Norte Logística">Abrir →</a></td>
+        </tr>
+        <tr data-status="Prospect" data-href="empresa.html">
+          <td data-label="Empresa"><div class="co-cell"><span class="co-avatar sm">AG</span><div><a class="strong" href="empresa.html">Agro Campos</a><span class="cell-sub">Agro Campos Insumos Agrícolas Ltda.</span></div></div></td>
+          <td data-label="CNPJ" class="mono nowrap">62.527.601/0001-04</td>
+          <td data-label="Contato principal">Camila Rezende<span class="cell-sub">Gestora administrativa</span></td>
+          <td data-label="MRR" class="num muted">—</td>
+          <td data-label="Contratos" class="num muted">0</td>
+          <td data-label="Status"><span class="badge b-info">Prospect</span></td>
+          <td data-label="" class="right"><a href="empresa.html" class="link-btn" aria-label="Abrir Agro Campos">Abrir →</a></td>
+        </tr>
+        <tr data-status="Prospect" data-href="empresa.html">
+          <td data-label="Empresa"><div class="co-cell"><span class="co-avatar sm">SA</span><div><a class="strong" href="empresa.html">Studio Arq</a><span class="cell-sub">Studio Arq Arquitetura e Interiores Ltda.</span></div></div></td>
+          <td data-label="CNPJ" class="mono nowrap">89.555.979/0001-78</td>
+          <td data-label="Contato principal"><span class="badge b-warn">Sem contato principal</span></td>
+          <td data-label="MRR" class="num muted">—</td>
+          <td data-label="Contratos" class="num muted">0</td>
+          <td data-label="Status"><span class="badge b-info">Prospect</span></td>
+          <td data-label="" class="right"><a href="empresa.html" class="link-btn" aria-label="Abrir Studio Arq">Abrir →</a></td>
+        </tr>
+        <tr data-status="Inativo" data-href="empresa.html">
+          <td data-label="Empresa"><div class="co-cell"><span class="co-avatar sm">CP</span><div><a class="strong" href="empresa.html">Construtora Pilar</a><span class="cell-sub">Pilar Engenharia e Construções Ltda.</span></div></div></td>
+          <td data-label="CNPJ" class="mono nowrap">71.147.104/0001-71</td>
+          <td data-label="Contato principal">Sérgio Batalha<span class="cell-sub">Gerente de obras</span></td>
+          <td data-label="MRR" class="num muted">—</td>
+          <td data-label="Contratos" class="num muted">0 <span class="cell-sub">2 encerrados</span></td>
+          <td data-label="Status"><span class="badge b-mute">Inativo</span></td>
+          <td data-label="" class="right"><a href="empresa.html" class="link-btn" aria-label="Abrir Construtora Pilar">Abrir →</a></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="pagination"><span>Mostrando 13 de 19 empresas · listagens usam o nome fantasia</span><div class="pages"><button type="button" class="on" aria-current="page">1</button><button type="button">2</button></div></div>
+</section>
+
+</main>
+</div>
+</div>
+
+<!-- Formulário lateral: nova empresa -->
+<aside class="drawer" id="nova-empresa" role="dialog" aria-modal="true" aria-labelledby="nova-empresa-t">
+  <form class="form" style="display:contents" novalidate>
+    <div class="drawer-head"><h2 id="nova-empresa-t">Nova empresa</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="drawer-body form">
+      <span class="fieldset-title">Identificação</span>
+      <div class="form-grid">
+        <div class="field full"><label for="e-razao">Razão social <span class="req">*</span></label><input class="input" id="e-razao" required placeholder="Ex.: ACME Comércio e Serviços Ltda."><span class="hint">Nome jurídico da empresa</span></div>
+        <div class="field full"><label for="e-fantasia">Nome fantasia <span class="req">*</span></label><input class="input" id="e-fantasia" required placeholder="Ex.: Empresa ACME"><span class="hint">Nome comercial, usado nas listagens</span></div>
+        <div class="field"><label for="e-cnpj">CNPJ <span class="req">*</span></label><input class="input mono" id="e-cnpj" required inputmode="numeric" placeholder="00.000.000/0000-00" maxlength="18" aria-describedby="e-cnpj-st"><span class="hint" id="e-cnpj-st">Validado pelos dígitos verificadores e único no cadastro</span></div>
+        <div class="field"><label for="e-status">Status <span class="req">*</span></label><select class="select" id="e-status" required><option>Prospect</option><option>Ativo</option><option>Inativo</option></select><span class="hint">Situação do relacionamento</span></div>
+      </div>
+      <span class="fieldset-title">Contato institucional</span>
+      <div class="form-grid">
+        <div class="field"><label for="e-tel">Telefone</label><input class="input" id="e-tel" type="tel" placeholder="(11) 3456-7800"></div>
+        <div class="field"><label for="e-email">E-mail</label><input class="input" id="e-email" type="email" placeholder="financeiro@empresa.com.br"><span class="hint">Institucional ou financeiro</span></div>
+        <div class="field full"><label for="e-site">Site</label><input class="input" id="e-site" type="url" placeholder="https://www.empresa.com.br"></div>
+      </div>
+      <span class="fieldset-title">Endereço</span>
+      <div class="form-grid">
+        <div class="field full"><label for="e-logr">Logradouro</label><input class="input" id="e-logr" placeholder="Rua, número e complemento"></div>
+        <div class="field"><label for="e-cidade">Cidade</label><input class="input" id="e-cidade" placeholder="São Paulo"></div>
+        <div class="field"><label for="e-uf">UF</label><select class="select" id="e-uf"><option value="">Selecione</option><option>AC</option><option>AL</option><option>AP</option><option>AM</option><option>BA</option><option>CE</option><option>DF</option><option>ES</option><option>GO</option><option>MA</option><option>MT</option><option>MS</option><option>MG</option><option>PA</option><option>PB</option><option>PR</option><option>PE</option><option>PI</option><option>RJ</option><option>RN</option><option>RS</option><option>RO</option><option>RR</option><option>SC</option><option>SP</option><option>SE</option><option>TO</option></select></div>
+        <div class="field"><label for="e-cep">CEP</label><input class="input mono" id="e-cep" inputmode="numeric" placeholder="00000-000" maxlength="9"></div>
+      </div>
+      <div class="field"><label for="e-obs">Observações</label><textarea class="textarea" id="e-obs" placeholder="Informações gerais relevantes: como chegou, particularidades de faturamento, horários…"></textarea></div>
+      <div class="callout"><span>Depois de salvar, cadastre os contatos da empresa e marque o <b class="strong">contato principal</b> — ele é sugerido em propostas, chamados e cobranças.</span></div>
+    </div>
+    <div class="drawer-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Salvar empresa</button></div>
+  </form>
+</aside>
+
+<script src="../assets/app.js"></script>
+<script>
+  // Linha inteira leva à Visão 360º
+  document.querySelectorAll('tr[data-href]').forEach(function (tr) {
+    tr.addEventListener('click', function (e) { if (!e.target.closest('a, button')) location.href = tr.dataset.href; });
+  });
+  // Indicação da validação do CNPJ (dígitos verificadores)
+  (function () {
+    var input = document.getElementById('e-cnpj'), st = document.getElementById('e-cnpj-st');
+    var hint = st.textContent;
+    function valido(c) {
+      c = c.replace(/\D/g, '');
+      if (c.length !== 14 || /^(\d)\1+$/.test(c)) return false;
+      function dv(base) {
+        var p = base.length - 7, s = 0;
+        for (var i = 0; i < base.length; i++) { s += +base[i] * p--; if (p < 2) p = 9; }
+        var r = s % 11; return r < 2 ? 0 : 11 - r;
+      }
+      var d1 = dv(c.slice(0, 12)), d2 = dv(c.slice(0, 12) + d1);
+      return d1 === +c[12] && d2 === +c[13];
+    }
+    input.addEventListener('input', function () {
+      var d = input.value.replace(/\D/g, '').slice(0, 14);
+      input.value = d.replace(/^(\d{2})(\d)/, '$1.$2').replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3').replace(/\.(\d{3})(\d)/, '.$1/$2').replace(/(\d{4})(\d)/, '$1-$2');
+      if (d.length < 14) { st.textContent = hint; st.style.color = ''; return; }
+      var ok = valido(d);
+      st.textContent = ok ? 'CNPJ válido · nenhum cadastro com este número' : 'CNPJ inválido: confira os dígitos verificadores';
+      st.style.color = ok ? 'var(--good)' : 'var(--crit)';
+    });
+  })();
+</script>
+</body>
+</html>

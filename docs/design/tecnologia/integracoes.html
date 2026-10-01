@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Integrações · Admin DevBatista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/app.css">
+</head>
+<body data-group="tec" data-item="Integrações" data-crumb='[["Tecnologia","aplicacoes.html"],["Integrações"]]'>
+<div class="app">
+<aside class="side"></aside>
+<div class="main">
+<header class="top"></header>
+<main class="content">
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Tecnologia · Inventário</span>
+    <h1>Integrações</h1>
+    <p class="lead">Plataformas e APIs externas que cada aplicação consome.</p>
+  </div>
+  <div class="actions">
+    <button class="btn" type="button">Exportar CSV</button>
+    <button class="btn pri" type="button" data-open="nova-integracao">Nova integração</button>
+  </div>
+</div>
+
+<div class="grid-kpi">
+  <div class="card kpi"><span class="eyebrow">Integrações</span><span class="v">12</span><span class="f">em 7 aplicações</span></div>
+  <div class="card kpi"><span class="eyebrow">Ativas</span><span class="v">7</span><span class="f">todas em produção</span></div>
+  <div class="card kpi"><span class="eyebrow">Em configuração</span><span class="v">4</span><span class="f">WhatsApp, Twilio, Meta, OpenAI</span></div>
+  <div class="card kpi"><span class="eyebrow">Desativadas</span><span class="v">1</span><span class="f">Meta · App Orion</span></div>
+</div>
+
+<div class="toolbar">
+  <div class="seg" role="group" aria-label="Filtrar por status" data-filter-group="integracoes">
+    <button type="button" class="on" data-filter="todos" aria-pressed="true">Todas <span class="c"></span></button>
+    <button type="button" data-filter="Ativa" aria-pressed="false">Ativa <span class="c"></span></button>
+    <button type="button" data-filter="Em configuração" aria-pressed="false">Em configuração <span class="c"></span></button>
+    <button type="button" data-filter="Desativada" aria-pressed="false">Desativada <span class="c"></span></button>
+  </div>
+  <span class="spacer"></span>
+  <label class="search-field"><span class="sr-only">Buscar integração</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M11 18a7 7 0 100-14 7 7 0 000 14zM21 21l-4.3-4.3"/></svg><input class="input" type="search" placeholder="Integração, aplicação ou finalidade"></label>
+  <label class="sr-only" for="f-plat">Plataforma</label>
+  <select class="select" id="f-plat"><option>Todas as plataformas</option><option>Meta</option><option>WhatsApp</option><option>Twilio</option><option>OpenAI</option><option>Amazon SES</option><option>Mailgun</option><option>PayPal</option><option>Gateways de pagamento</option><option>APIs externas</option></select>
+  <label class="sr-only" for="f-amb">Ambiente</label>
+  <select class="select" id="f-amb"><option>Todos os ambientes</option><option>Desenvolvimento</option><option>Staging</option><option>Produção</option></select>
+</div>
+
+<section class="card" aria-label="Lista de integrações">
+  <div class="table-wrap">
+    <table class="table cards" data-filter-target="integracoes">
+      <thead><tr><th>Integração</th><th>Cliente</th><th>Aplicação</th><th>Ambiente</th><th>Finalidade</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr data-status="Ativa"><td data-label="Integração" class="strong">OpenAI</td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa ACME</a></td><td data-label="Aplicação"><a href="aplicacao.html">Portal ACME</a></td><td data-label="Ambiente"><span class="badge b-good">Produção</span></td><td data-label="Finalidade">Resumo automático de chamados e relatórios</td><td data-label="Status"><span class="badge b-good dot-l">Ativa</span></td></tr>
+        <tr data-status="Ativa"><td data-label="Integração" class="strong">Amazon SES</td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa ACME</a></td><td data-label="Aplicação"><a href="aplicacao.html">Portal ACME</a></td><td data-label="Ambiente"><span class="badge b-good">Produção</span></td><td data-label="Finalidade">E-mails transacionais de pedidos</td><td data-label="Status"><span class="badge b-good dot-l">Ativa</span></td></tr>
+        <tr data-status="Em configuração"><td data-label="Integração" class="strong">WhatsApp<span class="cell-sub">Cloud API</span></td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa ACME</a></td><td data-label="Aplicação"><a href="aplicacao.html">Portal ACME</a></td><td data-label="Ambiente"><span class="badge b-good">Produção</span></td><td data-label="Finalidade">Notificação de status do pedido</td><td data-label="Status"><span class="badge b-info dot-l">Em configuração</span></td></tr>
+        <tr data-status="Ativa"><td data-label="Integração" class="strong">Mailgun</td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa XYZ</a></td><td data-label="Aplicação"><a href="aplicacao.html">Sistema ERP</a></td><td data-label="Ambiente"><span class="badge b-good">Produção</span></td><td data-label="Finalidade">Envio de notas fiscais e cobranças por e-mail</td><td data-label="Status"><span class="badge b-good dot-l">Ativa</span></td></tr>
+        <tr data-status="Ativa"><td data-label="Integração" class="strong">PayPal</td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa XYZ</a></td><td data-label="Aplicação"><a href="aplicacao.html">Sistema ERP</a></td><td data-label="Ambiente"><span class="badge b-good">Produção</span></td><td data-label="Finalidade">Recebimentos de clientes no exterior</td><td data-label="Status"><span class="badge b-good dot-l">Ativa</span></td></tr>
+        <tr data-status="Ativa"><td data-label="Integração" class="strong">Gateway de pagamento<span class="cell-sub">Asaas</span></td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa XYZ</a></td><td data-label="Aplicação"><a href="aplicacao.html">Sistema ERP</a></td><td data-label="Ambiente"><span class="badge b-good">Produção</span></td><td data-label="Finalidade">Boletos e Pix das vendas</td><td data-label="Status"><span class="badge b-good dot-l">Ativa</span></td></tr>
+        <tr data-status="Ativa"><td data-label="Integração" class="strong">API externa<span class="cell-sub">SEFAZ · NF-e</span></td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa Delta</a></td><td data-label="Aplicação"><a href="aplicacao.html">API Delta</a></td><td data-label="Ambiente"><span class="badge b-good">Produção</span></td><td data-label="Finalidade">Emissão e consulta de notas fiscais eletrônicas</td><td data-label="Status"><span class="badge b-good dot-l">Ativa</span></td></tr>
+        <tr data-status="Ativa"><td data-label="Integração" class="strong">WhatsApp<span class="cell-sub">Cloud API</span></td><td data-label="Cliente"><a href="../clientes/empresa.html">Cliente A</a></td><td data-label="Aplicação"><a href="aplicacao.html">Sistema de agendamento</a></td><td data-label="Ambiente"><span class="badge b-good">Produção</span></td><td data-label="Finalidade">Lembretes e confirmação de horários</td><td data-label="Status"><span class="badge b-good dot-l">Ativa</span></td></tr>
+        <tr data-status="Em configuração"><td data-label="Integração" class="strong">Twilio</td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa Orion</a></td><td data-label="Aplicação"><a href="aplicacao.html">App Orion</a></td><td data-label="Ambiente"><span class="badge b-info">Staging</span></td><td data-label="Finalidade">SMS de verificação de telefone</td><td data-label="Status"><span class="badge b-info dot-l">Em configuração</span></td></tr>
+        <tr data-status="Desativada"><td data-label="Integração" class="strong">Meta<span class="cell-sub">Login com Facebook</span></td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa Orion</a></td><td data-label="Aplicação"><a href="aplicacao.html">App Orion</a></td><td data-label="Ambiente"><span class="badge b-info">Staging</span></td><td data-label="Finalidade">Login social (substituído por login com e-mail)</td><td data-label="Status"><span class="badge b-mute dot-l">Desativada</span></td></tr>
+        <tr data-status="Em configuração"><td data-label="Integração" class="strong">Meta<span class="cell-sub">Conversions API</span></td><td data-label="Cliente"><a href="../clientes/empresa.html">Cliente B</a></td><td data-label="Aplicação"><a href="aplicacao.html">Painel de vendas</a></td><td data-label="Ambiente"><span class="badge b-mute">Desenvolvimento</span></td><td data-label="Finalidade">Eventos de conversão das campanhas</td><td data-label="Status"><span class="badge b-info dot-l">Em configuração</span></td></tr>
+        <tr data-status="Em configuração"><td data-label="Integração" class="strong">OpenAI</td><td data-label="Cliente"><a href="../clientes/empresa.html">Cliente C</a></td><td data-label="Aplicação"><a href="aplicacao.html">ERP Cliente C</a></td><td data-label="Ambiente"><span class="badge b-info">Staging</span></td><td data-label="Finalidade">Classificação automática de documentos</td><td data-label="Status"><span class="badge b-info dot-l">Em configuração</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="pagination"><span>12 integrações · agrupadas por cliente</span><div class="pages"><button type="button" class="on" aria-current="page">1</button></div></div>
+</section>
+
+<div class="note">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;color:var(--cyan)"><path d="M5 11h14v10H5zM8 11V7a4 4 0 018 0v4"/></svg>
+  <span><b>Chaves de API e tokens não são cadastrados.</b> Titularidade da conta, limites e particularidades vão em Observações; a credencial fica no cofre de senhas. Custos dessas plataformas são registrados em <a href="servicos-externos.html">Serviços externos</a>.</span>
+</div>
+
+</main>
+</div>
+</div>
+
+<!-- Formulário lateral: nova integração -->
+<aside class="drawer" id="nova-integracao" role="dialog" aria-modal="true" aria-labelledby="nova-integracao-t">
+  <form class="form" style="display:contents">
+    <div class="drawer-head"><h2 id="nova-integracao-t">Nova integração</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="drawer-body form">
+      <div class="form-grid">
+        <div class="field"><label for="i-cli">Cliente <span class="req">*</span></label><select class="select" id="i-cli" required><option value="">Selecione</option><option>Empresa ACME</option><option>Empresa XYZ</option><option>Empresa Delta</option><option>Empresa Orion</option><option>Cliente A</option><option>Cliente B</option><option>Cliente C</option></select></div>
+        <div class="field"><label for="i-app">Aplicação <span class="req">*</span></label><select class="select" id="i-app" required><option value="">Selecione o cliente primeiro</option><option>Portal ACME</option><option>Site institucional ACME</option></select></div>
+        <div class="field full"><label for="i-int">Integração <span class="req">*</span></label><input class="input" id="i-int" list="plataformas" required placeholder="Plataforma ou API integrada"><datalist id="plataformas"><option value="Meta"></option><option value="WhatsApp"></option><option value="Twilio"></option><option value="OpenAI"></option><option value="Amazon SES"></option><option value="Mailgun"></option><option value="PayPal"></option><option value="Gateway de pagamento"></option><option value="API externa"></option></datalist><span class="hint">Ex.: Meta, WhatsApp, Twilio, OpenAI, Amazon SES, Mailgun, PayPal, gateways de pagamento, APIs externas</span></div>
+        <div class="field"><label for="i-amb">Ambiente <span class="req">*</span></label><select class="select" id="i-amb" required><option value="">Selecione</option><option>Desenvolvimento</option><option>Staging</option><option>Produção</option></select></div>
+        <div class="field"><label for="i-status">Status <span class="req">*</span></label><select class="select" id="i-status" required><option>Ativa</option><option selected>Em configuração</option><option>Desativada</option></select></div>
+        <div class="field full"><label for="i-fin">Finalidade <span class="req">*</span></label><input class="input" id="i-fin" required placeholder="Para que a integração é utilizada"></div>
+        <div class="field full"><label for="i-obs">Observações</label><textarea class="textarea" id="i-obs" placeholder="Titularidade da conta, limites e particularidades"></textarea></div>
+      </div>
+      <div class="callout"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:2px;color:var(--cyan)"><path d="M5 11h14v10H5zM8 11V7a4 4 0 018 0v4"/></svg><span>Não cole chaves de API, tokens ou segredos de webhook. Eles ficam no cofre de senhas.</span></div>
+    </div>
+    <div class="drawer-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Salvar integração</button></div>
+  </form>
+</aside>
+
+<script src="../assets/app.js"></script>
+</body>
+</html>

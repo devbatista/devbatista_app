@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chamado #2394 · Admin DevBatista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/app.css">
+<style>
+  .msg.note .bubble { background: transparent; border-style: dashed; border-color: var(--border-strong); }
+  .msg .bubble p { margin: 0; }
+  .msg .who .badge { margin-left: 6px; vertical-align: 1px; }
+  .reply-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+</style>
+</head>
+<body data-group="op" data-item="Suporte" data-crumb='[["Operação"],["Suporte","chamados.html"],["#2394"]]'>
+<div class="app">
+<aside class="side"></aside>
+<div class="main">
+<header class="top"></header>
+<main class="content">
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Chamado #2394 · <a href="../clientes/empresa.html" style="color:inherit">Empresa Delta</a></span>
+    <h1>Sistema fora do ar</h1>
+    <div class="row wrap" style="gap:8px">
+      <span class="badge b-crit dot-l">Crítica</span>
+      <span class="badge b-warn">Em atendimento</span>
+      <span class="caption">Aberto hoje às 08:47 · responsável Carla Mendes</span>
+    </div>
+  </div>
+  <div class="actions">
+    <button class="btn" type="button" data-open="registrar-horas">Registrar horas</button>
+    <button class="btn" type="button" data-open="mudar-status">Mudar status</button>
+    <button class="btn pri" type="button" data-open="mudar-status">Marcar como resolvido</button>
+  </div>
+</div>
+
+<section class="card" aria-label="Fluxo de atendimento">
+  <ol class="steps" style="list-style:none;margin:0;padding:0">
+    <li class="step done">01 · Aberto<span class="cell-sub">08:47</span></li>
+    <li class="step done">02 · Em análise<span class="cell-sub">08:55</span></li>
+    <li class="step cur" aria-current="step">03 · Em atendimento<span class="cell-sub">09:20</span></li>
+    <li class="step">04 · Aguardando cliente<span class="cell-sub">—</span></li>
+    <li class="step">05 · Resolvido<span class="cell-sub">—</span></li>
+    <li class="step">06 · Fechado<span class="cell-sub">—</span></li>
+  </ol>
+</section>
+
+<div class="cols-2-1">
+  <div class="stack">
+    <section class="card" aria-label="Histórico do atendimento">
+      <div class="card-head"><h2>Histórico do atendimento</h2><span class="caption">6 mensagens</span></div>
+      <div class="card-body thread" style="padding-top:0">
+        <div class="msg client">
+          <span class="avatar sm soft" style="width:36px;height:36px;font-size:13px">MT</span>
+          <div><div class="who"><b>Marcos Teixeira</b> · Empresa Delta · 08:47 · via telefone, registrado por Carla</div>
+          <div class="bubble"><p>Desde as 08:30 a API está retornando erro 502 e o aplicativo de pedidos dos representantes parou. Os vendedores estão em campo e não conseguem lançar pedidos. Precisamos de prioridade máxima.</p></div></div>
+        </div>
+        <div class="msg">
+          <span class="avatar sm" style="width:36px;height:36px;font-size:13px">CM</span>
+          <div><div class="who"><b>Carla Mendes</b> · 08:55</div>
+          <div class="bubble"><p>Marcos, recebido. Classificamos o chamado como crítico e o Diego já está verificando o servidor da API na AWS. Retorno em até 30 minutos com o diagnóstico.</p></div></div>
+        </div>
+        <div class="msg note">
+          <span class="avatar sm" style="width:36px;height:36px;font-size:13px">DR</span>
+          <div><div class="who"><b>Diego Rocha</b> · 09:20<span class="badge b-mute">Nota interna</span></div>
+          <div class="bubble"><p>Instância da API Delta com disco 100% ocupado por logs de acesso sem rotação. Liberei espaço, configurei a rotação diária e reiniciei o serviço. Credenciais de acesso usadas conforme referência no cofre de senhas. Sigo monitorando.</p></div></div>
+        </div>
+        <div class="msg">
+          <span class="avatar sm" style="width:36px;height:36px;font-size:13px">CM</span>
+          <div><div class="who"><b>Carla Mendes</b> · 09:41</div>
+          <div class="bubble"><p>A API voltou a responder às 09:34. Pode confirmar se o aplicativo de pedidos já está normal aí?</p></div></div>
+        </div>
+        <div class="msg client">
+          <span class="avatar sm soft" style="width:36px;height:36px;font-size:13px">MT</span>
+          <div><div class="who"><b>Marcos Teixeira</b> · Empresa Delta · 09:58 · via e-mail</div>
+          <div class="bubble"><p>Confirmado, voltou. Mas os pedidos enviados entre 08:30 e 09:30 não aparecem no sistema.</p></div></div>
+        </div>
+        <div class="msg">
+          <span class="avatar sm" style="width:36px;height:36px;font-size:13px">CM</span>
+          <div><div class="who"><b>Carla Mendes</b> · 10:06</div>
+          <div class="bubble"><p>Abrimos o chamado <a href="chamado.html">#2395</a> para tratar a sincronização desses pedidos. Mantemos este em atendimento até confirmarmos a estabilidade e ativarmos o alerta de disco no servidor.</p></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" aria-label="Responder">
+      <form class="card-body form" onsubmit="event.preventDefault()">
+        <div class="row wrap" style="justify-content:space-between">
+          <h2>Responder</h2>
+          <div class="seg" role="radiogroup" aria-label="Tipo de mensagem">
+            <button type="button" class="on" role="radio" aria-checked="true">Resposta ao cliente</button>
+            <button type="button" role="radio" aria-checked="false">Nota interna</button>
+          </div>
+        </div>
+        <div class="field"><label for="r-msg" class="sr-only">Mensagem</label><textarea class="textarea" id="r-msg" style="min-height:120px" placeholder="Escreva a atualização para Marcos Teixeira…"></textarea></div>
+        <div class="reply-actions">
+          <button class="btn sm" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11l-8.5 8.5a5 5 0 01-7-7L14 4a3.5 3.5 0 015 5l-8.5 8.5a2 2 0 01-3-3L15 7"/></svg>Anexar</button>
+          <span class="spacer"></span>
+          <label class="sr-only" for="r-status">Status após enviar</label>
+          <select class="select" id="r-status" style="height:32px;font-size:13px"><option>Manter Em atendimento</option><option>Mudar para Aguardando cliente</option><option>Mudar para Resolvido</option></select>
+          <button class="btn pri sm" type="submit">Enviar</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <div class="stack">
+    <section class="card" aria-label="Dados do chamado">
+      <div class="card-head"><h2>Dados do chamado</h2></div>
+      <div class="kv"><span>Número</span><b>#2394</b></div>
+      <div class="kv"><span>Cliente</span><a href="../clientes/empresa.html" style="font-weight:600">Empresa Delta</a></div>
+      <div class="kv"><span>Contato</span><span class="right"><b>Marcos Teixeira</b><span class="cell-sub">Gerente de TI · marcos@deltaservicos.com.br</span></span></div>
+      <div class="kv"><span>Categoria</span><b>Infraestrutura</b></div>
+      <div class="kv"><span>Prioridade</span><span class="badge b-crit">Crítica</span></div>
+      <div class="kv"><span>Responsável</span><span class="row" style="gap:8px"><span class="avatar sm soft">CM</span><b>Carla Mendes</b></span></div>
+      <div class="kv"><span>Aplicação afetada</span><span class="right"><a href="../tecnologia/aplicacao.html" style="font-weight:600">API Delta</a><span class="cell-sub">Produção · AWS</span></span></div>
+      <div class="kv"><span>Contrato</span><a href="../clientes/contrato.html" style="font-weight:600">#111 Hospedagem e suporte</a></div>
+      <div class="kv"><span>Abertura</span><b>17/09/2026 08:47</b></div>
+      <div class="kv"><span>Conclusão</span><span class="muted">registrada ao resolver</span></div>
+    </section>
+
+    <section class="card" aria-label="SLA">
+      <div class="card-head"><h2>SLA</h2><span class="caption">prioridade Crítica</span></div>
+      <div class="kv"><span>Primeira resposta<span class="cell-sub">meta 30 min</span></span><span class="right"><b>8 min</b><span class="cell-sub"><span class="badge b-good">Cumprido</span></span></span></div>
+      <div class="kv"><span>Serviço restabelecido</span><b>09:34 · 47 min</b></div>
+      <div class="kv"><span>Solução<span class="cell-sub">meta 4h · até 12:47</span></span><span class="badge b-warn">Em curso</span></div>
+      <div class="card-body" style="padding-top:4px"><div class="progress warn" role="progressbar" aria-valuenow="72" aria-valuemin="0" aria-valuemax="100" aria-label="72% do prazo de solução consumido"><i style="width:72%"></i></div><span class="caption">72% do prazo de solução consumido</span></div>
+    </section>
+
+    <section class="card" aria-label="Horas registradas no chamado">
+      <div class="card-head"><h2>Horas registradas</h2><button class="link-btn" type="button" data-open="registrar-horas">+ Registrar</button></div>
+      <div class="kv"><span>Diego Rocha · diagnóstico e correção</span><b>1h40</b></div>
+      <div class="kv"><span>Carla Mendes · atendimento</span><b>1h15</b></div>
+      <div class="kv"><span class="strong">Total</span><b>2h55</b></div>
+    </section>
+
+    <section class="card" aria-label="Relacionados">
+      <div class="card-head"><h2>Relacionados</h2></div>
+      <div class="tl"><i style="background:var(--warn)"></i><div><a href="chamado.html">#2395 — Pedidos não sincronizados após a queda</a><small>Em análise · Diego Rocha</small></div></div>
+      <div class="tl"><i></i><div><a href="../tecnologia/aplicacao.html">API Delta</a><small>Aplicação · Produção · AWS</small></div></div>
+    </section>
+  </div>
+</div>
+
+</main>
+</div>
+</div>
+
+<!-- Modal: mudar status -->
+<div class="modal" id="mudar-status" role="dialog" aria-modal="true" aria-labelledby="mudar-status-t">
+  <form class="form" style="display:contents">
+    <div class="modal-head"><h2 id="mudar-status-t">Mudar status do chamado #2394</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="modal-body form">
+      <div class="field"><label for="s-novo">Novo status <span class="req">*</span></label><select class="select" id="s-novo" required><option>Aberto</option><option>Em análise</option><option>Em atendimento</option><option>Aguardando cliente</option><option selected>Resolvido</option><option>Fechado</option></select><span class="hint">Ao marcar como Resolvido, a data e hora de conclusão são registradas automaticamente.</span></div>
+      <div class="field"><label for="s-obs">Mensagem ao cliente</label><textarea class="textarea" id="s-obs" placeholder="Resumo da solução aplicada"></textarea></div>
+      <label class="check"><input type="checkbox" checked> Registrar a mudança no histórico do atendimento</label>
+    </div>
+    <div class="modal-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Salvar status</button></div>
+  </form>
+</div>
+
+<!-- Modal: registrar horas -->
+<div class="modal" id="registrar-horas" role="dialog" aria-modal="true" aria-labelledby="registrar-horas-t">
+  <form class="form" style="display:contents">
+    <div class="modal-head"><h2 id="registrar-horas-t">Registrar horas</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="modal-body form">
+      <div class="callout"><span>Empresa Delta · chamado #2394 — Sistema fora do ar</span></div>
+      <div class="form-grid">
+        <div class="field"><label for="h-usr">Usuário <span class="req">*</span></label><select class="select" id="h-usr" required><option>Carla Mendes</option><option>Diego Rocha</option><option>Elisa Prado</option><option>Rafael</option></select></div>
+        <div class="field"><label for="h-data">Data <span class="req">*</span></label><input class="input" id="h-data" type="date" value="2026-09-17" required></div>
+        <div class="field"><label for="h-dur">Duração (hh:mm) <span class="req">*</span></label><input class="input num" id="h-dur" inputmode="numeric" placeholder="00:45" pattern="[0-9]{1,2}:[0-5][0-9]" required></div>
+        <div class="field"><label for="h-proj">Projeto</label><select class="select" id="h-proj"><option value="">Nenhum</option><option>Automação de NF Delta</option></select></div>
+        <div class="field full"><label for="h-desc">Descrição</label><textarea class="textarea" id="h-desc" placeholder="Resumo do que foi feito"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Registrar</button></div>
+  </form>
+</div>
+
+<script src="../assets/app.js"></script>
+<script>
+  // Alterna resposta ao cliente / nota interna (comportamento local desta tela)
+  (function () {
+    var btns = document.querySelectorAll('[aria-label="Tipo de mensagem"] button');
+    var ta = document.getElementById('r-msg');
+    btns.forEach(function (b, i) {
+      b.addEventListener('click', function () {
+        btns.forEach(function (x) { x.classList.toggle('on', x === b); x.setAttribute('aria-checked', x === b); });
+        ta.placeholder = i ? 'Nota visível só para a equipe da DevBatista…' : 'Escreva a atualização para Marcos Teixeira…';
+      });
+    });
+  })();
+</script>
+</body>
+</html>

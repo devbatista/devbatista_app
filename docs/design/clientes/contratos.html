@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contratos · Admin DevBatista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/app.css">
+<style>
+  tr[data-href] { cursor: pointer; }
+  .table td[data-label="Vigência"] .cell-sub { white-space: normal; }
+  .table .link-btn { white-space: nowrap; }
+  .table tr.soon td { background: var(--warn-bg); }
+  .exp { display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; gap: 16px; align-items: center; padding: 14px 20px; border-top: 1px solid var(--rule); font-size: 14px; }
+  .exp .days { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 52px; border-radius: 10px; background: var(--warn-bg); box-shadow: inset 0 0 0 1px var(--warn-line); color: var(--warn); font-weight: 700; font-size: 18px; line-height: 1; font-variant-numeric: tabular-nums; }
+  .exp .days small { font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; margin-top: 4px; }
+  .exp .acts { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+  @media (max-width: 960px) {
+    table.table.cards tr.soon { background: var(--warn-bg); }
+    table.table.cards tr.soon td { background: transparent; }
+    .exp { grid-template-columns: 52px minmax(0, 1fr); }
+    .exp .acts { grid-column: 1 / -1; justify-content: flex-start; }
+  }
+</style>
+</head>
+<body data-group="cli" data-item="Contratos" data-crumb='[["Clientes","empresas.html"],["Contratos"]]'>
+<div class="app">
+<aside class="side"></aside>
+<div class="main">
+<header class="top"></header>
+<main class="content">
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Clientes</span>
+    <h1>Contratos</h1>
+    <p class="lead">Contratos firmados com os clientes, prazos de vigência e documento assinado. Alertas automáticos 60, 30 e 15 dias antes do término.</p>
+  </div>
+  <div class="actions">
+    <button class="btn" type="button">Exportar CSV</button>
+    <button class="btn pri" type="button" data-open="novo-contrato"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Novo contrato</button>
+  </div>
+</div>
+
+<div class="grid-kpi">
+  <div class="card kpi"><span class="eyebrow">Contratos ativos</span><span class="v">17</span><span class="f">14 ativos + 3 próximos do vencimento</span></div>
+  <a class="card kpi warn" href="#vencendo"><span class="eyebrow">Vencem em 60 dias</span><span class="v">3</span><span class="f"><span class="badge b-warn">#098 em 30 dias</span>2 com renovação manual</span></a>
+  <div class="card kpi"><span class="eyebrow">Valor mensal contratado</span><span class="v">R$ 13.800</span><span class="f">recorrentes mensalizados · 68% do MRR</span></div>
+  <a class="card kpi" href="servicos-contratados.html"><span class="eyebrow">MRR sem contrato</span><span class="v">R$ 6.600</span><span class="f">serviços ativos sem contrato vinculado</span></a>
+</div>
+
+<section class="card" id="vencendo" aria-labelledby="vencendo-t">
+  <div class="card-head"><div><h2 id="vencendo-t">Próximos do vencimento</h2><span class="caption">Término nos próximos 60 dias · status alterado automaticamente</span></div><span class="badge b-warn">3 contratos</span></div>
+  <div class="exp">
+    <span class="days">30<small>dias</small></span>
+    <div><a class="strong" href="contrato.html">#098 — Manutenção</a> · <a href="empresa.html">Empresa XYZ</a><span class="cell-sub">Termina em <b class="strong">17/10/2026</b> · renovação Manual · R$ 1.200/mês · alerta de 30 dias enviado hoje para Comercial e Administrador</span></div>
+    <div class="acts"><button class="btn sm" type="button" data-open="renovar">Renovar</button><a class="btn sm" href="contrato.html">Abrir</a></div>
+  </div>
+  <div class="exp">
+    <span class="days">49<small>dias</small></span>
+    <div><a class="strong" href="contrato.html">#095 — Suporte anual</a> · <a href="empresa.html">Cliente D</a><span class="cell-sub">Termina em <b class="strong">05/11/2026</b> · renovação Automática por mais 12 meses · R$ 9.600/ano</span></div>
+    <div class="acts"><a class="btn sm" href="contrato.html">Abrir</a></div>
+  </div>
+  <div class="exp">
+    <span class="days">59<small>dias</small></span>
+    <div><a class="strong" href="contrato.html">#087 — Suporte</a> · <a href="empresa.html">Empresa Orion</a><span class="cell-sub">Termina em <b class="strong">15/11/2026</b> · renovação Manual · R$ 900/mês · alerta de 60 dias enviado em 16/09/2026</span></div>
+    <div class="acts"><button class="btn sm" type="button" data-open="renovar">Renovar</button><a class="btn sm" href="contrato.html">Abrir</a></div>
+  </div>
+</section>
+
+<div class="toolbar">
+  <div class="seg" role="group" aria-label="Filtrar por status" data-filter-group="contratos">
+    <button type="button" class="on" data-filter="todos" aria-pressed="true">Todos <span class="n">24</span></button>
+    <button type="button" data-filter="Rascunho" aria-pressed="false">Rascunho <span class="n">1</span></button>
+    <button type="button" data-filter="Ativo" aria-pressed="false">Ativo <span class="n">14</span></button>
+    <button type="button" data-filter="Próximo do vencimento" aria-pressed="false">Próximo do vencimento <span class="n">3</span></button>
+    <button type="button" data-filter="Encerrado" aria-pressed="false">Encerrado <span class="n">5</span></button>
+    <button type="button" data-filter="Cancelado" aria-pressed="false">Cancelado <span class="n">1</span></button>
+  </div>
+  <span class="spacer"></span>
+  <label class="search-field"><span class="sr-only">Buscar contrato</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M11 18a7 7 0 100-14 7 7 0 000 14zM21 21l-4.3-4.3"/></svg><input class="input" type="search" placeholder="Número, cliente ou título"></label>
+  <label class="sr-only" for="f-cli">Cliente</label>
+  <select class="select" id="f-cli"><option>Todos os clientes</option><option>Empresa ACME</option><option>Empresa XYZ</option><option>Empresa Delta</option><option>Empresa Orion</option><option>Cliente A</option><option>Cliente B</option><option>Cliente C</option><option>Cliente D</option><option>Cliente E</option><option>Grupo Norte Logística</option></select>
+  <label class="sr-only" for="f-ren">Renovação</label>
+  <select class="select" id="f-ren"><option>Toda renovação</option><option>Automática</option><option>Manual</option><option>Sem renovação</option></select>
+  <label class="sr-only" for="f-per">Periodicidade</label>
+  <select class="select" id="f-per"><option>Toda periodicidade</option><option>Mensal</option><option>Trimestral</option><option>Semestral</option><option>Anual</option><option>Valor único</option></select>
+</div>
+
+<section class="card" aria-label="Lista de contratos">
+  <div class="table-wrap">
+    <table class="table cards" data-filter-target="contratos">
+      <thead><tr><th>Número</th><th>Cliente</th><th>Título</th><th>Vigência</th><th class="num">Valor</th><th>Status</th><th><span class="sr-only">Abrir</span></th></tr></thead>
+      <tbody>
+        <tr class="soon" data-status="Próximo do vencimento" data-href="contrato.html">
+          <td data-label="Número"><a class="strong mono" href="contrato.html">#098</a></td>
+          <td data-label="Cliente"><a href="empresa.html">Empresa XYZ</a></td>
+          <td data-label="Título" class="strong">Manutenção</td>
+          <td data-label="Vigência" class="mono nowrap">18/10/2025 – <span style="color:var(--warn);font-weight:600">17/10/2026</span><span class="cell-sub">faltam 30 dias · renovação manual</span></td>
+          <td data-label="Valor" class="num nowrap">R$ 1.200<span class="cell-sub">Mensal</span></td>
+          <td data-label="Status"><span class="badge b-warn">Próximo do vencimento</span></td>
+          <td data-label="" class="right"><a class="link-btn" href="contrato.html" aria-label="Abrir contrato #098">Abrir →</a></td>
+        </tr>
+        <tr class="soon" data-status="Próximo do vencimento" data-href="contrato.html">
+          <td data-label="Número"><a class="strong mono" href="contrato.html">#095</a></td>
+          <td data-label="Cliente"><a href="empresa.html">Cliente D</a></td>
+          <td data-label="Título" class="strong">Suporte anual</td>
+          <td data-label="Vigência" class="mono nowrap">06/11/2025 – <span style="color:var(--warn);font-weight:600">05/11/2026</span><span class="cell-sub">faltam 49 dias · renovação automática</span></td>
+          <td data-label="Valor" class="num nowrap">R$ 9.600<span class="cell-sub">Anual · R$ 800/mês</span></td>
+          <td data-label="Status"><span class="badge b-warn">Próximo do vencimento</span></td>
+          <td data-label="" class="right"><a class="link-btn" href="contrato.html" aria-label="Abrir contrato #095">Abrir →</a></td>
+        </tr>
+        <tr class="soon" data-status="Próximo do vencimento" data-href="contrato.html">
+          <td data-label="Número"><a class="strong mono" href="contrato.html">#087</a></td>
+          <td data-label="Cliente"><a href="empresa.html">Empresa Orion</a></td>
+          <td data-label="Título" class="strong">Suporte</td>
+          <td data-label="Vigência" class="mono nowrap">16/11/2024 – <span style="color:var(--warn);font-weight:600">15/11/2026</span><span class="cell-sub">faltam 59 dias · renovação manual</span></td>
+          <td data-label="Valor" class="num nowrap">R$ 900<span class="cell-sub">Mensal</span></td>
+          <td data-label="Status"><span class="badge b-warn">Próximo do vencimento</span></td>
+          <td data-label="" class="right"><a class="link-btn" href="contrato.html" aria-label="Abrir contrato #087">Abrir →</a></td>
+        </tr>
+        <tr data-status="Ativo" data-href="contrato.html">
+          <td data-label="Número"><a class="strong mono" href="contrato.html">#104</a></td>
+          <td data-label="Cliente"><a href="empresa.html">Empresa ACME</a></td>
+          <td data-label="Título" class="strong">Consultoria de TI<span class="cell-sub">Aditivo 01 em 17/09/2026</span></td>
+          <td data-label="Vigência" class="mono nowrap">12/03/2026 – 11/03/2027<span class="cell-sub">faltam 175 dias · renovação automática</span></td>
+          <td data-label="Valor" class="num nowrap">R$ 3.000<span class="cell-sub">Mensal</span></td>
+          <td data-label="Status"><span class="badge b-good">Ativo</span></td>
+          <td data-label="" class="right"><a class="link-btn" href="contrato.html" aria-label="Abrir contrato #104">Abrir →</a></td>
+        </tr>
+        <tr data-status="Ativo" data-href="contrato.html">
+          <td data-label="Número"><a class="strong mono" href="contrato.html">#111</a></td>
+          <td data-label="Cliente"><a href="empresa.html">Empresa Delta</a></td>
+          <td data-label="Título" class="strong">Hospedagem e suporte</td>
+          <td data-label="Vigência" class="mono nowrap">20/07/2026 – 19/07/2027<span class="cell-sub">faltam 305 dias · renovação automática</span></td>
+          <td data-label="Valor" class="num nowrap">R$ 1.000<span class="cell-sub">Mensal</span></td>
+          <td data-label="Status"><span class="badge b-good">Ativo</span></td>
+          <td data-label="" class="right"><a class="link-btn" href="contrato.html" aria-label="Abrir contrato #111">Abrir →</a></td>
+        </tr>
+        <tr data-status="Ativo" data-href="contrato.html">
+          <td data-label="Número"><a class="strong mono" href="contrato.html">#092</a></td>
+          <td data-label="Cliente"><a href="empresa.html">Cliente C</a></td>
+          <td data-label="Título" class="strong">Desenvolvimento — ERP Cliente C</td>
+          <td data-label="Vigência" class="mono nowrap">01/09/2025 – 31/12/2026<span class="cell-sub">faltam 105 dias · sem renovação</span></td>
+          <td data-label="Valor" class="num nowrap">R$ 2.400<span class="cell-sub">Mensal</span></td>
+          <td data-label="Status"><span class="badge b-good">Ativo</span></td>
+          <td data-label="" class="right"><a class="link-btn" href="contrato.html" aria-label="Abrir contrato #092">Abrir →</a></td>
+        </tr>
+        <tr data-status="Ativo" data-href="contrato.html">
+          <td data-label="Número"><a class="strong mono" href="contrato.html">#101</a></td>
+          <td data-label="Cliente"><a href="empresa.html">Cliente A</a></td>
+          <td data-label="Título" class="strong">Consultoria de TI</td>
+          <td data-label="Vigência" class="mono nowrap">01/02/2026 – 31/01/2027<span class="cell-sub">faltam 136 dias · renovação automática</span></td>
+          <td data-label="Valor" class="num nowrap">R$ 18.000<span class="cell-sub">Semestral · R$ 3.000/mês</span></td>
+          <td data-label="Status"><span class="badge b-good">Ativo</span></td>
+          <td data-label="" class="right"><a class="link-btn" href="contrato.html" aria-label="Abrir contrato #101">Abrir →</a></td>
+        </tr>
+        <tr data-status="Ativo" data-href="contrato.html">
+          <td data-label="Número"><a class="strong mono" href="contrato.html">#106</a></td>
+          <td data-label="Cliente"><a href="empresa.html">Cliente A</a></td>
+          <td data-label="Título" class="strong">Integração com ERP</td>
+          <td data-label="Vigência" class="mono nowrap">04/05/2026 – 30/11/2026<span class="cell-sub">faltam 74 dias · sem renovação</span></td>
+          <td data-label="Valor" class="num nowrap">R$ 22.000<span class="cell-sub">Valor único</span></td>
+          <td data-label="Status"><span class="badge b-good">Ativo</span></td>
+          <td data-label="" class="right"><a class="link-btn" href="contrato.html" aria-label="Abrir contrato #106">Abrir →</a></td>
+        </tr>
+        <tr data-status="Ativo" data-href="contrato.html">
+          <td data-label="Número"><a class="strong mono" href="contrato.html">#099</a></td>
+          <td data-label="Cliente"><a href="empresa.html">Cliente B</a></td>
+          <td data-label="Título" class="strong">Suporte</td>
+          <td data-label="Vigência" class="mono nowrap">01/01/2026 – 31/12/2026<span class="cell-sub">faltam 105 dias · renovação automática</span></td>
+          <td data-label="Valor" class="num nowrap">R$ 600<span class="cell-sub">Mensal</span></td>
+          <td data-label="Status"><span class="badge b-good">Ativo</span></td>
+          <td data-label="" class="right"><a class="link-btn" href="contrato.html" aria-label="Abrir contrato #099">Abrir →</a></td>
+        </tr>
+        <tr data-status="Ativo" data-href="contrato.html">
+          <td data-label="Número"><a class="strong mono" href="contrato.html">#109</a></td>
+          <td data-label="Cliente"><a href="empresa.html">Cliente B</a></td>
+          <td data-label="Título" class="strong">Treinamento de equipes</td>
+          <td data-label="Vigência" class="mono nowrap">01/09/2026 – 15/12/2026<span class="cell-sub">faltam 89 dias · sem renovação</span></td>
+          <td data-label="Valor" class="num nowrap">R$ 6.500<span class="cell-sub">Valor único</span></td>
+          <td data-label="Status"><span class="badge b-good">Ativo</span></td>
+          <td data-label="" class="right"><a class="link-btn" href="contrato.html" aria-label="Abrir contrato #109">Abrir →</a></td>
+        </tr>
+        <tr data-status="Ativo" data-href="contrato.html">
+          <td data-label="Número"><a class="strong mono" href="contrato.html">#108</a></td>
+          <td data-label="Cliente"><a href="empresa.html">Cliente D</a></td>
+          <td data-label="Título" class="strong">Hospedagem</td>
+          <td data-label="Vigência" class="mono nowrap">10/06/2026 – 09/06/2027<span class="cell-sub">faltam 265 dias · renovação automática</span></td>
+          <td data-label="Valor" class="num nowrap">R$ 600<span class="cell-sub">Mensal</span></td>
+          <td data-label="Status"><span class="badge b-good">Ativo</span></td>
+          <td data-label="" class="right"><a class="link-btn" href="contrato.html" aria-label="Abrir contrato #108">Abrir →</a></td>
+        </tr>
+        <tr data-status="Ativo" data-href="contrato.html">
+          <td data-label="Número"><a class="strong mono" href="contrato.html">#105</a></td>
+          <td data-label="Cliente"><a href="empresa.html">Cliente E</a></td>
+          <td data-label="Título" class="strong">Hospedagem</td>
+          <td data-label="Vigência" class="mono nowrap">20/04/2026 – 19/04/2027<span class="cell-sub">faltam 214 dias · renovação automática</span></td>
+          <td data-label="Valor" class="num nowrap">R$ 300<span class="cell-sub">Mensal</span></td>
+          <td data-label="Status"><span class="badge b-good">Ativo</span></td>
+          <td data-label="" class="right"><a class="link-btn" href="contrato.html" aria-label="Abrir contrato #105">Abrir →</a></td>
+        </tr>
+        <tr data-status="Rascunho" data-href="contrato.html">
+          <td data-label="Número"><a class="strong mono" href="contrato.html">#110</a></td>
+          <td data-label="Cliente"><a href="empresa.html">Grupo Norte Logística</a></td>
+          <td data-label="Título" class="strong">Roteirização de entregas<span class="cell-sub">Aguardando documento assinado</span></td>
+          <td data-label="Vigência" class="mono nowrap">01/10/2026 – 30/09/2027<span class="cell-sub">previsto · renovação manual</span></td>
+          <td data-label="Valor" class="num nowrap">R$ 4.200<span class="cell-sub">Mensal</span></td>
+          <td data-label="Status"><span class="badge b-mute">Rascunho</span></td>
+          <td data-label="" class="right"><a class="link-btn" href="contrato.html" aria-label="Abrir contrato #110">Abrir →</a></td>
+        </tr>
+        <tr data-status="Encerrado" data-href="contrato.html">
+          <td data-label="Número"><a class="strong mono" href="contrato.html">#103</a></td>
+          <td data-label="Cliente"><a href="empresa.html">Empresa ACME</a></td>
+          <td data-label="Título" class="strong">Diagnóstico de infraestrutura<span class="cell-sub">Escopo entregue e aceito</span></td>
+          <td data-label="Vigência" class="mono nowrap">12/03/2026 – 30/04/2026<span class="cell-sub">sem renovação</span></td>
+          <td data-label="Valor" class="num nowrap">R$ 4.500<span class="cell-sub">Valor único</span></td>
+          <td data-label="Status"><span class="badge b-mute">Encerrado</span></td>
+          <td data-label="" class="right"><a class="link-btn" href="contrato.html" aria-label="Abrir contrato #103">Abrir →</a></td>
+        </tr>
+        <tr data-status="Encerrado" data-href="contrato.html">
+          <td data-label="Número"><a class="strong mono" href="contrato.html">#083</a></td>
+          <td data-label="Cliente"><a href="empresa.html">Construtora Pilar</a></td>
+          <td data-label="Título" class="strong">Manutenção</td>
+          <td data-label="Vigência" class="mono nowrap">01/06/2025 – 31/05/2026<span class="cell-sub">renovação manual</span></td>
+          <td data-label="Valor" class="num nowrap">R$ 900<span class="cell-sub">Mensal</span></td>
+          <td data-label="Status"><span class="badge b-mute">Encerrado</span></td>
+          <td data-label="" class="right"><a class="link-btn" href="contrato.html" aria-label="Abrir contrato #083">Abrir →</a></td>
+        </tr>
+        <tr data-status="Cancelado" data-href="contrato.html">
+          <td data-label="Número"><a class="strong mono" href="contrato.html">#102</a></td>
+          <td data-label="Cliente"><a href="empresa.html">Cliente B</a></td>
+          <td data-label="Título" class="strong">Migração de servidores<span class="cell-sub">Cancelado em 20/03/2026 a pedido do cliente</span></td>
+          <td data-label="Vigência" class="mono nowrap muted">16/03/2026 – 30/06/2026<span class="cell-sub">sem renovação</span></td>
+          <td data-label="Valor" class="num nowrap muted"><s>R$ 7.800</s><span class="cell-sub">Valor único</span></td>
+          <td data-label="Status"><span class="badge b-mute">Cancelado</span></td>
+          <td data-label="" class="right"><a class="link-btn" href="contrato.html" aria-label="Abrir contrato #102">Abrir →</a></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="pagination"><span>Mostrando 16 de 24 contratos · valor na periodicidade indicada</span><div class="pages"><button type="button" class="on" aria-current="page">1</button><button type="button">2</button></div></div>
+</section>
+
+</main>
+</div>
+</div>
+
+<!-- Formulário lateral: novo contrato -->
+<aside class="drawer" id="novo-contrato" role="dialog" aria-modal="true" aria-labelledby="novo-contrato-t">
+  <form class="form" style="display:contents">
+    <div class="drawer-head"><h2 id="novo-contrato-t">Novo contrato</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="drawer-body form">
+      <span class="fieldset-title">Identificação</span>
+      <div class="form-grid">
+        <div class="field full"><label for="k-cli">Cliente <span class="req">*</span></label><select class="select" id="k-cli" required><option value="">Selecione</option><option>Empresa ACME</option><option>Empresa XYZ</option><option>Empresa Delta</option><option>Empresa Orion</option><option>Cliente A</option><option>Cliente B</option><option>Cliente C</option><option>Cliente D</option><option>Cliente E</option><option>Grupo Norte Logística</option><option>Agro Campos</option><option>Studio Arq</option></select></div>
+        <div class="field full"><label for="k-tit">Título <span class="req">*</span></label><input class="input" id="k-tit" required placeholder="Ex.: Consultoria de TI"><span class="hint">Identificação do contrato</span></div>
+        <div class="field"><label for="k-num">Número</label><input class="input mono" id="k-num" value="#112" readonly aria-describedby="k-num-h"><span class="hint" id="k-num-h">Numeração interna sequencial, gerada ao salvar</span></div>
+        <div class="field"><label for="k-st">Status <span class="req">*</span></label><select class="select" id="k-st" required><option selected>Rascunho</option><option>Ativo</option><option>Próximo do vencimento</option><option>Encerrado</option><option>Cancelado</option></select><span class="hint">Próximo do vencimento é aplicado automaticamente</span></div>
+      </div>
+      <span class="fieldset-title">Vigência</span>
+      <div class="form-grid">
+        <div class="field"><label for="k-ini">Início <span class="req">*</span></label><input class="input" id="k-ini" type="date" value="2026-10-01" required></div>
+        <div class="field"><label for="k-fim">Término <span class="req">*</span></label><input class="input" id="k-fim" type="date" value="2027-09-30" required></div>
+        <div class="field full"><label for="k-ren">Renovação <span class="req">*</span></label><select class="select" id="k-ren" required><option>Automática</option><option selected>Manual</option><option>Sem renovação</option></select></div>
+      </div>
+      <span class="fieldset-title">Valores</span>
+      <div class="form-grid">
+        <div class="field"><label for="k-val">Valor (R$) <span class="req">*</span></label><input class="input num" id="k-val" inputmode="decimal" required placeholder="0,00"><span class="hint">Na periodicidade indicada</span></div>
+        <div class="field"><label for="k-per">Periodicidade <span class="req">*</span></label><select class="select" id="k-per" required><option>Mensal</option><option>Trimestral</option><option>Semestral</option><option>Anual</option><option>Valor único</option></select></div>
+      </div>
+      <span class="fieldset-title">Documento e observações</span>
+      <div class="field"><label for="k-doc">Documento assinado</label><input class="input" id="k-doc" type="file" accept=".pdf,application/pdf"><span class="hint">PDF até 10 MB · armazenado no módulo <a href="../gestao/documentos.html">Documentos</a>, vinculado ao cliente e ao contrato</span></div>
+      <div class="field"><label for="k-obs">Observações</label><textarea class="textarea" id="k-obs" placeholder="Cláusulas e condições relevantes: reajuste, multa, SLA, aviso prévio…"></textarea></div>
+      <div class="callout"><span>Alertas de vencimento são programados para <b class="strong">60, 30 e 15 dias</b> antes do término e notificam Comercial e Administrador. Antecedência configurável em <a href="../administracao/configuracoes.html">Configurações</a>.</span></div>
+    </div>
+    <div class="drawer-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Salvar contrato</button></div>
+  </form>
+</aside>
+
+<!-- Modal: renovar contrato -->
+<div class="modal" id="renovar" role="dialog" aria-modal="true" aria-labelledby="renovar-t">
+  <form class="form" style="display:contents">
+    <div class="modal-head"><h2 id="renovar-t">Renovar contrato</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="modal-body form">
+      <div class="callout warn"><span>#098 — Manutenção · Empresa XYZ · termina em <b class="strong">17/10/2026</b> · renovação Manual</span></div>
+      <div class="form-grid">
+        <div class="field"><label for="r-fim">Novo término <span class="req">*</span></label><input class="input" id="r-fim" type="date" value="2027-10-17" required></div>
+        <div class="field"><label for="r-val">Valor mensal (R$) <span class="req">*</span></label><input class="input num" id="r-val" value="1.200,00" required></div>
+      </div>
+      <div class="field"><label for="r-obs">Observações</label><textarea class="textarea" id="r-obs" placeholder="Reajuste aplicado, condições negociadas…"></textarea></div>
+      <p class="caption" style="margin:0">A alteração fica registrada no histórico do contrato e as recorrências financeiras são estendidas até o novo término.</p>
+    </div>
+    <div class="modal-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Confirmar renovação</button></div>
+  </form>
+</div>
+
+<script src="../assets/app.js"></script>
+<script>
+  // Linha inteira abre o contrato
+  document.querySelectorAll('tr[data-href]').forEach(function (tr) {
+    tr.addEventListener('click', function (e) { if (!e.target.closest('a, button')) location.href = tr.dataset.href; });
+  });
+</script>
+</body>
+</html>

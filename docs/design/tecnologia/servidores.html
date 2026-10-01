@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Servidores · Admin DevBatista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/app.css">
+</head>
+<body data-group="tec" data-item="Servidores" data-crumb='[["Tecnologia","aplicacoes.html"],["Servidores"]]'>
+<div class="app">
+<aside class="side"></aside>
+<div class="main">
+<header class="top"></header>
+<main class="content">
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Tecnologia · Inventário</span>
+    <h1>Servidores</h1>
+    <p class="lead">Recursos de nuvem e hospedagem mantidos para os clientes, com custo mensal.</p>
+  </div>
+  <div class="actions">
+    <button class="btn" type="button">Exportar CSV</button>
+    <button class="btn pri" type="button" data-open="novo-servidor">Novo servidor</button>
+  </div>
+</div>
+
+<div class="grid-kpi">
+  <div class="card kpi"><span class="eyebrow">Servidores</span><span class="v">8</span><span class="f">4 produção · 3 staging · 1 desenvolvimento</span></div>
+  <div class="card kpi"><span class="eyebrow">Custo mensal total</span><span class="v">R$ 1.440</span><span class="f">entra no custo direto de cada cliente</span></div>
+  <div class="card kpi"><span class="eyebrow">Produção</span><span class="v">R$ 1.050</span><span class="f">73% do custo de servidores</span></div>
+  <div class="card kpi"><span class="eyebrow">Maior custo</span><span class="v">R$ 380</span><span class="f">delta-api-prod · Empresa Delta</span></div>
+</div>
+
+<div class="toolbar">
+  <div class="seg" role="group" aria-label="Filtrar por ambiente" data-filter-group="servidores">
+    <button type="button" class="on" data-filter="todos" aria-pressed="true">Todos <span class="c"></span></button>
+    <button type="button" data-filter="Produção" aria-pressed="false">Produção <span class="c"></span></button>
+    <button type="button" data-filter="Staging" aria-pressed="false">Staging <span class="c"></span></button>
+    <button type="button" data-filter="Desenvolvimento" aria-pressed="false">Desenvolvimento <span class="c"></span></button>
+  </div>
+  <span class="spacer"></span>
+  <label class="search-field"><span class="sr-only">Buscar servidor</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M11 18a7 7 0 100-14 7 7 0 000 14zM21 21l-4.3-4.3"/></svg><input class="input" type="search" placeholder="Nome, IP ou hostname"></label>
+  <label class="sr-only" for="f-cli">Cliente</label>
+  <select class="select" id="f-cli"><option>Todos os clientes</option><option>Empresa ACME</option><option>Empresa XYZ</option><option>Empresa Delta</option><option>Empresa Orion</option><option>Cliente A</option><option>Cliente B</option><option>Cliente C</option></select>
+  <label class="sr-only" for="f-forn">Fornecedor</label>
+  <select class="select" id="f-forn"><option>Todos os fornecedores</option><option>AWS</option><option>Railway</option><option>Cloudflare</option></select>
+</div>
+
+<section class="card" aria-label="Lista de servidores">
+  <div class="table-wrap">
+    <table class="table cards" data-filter-target="servidores">
+      <thead><tr><th>Nome</th><th>Cliente</th><th>Fornecedor</th><th>IP ou hostname</th><th>Ambiente</th><th>Sistema operacional</th><th class="num">Custo mensal</th></tr></thead>
+      <tbody>
+        <tr data-status="Produção"><td data-label="Nome"><span class="strong">acme-worker-01</span><span class="cell-sub">EC2 t3.small · <a href="aplicacao.html">Portal ACME</a>, Site institucional</span></td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa ACME</a></td><td data-label="Fornecedor">AWS</td><td data-label="IP ou hostname" class="mono">18.231.44.12</td><td data-label="Ambiente"><span class="badge b-good">Produção</span></td><td data-label="Sistema operacional">Ubuntu 24.04 LTS</td><td data-label="Custo mensal" class="num">R$ 220</td></tr>
+        <tr data-status="Produção"><td data-label="Nome"><span class="strong">clientea-prod</span><span class="cell-sub">EC2 t3.medium · <a href="aplicacao.html">Sistema de agendamento</a></span></td><td data-label="Cliente"><a href="../clientes/empresa.html">Cliente A</a></td><td data-label="Fornecedor">AWS</td><td data-label="IP ou hostname" class="mono">54.94.120.33</td><td data-label="Ambiente"><span class="badge b-good">Produção</span></td><td data-label="Sistema operacional">Ubuntu 22.04 LTS</td><td data-label="Custo mensal" class="num">R$ 290</td></tr>
+        <tr data-status="Desenvolvimento"><td data-label="Nome"><span class="strong">clienteb-dev</span><span class="cell-sub">Lightsail 2 GB · <a href="aplicacao.html">Painel de vendas</a></span></td><td data-label="Cliente"><a href="../clientes/empresa.html">Cliente B</a></td><td data-label="Fornecedor">AWS</td><td data-label="IP ou hostname" class="mono">dev.painel.clienteb.com.br</td><td data-label="Ambiente"><span class="badge b-mute">Desenvolvimento</span></td><td data-label="Sistema operacional">Ubuntu 24.04 LTS</td><td data-label="Custo mensal" class="num">R$ 45</td></tr>
+        <tr data-status="Staging"><td data-label="Nome"><span class="strong">clientec-homolog</span><span class="cell-sub">EC2 t3.small · <a href="aplicacao.html">ERP Cliente C</a></span></td><td data-label="Cliente"><a href="../clientes/empresa.html">Cliente C</a></td><td data-label="Fornecedor">AWS</td><td data-label="IP ou hostname" class="mono">homolog.erp-clientec.com.br</td><td data-label="Ambiente"><span class="badge b-info">Staging</span></td><td data-label="Sistema operacional">Ubuntu 24.04 LTS</td><td data-label="Custo mensal" class="num">R$ 140</td></tr>
+        <tr data-status="Produção"><td data-label="Nome"><span class="strong">delta-api-prod</span><span class="cell-sub">EC2 t3.large · <a href="aplicacao.html">API Delta</a> · incidente <a href="../operacao/chamado.html">#2394</a></span></td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa Delta</a></td><td data-label="Fornecedor">AWS</td><td data-label="IP ou hostname" class="mono">54.207.81.90</td><td data-label="Ambiente"><span class="badge b-good">Produção</span></td><td data-label="Sistema operacional">Ubuntu 22.04 LTS</td><td data-label="Custo mensal" class="num">R$ 380</td></tr>
+        <tr data-status="Staging"><td data-label="Nome"><span class="strong">delta-api-stg</span><span class="cell-sub">EC2 t3.micro · <a href="aplicacao.html">API Delta (staging)</a></span></td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa Delta</a></td><td data-label="Fornecedor">AWS</td><td data-label="IP ou hostname" class="mono">15.228.9.140</td><td data-label="Ambiente"><span class="badge b-info">Staging</span></td><td data-label="Sistema operacional">Ubuntu 22.04 LTS</td><td data-label="Custo mensal" class="num">R$ 95</td></tr>
+        <tr data-status="Staging"><td data-label="Nome"><span class="strong">orion-stg</span><span class="cell-sub">EC2 t3.small · <a href="aplicacao.html">App Orion</a></span></td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa Orion</a></td><td data-label="Fornecedor">AWS</td><td data-label="IP ou hostname" class="mono">staging.orion.app</td><td data-label="Ambiente"><span class="badge b-info">Staging</span></td><td data-label="Sistema operacional">Amazon Linux 2023</td><td data-label="Custo mensal" class="num">R$ 110</td></tr>
+        <tr data-status="Produção"><td data-label="Nome"><span class="strong">xyz-files-01</span><span class="cell-sub">EC2 t3.small + 200 GB · <a href="aplicacao.html">Portal de arquivos XYZ</a></span></td><td data-label="Cliente"><a href="../clientes/empresa.html">Empresa XYZ</a></td><td data-label="Fornecedor">AWS</td><td data-label="IP ou hostname" class="mono">arquivos.xyz.com.br</td><td data-label="Ambiente"><span class="badge b-good">Produção</span></td><td data-label="Sistema operacional">Debian 12</td><td data-label="Custo mensal" class="num">R$ 160</td></tr>
+      </tbody>
+      <tfoot><tr><td data-label="" colspan="6">Total mensal · 8 servidores</td><td data-label="Total" class="num">R$ 1.440</td></tr></tfoot>
+    </table>
+  </div>
+  <div class="pagination"><span>Custos em US$ convertidos a R$ 5,62 (17/09/2026)</span><div class="pages"><button type="button" class="on" aria-current="page">1</button></div></div>
+</section>
+
+<div class="note">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;color:var(--cyan)"><path d="M5 11h14v10H5zM8 11V7a4 4 0 018 0v4"/></svg>
+  <span><b>Sem senhas nem chaves SSH.</b> O cadastro de servidores é inventário: o acesso fica no cofre de senhas e aqui só a referência a ele. O custo mensal de cada servidor entra na <a href="../gestao/rentabilidade.html">rentabilidade</a> do cliente.</span>
+</div>
+
+</main>
+</div>
+</div>
+
+<!-- Formulário lateral: novo servidor -->
+<aside class="drawer" id="novo-servidor" role="dialog" aria-modal="true" aria-labelledby="novo-servidor-t">
+  <form class="form" style="display:contents">
+    <div class="drawer-head"><h2 id="novo-servidor-t">Novo servidor</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="drawer-body form">
+      <div class="form-grid">
+        <div class="field full"><label for="s-cli">Cliente <span class="req">*</span></label><select class="select" id="s-cli" required><option value="">Selecione</option><option>Empresa ACME</option><option>Empresa XYZ</option><option>Empresa Delta</option><option>Empresa Orion</option><option>Cliente A</option><option>Cliente B</option><option>Cliente C</option></select></div>
+        <div class="field full"><label for="s-forn">Fornecedor <span class="req">*</span></label><select class="select" id="s-forn" required><option value="">Selecione</option><option>AWS</option><option>Railway</option><option>Cloudflare</option></select><span class="hint">Provedor de nuvem ou hospedagem cadastrado em <a href="../gestao/fornecedores.html">Fornecedores</a></span></div>
+        <div class="field"><label for="s-nome">Nome <span class="req">*</span></label><input class="input" id="s-nome" required placeholder="Ex.: xyz-app-02"></div>
+        <div class="field"><label for="s-ip">IP ou hostname <span class="req">*</span></label><input class="input" id="s-ip" required placeholder="Ex.: 18.231.44.12"></div>
+        <div class="field"><label for="s-amb">Ambiente <span class="req">*</span></label><select class="select" id="s-amb" required><option value="">Selecione</option><option>Desenvolvimento</option><option>Staging</option><option>Produção</option></select></div>
+        <div class="field"><label for="s-so">Sistema operacional</label><input class="input" id="s-so" placeholder="Ex.: Ubuntu 24.04 LTS"><span class="hint">Distribuição e versão</span></div>
+        <div class="field"><label for="s-custo">Custo mensal (R$)</label><input class="input num" id="s-custo" inputmode="decimal" placeholder="0,00"></div>
+        <div class="field full"><label for="s-obs">Observações</label><textarea class="textarea" id="s-obs" placeholder="Configuração, porte e particularidades"></textarea></div>
+        <div class="field full"><label for="s-cofre">Referência no cofre de senhas</label><input class="input" id="s-cofre" placeholder="Ex.: Cofre DevBatista › Clientes › XYZ › SSH xyz-app-02"><span class="hint">Caminho do item no cofre, nunca a senha ou a chave</span></div>
+      </div>
+    </div>
+    <div class="drawer-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Salvar servidor</button></div>
+  </form>
+</aside>
+
+<script src="../assets/app.js"></script>
+</body>
+</html>

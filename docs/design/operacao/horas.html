@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Horas trabalhadas · Admin DevBatista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/app.css">
+<style>
+  .hbars.wide .hbar { grid-template-columns: 120px minmax(0, 1fr) 64px; }
+  .who { display: flex; align-items: center; gap: 8px; }
+</style>
+</head>
+<body data-group="op" data-item="Horas trabalhadas" data-crumb='[["Operação"],["Horas trabalhadas"]]'>
+<div class="app">
+<aside class="side"></aside>
+<div class="main">
+<header class="top"></header>
+<main class="content">
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Operação · Setembro de 2026</span>
+    <h1>Horas trabalhadas</h1>
+  </div>
+  <div class="actions">
+    <label class="sr-only" for="periodo">Período</label>
+    <select class="select" id="periodo"><option>Setembro/2026</option><option>Agosto/2026</option><option>Julho/2026</option><option>Trimestre</option><option>Personalizado…</option></select>
+    <button class="btn" type="button">Exportar CSV</button>
+    <button class="btn pri" type="button" data-open="registrar-horas">Registrar horas</button>
+  </div>
+</div>
+
+<div class="grid-kpi">
+  <div class="card kpi"><span class="eyebrow">Total do mês</span><span class="v">262h40</span><span class="f">até 17/09 · 4 pessoas</span></div>
+  <div class="card kpi"><span class="eyebrow">Em projetos</span><span class="v">130h00</span><span class="f">49% do total · 5 projetos</span></div>
+  <div class="card kpi"><span class="eyebrow">Suporte e recorrentes</span><span class="v">132h40</span><span class="f">consultoria, manutenção e chamados</span></div>
+  <div class="card kpi"><span class="eyebrow">Média por dia útil</span><span class="v">21h53</span><span class="f">12 dias úteis (feriado em 07/09)</span></div>
+</div>
+
+<div class="grid-2">
+  <section class="card card-body stack" aria-label="Horas por cliente">
+    <div class="section-title"><h2>Por cliente</h2><span class="unit">HORAS · SET</span></div>
+    <div class="hbars wide">
+      <div class="hbar"><a href="../clientes/empresa.html">Empresa ACME</a><div class="track"><div class="fill" style="width:100%"></div></div><span class="val">78h</span></div>
+      <div class="hbar"><span>Cliente C</span><div class="track"><div class="fill" style="width:79%"></div></div><span class="val">62h</span></div>
+      <div class="hbar"><a href="../clientes/empresa.html">Empresa XYZ</a><div class="track"><div class="fill" style="width:49%"></div></div><span class="val">38h</span></div>
+      <div class="hbar"><span>Cliente A</span><div class="track"><div class="fill" style="width:37%"></div></div><span class="val">29h</span></div>
+      <div class="hbar"><a href="../clientes/empresa.html">Empresa Delta</a><div class="track"><div class="fill" style="width:27%"></div></div><span class="val">21h</span></div>
+      <div class="hbar"><a href="../clientes/empresa.html">Empresa Orion</a><div class="track"><div class="fill" style="width:21%"></div></div><span class="val">16h</span></div>
+      <div class="hbar"><span>Demais</span><div class="track"><div class="fill alt" style="width:24%"></div></div><span class="val">18h40</span></div>
+    </div>
+    <p class="caption" style="margin:0">Base para a rentabilidade por cliente: horas convertidas em custo de mão de obra (ver <a href="../gestao/rentabilidade.html">Rentabilidade</a>).</p>
+  </section>
+
+  <section class="card card-body stack" aria-label="Horas por usuário">
+    <div class="section-title"><h2>Por usuário</h2><span class="unit">HORAS · CAPACIDADE 96H</span></div>
+    <div class="hbars wide">
+      <div class="hbar"><span class="who"><span class="avatar sm soft">EP</span>Elisa</span><div class="track"><div class="fill" style="width:100%;background:var(--warn)"></div></div><span class="val">97h</span></div>
+      <div class="hbar"><span class="who"><span class="avatar sm soft">DR</span>Diego</span><div class="track"><div class="fill" style="width:88%"></div></div><span class="val">84h</span></div>
+      <div class="hbar"><span class="who"><span class="avatar sm soft">CM</span>Carla</span><div class="track"><div class="fill" style="width:52%"></div></div><span class="val">49h40</span></div>
+      <div class="hbar"><span class="who"><span class="avatar sm soft">R</span>Rafael</span><div class="track"><div class="fill" style="width:33%"></div></div><span class="val">32h</span></div>
+    </div>
+    <div class="callout warn"><span><b class="strong">Elisa Prado</b> passou da capacidade do período (12 dias úteis × 8h). A maior parte das horas está no <a href="projeto.html">ERP Cliente C</a>, que está atrasado.</span></div>
+  </section>
+</div>
+
+<div class="toolbar">
+  <label class="search-field"><span class="sr-only">Buscar lançamento</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M11 18a7 7 0 100-14 7 7 0 000 14zM21 21l-4.3-4.3"/></svg><input class="input" type="search" placeholder="Descrição ou tarefa"></label>
+  <span class="spacer"></span>
+  <label class="sr-only" for="f-usr">Usuário</label>
+  <select class="select" id="f-usr"><option>Todos os usuários</option><option>Rafael</option><option>Carla Mendes</option><option>Diego Rocha</option><option>Elisa Prado</option></select>
+  <label class="sr-only" for="f-cli">Cliente</label>
+  <select class="select" id="f-cli"><option>Todos os clientes</option><option>Empresa ACME</option><option>Empresa XYZ</option><option>Empresa Delta</option><option>Empresa Orion</option><option>Cliente A</option><option>Cliente C</option></select>
+  <label class="sr-only" for="f-proj">Projeto</label>
+  <select class="select" id="f-proj"><option>Todos os projetos</option><option>Sem projeto</option><option>Portal ACME — Fase 2</option><option>ERP Cliente C</option><option>Painel de indicadores</option><option>Automação de NF Delta</option><option>Portal de Pedidos</option></select>
+</div>
+
+<section class="card" aria-label="Lançamentos de horas">
+  <div class="table-wrap">
+    <table class="table cards">
+      <thead><tr><th>Data</th><th>Usuário</th><th>Cliente</th><th>Projeto</th><th>Tarefa</th><th class="num">Duração</th><th>Descrição</th><th><span class="sr-only">Ações</span></th></tr></thead>
+      <tbody>
+        <tr><td data-label="Data" class="mono">17/09/2026</td><td data-label="Usuário">Elisa Prado</td><td data-label="Cliente" class="strong">Cliente C</td><td data-label="Projeto"><a href="projeto.html">ERP Cliente C</a></td><td data-label="Tarefa">Fechamento de estoque</td><td data-label="Duração" class="num">4h00</td><td data-label="Descrição">Ajuste no cálculo do custo médio no fechamento</td><td data-label="" class="right"><button class="link-btn" type="button">Editar</button></td></tr>
+        <tr><td data-label="Data" class="mono">17/09/2026</td><td data-label="Usuário">Diego Rocha</td><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa ACME</a></td><td data-label="Projeto"><a href="projeto.html">Portal ACME — Fase 2</a></td><td data-label="Tarefa">Módulo de relatórios</td><td data-label="Duração" class="num">3h30</td><td data-label="Descrição">Filtros por período e agrupamento por filial</td><td data-label="" class="right"><button class="link-btn" type="button">Editar</button></td></tr>
+        <tr><td data-label="Data" class="mono">17/09/2026</td><td data-label="Usuário">Diego Rocha</td><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa Delta</a></td><td data-label="Projeto" class="muted">—</td><td data-label="Tarefa" class="muted">—</td><td data-label="Duração" class="num">1h40</td><td data-label="Descrição">Diagnóstico e correção da API Delta — chamado <a href="chamado.html">#2394</a></td><td data-label="" class="right"><button class="link-btn" type="button">Editar</button></td></tr>
+        <tr><td data-label="Data" class="mono">17/09/2026</td><td data-label="Usuário">Carla Mendes</td><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa Delta</a></td><td data-label="Projeto" class="muted">—</td><td data-label="Tarefa" class="muted">—</td><td data-label="Duração" class="num">1h15</td><td data-label="Descrição">Atendimento do chamado crítico <a href="chamado.html">#2394</a></td><td data-label="" class="right"><button class="link-btn" type="button">Editar</button></td></tr>
+        <tr><td data-label="Data" class="mono">16/09/2026</td><td data-label="Usuário">Diego Rocha</td><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa ACME</a></td><td data-label="Projeto"><a href="projeto.html">Portal ACME — Fase 2</a></td><td data-label="Tarefa">Módulo de relatórios</td><td data-label="Duração" class="num">6h00</td><td data-label="Descrição">Consultas agregadas e paginação dos relatórios</td><td data-label="" class="right"><button class="link-btn" type="button">Editar</button></td></tr>
+        <tr><td data-label="Data" class="mono">16/09/2026</td><td data-label="Usuário">Elisa Prado</td><td data-label="Cliente" class="strong">Cliente A</td><td data-label="Projeto"><a href="projeto.html">Painel de indicadores</a></td><td data-label="Tarefa">Gráficos de vendas</td><td data-label="Duração" class="num">3h00</td><td data-label="Descrição">Gráfico de vendas por região e período</td><td data-label="" class="right"><button class="link-btn" type="button">Editar</button></td></tr>
+        <tr><td data-label="Data" class="mono">16/09/2026</td><td data-label="Usuário">Rafael</td><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa ACME</a></td><td data-label="Projeto" class="muted">—</td><td data-label="Tarefa" class="muted">—</td><td data-label="Duração" class="num">4h00</td><td data-label="Descrição">Consultoria de TI: planejamento de infraestrutura para 2027 (contrato <a href="../clientes/contrato.html">#104</a>)</td><td data-label="" class="right"><button class="link-btn" type="button">Editar</button></td></tr>
+        <tr><td data-label="Data" class="mono">16/09/2026</td><td data-label="Usuário">Carla Mendes</td><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa XYZ</a></td><td data-label="Projeto" class="muted">—</td><td data-label="Tarefa" class="muted">—</td><td data-label="Duração" class="num">0h45</td><td data-label="Descrição">Criação de usuário para o financeiro — chamado <a href="chamado.html">#2392</a></td><td data-label="" class="right"><button class="link-btn" type="button">Editar</button></td></tr>
+        <tr><td data-label="Data" class="mono">15/09/2026</td><td data-label="Usuário">Diego Rocha</td><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa ACME</a></td><td data-label="Projeto"><a href="projeto.html">Portal ACME — Fase 2</a></td><td data-label="Tarefa">Permissões por usuário do cliente</td><td data-label="Duração" class="num">4h00</td><td data-label="Descrição">Modelagem de papéis e políticas de acesso</td><td data-label="" class="right"><button class="link-btn" type="button">Editar</button></td></tr>
+        <tr><td data-label="Data" class="mono">15/09/2026</td><td data-label="Usuário">Elisa Prado</td><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa ACME</a></td><td data-label="Projeto"><a href="projeto.html">Portal ACME — Fase 2</a></td><td data-label="Tarefa">Área do cliente — login</td><td data-label="Duração" class="num">2h00</td><td data-label="Descrição">Revisão de código e testes do fluxo de login</td><td data-label="" class="right"><button class="link-btn" type="button">Editar</button></td></tr>
+        <tr><td data-label="Data" class="mono">15/09/2026</td><td data-label="Usuário">Diego Rocha</td><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa XYZ</a></td><td data-label="Projeto" class="muted">—</td><td data-label="Tarefa" class="muted">—</td><td data-label="Duração" class="num">3h00</td><td data-label="Descrição">Manutenção mensal do Sistema ERP: atualização de dependências e conferência de backups</td><td data-label="" class="right"><button class="link-btn" type="button">Editar</button></td></tr>
+        <tr><td data-label="Data" class="mono">14/09/2026</td><td data-label="Usuário">Rafael</td><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa ACME</a></td><td data-label="Projeto"><a href="projeto.html">Portal ACME — Fase 2</a></td><td data-label="Tarefa" class="muted">—</td><td data-label="Duração" class="num">1h30</td><td data-label="Descrição">Reunião de acompanhamento com a ACME</td><td data-label="" class="right"><button class="link-btn" type="button">Editar</button></td></tr>
+      </tbody>
+      <tfoot><tr><td data-label="">Total do período</td><td data-label=""></td><td data-label=""></td><td data-label=""></td><td data-label=""></td><td data-label="Total" class="num">262h40</td><td data-label="" class="muted" style="font-weight:500">148 lançamentos</td><td data-label=""></td></tr></tfoot>
+    </table>
+  </div>
+  <div class="pagination"><span>Perfis com permissão “Próprio” veem e editam apenas os próprios lançamentos</span><div class="pages"><button type="button" class="on" aria-current="page">1</button><button type="button">2</button><button type="button">3</button><button type="button">…</button><button type="button">13</button></div></div>
+</section>
+
+</main>
+</div>
+</div>
+
+<!-- Formulário lateral: registrar horas -->
+<aside class="drawer" id="registrar-horas" role="dialog" aria-modal="true" aria-labelledby="registrar-horas-t">
+  <form class="form" style="display:contents">
+    <div class="drawer-head"><h2 id="registrar-horas-t">Registrar horas</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="drawer-body form">
+      <div class="form-grid">
+        <div class="field full"><label for="h-usr">Usuário <span class="req">*</span></label><select class="select" id="h-usr" required><option selected>Rafael</option><option>Carla Mendes</option><option>Diego Rocha</option><option>Elisa Prado</option></select><span class="hint">Preenchido com você; só administradores lançam para outra pessoa</span></div>
+        <div class="field full"><label for="h-cli">Cliente <span class="req">*</span></label><select class="select" id="h-cli" required><option value="">Selecione</option><option>Empresa ACME</option><option>Empresa XYZ</option><option>Empresa Delta</option><option>Empresa Orion</option><option>Cliente A</option><option>Cliente B</option><option>Cliente C</option><option>Cliente D</option><option>Cliente E</option></select></div>
+        <div class="field"><label for="h-proj">Projeto</label><select class="select" id="h-proj"><option value="">Nenhum (opcional)</option><option>Portal ACME — Fase 2</option></select><span class="hint">Só projetos do cliente escolhido</span></div>
+        <div class="field"><label for="h-tar">Tarefa</label><select class="select" id="h-tar"><option value="">Nenhuma (opcional)</option><option>Módulo de relatórios</option><option>Permissões por usuário do cliente</option><option>Integração com ERP — pedidos</option></select><span class="hint">Só tarefas do projeto escolhido</span></div>
+        <div class="field"><label for="h-data">Data <span class="req">*</span></label><input class="input" id="h-data" type="date" value="2026-09-17" required></div>
+        <div class="field"><label for="h-dur">Duração (hh:mm) <span class="req">*</span></label><input class="input num" id="h-dur" inputmode="numeric" placeholder="02:30" pattern="[0-9]{1,2}:[0-5][0-9]" required></div>
+        <div class="field full"><label for="h-desc">Descrição</label><textarea class="textarea" id="h-desc" placeholder="Resumo do que foi feito"></textarea></div>
+      </div>
+    </div>
+    <div class="drawer-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Registrar</button></div>
+  </form>
+</aside>
+
+<script src="../assets/app.js"></script>
+</body>
+</html>

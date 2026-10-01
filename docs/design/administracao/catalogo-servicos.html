@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Catálogo de serviços · Admin DevBatista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/app.css">
+<style>
+  tr.off td { color: var(--faint); }
+  tr.off .strong { color: var(--muted); }
+</style>
+</head>
+<body data-group="adm" data-item="Configurações" data-crumb='[["Administração"],["Configurações","configuracoes.html"],["Catálogo de serviços"]]'>
+<div class="app">
+<aside class="side"></aside>
+<div class="main">
+<header class="top"></header>
+<main class="content">
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Configurações · O que a DevBatista vende</span>
+    <h1>Catálogo de serviços</h1>
+    <p class="lead">Padroniza nomes, categorias e preços de referência usados em leads, oportunidades, propostas, serviços contratados e relatórios de receita por serviço.</p>
+  </div>
+  <div class="actions">
+    <a class="btn" href="configuracoes.html">Voltar às configurações</a>
+    <button class="btn pri" type="button" data-open="novo-servico">Novo serviço</button>
+  </div>
+</div>
+
+<div class="grid-kpi">
+  <div class="card kpi"><span class="eyebrow">Serviços</span><span class="v">12</span><span class="f"><span class="badge b-good">11 ativos</span>1 inativo</span></div>
+  <div class="card kpi"><span class="eyebrow">Recorrentes</span><span class="v">5</span><span class="f">compõem o MRR de R$ 20.400</span></div>
+  <div class="card kpi"><span class="eyebrow">Projeto</span><span class="v">5</span><span class="f">8 projetos usando o catálogo</span></div>
+  <div class="card kpi"><span class="eyebrow">Avulsos</span><span class="v">2</span><span class="f">fora do cálculo do MRR</span></div>
+</div>
+
+<div class="toolbar">
+  <div class="seg" role="group" aria-label="Filtrar por tipo" data-filter-group="servicos">
+    <button type="button" class="on" data-filter="todos" aria-pressed="true">Todos <span class="c"></span></button>
+    <button type="button" data-filter="Recorrente" aria-pressed="false">Recorrente <span class="c"></span></button>
+    <button type="button" data-filter="Projeto" aria-pressed="false">Projeto <span class="c"></span></button>
+    <button type="button" data-filter="Avulso" aria-pressed="false">Avulso <span class="c"></span></button>
+  </div>
+  <span class="spacer"></span>
+  <label class="search-field"><span class="sr-only">Buscar serviço</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M11 18a7 7 0 100-14 7 7 0 000 14zM21 21l-4.3-4.3"/></svg><input class="input" type="search" placeholder="Nome ou descrição"></label>
+  <label class="sr-only" for="f-cat">Categoria</label>
+  <select class="select" id="f-cat"><option>Todas as categorias</option><option>Consultoria</option><option>Desenvolvimento</option><option>Sustentação</option><option>Infraestrutura</option><option>Automação e IA</option></select>
+  <label class="sr-only" for="f-st">Status</label>
+  <select class="select" id="f-st"><option>Ativos e inativos</option><option>Ativo</option><option>Inativo</option></select>
+</div>
+
+<section class="card" aria-label="Serviços do catálogo">
+  <div class="table-wrap">
+    <table class="table cards" data-filter-target="servicos">
+      <thead><tr><th>Serviço</th><th>Categoria</th><th>Tipo</th><th class="num">Preço padrão</th><th class="num">Em uso</th><th>Status</th><th><span class="sr-only">Ações</span></th></tr></thead>
+      <tbody>
+        <tr data-status="Recorrente"><td data-label="Serviço"><span class="strong">Consultoria de TI</span><span class="cell-sub">Diagnóstico, arquitetura e acompanhamento técnico mensal</span></td><td data-label="Categoria">Consultoria</td><td data-label="Tipo"><span class="badge b-info">Recorrente</span></td><td data-label="Preço padrão" class="num">R$ 3.000<span class="cell-sub">/mês</span></td><td data-label="Em uso" class="num"><a href="../clientes/servicos-contratados.html">6 clientes</a></td><td data-label="Status"><span class="badge b-good">Ativo</span></td><td data-label="" class="right"><button class="link-btn" type="button">Editar</button></td></tr>
+        <tr data-status="Projeto"><td data-label="Serviço"><span class="strong">Desenvolvimento de sistemas</span><span class="cell-sub">Sistemas web sob medida, do levantamento à implantação</span></td><td data-label="Categoria">Desenvolvimento</td><td data-label="Tipo"><span class="badge b-blue">Projeto</span></td><td data-label="Preço padrão" class="num">R$ 24.000<span class="cell-sub">a partir de</span></td><td data-label="Em uso" class="num"><a href="../operacao/projetos.html">3 projetos</a></td><td data-label="Status"><span class="badge b-good">Ativo</span></td><td data-label="" class="right"><button class="link-btn" type="button">Editar</button></td></tr>
+        <tr data-status="Projeto"><td data-label="Serviço"><span class="strong">Desenvolvimento de sites</span><span class="cell-sub">Sites institucionais e landing pages</span></td><td data-label="Categoria">Desenvolvimento</td><td data-label="Tipo"><span class="badge b-blue">Projeto</span></td><td data-label="Preço padrão" class="num">R$ 6.500<span class="cell-sub">a partir de</span></td><td data-label="Em uso" class="num"><a href="../operacao/projetos.html">1 projeto</a></td><td data-label="Status"><span class="badge b-good">Ativo</span></td><td data-label="" class="right"><button class="link-btn" type="button">Editar</button></td></tr>
+        <tr data-status="Recorrente"><td data-label="Serviço"><span class="strong">Manutenção</span><span class="cell-sub">Correções, atualizações de versão e pequenas melhorias</span></td><td data-label="Categoria">Sustentação</td><td data-label="Tipo"><span class="badge b-info">Recorrente</span></td><td data-label="Preço padrão" class="num">R$ 1.200<span class="cell-sub">/mês</span></td><td data-label="Em uso" class="num"><a href="../clientes/servicos-contratados.html">7 clientes</a></td><td data-label="Status"><span class="badge b-good">Ativo</span></td><td data-label="" class="right"><button class="link-btn" type="button">Editar</button></td></tr>
+        <tr data-status="Projeto"><td data-label="Serviço"><span class="strong">Automação/RPA</span><span class="cell-sub">Robôs para tarefas repetitivas e integração de planilhas</span></td><td data-label="Categoria">Automação e IA</td><td data-label="Tipo"><span class="badge b-blue">Projeto</span></td><td data-label="Preço padrão" class="num">R$ 8.000<span class="cell-sub">a partir de</span></td><td data-label="Em uso" class="num"><a href="../operacao/projetos.html">1 projeto</a></td><td data-label="Status"><span class="badge b-good">Ativo</span></td><td data-label="" class="right"><button class="link-btn" type="button">Editar</button></td></tr>
+        <tr data-status="Projeto"><td data-label="Serviço"><span class="strong">Integrações</span><span class="cell-sub">Conexão com ERPs, gateways de pagamento e APIs de terceiros</span></td><td data-label="Categoria">Desenvolvimento</td><td data-label="Tipo"><span class="badge b-blue">Projeto</span></td><td data-label="Preço padrão" class="num">R$ 5.500<span class="cell-sub">a partir de</span></td><td data-label="Em uso" class="num"><a href="../operacao/projetos.html">2 projetos</a></td><td data-label="Status"><span class="badge b-good">Ativo</span></td><td data-label="" class="right"><button class="link-btn" type="button">Editar</button></td></tr>
+        <tr data-status="Projeto"><td data-label="Serviço"><span class="strong">Inteligência Artificial</span><span class="cell-sub">Assistentes, classificação e extração de dados com IA</span></td><td data-label="Categoria">Automação e IA</td><td data-label="Tipo"><span class="badge b-blue">Projeto</span></td><td data-label="Preço padrão" class="num">R$ 12.000<span class="cell-sub">a partir de</span></td><td data-label="Em uso" class="num"><a href="../operacao/projetos.html">1 projeto</a></td><td data-label="Status"><span class="badge b-good">Ativo</span></td><td data-label="" class="right"><button class="link-btn" type="button">Editar</button></td></tr>
+        <tr data-status="Recorrente"><td data-label="Serviço"><span class="strong">Hospedagem</span><span class="cell-sub">Hospedagem gerenciada da aplicação, backups e SSL</span></td><td data-label="Categoria">Infraestrutura</td><td data-label="Tipo"><span class="badge b-info">Recorrente</span></td><td data-label="Preço padrão" class="num">R$ 300<span class="cell-sub">/mês</span></td><td data-label="Em uso" class="num"><a href="../clientes/servicos-contratados.html">9 clientes</a></td><td data-label="Status"><span class="badge b-good">Ativo</span></td><td data-label="" class="right"><button class="link-btn" type="button">Editar</button></td></tr>
+        <tr data-status="Recorrente"><td data-label="Serviço"><span class="strong">Gestão de infraestrutura</span><span class="cell-sub">Monitoramento, servidores, domínios e custos de nuvem</span></td><td data-label="Categoria">Infraestrutura</td><td data-label="Tipo"><span class="badge b-info">Recorrente</span></td><td data-label="Preço padrão" class="num">R$ 1.500<span class="cell-sub">/mês</span></td><td data-label="Em uso" class="num"><a href="../clientes/servicos-contratados.html">2 clientes</a></td><td data-label="Status"><span class="badge b-good">Ativo</span></td><td data-label="" class="right"><button class="link-btn" type="button">Editar</button></td></tr>
+        <tr data-status="Recorrente"><td data-label="Serviço"><span class="strong">Suporte</span><span class="cell-sub">Atendimento a chamados com prazos por prioridade</span></td><td data-label="Categoria">Sustentação</td><td data-label="Tipo"><span class="badge b-info">Recorrente</span></td><td data-label="Preço padrão" class="num">R$ 900<span class="cell-sub">/mês</span></td><td data-label="Em uso" class="num"><a href="../clientes/servicos-contratados.html">6 clientes</a></td><td data-label="Status"><span class="badge b-good">Ativo</span></td><td data-label="" class="right"><button class="link-btn" type="button">Editar</button></td></tr>
+        <tr data-status="Avulso"><td data-label="Serviço"><span class="strong">Publicação de aplicativos</span><span class="cell-sub">Publicação na App Store e no Google Play</span></td><td data-label="Categoria">Desenvolvimento</td><td data-label="Tipo"><span class="badge b-mute">Avulso</span></td><td data-label="Preço padrão" class="num">R$ 800<span class="cell-sub">por publicação</span></td><td data-label="Em uso" class="num"><span class="muted">—</span></td><td data-label="Status"><span class="badge b-good">Ativo</span></td><td data-label="" class="right"><button class="link-btn" type="button">Editar</button></td></tr>
+        <tr data-status="Avulso" class="off"><td data-label="Serviço"><span class="strong">Treinamento de equipes</span><span class="cell-sub">Capacitação de usuários em sistemas entregues</span></td><td data-label="Categoria">Consultoria</td><td data-label="Tipo"><span class="badge b-mute">Avulso</span></td><td data-label="Preço padrão" class="num">R$ 1.600<span class="cell-sub">por turma</span></td><td data-label="Em uso" class="num"><span class="muted">—</span></td><td data-label="Status"><span class="badge b-mute">Inativo</span></td><td data-label="" class="right"><button class="link-btn" type="button">Editar</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="pagination"><span>Preço padrão é referência: pode ser ajustado por cliente no serviço contratado ou na proposta</span><div class="pages"><button type="button" class="on" aria-current="page">1</button></div></div>
+</section>
+
+<div class="note">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM12 16v-4M12 8h.01"/></svg>
+  <span><b>Serviço em uso não é excluído.</b> Ao inativar, ele deixa de aparecer em novos leads, propostas e serviços contratados, mas continua nos registros e relatórios antigos.</span>
+</div>
+
+</main>
+</div>
+</div>
+
+<!-- Formulário lateral: novo serviço -->
+<aside class="drawer" id="novo-servico" role="dialog" aria-modal="true" aria-labelledby="novo-servico-t">
+  <form class="form" style="display:contents">
+    <div class="drawer-head"><h2 id="novo-servico-t">Novo serviço</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="drawer-body form">
+      <div class="form-grid">
+        <div class="field full"><label for="s-nome">Nome <span class="req">*</span></label><input class="input" id="s-nome" required placeholder="Nome comercial do serviço"></div>
+        <div class="field full"><label for="s-desc">Descrição</label><textarea class="textarea" id="s-desc" placeholder="O que o serviço inclui"></textarea></div>
+        <div class="field"><label for="s-cat">Categoria <span class="req">*</span></label><select class="select" id="s-cat" required><option value="">Selecione</option><option>Consultoria</option><option>Desenvolvimento</option><option>Sustentação</option><option>Infraestrutura</option><option>Automação e IA</option></select><span class="hint">Agrupamento para relatórios</span></div>
+        <div class="field"><label for="s-tipo">Tipo <span class="req">*</span></label><select class="select" id="s-tipo" required><option value="">Selecione</option><option>Recorrente</option><option>Projeto</option><option>Avulso</option></select><span class="hint">Só recorrentes entram no MRR</span></div>
+        <div class="field"><label for="s-preco">Preço padrão (R$) <span class="req">*</span></label><input class="input num" id="s-preco" inputmode="decimal" required placeholder="0,00"><span class="hint">Referência; ajustável por cliente</span></div>
+        <div class="field"><label for="s-st">Status <span class="req">*</span></label><select class="select" id="s-st" required><option selected>Ativo</option><option>Inativo</option></select></div>
+      </div>
+    </div>
+    <div class="drawer-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Salvar serviço</button></div>
+  </form>
+</aside>
+
+<script src="../assets/app.js"></script>
+</body>
+</html>

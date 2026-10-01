@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Portal de Pedidos · Admin DevBatista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/app.css">
+<style>
+  .modal { max-height: 84vh; flex-direction: column; }
+  .modal.open { display: flex; }
+  .modal .modal-body { overflow-y: auto; }
+  .items td { vertical-align: top; }
+  .items .input, .items .select { width: 100%; height: 36px; font-size: 13px; }
+  .items .val { width: 130px; text-align: right; }
+  .total-big { font-size: 26px; font-weight: 700; color: var(--white); letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+  .gen { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 12px; padding: 12px 0; border-top: 1px solid var(--rule); }
+  .gen:first-of-type { border-top: 0; }
+  .gen .ic { width: 28px; height: 28px; border-radius: 8px; background: var(--cyan-tint); color: var(--cyan); display: flex; align-items: center; justify-content: center; }
+  .gen small { display: block; color: var(--muted); font-size: 12px; margin-top: 2px; }
+</style>
+</head>
+<body data-group="com" data-item="Propostas" data-crumb='[["Comercial","pipeline.html"],["Propostas","propostas.html"],["Portal de Pedidos"]]'>
+<div class="app">
+<aside class="side"></aside>
+<div class="main">
+<header class="top"></header>
+<main class="content">
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Proposta #P-2026-031 · <a href="../clientes/empresa.html">Empresa XYZ</a></span>
+    <h1>Portal de Pedidos</h1>
+    <div class="row wrap" style="gap:8px"><span class="badge b-info dot-l">Enviada</span><span class="chip">Válida até 02/10/2026 · 15 dias</span><span class="caption">Responsável: Ana Souza</span></div>
+  </div>
+  <div class="actions">
+    <button class="btn" type="button">Baixar PDF</button>
+    <button class="btn danger" type="button" data-open="recusar">Recusar</button>
+    <button class="btn" type="button" data-open="enviar">Enviar</button>
+    <button class="btn pri" type="button" data-open="aprovar">Marcar como aprovada</button>
+  </div>
+</div>
+
+<div class="callout">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color:var(--cyan);flex:none"><path d="M4 6h16v12H4zM4 7l8 6 8-6"/></svg>
+  <span>Enviada hoje às 13:10 para <b class="strong">Marina Costa</b> (marina.costa@xyz.com.br). Ainda não visualizada. Ana Souza será avisada em 29/09, 3 dias antes do fim da validade; sem resposta, passa a Expirada em 02/10/2026.</span>
+</div>
+
+<div class="cols-2-1">
+  <div class="stack">
+    <section class="card" aria-labelledby="itens-t">
+      <div class="card-head"><h2 id="itens-t">Serviços da proposta</h2><a href="../administracao/catalogo-servicos.html" style="font-size:13px;font-weight:600">Catálogo de serviços</a></div>
+      <div class="table-wrap">
+        <table class="table cards items" id="itens">
+          <thead><tr><th style="width:24%">Serviço</th><th>Descrição</th><th class="num">Preço padrão</th><th class="num">Valor</th><th><span class="sr-only">Remover</span></th></tr></thead>
+          <tbody>
+            <tr>
+              <td data-label="Serviço"><label class="sr-only" for="it1-s">Serviço do item 1</label><select class="select" id="it1-s"><option selected>Desenvolvimento de sistemas</option><option>Integrações</option><option>Consultoria de TI</option><option>Desenvolvimento de sites</option><option>Automação/RPA</option><option>Inteligência Artificial</option></select></td>
+              <td data-label="Descrição"><label class="sr-only" for="it1-d">Descrição do item 1</label><input class="input" id="it1-d" value="Portal B2B: catálogo, carrinho, pedidos e painel do cliente"></td>
+              <td data-label="Preço padrão" class="num muted">R$ 9.500</td>
+              <td data-label="Valor" class="num"><label class="sr-only" for="it1-v">Valor do item 1</label><input class="input val num" id="it1-v" inputmode="decimal" value="9.500,00"></td>
+              <td data-label="" class="right"><button class="icon-btn ghost" type="button" aria-label="Remover item 1" data-remove><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button></td>
+            </tr>
+            <tr>
+              <td data-label="Serviço"><label class="sr-only" for="it2-s">Serviço do item 2</label><select class="select" id="it2-s"><option>Desenvolvimento de sistemas</option><option selected>Integrações</option><option>Consultoria de TI</option><option>Desenvolvimento de sites</option><option>Automação/RPA</option><option>Inteligência Artificial</option></select></td>
+              <td data-label="Descrição"><label class="sr-only" for="it2-d">Descrição do item 2</label><input class="input" id="it2-d" value="Integração com o Sistema ERP: pedidos, estoque e faturamento"></td>
+              <td data-label="Preço padrão" class="num muted">R$ 3.500</td>
+              <td data-label="Valor" class="num"><label class="sr-only" for="it2-v">Valor do item 2</label><input class="input val num" id="it2-v" inputmode="decimal" value="3.000,00"><span class="cell-sub" style="color:var(--warn)">−14% do padrão</span></td>
+              <td data-label="" class="right"><button class="icon-btn ghost" type="button" aria-label="Remover item 2" data-remove><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button></td>
+            </tr>
+            <tr>
+              <td data-label="Serviço"><label class="sr-only" for="it3-s">Serviço do item 3</label><select class="select" id="it3-s"><option>Desenvolvimento de sistemas</option><option>Integrações</option><option selected>Consultoria de TI</option><option>Desenvolvimento de sites</option><option>Automação/RPA</option><option>Inteligência Artificial</option></select></td>
+              <td data-label="Descrição"><label class="sr-only" for="it3-d">Descrição do item 3</label><input class="input" id="it3-d" value="Levantamento de requisitos e homologação (20 h)"></td>
+              <td data-label="Preço padrão" class="num muted">R$ 1.500</td>
+              <td data-label="Valor" class="num"><label class="sr-only" for="it3-v">Valor do item 3</label><input class="input val num" id="it3-v" inputmode="decimal" value="1.500,00"></td>
+              <td data-label="" class="right"><button class="icon-btn ghost" type="button" aria-label="Remover item 3" data-remove><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr><td data-label=""><button class="link-btn" type="button" id="add-item">+ Adicionar serviço do catálogo</button></td><td data-label="" class="right muted">Total (soma dos itens)</td><td data-label=""></td><td data-label="Total" class="num"><output id="total" aria-live="polite">R$ 14.000,00</output></td><td data-label=""></td></tr>
+          </tfoot>
+        </table>
+      </div>
+      <div class="card-foot"><span>O preço de cada item vem do preço padrão do catálogo e pode ser alterado. Alterar uma proposta enviada exige reenviá-la.</span></div>
+    </section>
+
+    <section class="card" aria-labelledby="escopo-t">
+      <div class="card-head"><h2 id="escopo-t">Descrição e escopo</h2></div>
+      <div class="card-body form" style="padding-top:0">
+        <div class="field"><label class="sr-only" for="p-desc">Descrição</label><textarea class="textarea" id="p-desc" style="min-height:180px">Portal web para que os revendedores da Empresa XYZ façam pedidos diretamente, sem depender de WhatsApp e planilhas.
+
+Escopo:
+• Catálogo com preços por tabela de revendedor e disponibilidade de estoque em tempo real.
+• Carrinho, envio de pedido e acompanhamento de status (recebido, separado, faturado, entregue).
+• Painel do cliente com histórico de pedidos e 2ª via de boletos.
+• Integração com o Sistema ERP já em produção (pedidos, estoque e faturamento).
+• Painel administrativo para a equipe comercial da XYZ.
+
+Fora do escopo: aplicativo mobile nativo e integração com transportadoras.</textarea></div>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="cond-t">
+      <div class="card-head"><h2 id="cond-t">Condições comerciais</h2></div>
+      <form class="card-body form" style="padding-top:0" onsubmit="event.preventDefault()">
+        <div class="form-grid">
+          <div class="field full"><label for="p-pag">Forma de pagamento</label><input class="input" id="p-pag" value="40% na aprovação, 30% na homologação e 30% na entrega · boleto ou Pix"></div>
+          <div class="field"><label for="p-prazo">Prazo</label><input class="input" id="p-prazo" value="10 semanas após a aprovação; início em até 5 dias úteis"></div>
+          <div class="field"><label for="p-val">Validade <span class="req">*</span></label><input class="input" id="p-val" type="date" value="2026-10-02" required></div>
+          <div class="field"><label for="p-cli">Cliente <span class="req">*</span></label><select class="select" id="p-cli" required><option selected>Empresa XYZ</option><option>Empresa ACME</option><option>Empresa Delta</option></select></div>
+          <div class="field"><label for="p-resp">Responsável</label><select class="select" id="p-resp"><option selected>Ana Souza</option><option>Rafael</option></select></div>
+          <div class="field full"><label for="p-obs">Observações</label><textarea class="textarea" id="p-obs">A hospedagem do portal entra no serviço de Hospedagem já contratado (R$ 800/mês), sem custo adicional. Alterações de escopo após a aprovação são orçadas à parte. Garantia de 90 dias para correções.</textarea></div>
+        </div>
+        <div class="row" style="justify-content:flex-end"><button class="btn" type="button">Descartar</button><button class="btn pri" type="submit">Salvar alterações</button></div>
+      </form>
+    </section>
+  </div>
+
+  <div class="stack">
+    <section class="card" aria-labelledby="res-t">
+      <div class="card-head"><h2 id="res-t">Resumo</h2><span class="badge b-info">Enviada</span></div>
+      <div class="card-body" style="padding-top:0"><span class="eyebrow">Valor total</span><div class="total-big" id="total-side">R$ 14.000</div><span class="caption">3 serviços · pagamento em 3 parcelas</span></div>
+      <div class="kv"><span>Cliente</span><a href="../clientes/empresa.html">Empresa XYZ</a></div>
+      <div class="kv"><span>Contato</span><b>Marina Costa</b></div>
+      <div class="kv"><span>Oportunidade</span><a href="oportunidades.html">Proposta · 60%</a></div>
+      <div class="kv"><span>Previsão ponderada</span><b>R$ 8.400</b></div>
+      <div class="kv"><span>Criada em</span><b>15/09/2026</b></div>
+      <div class="kv"><span>Enviada em</span><b>17/09/2026 13:10</b></div>
+      <div class="kv"><span>Validade</span><b>02/10/2026</b></div>
+      <div class="kv"><span>Visualizações</span><b>0</b></div>
+    </section>
+
+    <section class="card" aria-labelledby="hist-t">
+      <div class="card-head"><h2 id="hist-t">Histórico de status</h2></div>
+      <div class="tl"><i style="background:transparent;box-shadow:inset 0 0 0 1px var(--border-strong)"></i><div><span class="muted">Expira se não houver resposta</span><small>02/10/2026 · automático</small></div></div>
+      <div class="tl"><i style="background:transparent;box-shadow:inset 0 0 0 1px var(--border-strong)"></i><div><span class="muted">Aviso de expiração para Ana Souza</span><small>29/09/2026 · automático</small></div></div>
+      <div class="tl"><i></i><div><span class="badge b-info">Enviada</span> para Marina Costa por e-mail, com PDF<small>17/09/2026 13:10 · Ana Souza</small></div></div>
+      <div class="tl"><i style="background:var(--faint)"></i><div>Valor ajustado de R$ 14.500 para R$ 14.000 (Integrações)<small>16/09/2026 18:02 · Ana Souza</small></div></div>
+      <div class="tl"><i style="background:var(--faint)"></i><div><span class="badge b-mute">Rascunho</span> criada a partir da oportunidade<small>15/09/2026 11:30 · Ana Souza</small></div></div>
+    </section>
+
+    <section class="card" aria-labelledby="vinc-t">
+      <div class="card-head"><h2 id="vinc-t">Vínculos</h2></div>
+      <div class="kv"><span>Projeto</span><a href="../operacao/projeto.html">Portal de Pedidos</a></div>
+      <div class="kv"><span>Situação do projeto</span><span class="badge b-warn">Aguardando aprovação</span></div>
+      <div class="kv"><span>Aplicação integrada</span><a href="../tecnologia/aplicacao.html">Sistema ERP</a></div>
+      <div class="kv"><span>Contrato vigente</span><a href="../clientes/contrato.html">#098 Manutenção</a></div>
+    </section>
+  </div>
+</div>
+
+</main>
+</div>
+</div>
+
+<!-- Modal: enviar -->
+<div class="modal" id="enviar" role="dialog" aria-modal="true" aria-labelledby="enviar-t">
+  <form class="form" style="display:contents">
+    <div class="modal-head"><h2 id="enviar-t">Enviar proposta</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="modal-body form">
+      <div class="callout"><span>Último envio: 17/09/2026 às 13:10. Um novo envio registra a versão atual no histórico.</span></div>
+      <div class="field"><label for="ev-para">Para <span class="req">*</span></label><input class="input" id="ev-para" type="email" value="marina.costa@xyz.com.br" required><span class="hint">Contato principal da Empresa XYZ</span></div>
+      <div class="field"><label for="ev-cc">Cópia</label><input class="input" id="ev-cc" type="email" placeholder="email@xyz.com.br"></div>
+      <div class="field"><label for="ev-msg">Mensagem</label><textarea class="textarea" id="ev-msg">Olá, Marina! Segue a proposta do Portal de Pedidos, válida até 02/10/2026. Fico à disposição para uma conversa sobre o escopo. Abraço, Ana.</textarea></div>
+      <label class="check"><input type="checkbox" checked> Anexar PDF da proposta</label>
+    </div>
+    <div class="modal-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Enviar</button></div>
+  </form>
+</div>
+
+<!-- Modal: aprovar e gerar contrato -->
+<div class="modal" id="aprovar" role="dialog" aria-modal="true" aria-labelledby="aprovar-t">
+  <form class="form" style="display:contents">
+    <div class="modal-head"><h2 id="aprovar-t">Aprovar proposta</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="modal-body form">
+      <div class="callout"><span>Portal de Pedidos · Empresa XYZ · <b class="strong">R$ 14.000</b>. Cliente, serviços, valores e prazos vêm da proposta, sem redigitar.</span></div>
+      <div>
+        <span class="eyebrow">O que será criado</span>
+        <div class="gen"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h9l4 4v14H6zM14 3v5h5M9 13h7M9 17h5"/></svg></span><div><span class="strong">Contrato #112 — Portal de Pedidos</span><small>Empresa XYZ · R$ 14.000 · valor único · sem renovação · status Rascunho até anexar o documento assinado</small></div></div>
+        <div class="gen"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></svg></span><div><span class="strong">3 serviços contratados</span><small>Desenvolvimento de sistemas R$ 9.500 · Integrações R$ 3.000 · Consultoria de TI R$ 1.500 — recorrência Avulsa, vinculados ao contrato #112; não compõem o MRR</small></div></div>
+        <div class="gen"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg></span><div><span class="strong">Atualizações automáticas</span><small>Proposta → Aprovada · oportunidade → Fechado · Empresa XYZ permanece Ativo (já é cliente) · projeto Portal de Pedidos liberado para Planejamento</small></div></div>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label for="ap-data">Data da aprovação <span class="req">*</span></label><input class="input" id="ap-data" type="date" value="2026-09-17" required></div>
+        <div class="field"><label for="ap-ini">Início do contrato <span class="req">*</span></label><input class="input" id="ap-ini" type="date" value="2026-09-24" required></div>
+        <div class="field"><label for="ap-fim">Término previsto</label><input class="input" id="ap-fim" type="date" value="2026-12-03"><span class="hint">Calculado pelo prazo: 10 semanas</span></div>
+        <div class="field"><label for="ap-venc">Dia de vencimento</label><input class="input num" id="ap-venc" type="number" min="1" max="31" value="10"></div>
+      </div>
+      <label class="check"><input type="checkbox" checked> Abrir o contrato ao concluir</label>
+    </div>
+    <div class="modal-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Gerar contrato e serviços contratados</button></div>
+  </form>
+</div>
+
+<!-- Modal: recusar -->
+<div class="modal" id="recusar" role="dialog" aria-modal="true" aria-labelledby="recusar-t">
+  <form class="form" style="display:contents">
+    <div class="modal-head"><h2 id="recusar-t">Registrar recusa</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="modal-body form">
+      <div class="callout warn"><span>A proposta passa a <b class="strong">Recusada</b> e a oportunidade da Empresa XYZ vai para <b class="strong">Perdido</b>, por isso o motivo é obrigatório.</span></div>
+      <div class="field"><label for="rc-mot">Motivo da perda <span class="req">*</span></label><select class="select" id="rc-mot" required><option value="">Selecione</option><option>Preço</option><option>Prazo</option><option>Sem retorno</option><option>Optou por concorrente</option><option>Sem orçamento</option><option>Fora do perfil</option><option>Outro</option></select></div>
+      <div class="field"><label for="rc-obs">Detalhes</label><textarea class="textarea" id="rc-obs" placeholder="O que o cliente disse? Há chance de nova proposta?"></textarea></div>
+    </div>
+    <div class="modal-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn danger" type="submit">Recusar proposta</button></div>
+  </form>
+</div>
+
+<script src="../assets/app.js"></script>
+<script>
+  // Soma automática dos itens da proposta
+  (function () {
+    var tbody = document.querySelector('#itens tbody');
+    var out = document.getElementById('total'), side = document.getElementById('total-side');
+    var parse = function (s) { return parseFloat(String(s).replace(/[^\d,]/g, '').replace(',', '.')) || 0; };
+    var brl = function (n, dec) { return 'R$ ' + n.toLocaleString('pt-BR', { minimumFractionDigits: dec, maximumFractionDigits: dec }); };
+    var sum = function () {
+      var t = 0;
+      tbody.querySelectorAll('.val').forEach(function (i) { t += parse(i.value); });
+      out.textContent = brl(t, 2);
+      side.textContent = brl(t, t % 1 ? 2 : 0);
+    };
+    tbody.addEventListener('input', function (e) { if (e.target.classList.contains('val')) sum(); });
+    tbody.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-remove]');
+      if (b) { b.closest('tr').remove(); sum(); }
+    });
+    var n = 3;
+    document.getElementById('add-item').addEventListener('click', function () {
+      n++;
+      var tr = tbody.rows[0] ? tbody.rows[0].cloneNode(true) : null;
+      if (!tr) return;
+      tr.querySelectorAll('[id]').forEach(function (el) { el.id = el.id.replace(/it\d+/, 'it' + n); });
+      tr.querySelectorAll('label[for]').forEach(function (el) { el.htmlFor = el.htmlFor.replace(/it\d+/, 'it' + n); el.textContent = el.textContent.replace(/\d+$/, n); });
+      tr.querySelector('select').selectedIndex = 4;
+      tr.querySelector('input:not(.val)').value = '';
+      tr.querySelector('.val').value = '8.000,00';
+      tr.cells[2].textContent = 'R$ 8.000';
+      var rb = tr.querySelector('[data-remove]'); rb.setAttribute('aria-label', 'Remover item ' + n);
+      var sub = tr.querySelector('.cell-sub'); if (sub) sub.remove();
+      tbody.appendChild(tr);
+      tr.querySelector('select').focus();
+      sum();
+    });
+  })();
+</script>
+</body>
+</html>

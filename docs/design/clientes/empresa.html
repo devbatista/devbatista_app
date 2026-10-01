@@ -1,0 +1,586 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Empresa ACME · Admin DevBatista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/app.css">
+<style>
+  .head360 { display: flex; align-items: center; gap: 16px; min-width: 0; }
+  .tab .c { font-size: 11px; font-weight: 600; color: var(--muted); margin-left: 4px; }
+  .tab.on .c { color: var(--cyan-300); }
+  .contact { display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 12px; padding: 14px 20px; border-top: 1px solid var(--rule); font-size: 13px; }
+  .contact .nm { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; color: var(--text); font-weight: 600; font-size: 14px; }
+  .contact .ln { color: var(--muted); }
+  .tl i.warn { background: var(--warn); }
+  .tl i.good { background: var(--good); }
+  .tl i.crit { background: var(--crit-dot); }
+  .tl i.mute { background: var(--border-strong); }
+  .tl-date { padding: 16px 20px 6px; border-top: 1px solid var(--rule); }
+  .file-ic { width: 36px; height: 36px; border-radius: 8px; background: var(--surface-2); border: 1px solid var(--border); display: inline-flex; align-items: center; justify-content: center; color: var(--cyan); flex: none; }
+  .hcell { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  @media (max-width: 960px) { .head360 .co-avatar { width: 44px; height: 44px; font-size: 15px; } .hcell .file-ic { display: none; } }
+</style>
+</head>
+<body data-group="cli" data-item="Empresas" data-crumb='[["Clientes","empresas.html"],["Empresas","empresas.html"],["Empresa ACME"]]'>
+<div class="app">
+<aside class="side"></aside>
+<div class="main">
+<header class="top"></header>
+<main class="content">
+
+<!-- Cabeçalho -->
+<div class="page-head">
+  <div class="head360">
+    <span class="co-avatar" aria-hidden="true">AC</span>
+    <div class="titles">
+      <span class="section-label">Visão 360º do cliente</span>
+      <div class="row wrap" style="gap:10px"><h1>Empresa ACME</h1><span class="badge b-good dot-l">Ativo</span></div>
+      <p class="lead">ACME Comércio e Serviços Ltda. · CNPJ <span class="mono">52.601.815/0001-20</span> · Cliente desde 12/03/2026</p>
+    </div>
+  </div>
+  <div class="actions">
+    <button class="btn" type="button" data-open="registrar-horas"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 21a9 9 0 100-18 9 9 0 000 18zM12 7v5l3 2"/></svg>Registrar horas</button>
+    <button class="btn" type="button" data-open="novo-chamado"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 5h16v11H8l-4 4zM12 8v4M12 14h.01"/></svg>Novo chamado</button>
+    <button class="btn pri" type="button" data-open="editar-empresa"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16zM13 7l4 4"/></svg>Editar</button>
+  </div>
+</div>
+
+<!-- Cartões -->
+<div class="grid-kpi">
+  <div class="card kpi"><span class="eyebrow">MRR</span><span class="v">R$ 3.800</span><span class="f">3 serviços recorrentes</span></div>
+  <div class="card kpi"><span class="eyebrow">Projetos ativos</span><span class="v">1</span><span class="f"><span class="badge b-info">62%</span>em andamento</span></div>
+  <div class="card kpi"><span class="eyebrow">Chamados abertos</span><span class="v">2</span><span class="f"><span class="badge b-good">0</span>nenhum crítico</span></div>
+  <div class="card kpi"><span class="eyebrow">Próxima cobrança</span><span class="v">R$ 3.800</span><span class="f">vencimento dia 10 · 10/10/2026</span></div>
+</div>
+
+<!-- Abas -->
+<div class="tabs" role="tablist" aria-label="Seções da Visão 360º" data-tabs>
+  <button class="tab on" type="button" role="tab" aria-selected="true" data-tab="resumo">Resumo</button>
+  <button class="tab" type="button" role="tab" aria-selected="false" data-tab="servicos">Serviços<span class="c">4</span></button>
+  <button class="tab" type="button" role="tab" aria-selected="false" data-tab="contratos">Contratos<span class="c">2</span></button>
+  <button class="tab" type="button" role="tab" aria-selected="false" data-tab="projetos">Projetos<span class="c">2</span></button>
+  <button class="tab" type="button" role="tab" aria-selected="false" data-tab="chamados">Chamados<span class="c">2</span></button>
+  <button class="tab" type="button" role="tab" aria-selected="false" data-tab="infra">Infraestrutura<span class="c" style="color:var(--warn)">1 alerta</span></button>
+  <button class="tab" type="button" role="tab" aria-selected="false" data-tab="financeiro">Financeiro</button>
+  <button class="tab" type="button" role="tab" aria-selected="false" data-tab="documentos">Documentos<span class="c">7</span></button>
+  <button class="tab" type="button" role="tab" aria-selected="false" data-tab="atividades">Atividades</button>
+</div>
+
+<!-- ============ RESUMO ============ -->
+<section data-panel="resumo" role="tabpanel" aria-label="Resumo">
+  <div class="cols-2-1">
+    <div class="stack">
+
+      <div class="card">
+        <div class="card-head"><h2>Serviços contratados</h2><a href="servicos-contratados.html" style="font-size:13px;font-weight:600">Ver todos →</a></div>
+        <div class="table-wrap">
+          <table class="table cards">
+            <thead><tr><th>Serviço</th><th>Recorrência</th><th>Vencimento</th><th class="num">Valor</th></tr></thead>
+            <tbody>
+              <tr><td data-label="Serviço" class="strong">Consultoria TI<span class="cell-sub">Contrato <a href="contrato.html">#104</a></span></td><td data-label="Recorrência">Mensal</td><td data-label="Vencimento">Dia 10</td><td data-label="Valor" class="num">R$ 3.000</td></tr>
+              <tr><td data-label="Serviço" class="strong">Manutenção<span class="cell-sub">Sem contrato vinculado</span></td><td data-label="Recorrência">Mensal</td><td data-label="Vencimento">Dia 10</td><td data-label="Valor" class="num">R$ 500</td></tr>
+              <tr><td data-label="Serviço" class="strong">Hospedagem<span class="cell-sub">Sem contrato vinculado</span></td><td data-label="Recorrência">Mensal</td><td data-label="Vencimento">Dia 10</td><td data-label="Valor" class="num">R$ 300</td></tr>
+            </tbody>
+            <tfoot><tr><td data-label="" colspan="3">Total recorrente (MRR)</td><td data-label="MRR" class="num">R$ 3.800</td></tr></tfoot>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div><h2>Contrato vigente</h2><span class="caption"><a href="contrato.html">#104 — Consultoria de TI</a></span></div><span class="badge b-good">Ativo</span></div>
+        <div class="card-body stack" style="padding-top:0">
+          <div class="row" style="justify-content:space-between;font-size:13px"><span class="muted">12/03/2026</span><span class="strong">52% da vigência · faltam 175 dias</span><span class="muted">11/03/2027</span></div>
+          <div class="progress" role="progressbar" aria-valuenow="52" aria-valuemin="0" aria-valuemax="100" aria-label="Vigência decorrida"><i style="width:52%"></i></div>
+        </div>
+        <div class="kv"><span>Valor</span><b>R$ 3.000 / mês</b></div>
+        <div class="kv"><span>Renovação</span><b>Automática</b></div>
+        <div class="kv"><span>Documento assinado</span><a href="../gestao/documentos.html" style="font-weight:600">Contrato_104_ACME_assinado.pdf</a></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-head"><h2>Financeiro</h2><span class="badge b-good">Em dia</span></div>
+          <div class="kv"><span>Próxima cobrança</span><b>R$ 3.800 · 10/10</b></div>
+          <div class="kv"><span>Em aberto</span><b>R$ 200</b></div>
+          <div class="kv"><span>Vencido</span><b style="color:var(--good)">R$ 0</b></div>
+          <div class="kv"><span>Recebido em 2026</span><b>R$ 24.800</b></div>
+          <div class="kv"><span>Margem em setembro</span><b>85,8%</b></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h2>Operação</h2><a href="../operacao/projetos.html" style="font-size:13px;font-weight:600">Projetos →</a></div>
+          <div class="card-body stack" style="padding-top:0;gap:10px">
+            <div class="row" style="justify-content:space-between"><a class="strong" href="../operacao/projeto.html">Portal ACME — Fase 2</a><span class="strong num">62%</span></div>
+            <div class="progress" role="progressbar" aria-valuenow="62" aria-valuemin="0" aria-valuemax="100" aria-label="Progresso do projeto"><i style="width:62%"></i></div>
+            <span class="caption">Diego Rocha · previsão 30/11/2026 · 186 h de 300 h</span>
+          </div>
+          <div class="kv"><span>Chamados abertos</span><b>2 · nenhum crítico</b></div>
+          <div class="kv"><span>Horas no mês</span><b>64 h</b></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h2>Atividades recentes</h2><span class="caption">Linha do tempo completa na aba Atividades</span></div>
+        <div class="tl"><i></i><div>Rafael alterou o contrato <a href="contrato.html">#104</a> — valor de R$ 2.500 para R$ 3.000<small>hoje, 14:32 · Contratos</small></div></div>
+        <div class="tl"><i class="good"></i><div>Chamado <a href="../operacao/chamado.html">#2381</a> “Erro ao gerar relatório” marcado como Resolvido por Carla Mendes<small>hoje, 11:45 · Suporte</small></div></div>
+        <div class="tl"><i class="warn"></i><div>Alerta: domínio acme.com.br vence em 7 dias, sem renovação automática<small>hoje, 07:00 · Tecnologia</small></div></div>
+        <div class="tl"><i></i><div>Diego Rocha registrou 6 h em <a href="../operacao/projeto.html">Portal ACME — Fase 2</a><small>ontem, 18:10 · Horas</small></div></div>
+        <div class="tl"><i class="good"></i><div>Pagamento recebido — fatura Setembro/2026 · R$ 3.800<small>10/09/2026 · Financeiro</small></div></div>
+      </div>
+    </div>
+
+    <div class="stack">
+      <div class="card">
+        <div class="card-head"><h2>Contatos</h2><a href="contatos.html" style="font-size:13px;font-weight:600">Gerenciar</a></div>
+        <div class="contact"><span class="avatar soft">MA</span><div><div class="nm">Marcos Andrade <span class="badge b-info">Principal</span></div><div class="ln">Diretor de Operações</div><div class="ln num">(11) 3456-7801 · WhatsApp (11) 98765-4321</div><div class="ln">marcos.andrade@acme.com.br</div></div></div>
+        <div class="contact"><span class="avatar soft">JF</span><div><div class="nm">Juliana Ferraz</div><div class="ln">Analista financeira · recebe as cobranças</div><div class="ln num">(11) 3456-7815 · WhatsApp (11) 99812-3344</div><div class="ln">financeiro@acme.com.br</div></div></div>
+        <div class="contact"><span class="avatar soft">PR</span><div><div class="nm">Paulo Reis</div><div class="ln">Coordenador de TI · abre chamados</div><div class="ln num">(11) 3456-7820 · WhatsApp (11) 97654-1122</div><div class="ln">paulo.reis@acme.com.br</div></div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h2>Dados cadastrais</h2></div>
+        <dl class="dl" style="padding-top:0;grid-template-columns:minmax(0,1fr)">
+          <div><dt>Razão social</dt><dd>ACME Comércio e Serviços Ltda.</dd></div>
+          <div><dt>CNPJ</dt><dd class="mono">52.601.815/0001-20</dd></div>
+          <div><dt>Telefone</dt><dd>(11) 3456-7800</dd></div>
+          <div><dt>E-mail</dt><dd>financeiro@acme.com.br</dd></div>
+          <div><dt>Site</dt><dd>www.acme.com.br</dd></div>
+          <div><dt>Endereço</dt><dd>Av. Paulista, 1.578 — 12º andar<br>São Paulo/SP · 01310-200</dd></div>
+          <div><dt>Observações</dt><dd class="muted" style="font-weight:400">Faturamento concentrado no dia 10. NF enviada para financeiro@acme.com.br. Reuniões de alinhamento quinzenais às terças.</dd></div>
+        </dl>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h2>Infraestrutura</h2></div>
+        <div class="kv"><span>Aplicações</span><b>2</b></div>
+        <div class="kv"><span>Servidores</span><b>1</b></div>
+        <div class="kv"><span>Domínios</span><b>3 <span class="badge b-crit">1 vence em 7 dias</span></b></div>
+        <div class="kv"><span>Bancos de dados</span><b>1</b></div>
+        <div class="kv"><span>Integrações</span><b>3</b></div>
+        <div class="kv"><span>Serviços externos</span><b>4</b></div>
+        <div class="card-body" style="border-top:1px solid var(--rule)">
+          <div class="callout crit"><span><b class="strong">acme.com.br</b> vence em 24/09/2026 e está sem renovação automática. <a href="../tecnologia/dominios.html">Ver domínio</a></span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h2>Rentabilidade · setembro</h2><a href="../gestao/rentabilidade.html" style="font-size:13px;font-weight:600">Detalhar</a></div>
+        <div class="kv"><span>Receita</span><b>R$ 4.000</b></div>
+        <div class="kv"><span>Custos diretos</span><b>R$ 570</b></div>
+        <div class="kv"><span>Margem antes da mão de obra</span><b style="color:var(--good)">R$ 3.430 · 85,8%</b></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SERVIÇOS ============ -->
+<section data-panel="servicos" role="tabpanel" aria-label="Serviços" hidden>
+  <div class="stack">
+    <div class="section-title"><span class="eyebrow">Serviços contratados · MRR R$ 3.800</span><a class="btn sm" href="servicos-contratados.html">Novo serviço contratado</a></div>
+    <div class="card">
+      <div class="table-wrap">
+        <table class="table cards">
+          <thead><tr><th>Serviço</th><th>Recorrência</th><th>Início</th><th>Vencimento</th><th>Contrato</th><th class="num">Valor</th><th class="num">MRR</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td data-label="Serviço" class="strong">Consultoria de TI<span class="cell-sub">40 h/mês de consultoria e acompanhamento</span></td><td data-label="Recorrência">Mensal</td><td data-label="Início" class="mono">12/03/2026</td><td data-label="Vencimento">Dia 10</td><td data-label="Contrato"><a href="contrato.html">#104</a></td><td data-label="Valor" class="num">R$ 3.000</td><td data-label="MRR" class="num strong">R$ 3.000</td><td data-label="Status"><span class="badge b-good">Ativo</span></td></tr>
+            <tr><td data-label="Serviço" class="strong">Manutenção<span class="cell-sub">Correções e pequenas evoluções do Portal ACME</span></td><td data-label="Recorrência">Mensal</td><td data-label="Início" class="mono">01/07/2026</td><td data-label="Vencimento">Dia 10</td><td data-label="Contrato" class="muted">—</td><td data-label="Valor" class="num">R$ 500</td><td data-label="MRR" class="num strong">R$ 500</td><td data-label="Status"><span class="badge b-good">Ativo</span></td></tr>
+            <tr><td data-label="Serviço" class="strong">Hospedagem<span class="cell-sub">Railway + AWS, monitoramento e backups</span></td><td data-label="Recorrência">Mensal</td><td data-label="Início" class="mono">01/07/2026</td><td data-label="Vencimento">Dia 10</td><td data-label="Contrato" class="muted">—</td><td data-label="Valor" class="num">R$ 300</td><td data-label="MRR" class="num strong">R$ 300</td><td data-label="Status"><span class="badge b-good">Ativo</span></td></tr>
+            <tr><td data-label="Serviço" class="strong">Gestão de infraestrutura<span class="cell-sub">Migração de DNS e e-mail corporativo</span></td><td data-label="Recorrência">Avulsa</td><td data-label="Início" class="mono">15/09/2026</td><td data-label="Vencimento">25/09/2026</td><td data-label="Contrato" class="muted">—</td><td data-label="Valor" class="num">R$ 200</td><td data-label="MRR" class="num muted">fora do MRR</td><td data-label="Status"><span class="badge b-good">Ativo</span></td></tr>
+          </tbody>
+          <tfoot><tr><td data-label="" colspan="6">Total recorrente (MRR)</td><td data-label="MRR" class="num">R$ 3.800</td><td data-label=""></td></tr></tfoot>
+        </table>
+      </div>
+    </div>
+    <div class="callout warn"><span><b class="strong">Manutenção e Hospedagem não têm contrato vinculado.</b> Foram formalizadas pela aprovação da proposta Portal ACME — Fase 2. Considere incluí-las em aditivo ao contrato <a href="contrato.html">#104</a>.</span></div>
+  </div>
+</section>
+
+<!-- ============ CONTRATOS ============ -->
+<section data-panel="contratos" role="tabpanel" aria-label="Contratos" hidden>
+  <div class="stack">
+    <div class="section-title"><span class="eyebrow">Contratos vigentes e encerrados</span><a class="btn sm" href="contratos.html">Novo contrato</a></div>
+    <div class="card">
+      <div class="table-wrap">
+        <table class="table cards">
+          <thead><tr><th>Número</th><th>Título</th><th>Vigência</th><th>Renovação</th><th class="num">Valor</th><th>Documento</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td data-label="Número"><a class="strong" href="contrato.html">#104</a></td><td data-label="Título" class="strong">Consultoria de TI<span class="cell-sub">Aditivo 01 em 17/09/2026</span></td><td data-label="Vigência" class="mono">12/03/2026 – 11/03/2027<span class="cell-sub">faltam 175 dias</span></td><td data-label="Renovação">Automática</td><td data-label="Valor" class="num">R$ 3.000 / mês</td><td data-label="Documento"><a href="../gestao/documentos.html">Contrato assinado (PDF)</a></td><td data-label="Status"><span class="badge b-good">Ativo</span></td></tr>
+            <tr><td data-label="Número"><a class="strong" href="contrato.html">#103</a></td><td data-label="Título" class="strong">Diagnóstico de infraestrutura<span class="cell-sub">Escopo entregue e aceito</span></td><td data-label="Vigência" class="mono">12/03/2026 – 30/04/2026</td><td data-label="Renovação">Sem renovação</td><td data-label="Valor" class="num">R$ 4.500 · valor único</td><td data-label="Documento"><a href="../gestao/documentos.html">Contrato assinado (PDF)</a></td><td data-label="Status"><span class="badge b-mute">Encerrado</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-head"><h2>Alertas de vencimento · #104</h2><span class="badge b-info">Configurados</span></div>
+        <div class="kv"><span>60 dias antes</span><b>10/01/2027</b></div>
+        <div class="kv"><span>30 dias antes</span><b>09/02/2027</b></div>
+        <div class="kv"><span>15 dias antes</span><b>24/02/2027</b></div>
+        <div class="card-foot">Notifica Comercial e Administrador</div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h2>Resumo contratual</h2></div>
+        <div class="kv"><span>Valor mensal contratado</span><b>R$ 3.000</b></div>
+        <div class="kv"><span>Valor total já contratado</span><b>R$ 40.500</b></div>
+        <div class="kv"><span>Próximo término</span><b>11/03/2027</b></div>
+        <div class="kv"><span>Serviços sem contrato</span><b style="color:var(--warn)">2</b></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROJETOS ============ -->
+<section data-panel="projetos" role="tabpanel" aria-label="Projetos" hidden>
+  <div class="stack">
+    <div class="card">
+      <div class="card-head">
+        <div><h2><a href="../operacao/projeto.html" style="color:inherit">Portal ACME — Fase 2</a></h2><span class="caption">Área do cliente, pedidos online e relatórios gerenciais</span></div>
+        <span class="badge b-info">Em andamento</span>
+      </div>
+      <div class="card-body stack" style="padding-top:0">
+        <div class="row" style="justify-content:space-between;font-size:13px"><span class="muted">Progresso calculado pelas tarefas concluídas (31 de 50)</span><span class="strong num">62%</span></div>
+        <div class="progress" role="progressbar" aria-valuenow="62" aria-valuemin="0" aria-valuemax="100" aria-label="Progresso do projeto"><i style="width:62%"></i></div>
+      </div>
+      <dl class="dl" style="border-top:1px solid var(--rule)">
+        <div><dt>Responsável</dt><dd>Diego Rocha</dd></div>
+        <div><dt>Início</dt><dd>01/07/2026</dd></div>
+        <div><dt>Previsão de entrega</dt><dd>30/11/2026</dd></div>
+        <div><dt>Orçamento</dt><dd>R$ 36.000</dd></div>
+        <div><dt>Horas registradas</dt><dd>186 h de 300 h estimadas</dd></div>
+        <div><dt>Situação do prazo</dt><dd><span class="badge b-good">No prazo</span></dd></div>
+      </dl>
+      <div class="card-body stack" style="border-top:1px solid var(--rule)">
+        <div class="section-title"><h3>Horas por pessoa</h3><span class="unit">HORAS</span></div>
+        <div class="hbars">
+          <div class="hbar"><span>Diego Rocha</span><div class="track"><div class="fill" style="width:100%"></div></div><span class="val">112</span></div>
+          <div class="hbar"><span>Elisa Prado</span><div class="track"><div class="fill" style="width:48%"></div></div><span class="val">54</span></div>
+          <div class="hbar"><span>Rafael</span><div class="track"><div class="fill alt" style="width:18%"></div></div><span class="val">20</span></div>
+        </div>
+      </div>
+      <a class="more" href="../operacao/projeto.html">Abrir projeto →</a>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>Histórico de projetos</h2></div>
+      <div class="table-wrap">
+        <table class="table cards">
+          <thead><tr><th>Projeto</th><th>Responsável</th><th>Período</th><th class="num">Horas</th><th class="num">Orçamento</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td data-label="Projeto"><a class="strong" href="../operacao/projeto.html">Portal ACME — Fase 2</a></td><td data-label="Responsável">Diego Rocha</td><td data-label="Período" class="mono">01/07 – 30/11/2026</td><td data-label="Horas" class="num">186</td><td data-label="Orçamento" class="num">R$ 36.000</td><td data-label="Status"><span class="badge b-info">Em andamento</span></td></tr>
+            <tr><td data-label="Projeto"><a class="strong" href="../operacao/projeto.html">Portal ACME — Fase 1</a></td><td data-label="Responsável">Diego Rocha</td><td data-label="Período" class="mono">16/03 – 30/06/2026</td><td data-label="Horas" class="num">248</td><td data-label="Orçamento" class="num">R$ 28.000</td><td data-label="Status"><span class="badge b-good">Concluído</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CHAMADOS ============ -->
+<section data-panel="chamados" role="tabpanel" aria-label="Chamados" hidden>
+  <div class="stack">
+    <div class="grid-kpi">
+      <div class="card kpi"><span class="eyebrow">Abertos</span><span class="v">2</span><span class="f">nenhum crítico</span></div>
+      <div class="card kpi"><span class="eyebrow">Resolvidos em setembro</span><span class="v">1</span><span class="f">#2381</span></div>
+      <div class="card kpi"><span class="eyebrow">Tempo médio de resolução</span><span class="v">2,4 dias</span><span class="f">últimos 90 dias</span></div>
+      <div class="card kpi"><span class="eyebrow">Total em 2026</span><span class="v">11</span><span class="f">desde 12/03/2026</span></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>Chamados</h2><button class="btn sm" type="button" data-open="novo-chamado">Novo chamado</button></div>
+      <div class="table-wrap">
+        <table class="table cards">
+          <thead><tr><th>Nº</th><th>Título</th><th>Categoria</th><th>Prioridade</th><th>Responsável</th><th>Abertura</th><th>Conclusão</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td data-label="Nº"><a class="strong" href="../operacao/chamado.html">#2397</a></td><td data-label="Título" class="strong">Liberar acesso para novo usuário do financeiro<span class="cell-sub">Aberto por Paulo Reis</span></td><td data-label="Categoria">Acesso</td><td data-label="Prioridade"><span class="badge b-mute">Normal</span></td><td data-label="Responsável">Carla Mendes</td><td data-label="Abertura" class="mono">15/09/2026</td><td data-label="Conclusão" class="muted">—</td><td data-label="Status"><span class="badge b-warn">Aguardando cliente</span></td></tr>
+            <tr><td data-label="Nº"><a class="strong" href="../operacao/chamado.html">#2389</a></td><td data-label="Título" class="strong">Lentidão na listagem de pedidos<span class="cell-sub">Aberto por Marcos Andrade</span></td><td data-label="Categoria">Erro</td><td data-label="Prioridade"><span class="badge b-warn">Alta</span></td><td data-label="Responsável">Diego Rocha</td><td data-label="Abertura" class="mono">11/09/2026</td><td data-label="Conclusão" class="muted">—</td><td data-label="Status"><span class="badge b-warn">Em atendimento</span></td></tr>
+            <tr><td data-label="Nº"><a class="strong" href="../operacao/chamado.html">#2381</a></td><td data-label="Título" class="strong">Erro ao gerar relatório<span class="cell-sub">Aberto por Juliana Ferraz</span></td><td data-label="Categoria">Erro</td><td data-label="Prioridade"><span class="badge b-warn">Alta</span></td><td data-label="Responsável">Carla Mendes</td><td data-label="Abertura" class="mono">08/09/2026</td><td data-label="Conclusão" class="mono">17/09/2026</td><td data-label="Status"><span class="badge b-good">Resolvido</span></td></tr>
+            <tr><td data-label="Nº"><a class="strong" href="../operacao/chamado.html">#2342</a></td><td data-label="Título" class="strong">Como exportar pedidos para Excel<span class="cell-sub">Aberto por Juliana Ferraz</span></td><td data-label="Categoria">Dúvida</td><td data-label="Prioridade"><span class="badge b-mute">Baixa</span></td><td data-label="Responsável">Carla Mendes</td><td data-label="Abertura" class="mono">12/08/2026</td><td data-label="Conclusão" class="mono">13/08/2026</td><td data-label="Status"><span class="badge b-mute">Fechado</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination"><span>Mostrando 4 de 11 chamados</span><a href="../operacao/chamados.html" style="font-weight:600">Ver todos em Suporte →</a></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ INFRAESTRUTURA ============ -->
+<section data-panel="infra" role="tabpanel" aria-label="Infraestrutura" hidden>
+  <div class="stack">
+    <div class="callout crit"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color:var(--crit);flex:none"><path d="M12 3l10 18H2zM12 10v4M12 17h.01"/></svg><span><b class="strong">acme.com.br vence em 7 dias (24/09/2026) e não tem renovação automática.</b> Renove no Registro.br ou ative a renovação automática para evitar indisponibilidade do site e do e-mail.</span></div>
+
+    <div class="card">
+      <div class="card-head"><h2>Aplicações</h2><a href="../tecnologia/aplicacoes.html" style="font-size:13px;font-weight:600">Ver em Tecnologia</a></div>
+      <div class="table-wrap">
+        <table class="table cards">
+          <thead><tr><th>Aplicação</th><th>Ambiente</th><th>Tecnologia</th><th>Hospedagem</th><th>URL</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td data-label="Aplicação"><a class="strong" href="../tecnologia/aplicacao.html">Portal ACME</a><span class="cell-sub">Área do cliente e pedidos online</span></td><td data-label="Ambiente"><span class="badge b-good">Produção</span></td><td data-label="Tecnologia">Ruby on Rails 7.2 · Hotwire</td><td data-label="Hospedagem">Railway</td><td data-label="URL" class="mono">portal.acme.com.br</td><td data-label="Status"><span class="badge b-good">Ativa</span></td></tr>
+            <tr><td data-label="Aplicação"><a class="strong" href="../tecnologia/aplicacao.html">API de Integração ACME</a><span class="cell-sub">Sincroniza pedidos com o ERP do cliente</span></td><td data-label="Ambiente"><span class="badge b-good">Produção</span></td><td data-label="Tecnologia">Ruby 3.3 · Rails API</td><td data-label="Hospedagem">AWS · acme-api-01</td><td data-label="URL" class="mono">api.acme.com.br</td><td data-label="Status"><span class="badge b-good">Ativa</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-head"><h2>Servidor</h2><a href="../tecnologia/servidores.html" style="font-size:13px;font-weight:600">Servidores</a></div>
+        <dl class="dl" style="padding-top:0">
+          <div><dt>Nome</dt><dd>acme-api-01</dd></div>
+          <div><dt>Fornecedor</dt><dd>AWS · EC2 t3.small</dd></div>
+          <div><dt>Hostname</dt><dd class="mono">api.acme.com.br</dd></div>
+          <div><dt>Ambiente</dt><dd><span class="badge b-good">Produção</span></dd></div>
+          <div><dt>Sistema operacional</dt><dd>Ubuntu 24.04 LTS</dd></div>
+          <div><dt>Custo mensal</dt><dd>R$ 220</dd></div>
+        </dl>
+      </div>
+      <div class="card">
+        <div class="card-head"><h2>Banco de dados</h2><a href="../tecnologia/bancos-dados.html" style="font-size:13px;font-weight:600">Bancos de dados</a></div>
+        <dl class="dl" style="padding-top:0">
+          <div><dt>Tecnologia</dt><dd>PostgreSQL 16.4</dd></div>
+          <div><dt>Aplicação</dt><dd><a href="../tecnologia/aplicacao.html">Portal ACME</a></dd></div>
+          <div><dt>Ambiente</dt><dd><span class="badge b-good">Produção</span></dd></div>
+          <div><dt>Provedor</dt><dd>Railway (gerenciado)</dd></div>
+          <div><dt>Backup</dt><dd>Diário · retenção de 7 dias</dd></div>
+          <div><dt>Credenciais</dt><dd class="muted" style="font-weight:400">Referência ao cofre de senhas</dd></div>
+        </dl>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Domínios</h2><a href="../tecnologia/dominios.html" style="font-size:13px;font-weight:600">Ver em Domínios</a></div>
+      <div class="table-wrap">
+        <table class="table cards">
+          <thead><tr><th>Domínio</th><th>Registrador</th><th>Registro</th><th>Vencimento</th><th>Renovação automática</th><th class="num">Custo</th></tr></thead>
+          <tbody>
+            <tr class="late"><td data-label="Domínio" class="strong">acme.com.br<span class="cell-sub">Site institucional e e-mail</span></td><td data-label="Registrador">Registro.br</td><td data-label="Registro" class="mono">24/09/2019</td><td data-label="Vencimento"><span class="mono" style="color:var(--crit);font-weight:600">24/09/2026</span> <span class="badge b-crit">7 dias</span></td><td data-label="Renovação automática"><span class="badge b-crit">Não</span></td><td data-label="Custo" class="num">R$ 40 / ano</td></tr>
+            <tr><td data-label="Domínio" class="strong">acmeloja.com.br<span class="cell-sub">Redireciona para o Portal ACME</span></td><td data-label="Registrador">Registro.br</td><td data-label="Registro" class="mono">15/02/2024</td><td data-label="Vencimento" class="mono">15/02/2027</td><td data-label="Renovação automática"><span class="badge b-good">Sim</span></td><td data-label="Custo" class="num">R$ 40 / ano</td></tr>
+            <tr><td data-label="Domínio" class="strong">acme.app<span class="cell-sub">Reservado para o app mobile</span></td><td data-label="Registrador">Cloudflare</td><td data-label="Registro" class="mono">03/05/2026</td><td data-label="Vencimento" class="mono">03/05/2027</td><td data-label="Renovação automática"><span class="badge b-good">Sim</span></td><td data-label="Custo" class="num">US$ 14,20 / ano</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Integrações</h2><a href="../tecnologia/integracoes.html" style="font-size:13px;font-weight:600">Ver em Integrações</a></div>
+      <div class="table-wrap">
+        <table class="table cards">
+          <thead><tr><th>Integração</th><th>Aplicação</th><th>Ambiente</th><th>Finalidade</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td data-label="Integração" class="strong">OpenAI</td><td data-label="Aplicação"><a href="../tecnologia/aplicacao.html">Portal ACME</a></td><td data-label="Ambiente">Produção</td><td data-label="Finalidade">Resumo automático de pedidos e atendimento</td><td data-label="Status"><span class="badge b-good">Ativa</span></td></tr>
+            <tr><td data-label="Integração" class="strong">Mailgun</td><td data-label="Aplicação"><a href="../tecnologia/aplicacao.html">Portal ACME</a></td><td data-label="Ambiente">Produção</td><td data-label="Finalidade">E-mails transacionais (pedido, senha, NF)</td><td data-label="Status"><span class="badge b-good">Ativa</span></td></tr>
+            <tr><td data-label="Integração" class="strong">WhatsApp</td><td data-label="Aplicação"><a href="../tecnologia/aplicacao.html">API de Integração ACME</a></td><td data-label="Ambiente">Staging</td><td data-label="Finalidade">Aviso de status do pedido ao comprador</td><td data-label="Status"><span class="badge b-warn">Em configuração</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Serviços externos</h2><a href="../tecnologia/servicos-externos.html" style="font-size:13px;font-weight:600">Ver em Serviços externos</a></div>
+      <div class="table-wrap">
+        <table class="table cards">
+          <thead><tr><th>Serviço</th><th>Fornecedor</th><th>Aplicação</th><th>Periodicidade</th><th class="num">Custo</th><th>Pago por</th></tr></thead>
+          <tbody>
+            <tr><td data-label="Serviço" class="strong">Railway — plano Pro</td><td data-label="Fornecedor">Railway</td><td data-label="Aplicação"><a href="../tecnologia/aplicacao.html">Portal ACME</a></td><td data-label="Periodicidade">Mensal</td><td data-label="Custo" class="num">US$ 28 <span class="cell-sub">≈ R$ 150</span></td><td data-label="Pago por"><span class="badge b-info">DevBatista</span></td></tr>
+            <tr><td data-label="Serviço" class="strong">OpenAI API</td><td data-label="Fornecedor">OpenAI</td><td data-label="Aplicação"><a href="../tecnologia/aplicacao.html">Portal ACME</a></td><td data-label="Periodicidade">Por consumo</td><td data-label="Custo" class="num">≈ R$ 120 <span class="cell-sub">média 3 meses</span></td><td data-label="Pago por"><span class="badge b-info">DevBatista</span></td></tr>
+            <tr><td data-label="Serviço" class="strong">Mailgun — Foundation</td><td data-label="Fornecedor">Mailgun</td><td data-label="Aplicação"><a href="../tecnologia/aplicacao.html">Portal ACME</a></td><td data-label="Periodicidade">Mensal</td><td data-label="Custo" class="num">US$ 15 <span class="cell-sub">≈ R$ 80</span></td><td data-label="Pago por"><span class="badge b-info">DevBatista</span></td></tr>
+            <tr><td data-label="Serviço" class="strong">Cloudflare — plano Free</td><td data-label="Fornecedor">Cloudflare</td><td data-label="Aplicação"><a href="../tecnologia/aplicacao.html">Portal ACME</a></td><td data-label="Periodicidade">Mensal</td><td data-label="Custo" class="num muted">R$ 0</td><td data-label="Pago por"><span class="badge b-mute">Cliente</span></td></tr>
+          </tbody>
+          <tfoot><tr><td data-label="" colspan="4">Custos diretos pagos pela DevBatista (com servidor AWS R$ 220)</td><td data-label="Total" class="num">R$ 570 / mês</td><td data-label=""></td></tr></tfoot>
+        </table>
+      </div>
+    </div>
+    <p class="caption">Credenciais de acesso nunca ficam no Admin: cada item guarda apenas a referência ao cofre de senhas.</p>
+  </div>
+</section>
+
+<!-- ============ FINANCEIRO ============ -->
+<section data-panel="financeiro" role="tabpanel" aria-label="Financeiro" hidden>
+  <div class="stack">
+    <div class="grid-kpi">
+      <div class="card kpi"><span class="eyebrow">Próxima cobrança</span><span class="v">R$ 3.800</span><span class="f">10/10/2026 · 3 títulos</span></div>
+      <div class="card kpi"><span class="eyebrow">Em aberto</span><span class="v">R$ 200</span><span class="f">vence 25/09/2026</span></div>
+      <div class="card kpi"><span class="eyebrow">Inadimplência</span><span class="v" style="color:var(--good)">R$ 0</span><span class="f"><span class="badge b-good">Zero</span>nenhum título vencido</span></div>
+      <div class="card kpi"><span class="eyebrow">Recebido em 2026</span><span class="v">R$ 24.800</span><span class="f">desde 12/03/2026</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Títulos a receber</h2><a href="../financeiro/contas-receber.html" style="font-size:13px;font-weight:600">Ver em Contas a receber</a></div>
+      <div class="table-wrap">
+        <table class="table cards">
+          <thead><tr><th>Vencimento</th><th>Descrição</th><th>Competência</th><th>Contrato</th><th class="num">Valor</th><th>Pagamento</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td data-label="Vencimento" class="mono">10/10/2026</td><td data-label="Descrição" class="strong">Consultoria TI</td><td data-label="Competência">Out/2026</td><td data-label="Contrato"><a href="contrato.html">#104</a></td><td data-label="Valor" class="num">R$ 3.000</td><td data-label="Pagamento" class="muted">—</td><td data-label="Status"><span class="badge b-warn">Pendente</span></td></tr>
+            <tr><td data-label="Vencimento" class="mono">10/10/2026</td><td data-label="Descrição" class="strong">Manutenção</td><td data-label="Competência">Out/2026</td><td data-label="Contrato" class="muted">—</td><td data-label="Valor" class="num">R$ 500</td><td data-label="Pagamento" class="muted">—</td><td data-label="Status"><span class="badge b-warn">Pendente</span></td></tr>
+            <tr><td data-label="Vencimento" class="mono">10/10/2026</td><td data-label="Descrição" class="strong">Hospedagem</td><td data-label="Competência">Out/2026</td><td data-label="Contrato" class="muted">—</td><td data-label="Valor" class="num">R$ 300</td><td data-label="Pagamento" class="muted">—</td><td data-label="Status"><span class="badge b-warn">Pendente</span></td></tr>
+            <tr><td data-label="Vencimento" class="mono">25/09/2026</td><td data-label="Descrição" class="strong">Gestão de infraestrutura (avulso)</td><td data-label="Competência">Set/2026</td><td data-label="Contrato" class="muted">—</td><td data-label="Valor" class="num">R$ 200</td><td data-label="Pagamento" class="muted">—</td><td data-label="Status"><span class="badge b-warn">Pendente</span></td></tr>
+            <tr><td data-label="Vencimento" class="mono">10/09/2026</td><td data-label="Descrição" class="strong">Consultoria TI</td><td data-label="Competência">Set/2026</td><td data-label="Contrato"><a href="contrato.html">#104</a></td><td data-label="Valor" class="num">R$ 3.000</td><td data-label="Pagamento" class="mono">10/09/2026</td><td data-label="Status"><span class="badge b-good">Pago</span></td></tr>
+            <tr><td data-label="Vencimento" class="mono">10/09/2026</td><td data-label="Descrição" class="strong">Manutenção</td><td data-label="Competência">Set/2026</td><td data-label="Contrato" class="muted">—</td><td data-label="Valor" class="num">R$ 500</td><td data-label="Pagamento" class="mono">10/09/2026</td><td data-label="Status"><span class="badge b-good">Pago</span></td></tr>
+            <tr><td data-label="Vencimento" class="mono">10/09/2026</td><td data-label="Descrição" class="strong">Hospedagem</td><td data-label="Competência">Set/2026</td><td data-label="Contrato" class="muted">—</td><td data-label="Valor" class="num">R$ 300</td><td data-label="Pagamento" class="mono">10/09/2026</td><td data-label="Status"><span class="badge b-good">Pago</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination"><span>Títulos de outubro gerados automaticamente pelas recorrências</span><a href="../financeiro/recorrencias.html" style="font-weight:600">Recorrências →</a></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-head"><h2>Faturas</h2></div>
+        <div class="table-wrap">
+          <table class="table cards">
+            <thead><tr><th>Competência</th><th class="num">Valor</th><th>Pago em</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td data-label="Competência" class="strong">Setembro/2026</td><td data-label="Valor" class="num">R$ 3.800</td><td data-label="Pago em" class="mono">10/09/2026</td><td data-label="Status"><span class="badge b-good">Pago</span></td></tr>
+              <tr><td data-label="Competência" class="strong">Agosto/2026</td><td data-label="Valor" class="num">R$ 3.300</td><td data-label="Pago em" class="mono">10/08/2026</td><td data-label="Status"><span class="badge b-good">Pago</span></td></tr>
+              <tr><td data-label="Competência" class="strong">Julho/2026</td><td data-label="Valor" class="num">R$ 3.300</td><td data-label="Pago em" class="mono">09/07/2026</td><td data-label="Status"><span class="badge b-good">Pago</span></td></tr>
+              <tr><td data-label="Competência" class="strong">Junho/2026</td><td data-label="Valor" class="num">R$ 2.500</td><td data-label="Pago em" class="mono">10/06/2026</td><td data-label="Status"><span class="badge b-good">Pago</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h2>Notas fiscais</h2><a href="../financeiro/notas-fiscais.html" style="font-size:13px;font-weight:600">Notas fiscais</a></div>
+        <div class="table-wrap">
+          <table class="table cards">
+            <thead><tr><th>Número</th><th>Competência</th><th class="num">Valor</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td data-label="Número" class="muted">—</td><td data-label="Competência">Set/2026 · avulso</td><td data-label="Valor" class="num">R$ 200</td><td data-label="Status"><span class="badge b-warn">Pendente de emissão</span></td></tr>
+              <tr><td data-label="Número" class="strong mono">1.248</td><td data-label="Competência">Set/2026</td><td data-label="Valor" class="num">R$ 3.800</td><td data-label="Status"><span class="badge b-good">Emitida</span></td></tr>
+              <tr><td data-label="Número" class="strong mono">1.236</td><td data-label="Competência">Ago/2026</td><td data-label="Valor" class="num">R$ 3.300</td><td data-label="Status"><span class="badge b-good">Emitida</span></td></tr>
+              <tr><td data-label="Número" class="strong mono">1.221</td><td data-label="Competência">Jul/2026</td><td data-label="Valor" class="num">R$ 3.300</td><td data-label="Status"><span class="badge b-good">Emitida</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="callout"><span><b class="strong">Inadimplência zero.</b> A Empresa ACME pagou todas as faturas até a data de vencimento desde o início do relacionamento.</span></div>
+  </div>
+</section>
+
+<!-- ============ DOCUMENTOS ============ -->
+<section data-panel="documentos" role="tabpanel" aria-label="Documentos" hidden>
+  <div class="card">
+    <div class="card-head"><h2>Documentos vinculados</h2><a class="btn sm" href="../gestao/documentos.html">Enviar documento</a></div>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr><th>Documento</th><th>Tipo</th><th>Vínculo</th><th>Data</th><th>Enviado por</th><th><span class="sr-only">Ações</span></th></tr></thead>
+        <tbody>
+          <tr><td data-label="Documento"><div class="hcell"><span class="file-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h9l4 4v14H6zM14 3v5h5M9 13h7M9 17h5"/></svg></span><div><span class="strong">Contrato_104_ACME_assinado.pdf</span><span class="cell-sub">PDF · 412 KB</span></div></div></td><td data-label="Tipo"><span class="badge b-mute">Contratos</span></td><td data-label="Vínculo"><a href="contrato.html">Contrato #104</a></td><td data-label="Data" class="mono">10/03/2026</td><td data-label="Enviado por">Ana Souza</td><td data-label="" class="right"><a class="link-btn" href="../gestao/documentos.html">Abrir</a></td></tr>
+          <tr><td data-label="Documento"><div class="hcell"><span class="file-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h9l4 4v14H6zM14 3v5h5M9 13h7M9 17h5"/></svg></span><div><span class="strong">Aditivo_01_Contrato_104.pdf</span><span class="cell-sub">PDF · 188 KB</span></div></div></td><td data-label="Tipo"><span class="badge b-mute">Contratos</span></td><td data-label="Vínculo"><a href="contrato.html">Contrato #104</a></td><td data-label="Data" class="mono">17/09/2026</td><td data-label="Enviado por">Rafael</td><td data-label="" class="right"><a class="link-btn" href="../gestao/documentos.html">Abrir</a></td></tr>
+          <tr><td data-label="Documento"><div class="hcell"><span class="file-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h9l4 4v14H6zM14 3v5h5M9 13h7M9 17h5"/></svg></span><div><span class="strong">Proposta_Portal_ACME_Fase2.pdf</span><span class="cell-sub">PDF · 1,2 MB</span></div></div></td><td data-label="Tipo"><span class="badge b-mute">Propostas</span></td><td data-label="Vínculo"><a href="../comercial/proposta.html">Proposta Portal ACME — Fase 2</a></td><td data-label="Data" class="mono">22/06/2026</td><td data-label="Enviado por">Ana Souza</td><td data-label="" class="right"><a class="link-btn" href="../gestao/documentos.html">Abrir</a></td></tr>
+          <tr><td data-label="Documento"><div class="hcell"><span class="file-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h9l4 4v14H6zM14 3v5h5M9 13h7M9 17h5"/></svg></span><div><span class="strong">Briefing_Portal_ACME_Fase2.docx</span><span class="cell-sub">DOCX · 96 KB</span></div></div></td><td data-label="Tipo"><span class="badge b-mute">Briefings</span></td><td data-label="Vínculo"><a href="../operacao/projeto.html">Portal ACME — Fase 2</a></td><td data-label="Data" class="mono">30/06/2026</td><td data-label="Enviado por">Diego Rocha</td><td data-label="" class="right"><a class="link-btn" href="../gestao/documentos.html">Abrir</a></td></tr>
+          <tr><td data-label="Documento"><div class="hcell"><span class="file-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h9l4 4v14H6zM14 3v5h5M9 13h7M9 17h5"/></svg></span><div><span class="strong">Arquitetura_API_Integracao.pdf</span><span class="cell-sub">PDF · 640 KB</span></div></div></td><td data-label="Tipo"><span class="badge b-mute">Documentos técnicos</span></td><td data-label="Vínculo"><a href="../tecnologia/aplicacao.html">API de Integração ACME</a></td><td data-label="Data" class="mono">05/08/2026</td><td data-label="Enviado por">Elisa Prado</td><td data-label="" class="right"><a class="link-btn" href="../gestao/documentos.html">Abrir</a></td></tr>
+          <tr><td data-label="Documento"><div class="hcell"><span class="file-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h9l4 4v14H6zM14 3v5h5M9 13h7M9 17h5"/></svg></span><div><span class="strong">NF_1248_ACME_set2026.pdf</span><span class="cell-sub">PDF · 74 KB</span></div></div></td><td data-label="Tipo"><span class="badge b-mute">Notas</span></td><td data-label="Vínculo"><a href="../financeiro/notas-fiscais.html">NF 1.248</a></td><td data-label="Data" class="mono">10/09/2026</td><td data-label="Enviado por">Bruno Lima</td><td data-label="" class="right"><a class="link-btn" href="../gestao/documentos.html">Abrir</a></td></tr>
+          <tr><td data-label="Documento"><div class="hcell"><span class="file-ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h9l4 4v14H6zM14 3v5h5M9 13h7M9 17h5"/></svg></span><div><span class="strong">Contrato_103_Diagnostico_assinado.pdf</span><span class="cell-sub">PDF · 356 KB</span></div></div></td><td data-label="Tipo"><span class="badge b-mute">Contratos</span></td><td data-label="Vínculo"><a href="contrato.html">Contrato #103</a></td><td data-label="Data" class="mono">11/03/2026</td><td data-label="Enviado por">Ana Souza</td><td data-label="" class="right"><a class="link-btn" href="../gestao/documentos.html">Abrir</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ATIVIDADES ============ -->
+<section data-panel="atividades" role="tabpanel" aria-label="Atividades" hidden>
+  <div class="card">
+    <div class="card-head">
+      <h2>Linha do tempo</h2>
+      <label class="sr-only" for="f-ativ">Filtrar atividades</label>
+      <select class="select" id="f-ativ" style="height:32px;font-size:13px"><option>Todos os eventos</option><option>Contratos</option><option>Financeiro</option><option>Suporte</option><option>Projetos e horas</option><option>Tecnologia</option><option>Comercial</option></select>
+    </div>
+    <div class="tl-date"><span class="eyebrow">Hoje · 17/09/2026</span></div>
+    <div class="tl"><i></i><div>Rafael alterou o contrato <a href="contrato.html">#104</a> — valor de R$ 2.500 para R$ 3.000 (Aditivo 01)<small>14:32 · Contratos</small></div></div>
+    <div class="tl"><i class="mute"></i><div>Rafael anexou o documento Aditivo_01_Contrato_104.pdf<small>14:30 · Documentos</small></div></div>
+    <div class="tl"><i class="good"></i><div>Chamado <a href="../operacao/chamado.html">#2381</a> “Erro ao gerar relatório” marcado como Resolvido por Carla Mendes<small>11:45 · Suporte</small></div></div>
+    <div class="tl"><i class="warn"></i><div>Alerta enviado: domínio acme.com.br vence em 7 dias, sem renovação automática<small>07:00 · Tecnologia</small></div></div>
+    <div class="tl-date"><span class="eyebrow">16/09/2026</span></div>
+    <div class="tl"><i></i><div>Diego Rocha registrou 6 h em <a href="../operacao/projeto.html">Portal ACME — Fase 2</a> — tarefa “Relatório de vendas por região”<small>18:10 · Horas</small></div></div>
+    <div class="tl"><i></i><div>Carla Mendes respondeu ao chamado <a href="../operacao/chamado.html">#2397</a> e aguarda dados do novo usuário<small>10:02 · Suporte</small></div></div>
+    <div class="tl-date"><span class="eyebrow">15/09/2026</span></div>
+    <div class="tl"><i></i><div>Paulo Reis abriu o chamado <a href="../operacao/chamado.html">#2397</a> “Liberar acesso para novo usuário do financeiro”<small>09:40 · Suporte</small></div></div>
+    <div class="tl"><i></i><div>Bruno Lima lançou o serviço avulso Gestão de infraestrutura · R$ 200 (vencimento 25/09)<small>08:55 · Serviços contratados</small></div></div>
+    <div class="tl-date"><span class="eyebrow">11/09/2026</span></div>
+    <div class="tl"><i class="warn"></i><div>Marcos Andrade abriu o chamado <a href="../operacao/chamado.html">#2389</a> “Lentidão na listagem de pedidos” · prioridade Alta<small>16:21 · Suporte</small></div></div>
+    <div class="tl-date"><span class="eyebrow">10/09/2026</span></div>
+    <div class="tl"><i class="good"></i><div>Pagamento recebido — fatura Setembro/2026 · R$ 3.800<small>10:20 · Financeiro</small></div></div>
+    <div class="tl"><i class="mute"></i><div>Bruno Lima registrou a nota fiscal 1.248 · R$ 3.800<small>10:35 · Financeiro</small></div></div>
+    <div class="tl-date"><span class="eyebrow">01/07/2026</span></div>
+    <div class="tl"><i></i><div>Projeto <a href="../operacao/projeto.html">Portal ACME — Fase 2</a> iniciado; serviços Manutenção e Hospedagem ativados<small>09:00 · Projetos</small></div></div>
+    <div class="tl-date"><span class="eyebrow">12/03/2026</span></div>
+    <div class="tl"><i class="good"></i><div>Empresa ACME passou de Prospect para Ativo — contrato <a href="contrato.html">#104</a> ativado por Ana Souza<small>15:12 · Clientes</small></div></div>
+    <a class="more" href="../administracao/logs.html">Ver trilha de auditoria completa →</a>
+  </div>
+</section>
+
+</main>
+</div>
+</div>
+
+<!-- Modal: registrar horas -->
+<div class="modal" id="registrar-horas" role="dialog" aria-modal="true" aria-labelledby="registrar-horas-t">
+  <form class="form" style="display:contents">
+    <div class="modal-head"><h2 id="registrar-horas-t">Registrar horas · Empresa ACME</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="modal-body form">
+      <div class="form-grid">
+        <div class="field"><label for="h-proj">Projeto</label><select class="select" id="h-proj"><option>Portal ACME — Fase 2</option><option value="">Sem projeto</option></select></div>
+        <div class="field"><label for="h-tar">Tarefa</label><select class="select" id="h-tar"><option value="">Sem tarefa</option><option>Relatório de vendas por região</option><option>Checkout de pedidos</option></select></div>
+        <div class="field"><label for="h-data">Data <span class="req">*</span></label><input class="input" id="h-data" type="date" value="2026-09-17" required></div>
+        <div class="field"><label for="h-dur">Duração <span class="req">*</span></label><input class="input" id="h-dur" placeholder="Ex.: 2h30" required></div>
+      </div>
+      <div class="field"><label for="h-desc">Descrição</label><textarea class="textarea" id="h-desc" placeholder="O que foi feito"></textarea></div>
+    </div>
+    <div class="modal-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Registrar</button></div>
+  </form>
+</div>
+
+<!-- Formulário lateral: novo chamado -->
+<aside class="drawer" id="novo-chamado" role="dialog" aria-modal="true" aria-labelledby="novo-chamado-t">
+  <form class="form" style="display:contents">
+    <div class="drawer-head"><h2 id="novo-chamado-t">Novo chamado · Empresa ACME</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="drawer-body form">
+      <div class="callout"><span>Número sequencial e data de abertura são gerados automaticamente.</span></div>
+      <div class="form-grid">
+        <div class="field full"><label for="c-tit">Título <span class="req">*</span></label><input class="input" id="c-tit" required placeholder="Resumo do problema"></div>
+        <div class="field"><label for="c-cont">Contato</label><select class="select" id="c-cont"><option>Marcos Andrade (principal)</option><option>Juliana Ferraz</option><option>Paulo Reis</option></select><span class="hint">Contato principal sugerido por padrão</span></div>
+        <div class="field"><label for="c-app">Aplicação</label><select class="select" id="c-app"><option value="">Nenhuma</option><option>Portal ACME</option><option>API de Integração ACME</option></select></div>
+        <div class="field"><label for="c-cat">Categoria <span class="req">*</span></label><select class="select" id="c-cat" required><option>Erro</option><option>Dúvida</option><option>Melhoria</option><option>Infraestrutura</option><option>Acesso</option></select></div>
+        <div class="field"><label for="c-pri">Prioridade <span class="req">*</span></label><select class="select" id="c-pri" required><option>Baixa</option><option selected>Normal</option><option>Alta</option><option>Crítica</option></select><span class="hint">Crítica notifica a equipe na hora</span></div>
+        <div class="field full"><label for="c-resp">Responsável</label><select class="select" id="c-resp"><option>Carla Mendes</option><option>Diego Rocha</option><option>Elisa Prado</option></select></div>
+        <div class="field full"><label for="c-desc">Descrição <span class="req">*</span></label><textarea class="textarea" id="c-desc" required placeholder="Passos para reproduzir, impacto, prints…"></textarea></div>
+      </div>
+    </div>
+    <div class="drawer-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Abrir chamado</button></div>
+  </form>
+</aside>
+
+<!-- Formulário lateral: editar empresa -->
+<aside class="drawer" id="editar-empresa" role="dialog" aria-modal="true" aria-labelledby="editar-empresa-t">
+  <form class="form" style="display:contents">
+    <div class="drawer-head"><h2 id="editar-empresa-t">Editar empresa</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="drawer-body form">
+      <span class="fieldset-title">Identificação</span>
+      <div class="form-grid">
+        <div class="field full"><label for="ed-razao">Razão social <span class="req">*</span></label><input class="input" id="ed-razao" required value="ACME Comércio e Serviços Ltda."></div>
+        <div class="field full"><label for="ed-fant">Nome fantasia <span class="req">*</span></label><input class="input" id="ed-fant" required value="Empresa ACME"></div>
+        <div class="field"><label for="ed-cnpj">CNPJ <span class="req">*</span></label><input class="input mono" id="ed-cnpj" required value="52.601.815/0001-20"><span class="hint" style="color:var(--good)">CNPJ válido</span></div>
+        <div class="field"><label for="ed-st">Status <span class="req">*</span></label><select class="select" id="ed-st" required><option>Prospect</option><option selected>Ativo</option><option>Inativo</option></select></div>
+      </div>
+      <span class="fieldset-title">Contato institucional</span>
+      <div class="form-grid">
+        <div class="field"><label for="ed-tel">Telefone</label><input class="input" id="ed-tel" type="tel" value="(11) 3456-7800"></div>
+        <div class="field"><label for="ed-mail">E-mail</label><input class="input" id="ed-mail" type="email" value="financeiro@acme.com.br"></div>
+        <div class="field full"><label for="ed-site">Site</label><input class="input" id="ed-site" type="url" value="https://www.acme.com.br"></div>
+      </div>
+      <span class="fieldset-title">Endereço</span>
+      <div class="form-grid">
+        <div class="field full"><label for="ed-logr">Logradouro</label><input class="input" id="ed-logr" value="Av. Paulista, 1.578 — 12º andar"></div>
+        <div class="field"><label for="ed-cid">Cidade</label><input class="input" id="ed-cid" value="São Paulo"></div>
+        <div class="field"><label for="ed-uf">UF</label><select class="select" id="ed-uf"><option>MG</option><option>PR</option><option>RJ</option><option>RS</option><option>SC</option><option selected>SP</option></select></div>
+        <div class="field"><label for="ed-cep">CEP</label><input class="input mono" id="ed-cep" value="01310-200"></div>
+      </div>
+      <div class="field"><label for="ed-obs">Observações</label><textarea class="textarea" id="ed-obs">Faturamento concentrado no dia 10. NF enviada para financeiro@acme.com.br. Reuniões de alinhamento quinzenais às terças.</textarea></div>
+    </div>
+    <div class="drawer-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Salvar alterações</button></div>
+  </form>
+</aside>
+
+<script src="../assets/app.js"></script>
+</body>
+</html>

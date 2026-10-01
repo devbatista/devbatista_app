@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Notificações · Admin DevBatista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/app.css">
+<style>
+  .nrow { grid-template-columns: 10px minmax(0, 1fr) auto; align-items: start; font-size: 14px; padding: 16px 20px; }
+  .nrow:hover { color: inherit; }
+  .nrow .t { color: var(--text); font-weight: 600; }
+  .nrow.is-read .t { color: var(--text-2); font-weight: 500; }
+  .nrow .acts { display: flex; gap: 14px; align-items: center; white-space: nowrap; }
+  .day { padding: 14px 20px 10px; border-top: 1px solid var(--border); }
+  .day:first-child { border-top: 0; }
+  @media (max-width: 960px) { .nrow { grid-template-columns: 10px minmax(0, 1fr); } .nrow .acts { grid-column: 2; } }
+</style>
+</head>
+<body data-group="" data-item="" data-crumb='[["Notificações"]]'>
+<div class="app">
+<aside class="side"></aside>
+<div class="main">
+<header class="top"></header>
+<main class="content">
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Central de alertas</span>
+    <h1>Notificações</h1>
+    <p class="lead">Gerada diariamente às 07:00 com os prazos e pendências do seu perfil. Chamados críticos chegam na hora.</p>
+  </div>
+  <div class="actions">
+    <a class="btn" href="#preferencias">Preferências de e-mail</a>
+    <button class="btn pri" type="button" id="ler-todas">Marcar todas como lidas</button>
+  </div>
+</div>
+
+<div class="toolbar">
+  <div class="seg" role="group" aria-label="Filtrar por leitura" id="f-lida">
+    <button type="button" class="on" data-v="todas" aria-pressed="true">Todas <span class="c" id="c-todas"></span></button>
+    <button type="button" data-v="nao" aria-pressed="false">Não lidas <span class="c" id="c-nao"></span></button>
+  </div>
+  <span class="spacer"></span>
+  <label class="sr-only" for="f-mod">Módulo</label>
+  <select class="select" id="f-mod">
+    <option value="">Todos os módulos</option>
+    <option>Financeiro</option>
+    <option>Contratos</option>
+    <option>Tecnologia</option>
+    <option>Projetos</option>
+    <option>Tarefas</option>
+    <option>Suporte</option>
+    <option>Comercial</option>
+  </select>
+</div>
+
+<section class="card" aria-label="Lista de notificações" id="lista">
+  <div class="day" data-day><span class="eyebrow">Hoje · quinta, 17/09/2026</span></div>
+  <div class="notif nrow" data-mod="Suporte" data-unread>
+    <i class="crit"></i>
+    <div><a class="t" href="../operacao/chamado.html">Chamado crítico #2394 aberto para Empresa Delta</a><small>“Sistema fora do ar” · API Delta · responsável Carla Mendes · 08:47 · Suporte</small></div>
+    <div class="acts"><span class="badge b-crit">Crítico</span><button class="link-btn" type="button" data-read>Marcar como lida</button></div>
+  </div>
+  <div class="notif nrow" data-mod="Financeiro" data-unread>
+    <i class="crit"></i>
+    <div><a class="t" href="../financeiro/contas-receber.html">3 títulos vencidos somam R$ 4.300</a><small>Cliente C R$ 2.400 · Empresa XYZ R$ 1.200 · Empresa Delta R$ 700 · 07:00 · Financeiro</small></div>
+    <div class="acts"><span class="badge b-crit">Pagamentos vencidos</span><button class="link-btn" type="button" data-read>Marcar como lida</button></div>
+  </div>
+  <div class="notif nrow" data-mod="Contratos" data-unread>
+    <i class="warn"></i>
+    <div><a class="t" href="../clientes/contrato.html">Contrato #098 da Empresa XYZ vence em 30 dias</a><small>Manutenção · término em 17/10/2026 · 07:00 · Contratos</small></div>
+    <div class="acts"><span class="badge b-warn">Contrato vencendo</span><button class="link-btn" type="button" data-read>Marcar como lida</button></div>
+  </div>
+  <div class="notif nrow" data-mod="Tecnologia" data-unread>
+    <i class="warn"></i>
+    <div><a class="t" href="../tecnologia/dominios.html">Domínio acme.com.br vence em 7 dias, sem renovação automática</a><small>Vencimento em 24/09/2026 · Registro.br · 07:00 · Tecnologia</small></div>
+    <div class="acts"><span class="badge b-warn">Domínio vencendo</span><button class="link-btn" type="button" data-read>Marcar como lida</button></div>
+  </div>
+  <div class="notif nrow is-read" data-mod="Projetos">
+    <i class="read"></i>
+    <div><a class="t" href="../operacao/projeto.html">Projeto ERP Cliente C está atrasado há 7 dias</a><small>Previsão 10/09/2026 · 81% concluído · responsável Elisa Prado · 07:00 · Projetos</small></div>
+    <div class="acts"><span class="badge b-crit">Projeto atrasado</span><button class="link-btn" type="button" data-read hidden>Marcar como lida</button></div>
+  </div>
+  <div class="notif nrow is-read" data-mod="Tarefas">
+    <i class="read"></i>
+    <div><a class="t" href="../operacao/tarefas.html">Tarefa “Fechamento de estoque” está atrasada há 6 dias</a><small>ERP Cliente C · prazo 11/09/2026 · responsável Elisa Prado · 07:00 · Tarefas</small></div>
+    <div class="acts"><span class="badge b-crit">Tarefa atrasada</span><button class="link-btn" type="button" data-read hidden>Marcar como lida</button></div>
+  </div>
+
+  <div class="day" data-day><span class="eyebrow">Ontem · quarta, 16/09/2026</span></div>
+  <div class="notif nrow is-read" data-mod="Comercial">
+    <i class="read"></i>
+    <div><a class="t" href="../comercial/proposta.html">Proposta “Integração ERP” expira em 3 dias</a><small>Cliente C · validade até 19/09/2026 · 07:00 · Comercial</small></div>
+    <div class="acts"><span class="badge b-warn">Proposta expirando</span><button class="link-btn" type="button" data-read hidden>Marcar como lida</button></div>
+  </div>
+  <div class="notif nrow is-read" data-mod="Contratos">
+    <i class="read"></i>
+    <div><a class="t" href="../clientes/contrato.html">Contrato #087 da Empresa Orion vence em 60 dias</a><small>Suporte · término em 15/11/2026 · 07:00 · Contratos</small></div>
+    <div class="acts"><span class="badge b-warn">Contrato vencendo</span><button class="link-btn" type="button" data-read hidden>Marcar como lida</button></div>
+  </div>
+
+  <div class="day" data-day><span class="eyebrow">Anteriores</span></div>
+  <div class="notif nrow is-read" data-mod="Tecnologia">
+    <i class="read"></i>
+    <div><a class="t" href="../tecnologia/dominios.html">Domínio orion.app vence em 60 dias</a><small>Vencimento em 14/11/2026 · renovação automática ativa · 15/09/2026 · Tecnologia</small></div>
+    <div class="acts"><span class="badge b-info">Domínio vencendo</span><button class="link-btn" type="button" data-read hidden>Marcar como lida</button></div>
+  </div>
+  <div class="notif nrow is-read" data-mod="Financeiro">
+    <i class="read"></i>
+    <div><a class="t" href="../financeiro/contas-receber.html">Pagamento vencido: Empresa Delta · R$ 700</a><small>Suporte · vencimento 10/09/2026 · 11/09/2026 · Financeiro</small></div>
+    <div class="acts"><span class="badge b-crit">Pagamento vencido</span><button class="link-btn" type="button" data-read hidden>Marcar como lida</button></div>
+  </div>
+  <div class="notif nrow is-read" data-mod="Projetos">
+    <i class="read"></i>
+    <div><a class="t" href="../operacao/projeto.html">Projeto ERP Cliente C passou da previsão</a><small>Previsão 10/09/2026 · status Em andamento · 11/09/2026 · Projetos</small></div>
+    <div class="acts"><span class="badge b-crit">Projeto atrasado</span><button class="link-btn" type="button" data-read hidden>Marcar como lida</button></div>
+  </div>
+  <div class="notif nrow is-read" data-mod="Financeiro">
+    <i class="read"></i>
+    <div><a class="t" href="../financeiro/contas-receber.html">Pagamento vencido: Empresa XYZ · R$ 1.200</a><small>Manutenção · vencimento 05/09/2026 · 06/09/2026 · Financeiro</small></div>
+    <div class="acts"><span class="badge b-crit">Pagamento vencido</span><button class="link-btn" type="button" data-read hidden>Marcar como lida</button></div>
+  </div>
+  <div class="notif nrow is-read" data-mod="Financeiro">
+    <i class="read"></i>
+    <div><a class="t" href="../financeiro/contas-receber.html">Pagamento vencido: Cliente C · R$ 2.400</a><small>Desenvolvimento · vencimento 01/09/2026 · 02/09/2026 · Financeiro</small></div>
+    <div class="acts"><span class="badge b-crit">Pagamento vencido</span><button class="link-btn" type="button" data-read hidden>Marcar como lida</button></div>
+  </div>
+
+  <div class="empty" id="vazio" hidden>
+    <span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg></span>
+    <b class="strong">Tudo em dia</b>
+    <span>Nenhuma notificação com esses filtros.</span>
+  </div>
+  <div class="pagination"><span>Notificações dos últimos 30 dias</span><a href="../administracao/logs.html" style="font-weight:600">Histórico completo</a></div>
+</section>
+
+<section class="card" id="preferencias" aria-label="Preferências de e-mail">
+  <div class="card-head">
+    <div class="stack" style="gap:4px"><h2>Preferências de e-mail</h2><span class="caption">A central sempre recebe os alertas do seu perfil. O envio por e-mail é opcional, por tipo.</span></div>
+    <label class="row" style="gap:10px;font-size:13px;font-weight:600;color:var(--text-2)"><span class="switch"><input type="checkbox" checked aria-label="Receber alertas por e-mail"><span></span></span>Receber por e-mail</label>
+  </div>
+  <div class="table-wrap">
+    <table class="table cards">
+      <thead><tr><th>Alerta</th><th>Gatilho</th><th>Destinatários</th><th class="right">E-mail</th></tr></thead>
+      <tbody>
+        <tr><td data-label="Alerta" class="strong">Pagamentos vencidos</td><td data-label="Gatilho">Dia seguinte ao vencimento sem pagamento</td><td data-label="Destinatários">Financeiro · Administrador</td><td data-label="E-mail" class="right"><span class="switch" style="display:inline-block"><input type="checkbox" checked aria-label="E-mail para pagamentos vencidos"><span></span></span></td></tr>
+        <tr><td data-label="Alerta" class="strong">Contratos vencendo</td><td data-label="Gatilho">60, 30 e 15 dias antes do término</td><td data-label="Destinatários">Comercial · Administrador</td><td data-label="E-mail" class="right"><span class="switch" style="display:inline-block"><input type="checkbox" checked aria-label="E-mail para contratos vencendo"><span></span></span></td></tr>
+        <tr><td data-label="Alerta" class="strong">Domínios vencendo</td><td data-label="Gatilho">60, 30 e 7 dias antes do vencimento</td><td data-label="Destinatários">Desenvolvedor · Administrador</td><td data-label="E-mail" class="right"><span class="switch" style="display:inline-block"><input type="checkbox" checked aria-label="E-mail para domínios vencendo"><span></span></span></td></tr>
+        <tr><td data-label="Alerta" class="strong">Tarefas atrasadas</td><td data-label="Gatilho">Prazo ultrapassado e tarefa não concluída</td><td data-label="Destinatários">Responsável pela tarefa</td><td data-label="E-mail" class="right"><span class="switch" style="display:inline-block"><input type="checkbox" aria-label="E-mail para tarefas atrasadas"><span></span></span></td></tr>
+        <tr><td data-label="Alerta" class="strong">Projetos atrasados</td><td data-label="Gatilho">Previsão ultrapassada e projeto não concluído</td><td data-label="Destinatários">Responsável pelo projeto · Administrador</td><td data-label="E-mail" class="right"><span class="switch" style="display:inline-block"><input type="checkbox" checked aria-label="E-mail para projetos atrasados"><span></span></span></td></tr>
+        <tr><td data-label="Alerta" class="strong">Chamados críticos</td><td data-label="Gatilho">Abertura ou mudança para prioridade Crítica (na hora)</td><td data-label="Destinatários">Suporte · Desenvolvedor · Administrador</td><td data-label="E-mail" class="right"><span class="switch" style="display:inline-block"><input type="checkbox" checked aria-label="E-mail para chamados críticos"><span></span></span></td></tr>
+        <tr><td data-label="Alerta" class="strong">Propostas expirando</td><td data-label="Gatilho">3 dias antes do fim da validade</td><td data-label="Destinatários">Responsável pela proposta</td><td data-label="E-mail" class="right"><span class="switch" style="display:inline-block"><input type="checkbox" aria-label="E-mail para propostas expirando"><span></span></span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="card-foot"><span>Prazos dos gatilhos configuráveis em <a href="../administracao/configuracoes.html">Configurações</a></span><button class="btn pri sm" type="button">Salvar preferências</button></div>
+</section>
+
+</main>
+</div>
+</div>
+<script src="../assets/app.js"></script>
+<script>
+  // Comportamento local: filtros combinados (leitura × módulo) e marcar como lida
+  (function () {
+    var items = Array.prototype.slice.call(document.querySelectorAll('#lista .nrow'));
+    var mod = document.getElementById('f-mod');
+    var lidaBtns = document.querySelectorAll('#f-lida button');
+    var soNao = false;
+    function apply() {
+      var any = false;
+      items.forEach(function (n) {
+        var ok = (!soNao || n.hasAttribute('data-unread')) && (!mod.value || n.dataset.mod === mod.value);
+        n.hidden = !ok; if (ok) any = true;
+      });
+      document.querySelectorAll('#lista [data-day]').forEach(function (d) {
+        var el = d.nextElementSibling, vis = false;
+        while (el && el.classList.contains('nrow')) { if (!el.hidden) vis = true; el = el.nextElementSibling; }
+        d.hidden = !vis;
+      });
+      document.getElementById('vazio').hidden = any;
+      document.getElementById('c-todas').textContent = items.length;
+      document.getElementById('c-nao').textContent = items.filter(function (n) { return n.hasAttribute('data-unread'); }).length;
+    }
+    function markRead(n) {
+      n.removeAttribute('data-unread'); n.classList.add('is-read');
+      n.querySelector('i').className = 'read';
+      var b = n.querySelector('[data-read]'); if (b) b.hidden = true;
+    }
+    lidaBtns.forEach(function (b) {
+      b.addEventListener('click', function () {
+        soNao = b.dataset.v === 'nao';
+        lidaBtns.forEach(function (x) { x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', x === b); });
+        apply();
+      });
+    });
+    mod.addEventListener('change', apply);
+    items.forEach(function (n) { var b = n.querySelector('[data-read]'); if (b) b.addEventListener('click', function () { markRead(n); apply(); }); });
+    document.getElementById('ler-todas').addEventListener('click', function () { items.forEach(markRead); apply(); });
+    apply();
+  })();
+</script>
+</body>
+</html>

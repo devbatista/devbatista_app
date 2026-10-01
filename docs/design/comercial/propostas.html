@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Propostas · Admin DevBatista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/app.css">
+<style>
+  .table tr.soon td { background: var(--warn-bg); }
+  .svc-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 16px; }
+  @media (max-width: 960px) { .svc-list { grid-template-columns: minmax(0, 1fr); } }
+</style>
+</head>
+<body data-group="com" data-item="Propostas" data-crumb='[["Comercial","pipeline.html"],["Propostas"]]'>
+<div class="app">
+<aside class="side"></aside>
+<div class="main">
+<header class="top"></header>
+<main class="content">
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Comercial · Setembro de 2026</span>
+    <h1>Propostas</h1>
+  </div>
+  <div class="actions">
+    <button class="btn" type="button">Exportar CSV</button>
+    <button class="btn pri" type="button" data-open="nova-proposta">Nova proposta</button>
+  </div>
+</div>
+
+<div class="grid-kpi">
+  <div class="card kpi"><span class="eyebrow">Em negociação</span><span class="v">R$ 38.000</span><span class="f"><span class="badge b-info">5 abertas</span>Enviadas e Visualizadas</span></div>
+  <div class="card kpi" style="border-color:var(--warn-line)"><span class="eyebrow" style="color:var(--warn)">Expiram em até 3 dias</span><span class="v">2</span><span class="f">R$ 8.500 · Cliente C e Studio Arq</span></div>
+  <div class="card kpi"><span class="eyebrow">Aprovadas no mês</span><span class="v">R$ 7.200</span><span class="f"><span class="badge b-good">1</span>Cliente E</span></div>
+  <div class="card kpi"><span class="eyebrow">Taxa de aprovação</span><span class="v">38%</span><span class="f">últimos 90 dias · 5 de 13 respondidas</span></div>
+</div>
+
+<div class="callout warn" role="status">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color:var(--warn);flex:none"><path d="M12 8v5M12 16h.01M10.3 3.9L2.4 18a2 2 0 001.7 3h15.8a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg>
+  <span><b class="strong">2 propostas expiram em até 3 dias.</b> “Integração ERP” (Cliente C) vence em 19/09 e “Novo site institucional” (Studio Arq) em 20/09. Sem resposta até a validade, passam automaticamente a Expirada.</span>
+</div>
+
+<div class="toolbar">
+  <div class="seg" role="group" aria-label="Filtrar por status" data-filter-group="propostas">
+    <button type="button" class="on" data-filter="todos" aria-pressed="true">Todas <span class="c"></span></button>
+    <button type="button" data-filter="Rascunho" aria-pressed="false">Rascunho <span class="c"></span></button>
+    <button type="button" data-filter="Enviada" aria-pressed="false">Enviada <span class="c"></span></button>
+    <button type="button" data-filter="Visualizada" aria-pressed="false">Visualizada <span class="c"></span></button>
+    <button type="button" data-filter="Aprovada" aria-pressed="false">Aprovada <span class="c"></span></button>
+    <button type="button" data-filter="Recusada" aria-pressed="false">Recusada <span class="c"></span></button>
+    <button type="button" data-filter="Expirada" aria-pressed="false">Expirada <span class="c"></span></button>
+  </div>
+  <span class="spacer"></span>
+  <label class="search-field"><span class="sr-only">Buscar proposta</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M11 18a7 7 0 100-14 7 7 0 000 14zM21 21l-4.3-4.3"/></svg><input class="input" type="search" placeholder="Título, cliente ou serviço"></label>
+  <label class="sr-only" for="f-resp">Responsável</label>
+  <select class="select" id="f-resp"><option>Todos os responsáveis</option><option>Rafael</option><option>Ana Souza</option></select>
+</div>
+
+<section class="card" aria-label="Lista de propostas">
+  <div class="table-wrap">
+    <table class="table cards" data-filter-target="propostas">
+      <thead><tr><th>Proposta</th><th>Cliente</th><th>Serviços</th><th class="num">Valor</th><th>Enviada em</th><th>Validade</th><th>Responsável</th><th>Status</th><th><span class="sr-only">Ações</span></th></tr></thead>
+      <tbody>
+        <tr data-status="Enviada">
+          <td data-label="Proposta"><a class="strong" href="proposta.html">Portal de Pedidos</a><span class="cell-sub">#P-2026-031</span></td>
+          <td data-label="Cliente"><a href="../clientes/empresa.html">Empresa XYZ</a></td>
+          <td data-label="Serviços">Desenvolvimento de sistemas<span class="cell-sub">+ Integrações, Consultoria de TI</span></td>
+          <td data-label="Valor" class="num strong">R$ 14.000</td>
+          <td data-label="Enviada em" class="mono">17/09/2026</td>
+          <td data-label="Validade" class="mono">02/10/2026<span class="cell-sub">em 15 dias</span></td>
+          <td data-label="Responsável">Ana Souza</td>
+          <td data-label="Status"><span class="badge b-info">Enviada</span></td>
+          <td data-label="" class="right nowrap"><a class="link-btn" href="proposta.html">Abrir</a></td>
+        </tr>
+        <tr data-status="Visualizada" class="soon">
+          <td data-label="Proposta"><a class="strong" href="proposta.html">Integração ERP</a><span class="cell-sub">#P-2026-027</span></td>
+          <td data-label="Cliente"><a href="../clientes/empresa.html">Cliente C</a></td>
+          <td data-label="Serviços">Integrações</td>
+          <td data-label="Valor" class="num strong">R$ 4.500</td>
+          <td data-label="Enviada em" class="mono">04/09/2026</td>
+          <td data-label="Validade" class="mono">19/09/2026<span class="cell-sub"><span class="badge b-warn">expira em 2 dias</span></span></td>
+          <td data-label="Responsável">Ana Souza</td>
+          <td data-label="Status"><span class="badge b-blue">Visualizada</span></td>
+          <td data-label="" class="right nowrap"><a class="link-btn" href="proposta.html">Abrir</a></td>
+        </tr>
+        <tr data-status="Enviada" class="soon">
+          <td data-label="Proposta"><a class="strong" href="proposta.html">Novo site institucional</a><span class="cell-sub">#P-2026-029</span></td>
+          <td data-label="Cliente"><a href="../clientes/empresa.html">Studio Arq</a></td>
+          <td data-label="Serviços">Desenvolvimento de sites</td>
+          <td data-label="Valor" class="num strong">R$ 4.000</td>
+          <td data-label="Enviada em" class="mono">06/09/2026</td>
+          <td data-label="Validade" class="mono">20/09/2026<span class="cell-sub"><span class="badge b-warn">expira em 3 dias</span></span></td>
+          <td data-label="Responsável">Ana Souza</td>
+          <td data-label="Status"><span class="badge b-info">Enviada</span></td>
+          <td data-label="" class="right nowrap"><a class="link-btn" href="proposta.html">Abrir</a></td>
+        </tr>
+        <tr data-status="Visualizada">
+          <td data-label="Proposta"><a class="strong" href="proposta.html">Automação de notas e pedidos</a><span class="cell-sub">#P-2026-028 · versão 2</span></td>
+          <td data-label="Cliente"><a href="../clientes/empresa.html">Agro Campos</a></td>
+          <td data-label="Serviços">Automação/RPA</td>
+          <td data-label="Valor" class="num strong">R$ 9.000</td>
+          <td data-label="Enviada em" class="mono">05/09/2026</td>
+          <td data-label="Validade" class="mono">25/09/2026<span class="cell-sub">em 8 dias</span></td>
+          <td data-label="Responsável">Ana Souza</td>
+          <td data-label="Status"><span class="badge b-blue">Visualizada</span></td>
+          <td data-label="" class="right nowrap"><a class="link-btn" href="proposta.html">Abrir</a></td>
+        </tr>
+        <tr data-status="Visualizada">
+          <td data-label="Proposta"><a class="strong" href="proposta.html">Gestão de infraestrutura AWS</a><span class="cell-sub">#P-2026-030</span></td>
+          <td data-label="Cliente"><a href="../clientes/empresa.html">Empresa Delta</a></td>
+          <td data-label="Serviços">Gestão de infraestrutura</td>
+          <td data-label="Valor" class="num strong">R$ 6.500</td>
+          <td data-label="Enviada em" class="mono">09/09/2026</td>
+          <td data-label="Validade" class="mono">30/09/2026<span class="cell-sub">em 13 dias</span></td>
+          <td data-label="Responsável">Rafael</td>
+          <td data-label="Status"><span class="badge b-blue">Visualizada</span></td>
+          <td data-label="" class="right nowrap"><a class="link-btn" href="proposta.html">Abrir</a></td>
+        </tr>
+        <tr data-status="Rascunho">
+          <td data-label="Proposta"><a class="strong" href="proposta.html">Sistema de roteirização</a><span class="cell-sub">#P-2026-032</span></td>
+          <td data-label="Cliente"><a href="../clientes/empresa.html">Grupo Norte Logística</a></td>
+          <td data-label="Serviços">Desenvolvimento de sistemas<span class="cell-sub">+ Integrações</span></td>
+          <td data-label="Valor" class="num">R$ 12.000</td>
+          <td data-label="Enviada em" class="muted">—</td>
+          <td data-label="Validade" class="mono muted">—</td>
+          <td data-label="Responsável">Rafael</td>
+          <td data-label="Status"><span class="badge b-mute">Rascunho</span></td>
+          <td data-label="" class="right nowrap"><a class="link-btn" href="proposta.html">Editar</a></td>
+        </tr>
+        <tr data-status="Aprovada">
+          <td data-label="Proposta"><a class="strong" href="proposta.html">Sistema de controle de estoque</a><span class="cell-sub">#P-2026-024</span></td>
+          <td data-label="Cliente"><a href="../clientes/empresa.html">Cliente E</a></td>
+          <td data-label="Serviços">Desenvolvimento de sistemas</td>
+          <td data-label="Valor" class="num">R$ 7.200</td>
+          <td data-label="Enviada em" class="mono">25/08/2026</td>
+          <td data-label="Validade" class="mono muted">aprovada em 08/09</td>
+          <td data-label="Responsável">Ana Souza</td>
+          <td data-label="Status"><span class="badge b-good">Aprovada</span></td>
+          <td data-label="" class="right nowrap"><a class="link-btn" href="../clientes/contrato.html">Ver contrato</a></td>
+        </tr>
+        <tr data-status="Recusada">
+          <td data-label="Proposta"><a class="strong" href="proposta.html">Sustentação de servidores</a><span class="cell-sub">#P-2026-022</span></td>
+          <td data-label="Cliente"><a href="lead.html">Construtora Alicerce</a></td>
+          <td data-label="Serviços">Gestão de infraestrutura</td>
+          <td data-label="Valor" class="num muted">R$ 4.800</td>
+          <td data-label="Enviada em" class="mono">20/08/2026</td>
+          <td data-label="Validade" class="mono muted">recusada em 04/09</td>
+          <td data-label="Responsável">Rafael</td>
+          <td data-label="Status"><span class="badge b-crit">Recusada</span><span class="cell-sub">Optou por concorrente</span></td>
+          <td data-label="" class="right nowrap"><button class="link-btn" type="button">Duplicar</button></td>
+        </tr>
+        <tr data-status="Expirada">
+          <td data-label="Proposta"><a class="strong" href="proposta.html">Chatbot de atendimento</a><span class="cell-sub">#P-2026-019</span></td>
+          <td data-label="Cliente"><a href="../clientes/empresa.html">Empresa Orion</a></td>
+          <td data-label="Serviços">Inteligência Artificial</td>
+          <td data-label="Valor" class="num muted">R$ 5.500</td>
+          <td data-label="Enviada em" class="mono">01/08/2026</td>
+          <td data-label="Validade" class="mono muted">31/08/2026</td>
+          <td data-label="Responsável">Rafael</td>
+          <td data-label="Status"><span class="badge b-mute">Expirada</span></td>
+          <td data-label="" class="right nowrap"><button class="link-btn" type="button">Duplicar</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="pagination"><span>Linhas em destaque expiram em até 3 dias · o responsável é avisado automaticamente</span><div class="pages"><button type="button" class="on" aria-current="page">1</button><button type="button">2</button></div></div>
+</section>
+
+</main>
+</div>
+</div>
+
+<!-- Drawer: nova proposta -->
+<aside class="drawer" id="nova-proposta" role="dialog" aria-modal="true" aria-labelledby="nova-proposta-t">
+  <form class="form" style="display:contents" action="proposta.html">
+    <div class="drawer-head"><h2 id="nova-proposta-t">Nova proposta</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="drawer-body form">
+      <div class="form-grid">
+        <div class="field full"><label for="n-cli">Cliente <span class="req">*</span></label>
+          <select class="select" id="n-cli" required>
+            <option value="">Selecione empresa ou lead</option>
+            <optgroup label="Empresas"><option>Empresa ACME</option><option>Empresa XYZ</option><option>Empresa Delta</option><option>Empresa Orion</option><option>Cliente C</option><option>Grupo Norte Logística</option><option>Agro Campos</option><option>Studio Arq</option></optgroup>
+            <optgroup label="Leads"><option>Transportes Lima — Paulo Lima</option><option>Clínica Bem Estar — Fernanda Reis</option><option>Colégio Horizonte — Márcia Tavares</option><option>Padaria Trigo Bom — Sérgio Nunes</option></optgroup>
+          </select>
+        </div>
+        <div class="field full"><label for="n-tit">Título <span class="req">*</span></label><input class="input" id="n-tit" required placeholder="Ex.: Portal de Pedidos"></div>
+        <div class="field full"><label for="n-desc">Descrição</label><textarea class="textarea" id="n-desc" placeholder="Contexto e escopo proposto"></textarea></div>
+        <fieldset class="field full" style="border:0;padding:0;margin:0">
+          <legend class="label" style="padding:0;margin-bottom:6px">Serviços <span class="req">*</span></legend>
+          <div class="svc-list">
+            <label class="check"><input type="checkbox"> Consultoria de TI</label>
+            <label class="check"><input type="checkbox"> Desenvolvimento de sistemas</label>
+            <label class="check"><input type="checkbox"> Desenvolvimento de sites</label>
+            <label class="check"><input type="checkbox"> Manutenção</label>
+            <label class="check"><input type="checkbox"> Automação/RPA</label>
+            <label class="check"><input type="checkbox"> Integrações</label>
+            <label class="check"><input type="checkbox"> Inteligência Artificial</label>
+            <label class="check"><input type="checkbox"> Hospedagem</label>
+            <label class="check"><input type="checkbox"> Gestão de infraestrutura</label>
+            <label class="check"><input type="checkbox"> Suporte</label>
+            <label class="check"><input type="checkbox"> Publicação de aplicativos</label>
+          </div>
+          <span class="hint" style="margin-top:6px">Cada serviço entra com o preço padrão do catálogo; valores e o total (soma dos itens) são ajustados no editor.</span>
+        </fieldset>
+        <div class="field"><label for="n-pag">Forma de pagamento</label><input class="input" id="n-pag" placeholder="Ex.: 40% na aprovação, 60% na entrega"></div>
+        <div class="field"><label for="n-prazo">Prazo</label><input class="input" id="n-prazo" placeholder="Ex.: 8 semanas após aprovação"></div>
+        <div class="field"><label for="n-val">Validade <span class="req">*</span></label><input class="input" id="n-val" type="date" value="2026-10-02" required><span class="hint">Padrão: 15 dias</span></div>
+        <div class="field"><label for="n-resp">Responsável <span class="req">*</span></label><select class="select" id="n-resp" required><option>Ana Souza</option><option>Rafael</option></select></div>
+        <div class="field full"><label for="n-obs">Observações</label><textarea class="textarea" id="n-obs" placeholder="Condições adicionais"></textarea></div>
+        <div class="field full"><span class="label">Status</span><span><span class="badge b-mute">Rascunho</span> <span class="caption">— muda para Enviada ao enviar ao cliente</span></span></div>
+      </div>
+    </div>
+    <div class="drawer-foot"><button class="btn" type="button" data-close>Cancelar</button><a class="btn pri" href="proposta.html">Salvar e editar itens</a></div>
+  </form>
+</aside>
+
+<script src="../assets/app.js"></script>
+</body>
+</html>

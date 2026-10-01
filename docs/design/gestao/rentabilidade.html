@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rentabilidade · Admin DevBatista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/app.css">
+<style>
+  .mbar { display: flex; height: 28px; border-radius: 8px; overflow: hidden; background: var(--rule); }
+  .mbar > i { display: block; height: 100%; }
+  .mcell { display: flex; align-items: center; gap: 10px; justify-content: flex-end; }
+  .mcell .progress { width: 72px; flex: none; }
+  .big { font-size: 34px; font-weight: 700; letter-spacing: -.02em; color: var(--white); font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .cost { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; padding: 12px 20px; border-top: 1px solid var(--rule); font-size: 14px; }
+  .cost b { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; }
+  .cost .cell-sub { grid-column: 1 / -1; margin: 0; }
+</style>
+</head>
+<body data-group="ges" data-item="Rentabilidade" data-crumb='[["Gestão"],["Rentabilidade"]]'>
+<div class="app">
+<aside class="side"></aside>
+<div class="main">
+<header class="top"></header>
+<main class="content">
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Gestão · Competência Setembro/2026</span>
+    <h1>Rentabilidade por cliente</h1>
+    <p class="lead">Quanto cada cliente paga, quanto custa mantê-lo e qual margem ele deixa — antes da mão de obra.</p>
+  </div>
+  <div class="actions">
+    <label class="sr-only" for="ren-per">Competência</label>
+    <select class="select" id="ren-per"><option>Setembro/2026</option><option>Agosto/2026</option><option>Julho/2026</option><option>3º trimestre/2026</option></select>
+    <button class="btn" type="button">Exportar CSV</button>
+  </div>
+</div>
+
+<div class="grid-kpi">
+  <div class="card kpi"><span class="eyebrow">Receita dos clientes</span><span class="v">R$ 41.200</span><span class="f">14 clientes ativos</span></div>
+  <div class="card kpi"><span class="eyebrow">Custos diretos</span><span class="v">R$ 2.860</span><span class="f">em 6 clientes · serviços externos, servidores, domínios e despesas</span></div>
+  <div class="card kpi"><span class="eyebrow">Margem antes da mão de obra</span><span class="v">R$ 38.340</span><span class="f"><span class="badge b-good">93,1%</span>da receita</span></div>
+  <div class="card kpi alert"><span class="eyebrow">Menor margem</span><span class="v">10,0%</span><span class="f"><span class="badge b-crit">Empresa Delta</span>AWS da API Delta</span></div>
+</div>
+
+<section class="card" aria-labelledby="rank-t">
+  <div class="card-head">
+    <h2 id="rank-t">Ranking de margem por cliente</h2>
+    <div class="row">
+      <label class="sr-only" for="ren-ord">Ordenar por</label>
+      <select class="select" id="ren-ord"><option>Maior margem R$</option><option>Maior margem %</option><option>Menor margem %</option><option>Maior receita</option></select>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table class="table cards">
+      <thead><tr><th>#</th><th>Cliente</th><th class="num">Receita</th><th class="num">Custos diretos</th><th class="num">Margem R$</th><th class="num">Margem %</th><th><span class="sr-only">Ações</span></th></tr></thead>
+      <tbody>
+        <tr><td data-label="#" class="muted mono">1</td><td data-label="Cliente"><span class="strong">Cliente A</span></td><td data-label="Receita" class="num">R$ 9.500</td><td data-label="Custos diretos" class="num">R$ 620</td><td data-label="Margem R$" class="num strong">R$ 8.880</td><td data-label="Margem %" class="num"><span class="mcell"><span class="progress"><i style="width:93.5%"></i></span>93,5%</span></td><td data-label="" class="right"><button class="link-btn" type="button">Detalhar</button></td></tr>
+        <tr><td data-label="#" class="muted mono">2</td><td data-label="Cliente"><span class="strong">Cliente B</span></td><td data-label="Receita" class="num">R$ 7.800</td><td data-label="Custos diretos" class="num">R$ 410</td><td data-label="Margem R$" class="num strong">R$ 7.390</td><td data-label="Margem %" class="num"><span class="mcell"><span class="progress"><i style="width:94.7%"></i></span>94,7%</span></td><td data-label="" class="right"><button class="link-btn" type="button">Detalhar</button></td></tr>
+        <tr><td data-label="#" class="muted mono">3</td><td data-label="Cliente"><span class="strong">Cliente C</span><span class="cell-sub">sem custo direto registrado</span></td><td data-label="Receita" class="num">R$ 6.400</td><td data-label="Custos diretos" class="num muted">—</td><td data-label="Margem R$" class="num strong">R$ 6.400</td><td data-label="Margem %" class="num"><span class="mcell"><span class="progress"><i style="width:100%"></i></span>100%</span></td><td data-label="" class="right"><button class="link-btn" type="button">Detalhar</button></td></tr>
+        <tr><td data-label="#" class="muted mono">4</td><td data-label="Cliente"><span class="strong">Cliente D</span><span class="cell-sub">sem custo direto registrado</span></td><td data-label="Receita" class="num">R$ 5.200</td><td data-label="Custos diretos" class="num muted">—</td><td data-label="Margem R$" class="num strong">R$ 5.200</td><td data-label="Margem %" class="num"><span class="mcell"><span class="progress"><i style="width:100%"></i></span>100%</span></td><td data-label="" class="right"><button class="link-btn" type="button">Detalhar</button></td></tr>
+        <tr style="background:var(--cyan-tint)"><td data-label="#" class="muted mono">5</td><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa ACME</a></td><td data-label="Receita" class="num">R$ 4.000</td><td data-label="Custos diretos" class="num">R$ 570</td><td data-label="Margem R$" class="num strong">R$ 3.430</td><td data-label="Margem %" class="num"><span class="mcell"><span class="progress"><i style="width:85.8%"></i></span>85,8%</span></td><td data-label="" class="right"><a class="link-btn" href="#detalhe-acme">Detalhe abaixo</a></td></tr>
+        <tr><td data-label="#" class="muted mono">6</td><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa XYZ</a></td><td data-label="Receita" class="num">R$ 2.900</td><td data-label="Custos diretos" class="num">R$ 146</td><td data-label="Margem R$" class="num strong">R$ 2.754</td><td data-label="Margem %" class="num"><span class="mcell"><span class="progress"><i style="width:95%"></i></span>95,0%</span></td><td data-label="" class="right"><button class="link-btn" type="button">Detalhar</button></td></tr>
+        <tr><td data-label="#" class="muted mono">7</td><td data-label="Cliente"><span class="strong">Cliente E</span><span class="cell-sub">sem custo direto registrado</span></td><td data-label="Receita" class="num">R$ 1.800</td><td data-label="Custos diretos" class="num muted">—</td><td data-label="Margem R$" class="num strong">R$ 1.800</td><td data-label="Margem %" class="num"><span class="mcell"><span class="progress"><i style="width:100%"></i></span>100%</span></td><td data-label="" class="right"><button class="link-btn" type="button">Detalhar</button></td></tr>
+        <tr><td data-label="#" class="muted mono">8</td><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa Orion</a></td><td data-label="Receita" class="num">R$ 900</td><td data-label="Custos diretos" class="num">R$ 214</td><td data-label="Margem R$" class="num strong">R$ 686</td><td data-label="Margem %" class="num"><span class="mcell"><span class="progress"><i style="width:76.2%"></i></span>76,2%</span></td><td data-label="" class="right"><button class="link-btn" type="button">Detalhar</button></td></tr>
+        <tr class="late"><td data-label="#" class="muted mono">9</td><td data-label="Cliente"><a class="strong" href="../clientes/empresa.html">Empresa Delta</a> <span class="badge b-crit">Margem crítica</span><span class="cell-sub">AWS da API Delta: R$ 900/mês</span></td><td data-label="Receita" class="num">R$ 1.000</td><td data-label="Custos diretos" class="num">R$ 900</td><td data-label="Margem R$" class="num strong">R$ 100</td><td data-label="Margem %" class="num"><span class="mcell"><span class="progress crit"><i style="width:10%"></i></span>10,0%</span></td><td data-label="" class="right"><button class="link-btn" type="button">Detalhar</button></td></tr>
+        <tr><td data-label="#" class="muted mono">—</td><td data-label="Cliente" class="muted">Demais 5 clientes<span class="cell-sub">sem custo direto registrado</span></td><td data-label="Receita" class="num">R$ 1.700</td><td data-label="Custos diretos" class="num muted">—</td><td data-label="Margem R$" class="num strong">R$ 1.700</td><td data-label="Margem %" class="num"><span class="mcell"><span class="progress"><i style="width:100%"></i></span>100%</span></td><td data-label="" class="right"><button class="link-btn" type="button">Expandir</button></td></tr>
+      </tbody>
+      <tfoot><tr><td data-label=""></td><td data-label="">Total · 14 clientes</td><td data-label="Receita" class="num">R$ 41.200</td><td data-label="Custos diretos" class="num">R$ 2.860</td><td data-label="Margem R$" class="num">R$ 38.340</td><td data-label="Margem %" class="num">93,1%</td><td data-label=""></td></tr></tfoot>
+    </table>
+  </div>
+  <div class="card-foot"><span>Margem antes da mão de obra = receita mensal − custos diretos</span><span>Valores em dólar convertidos a R$ 5,62 · arredondados ao real</span></div>
+</section>
+
+<section class="stack" id="detalhe-acme" aria-labelledby="acme-t">
+  <div class="section-title">
+    <div class="row"><span class="co-avatar sm">EA</span><div><h2 id="acme-t">Rentabilidade — <a href="../clientes/empresa.html">Empresa ACME</a></h2><span class="caption">Competência Setembro/2026 · cliente desde 12/03/2026</span></div></div>
+    <span class="badge b-good">Margem 85,8%</span>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-head"><h3>Custos diretos vinculados ao cliente</h3><span class="unit">R$ / MÊS</span></div>
+      <div class="cost"><span class="strong">AWS</span><b>R$ 220</b><span class="cell-sub">Despesa com centro de custo no cliente · EC2 + RDS do <a href="../tecnologia/aplicacao.html">Portal ACME</a> · US$ 39,15</span></div>
+      <div class="cost"><span class="strong">Railway</span><b>R$ 150</b><span class="cell-sub">Servidor · hospedagem do <a href="../tecnologia/aplicacao.html">Portal ACME</a> (Rails) · US$ 26,69</span></div>
+      <div class="cost"><span class="strong">APIs</span><b>R$ 120</b><span class="cell-sub">Serviço externo pago pela DevBatista · OpenAI, assistente do Portal ACME · US$ 21,35</span></div>
+      <div class="cost"><span class="strong">E-mail</span><b>R$ 80</b><span class="cell-sub">Serviço externo pago pela DevBatista · Mailgun, e-mail transacional · US$ 14,23</span></div>
+      <div class="kv" style="background:rgba(255,255,255,0.02)"><span class="strong" style="color:var(--text)">Custos diretos</span><b>R$ 570</b></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3>Resultado do cliente</h3><span class="unit">SET/2026</span></div>
+      <div class="kv"><span>Receita mensal</span><b>R$ 4.000</b></div>
+      <div class="kv"><span>Custos diretos</span><b style="color:var(--orange)">− R$ 570</b></div>
+      <div class="card-body stack" style="border-top:1px solid var(--rule)">
+        <span class="eyebrow">Margem antes da mão de obra</span>
+        <div class="row" style="align-items:baseline;flex-wrap:wrap"><span class="big">R$ 3.430</span><span class="muted">85,8% da receita</span></div>
+        <div class="mbar" role="img" aria-label="Da receita de R$ 4.000, 85,8% é margem (R$ 3.430) e 14,2% são custos diretos (R$ 570)">
+          <i style="width:85.8%;background:var(--cyan)"></i><i style="width:14.2%;background:var(--orange)"></i>
+        </div>
+        <div class="legend"><span><i style="background:var(--cyan)"></i>Margem R$ 3.430 · 85,8%</span><span><i style="background:var(--orange)"></i>Custos R$ 570 · 14,2%</span></div>
+      </div>
+    </div>
+  </div>
+
+  <section class="card" aria-labelledby="origem-t">
+    <div class="card-head"><h3 id="origem-t">De onde vem cada número</h3></div>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr><th>Componente</th><th>Origem dos dados</th><th class="num">Empresa ACME</th></tr></thead>
+        <tbody>
+          <tr><td data-label="Componente" class="strong">Receita mensal</td><td data-label="Origem dos dados">Serviços contratados e receitas do cliente no período — <a href="../clientes/servicos-contratados.html">Consultoria de TI R$ 3.000, Manutenção R$ 500, Hospedagem R$ 300</a> e R$ 200 de horas avulsas em <a href="../financeiro/receitas.html">Receitas</a></td><td data-label="Empresa ACME" class="num">R$ 4.000</td></tr>
+          <tr><td data-label="Componente" class="strong">Custos diretos</td><td data-label="Origem dos dados"><a href="../tecnologia/servicos-externos.html">Serviços externos</a> pagos pela DevBatista, <a href="../tecnologia/servidores.html">servidores</a>, <a href="../tecnologia/dominios.html">domínios</a> e <a href="../financeiro/despesas.html">despesas</a> com centro de custo no cliente</td><td data-label="Empresa ACME" class="num">R$ 570</td></tr>
+          <tr><td data-label="Componente" class="strong">Margem antes da mão de obra</td><td data-label="Origem dos dados">Receita mensal menos custos diretos</td><td data-label="Empresa ACME" class="num strong">R$ 3.430</td></tr>
+          <tr><td data-label="Componente" class="muted">Custo de mão de obra</td><td data-label="Origem dos dados" class="muted">Horas registradas para o cliente × custo/hora de cada usuário</td><td data-label="Empresa ACME" class="num"><span class="badge b-mute">Depois do MVP</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="note">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM12 7v5l3 2"/></svg>
+    <span><b>Custo de mão de obra (horas × custo/hora) depois do MVP.</b> Em setembro foram 42 h registradas para a Empresa ACME em <a href="../operacao/horas.html">Horas trabalhadas</a>. Quando o custo/hora de cada usuário for considerado, a tela passa a mostrar a margem real por cliente e por contrato.</span>
+  </div>
+</section>
+
+</main>
+</div>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>

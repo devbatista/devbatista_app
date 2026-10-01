@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard · Admin DevBatista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/app.css">
+</head>
+<body data-group="dash" data-item="" data-crumb='[["Dashboard"]]'>
+<div class="app">
+<aside class="side"></aside>
+<div class="main">
+<header class="top"></header>
+<main class="content">
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Visão executiva</span>
+    <h1>Setembro de 2026</h1>
+  </div>
+  <div class="actions">
+    <label class="sr-only" for="periodo">Período</label>
+    <select class="select" id="periodo"><option>Mês corrente</option><option>Mês anterior</option><option>Trimestre</option><option>Ano</option><option>Personalizado…</option></select>
+    <button class="btn" type="button">Comparar com agosto</button>
+  </div>
+</div>
+
+<section class="stack" aria-label="Indicadores financeiros">
+  <span class="eyebrow">Financeiro</span>
+  <div class="grid-kpi g3">
+    <a class="card kpi" href="../financeiro/receitas.html"><span class="eyebrow">Faturamento do mês</span><span class="v">R$ 41.200</span><span class="f"><span class="badge b-good">+11%</span>vs. mês anterior</span></a>
+    <a class="card kpi" href="../financeiro/receitas.html"><span class="eyebrow">Receita recebida</span><span class="v">R$ 29.800</span><span class="f">72% do faturamento</span></a>
+    <a class="card kpi" href="../financeiro/contas-receber.html"><span class="eyebrow">Receita prevista</span><span class="v">R$ 11.400</span><span class="f">a receber no mês</span></a>
+    <a class="card kpi" href="../financeiro/despesas.html"><span class="eyebrow">Despesas</span><span class="v">R$ 22.100</span><span class="f">pagas e previstas</span></a>
+    <a class="card kpi" href="../financeiro/financeiro.html"><span class="eyebrow">Resultado</span><span class="v">R$ 19.100</span><span class="f">faturamento − despesas</span></a>
+    <a class="card kpi" href="../gestao/indicadores.html"><span class="eyebrow">MRR</span><span class="v">R$ 20.400</span><span class="f">receita recorrente mensal</span></a>
+  </div>
+</section>
+
+<section class="stack" aria-label="Carteira e operação">
+  <span class="eyebrow">Carteira e operação</span>
+  <div class="grid-kpi g3">
+    <a class="card kpi" href="../clientes/empresas.html"><span class="eyebrow">Clientes ativos</span><span class="v">14</span><span class="f"><span class="badge b-info">2 novos</span>no trimestre</span></a>
+    <a class="card kpi" href="../clientes/contratos.html"><span class="eyebrow">Contratos ativos</span><span class="v">17</span><span class="f"><span class="badge b-warn">3</span>vencem em 60 dias</span></a>
+    <a class="card kpi" href="../operacao/projetos.html"><span class="eyebrow">Projetos ativos</span><span class="v">6</span><span class="f"><span class="badge b-warn">1</span>com atraso</span></a>
+    <a class="card kpi" href="../operacao/chamados.html"><span class="eyebrow">Chamados abertos</span><span class="v">9</span><span class="f"><span class="badge b-crit">1</span>crítico</span></a>
+    <a class="card kpi alert" href="../financeiro/contas-receber.html"><span class="eyebrow">Contas vencidas</span><span class="v">R$ 4.300</span><span class="f"><span class="badge b-crit">3</span>títulos em atraso</span></a>
+    <a class="card kpi" href="../comercial/pipeline.html"><span class="eyebrow">Propostas abertas</span><span class="v">5</span><span class="f">R$ 38.000 em negociação</span></a>
+  </div>
+</section>
+
+<section class="stack" aria-label="Gráficos">
+  <div class="section-title"><span class="eyebrow">Últimos seis meses</span><span class="caption">Valores ilustrativos · R$ mil</span></div>
+  <div class="grid-3">
+    <div class="card card-body stack">
+      <div class="section-title"><h2>Receitas</h2><span class="unit">R$ MIL</span></div>
+      <div class="bars" role="img" aria-label="Receitas de abril a setembro: 33,4; 35,1; 34,8; 36,9; 37,1; 41,2">
+        <div class="col" title="Abr: R$ 33,4 mil"><div class="bar" style="height:74%"></div></div>
+        <div class="col" title="Mai: R$ 35,1 mil"><div class="bar" style="height:78%"></div></div>
+        <div class="col" title="Jun: R$ 34,8 mil"><div class="bar" style="height:77%"></div></div>
+        <div class="col" title="Jul: R$ 36,9 mil"><div class="bar" style="height:82%"></div></div>
+        <div class="col" title="Ago: R$ 37,1 mil"><div class="bar" style="height:82%"></div></div>
+        <div class="col" title="Set: R$ 41,2 mil"><span class="lbl">41,2</span><div class="bar cur" style="height:92%"></div></div>
+      </div>
+      <div class="axis"><span>Abr</span><span>Mai</span><span>Jun</span><span>Jul</span><span>Ago</span><span>Set</span></div>
+    </div>
+    <div class="card card-body stack">
+      <div class="section-title"><h2>Despesas</h2><span class="unit">R$ MIL</span></div>
+      <div class="bars" role="img" aria-label="Despesas de abril a setembro: 19,8; 20,5; 21,0; 20,7; 21,6; 22,1">
+        <div class="col" title="Abr: R$ 19,8 mil"><div class="bar" style="height:44%"></div></div>
+        <div class="col" title="Mai: R$ 20,5 mil"><div class="bar" style="height:46%"></div></div>
+        <div class="col" title="Jun: R$ 21,0 mil"><div class="bar" style="height:47%"></div></div>
+        <div class="col" title="Jul: R$ 20,7 mil"><div class="bar" style="height:46%"></div></div>
+        <div class="col" title="Ago: R$ 21,6 mil"><div class="bar" style="height:48%"></div></div>
+        <div class="col" title="Set: R$ 22,1 mil"><span class="lbl">22,1</span><div class="bar cur" style="height:49%"></div></div>
+      </div>
+      <div class="axis"><span>Abr</span><span>Mai</span><span>Jun</span><span>Jul</span><span>Ago</span><span>Set</span></div>
+    </div>
+    <div class="card card-body stack">
+      <div class="section-title"><h2>Resultado</h2><span class="unit">R$ MIL</span></div>
+      <div class="bars" role="img" aria-label="Resultado de abril a setembro: 13,6; 14,6; 13,8; 16,2; 15,5; 19,1">
+        <div class="col" title="Abr: R$ 13,6 mil"><div class="bar" style="height:30%"></div></div>
+        <div class="col" title="Mai: R$ 14,6 mil"><div class="bar" style="height:32%"></div></div>
+        <div class="col" title="Jun: R$ 13,8 mil"><div class="bar" style="height:31%"></div></div>
+        <div class="col" title="Jul: R$ 16,2 mil"><div class="bar" style="height:36%"></div></div>
+        <div class="col" title="Ago: R$ 15,5 mil"><div class="bar" style="height:34%"></div></div>
+        <div class="col" title="Set: R$ 19,1 mil"><span class="lbl">19,1</span><div class="bar cur" style="height:42%"></div></div>
+      </div>
+      <div class="axis"><span>Abr</span><span>Mai</span><span>Jun</span><span>Jul</span><span>Ago</span><span>Set</span></div>
+    </div>
+
+    <div class="card card-body stack">
+      <div class="section-title"><h2>Evolução do MRR</h2><span class="unit">R$ MIL</span></div>
+      <div style="position:relative;height:150px;border-bottom:1px solid var(--border-strong)">
+        <svg width="100%" height="150" viewBox="0 0 300 150" preserveAspectRatio="none" role="img" aria-label="MRR cresceu de R$ 17,2 mil em abril para R$ 20,4 mil em setembro">
+          <line x1="0" y1="50" x2="300" y2="50" stroke="#172033" vector-effect="non-scaling-stroke"/>
+          <line x1="0" y1="100" x2="300" y2="100" stroke="#172033" vector-effect="non-scaling-stroke"/>
+          <polygon points="0,150 0,112 60,95 120,83 180,68 240,54 300,34 300,150" fill="#22d3ee" fill-opacity="0.1"/>
+          <polyline points="0,112 60,95 120,83 180,68 240,54 300,34" fill="none" stroke="#22d3ee" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>
+        </svg>
+        <span style="position:absolute;right:0;top:4px;font-size:13px;font-weight:700;color:var(--white)">20,4</span>
+        <span style="position:absolute;left:0;bottom:44px;font-size:12px;color:var(--muted)">17,2</span>
+      </div>
+      <div class="axis"><span>Abr</span><span>Mai</span><span>Jun</span><span>Jul</span><span>Ago</span><span>Set</span></div>
+    </div>
+    <div class="card card-body stack">
+      <div class="section-title"><h2>Receita por serviço</h2><span class="unit">R$ MIL · SET</span></div>
+      <div class="hbars">
+        <div class="hbar"><span>Consultoria</span><div class="track"><div class="fill" style="width:100%"></div></div><span class="val">14,5</span></div>
+        <div class="hbar"><span>Desenvolv.</span><div class="track"><div class="fill" style="width:83%"></div></div><span class="val">12,0</span></div>
+        <div class="hbar"><span>Manutenção</span><div class="track"><div class="fill" style="width:43%"></div></div><span class="val">6,2</span></div>
+        <div class="hbar"><span>Hospedagem</span><div class="track"><div class="fill" style="width:28%"></div></div><span class="val">4,1</span></div>
+        <div class="hbar"><span>Suporte</span><div class="track"><div class="fill" style="width:18%"></div></div><span class="val">2,6</span></div>
+        <div class="hbar"><span>Outros</span><div class="track"><div class="fill alt" style="width:12%"></div></div><span class="val">1,8</span></div>
+      </div>
+    </div>
+    <div class="card card-body stack">
+      <div class="section-title"><h2>Receita por cliente</h2><span class="unit">R$ MIL · SET</span></div>
+      <div class="hbars">
+        <div class="hbar"><span>Cliente A</span><div class="track"><div class="fill" style="width:100%"></div></div><span class="val">9,5</span></div>
+        <div class="hbar"><span>Cliente B</span><div class="track"><div class="fill" style="width:82%"></div></div><span class="val">7,8</span></div>
+        <div class="hbar"><span>Cliente C</span><div class="track"><div class="fill" style="width:67%"></div></div><span class="val">6,4</span></div>
+        <div class="hbar"><span>Cliente D</span><div class="track"><div class="fill" style="width:55%"></div></div><span class="val">5,2</span></div>
+        <div class="hbar"><span>Empresa ACME</span><div class="track"><div class="fill" style="width:42%"></div></div><span class="val">4,0</span></div>
+        <div class="hbar"><span>Demais</span><div class="track"><div class="fill alt" style="width:87%"></div></div><span class="val">8,3</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="card" aria-label="Atividades recentes">
+  <div class="card-head"><h2>Atividades recentes</h2><span class="eyebrow">Hoje</span></div>
+  <div class="act"><span class="time">14:32</span><span>Rafael alterou o contrato <a href="../clientes/contrato.html">#104</a> — valor de R$ 2.500 para R$ 3.000</span><span class="badge b-mute">Contratos</span></div>
+  <div class="act"><span class="time">13:10</span><span>Proposta <a href="../comercial/proposta.html">“Portal de Pedidos”</a> enviada para Empresa XYZ</span><span class="badge b-mute">Comercial</span></div>
+  <div class="act"><span class="time">11:45</span><span>Chamado <a href="../operacao/chamado.html">#2381</a> marcado como Resolvido</span><span class="badge b-mute">Suporte</span></div>
+  <div class="act"><span class="time">10:20</span><span>Pagamento recebido — <a href="../clientes/empresa.html">Empresa ACME</a> · R$ 3.800</span><span class="badge b-mute">Financeiro</span></div>
+  <div class="act"><span class="time">09:05</span><span>Novo lead recebido via WhatsApp</span><span class="badge b-mute">Comercial</span></div>
+  <a class="more" href="../administracao/logs.html">Ver todas as atividades →</a>
+</section>
+
+</main>
+</div>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>
