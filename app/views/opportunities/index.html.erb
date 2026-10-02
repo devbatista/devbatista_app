@@ -1,0 +1,66 @@
+<% page_title "Oportunidades" %>
+<% nav_location :com, "Oportunidades" %>
+<% breadcrumb ["Comercial"], ["Oportunidades"] %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Comercial</span>
+    <h1>Oportunidades</h1>
+    <p class="lead">Negócios em andamento. A previsão ponderada (valor × probabilidade) é a base da previsão comercial.</p>
+  </div>
+  <div class="actions">
+    <%= link_to "Ver pipeline", pipeline_path, class: "btn" %>
+    <% if policy(Opportunity).create? %><%= drawer_link_to new_opportunity_path, class: "btn pri" do %><%= icon(:plus, size: 16, stroke: 2) %>Nova oportunidade<% end %><% end %>
+  </div>
+</div>
+
+<div class="grid-kpi g4">
+  <div class="card kpi"><span class="eyebrow">Valor em aberto</span><span class="v"><%= brl(@kpis[:open_value]) %></span><span class="f"><%= pluralize(@kpis[:open_count], "oportunidade") %></span></div>
+  <div class="card kpi"><span class="eyebrow">Previsão ponderada</span><span class="v"><%= brl(@kpis[:weighted]) %></span><span class="f">valor × probabilidade</span></div>
+  <div class="card kpi"><span class="eyebrow">Fecham em <%= l(Date.current, format: "%B") %></span><span class="v"><%= @kpis[:closing_month] %></span><span class="f"><%= brl(@kpis[:closing_month_value]) %> estimados</span></div>
+  <div class="card kpi"><span class="eyebrow">Fechado no mês</span><span class="v"><%= brl(@kpis[:won_month]) %></span><span class="f"><%= pluralize(@kpis[:won_month_count], "negócio ganho", plural: "negócios ganhos") %></span></div>
+</div>
+
+<%= form_with url: opportunities_path, method: :get, class: "toolbar" do %>
+  <%= status_filter :etapa, [ [ "todos", "Em aberto", nil ] ] + Opportunity::STAGE_LABELS.map { |k, v| [ k, v, @counts[k].to_i ] }, label: "Filtrar por etapa" %>
+  <span class="spacer"></span>
+  <%= hidden_field_tag :etapa, params[:etapa], id: nil if params[:etapa].present? %>
+  <%= search_field placeholder: "Nome do negócio", label: "Buscar oportunidade" %>
+  <label class="sr-only" for="f-resp">Responsável</label>
+  <%= select_tag :responsavel, options_from_collection_for_select(@users, :id, :name, params[:responsavel]), include_blank: "Todos os responsáveis", class: "select", id: "f-resp", onchange: "this.form.requestSubmit()" %>
+  <label class="sr-only" for="f-fech">Previsão de fechamento</label>
+  <%= select_tag :fechamento, options_for_select([ [ "Fecham este mês", "mes" ], [ "Previsão vencida", "atrasadas" ] ], params[:fechamento]), include_blank: "Qualquer previsão", class: "select", id: "f-fech", onchange: "this.form.requestSubmit()" %>
+  <%= render "shared/sort_select" %>
+<% end %>
+
+<section class="card" aria-label="Lista de oportunidades">
+  <% if @opportunities.any? %>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr><th>Negócio</th><th>Etapa</th><th class="num">Valor estimado</th><th class="num">Ponderada</th><th>Fechamento</th><th>Responsável</th><th><span class="sr-only">Ações</span></th></tr></thead>
+        <tbody>
+          <% @opportunities.each do |opp| %>
+            <% late = opp.open? && opp.expected_close_on && opp.expected_close_on < Date.current %>
+            <tr class="<%= 'late' if late %>">
+              <td data-label="Negócio"><span class="strong"><%= opp.title %></span><span class="cell-sub"><%= link_to opp.company.trade_name, company_path(opp.company) %><%= " · #{opp.service.name}" if opp.service %></span></td>
+              <td data-label="Etapa"><%= status_badge(opp.stage_label, { "meeting" => "blue", "proposal" => "info", "negotiation" => "warn", "won" => "good", "lost" => "crit" }[opp.stage]) %><% if opp.lost? %><span class="cell-sub"><%= opp.lost_reason %></span><% end %></td>
+              <td data-label="Valor estimado" class="num nowrap"><%= brl(opp.estimated_value_cents) %></td>
+              <td data-label="Ponderada" class="num strong nowrap"><%= brl(opp.weighted_cents) %><span class="cell-sub"><%= opp.probability %>%</span></td>
+              <td data-label="Fechamento" class="mono nowrap"><%= date_br(opp.expected_close_on) %><% if late %><span class="cell-sub" style="color:var(--crit)">previsão vencida</span><% end %></td>
+              <td data-label="Responsável"><%= opp.user.first_name %></td>
+              <td data-label="" class="right">
+                <span class="row-actions">
+                  <% if opp.open? && policy(Proposal).create? %><%= link_to "Proposta", new_proposal_path(oportunidade: opp.id), class: "link-btn" %><% end %>
+                  <% if policy(opp).edit? %><%= drawer_link_to "Editar", edit_opportunity_path(opp), class: "link-btn" %><% end %>
+                </span>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <%= render "shared/pagination", pager: @pager %>
+  <% else %>
+    <%= render "shared/empty", title: "Nenhuma oportunidade encontrada", text: "Converta um lead qualificado ou cadastre uma oportunidade para um cliente." %>
+  <% end %>
+</section>

@@ -1,0 +1,141 @@
+# Extraído de docs/design/comercial/oportunidades.html (lista e totais) e
+# docs/design/comercial/pipeline.html (cartões de Reunião, Proposta, Negociação e Fechado).
+# Conferido com docs/design/comercial/propostas.html, proposta.html e lead.html.
+#
+# Observações:
+# - estimated_value em reais. Previsão ponderada das abertas (meeting/proposal/negotiation)
+#   = R$ 28.800, igual a oportunidades.html e pipeline.html.
+# - Fora deste arquivo: "Construtora Alicerce" (perdida em 04/09/2026, Gestão de
+#   infraestrutura, R$ 4.800, Optou por concorrente) — a empresa não existe em companies.yml.
+#   O lead (Eduardo Matos) e a proposta #P-2026-022 estão em leads.yml e proposals.yml.
+# - "Sistema de roteirização" aponta para o lead Henrique Duarte (lead.html o lista em
+#   Relacionados), mas o lead continua "qualified" como no design.
+# - next_step/next_step_on não aparecem no design para oportunidades; ficam null.
+
+- title: Portal de Pedidos
+  company: Empresa XYZ
+  lead: null
+  service: Desenvolvimento de sistemas
+  user: ana.souza@devbatista.com.br
+  stage: proposal
+  estimated_value: 14000
+  probability: 60
+  expected_close_on: "2026-10-02"
+  notes: Proposta #P-2026-031 enviada em 17/09/2026 para Marina Costa; válida até 02/10/2026.
+  next_step: null
+  next_step_on: null
+  lost_reason: null
+  lost_details: null
+  closed_on: null
+
+- title: Automação de notas e pedidos
+  company: Agro Campos
+  lead: null
+  service: Automação/RPA
+  user: ana.souza@devbatista.com.br
+  stage: negotiation
+  estimated_value: 9000
+  probability: 75
+  expected_close_on: "2026-09-25"
+  notes: Proposta #P-2026-028 (versão 2) visualizada pelo cliente.
+  next_step: null
+  next_step_on: null
+  lost_reason: null
+  lost_details: null
+  closed_on: null
+
+- title: Novo site institucional
+  company: Studio Arq
+  lead: null
+  service: Desenvolvimento de sites
+  user: ana.souza@devbatista.com.br
+  stage: negotiation
+  estimated_value: 4000
+  probability: 80
+  expected_close_on: "2026-09-22"
+  notes: Proposta #P-2026-029 válida até 20/09/2026.
+  next_step: null
+  next_step_on: null
+  lost_reason: null
+  lost_details: null
+  closed_on: null
+
+- title: Gestão de infraestrutura AWS
+  company: Empresa Delta
+  lead: null
+  service: Gestão de infraestrutura
+  user: rafael@devbatista.com.br
+  stage: proposal
+  estimated_value: 6500
+  probability: 50
+  expected_close_on: "2026-09-30"
+  notes: Proposta #P-2026-030 visualizada; válida até 30/09/2026.
+  next_step: null
+  next_step_on: null
+  lost_reason: null
+  lost_details: null
+  closed_on: null
+
+- title: Integração ERP
+  company: Cliente C
+  lead: null
+  service: Integrações
+  user: ana.souza@devbatista.com.br
+  stage: proposal
+  estimated_value: 4500
+  probability: 40
+  expected_close_on: "2026-09-19"
+  notes: Proposta #P-2026-027 visualizada; expira em 19/09/2026.
+  next_step: null
+  next_step_on: null
+  lost_reason: null
+  lost_details: null
+  closed_on: null
+
+- title: Sistema de roteirização
+  company: Grupo Norte Logística
+  lead: Henrique Duarte
+  service: Desenvolvimento de sistemas
+  user: rafael@devbatista.com.br
+  stage: meeting
+  estimated_value: 12000
+  probability: 30
+  expected_close_on: "2026-10-30"
+  notes: Proposta #P-2026-032 em rascunho (Desenvolvimento de sistemas + Integrações).
+  next_step: null
+  next_step_on: null
+  lost_reason: null
+  lost_details: null
+  closed_on: null
+
+- title: Assistente de atendimento com IA
+  company: Empresa Orion
+  lead: null
+  service: Inteligência Artificial
+  user: rafael@devbatista.com.br
+  stage: meeting
+  estimated_value: 6000
+  probability: 30
+  expected_close_on: "2026-10-15"
+  notes: null
+  next_step: null
+  next_step_on: null
+  lost_reason: null
+  lost_details: null
+  closed_on: null
+
+- title: Sistema de controle de estoque
+  company: Cliente E
+  lead: Tiago Moreira
+  service: Desenvolvimento de sistemas
+  user: ana.souza@devbatista.com.br
+  stage: won
+  estimated_value: 7200
+  probability: 100
+  expected_close_on: "2026-09-08"
+  notes: Proposta #P-2026-024 aprovada em 08/09/2026.
+  next_step: null
+  next_step_on: null
+  lost_reason: null
+  lost_details: null
+  closed_on: "2026-09-08"

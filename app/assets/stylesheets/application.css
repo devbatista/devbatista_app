@@ -134,3 +134,13 @@ tr[data-href] { cursor: pointer; }
 .notif-row.read { color: var(--muted); }
 .palette-item:focus, .palette-item.on { background: var(--cyan-tint); color: var(--white); outline: none; }
 @media (max-width: 960px) { .notif-pop { right: -48px; width: min(360px, calc(100vw - 24px)); } }
+
+/* Pipeline */
+.kcard.dragging { opacity: .5; }
+.lane.over { border-color: var(--cyan); background: var(--cyan-tint); }
+.lane.drop.over { color: var(--crit); border-color: var(--crit-line); background: var(--crit-bg); }
+.kcard .r .val { font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
+
+/* Editor de itens da proposta */
+.items .select, .items .input { width: 100%; }
+.items td { vertical-align: top; }

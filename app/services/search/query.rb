@@ -15,7 +15,7 @@ module Search
     def groups
       return [] if @term.size < 2
 
-      [ companies, contacts, contracts ].compact.reject { |g| g.items.empty? }
+      [ companies, contacts, contracts, proposals, leads ].compact.reject { |g| g.items.empty? }
     end
 
     private
@@ -46,6 +46,24 @@ module Search
         Item.new(title: c.to_s, subtitle: "#{c.company.trade_name} · #{c.status_label}", path: contract_path(c))
       end
       Group.new(label: "Contratos", area: "contratos", items: items)
+    end
+
+    def proposals
+      return unless @user.can_read?("comercial")
+
+      items = Proposal.search(@term).includes(:company, :lead).order(year: :desc, number: :desc).limit(LIMIT).map do |p|
+        Item.new(title: "#{p.code} — #{p.title}", subtitle: "#{p.recipient_name} · #{p.status_label} · #{money(p.total_cents)}", path: proposal_path(p))
+      end
+      Group.new(label: "Propostas", area: "comercial", items: items)
+    end
+
+    def leads
+      return unless @user.can_read?("comercial")
+
+      items = Lead.search(@term).order(entered_on: :desc).limit(LIMIT).map do |l|
+        Item.new(title: l.display_name, subtitle: "Lead · #{l.status_label} · #{l.origin_label}", path: lead_path(l))
+      end
+      Group.new(label: "Leads", area: "comercial", items: items)
     end
 
     def money(cents)

@@ -43,6 +43,22 @@
       <% end %>
     <% end %>
 
+    <% if current_user.can_read?("comercial") %>
+      <% opps = @company.opportunities.open.order(:expected_close_on) %>
+      <% props = @company.proposals.open.order(:valid_until) %>
+      <% if opps.any? || props.any? %>
+        <div class="card">
+          <div class="card-head"><h2>Comercial</h2><%= link_to "Pipeline →", pipeline_path, style: "font-size:13px;font-weight:600" %></div>
+          <% opps.each do |o| %>
+            <div class="kv"><span><%= link_to o.title, edit_opportunity_path(o), data: { turbo_frame: "drawer-frame", open: "drawer" } %> · <%= o.stage_label %></span><b><%= brl(o.estimated_value_cents) %> · <%= o.probability %>%</b></div>
+          <% end %>
+          <% props.each do |p| %>
+            <div class="kv"><span><%= link_to "#{p.code} #{p.title}", proposal_path(p) %> · <%= p.status_label %></span><b><%= brl(p.total_cents) %> · até <%= date_br(p.valid_until) %></b></div>
+          <% end %>
+        </div>
+      <% end %>
+    <% end %>
+
     <div class="card">
       <div class="card-head"><h2>Atividades recentes</h2><span class="caption">Linha do tempo completa na aba Atividades</span></div>
       <% if @activities.any? %>

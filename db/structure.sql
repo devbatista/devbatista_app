@@ -440,6 +440,91 @@ ALTER SEQUENCE public.documents_id_seq OWNED BY public.documents.id;
 
 
 --
+-- Name: interactions; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.interactions (
+    id bigint NOT NULL,
+    subject_type character varying NOT NULL,
+    subject_id bigint NOT NULL,
+    user_id bigint NOT NULL,
+    kind character varying NOT NULL,
+    occurred_on date NOT NULL,
+    notes text NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: interactions_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.interactions_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: interactions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.interactions_id_seq OWNED BY public.interactions.id;
+
+
+--
+-- Name: leads; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.leads (
+    id bigint NOT NULL,
+    name character varying NOT NULL,
+    company_name character varying,
+    phone character varying,
+    whatsapp character varying,
+    email character varying,
+    origin character varying NOT NULL,
+    service_id bigint,
+    user_id bigint NOT NULL,
+    status character varying DEFAULT 'new'::character varying NOT NULL,
+    entered_on date NOT NULL,
+    notes text,
+    next_step character varying,
+    next_step_on date,
+    lost_reason character varying,
+    lost_details text,
+    lost_at timestamp(6) without time zone,
+    company_id bigint,
+    converted_at timestamp(6) without time zone,
+    external_id character varying,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: leads_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.leads_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: leads_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.leads_id_seq OWNED BY public.leads.id;
+
+
+--
 -- Name: notifications; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -477,6 +562,142 @@ CREATE SEQUENCE public.notifications_id_seq
 --
 
 ALTER SEQUENCE public.notifications_id_seq OWNED BY public.notifications.id;
+
+
+--
+-- Name: opportunities; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.opportunities (
+    id bigint NOT NULL,
+    title character varying NOT NULL,
+    lead_id bigint,
+    company_id bigint NOT NULL,
+    service_id bigint,
+    user_id bigint NOT NULL,
+    stage character varying DEFAULT 'meeting'::character varying NOT NULL,
+    estimated_value_cents integer DEFAULT 0 NOT NULL,
+    probability integer DEFAULT 25 NOT NULL,
+    expected_close_on date,
+    notes text,
+    next_step character varying,
+    next_step_on date,
+    lost_reason character varying,
+    lost_details text,
+    closed_on date,
+    external_id character varying,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL,
+    CONSTRAINT opportunities_probability_range CHECK (((probability >= 0) AND (probability <= 100)))
+);
+
+
+--
+-- Name: opportunities_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.opportunities_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: opportunities_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.opportunities_id_seq OWNED BY public.opportunities.id;
+
+
+--
+-- Name: proposal_items; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.proposal_items (
+    id bigint NOT NULL,
+    proposal_id bigint NOT NULL,
+    service_id bigint NOT NULL,
+    description character varying,
+    recurrence character varying DEFAULT 'monthly'::character varying NOT NULL,
+    default_price_cents integer DEFAULT 0 NOT NULL,
+    price_cents integer DEFAULT 0 NOT NULL,
+    "position" integer DEFAULT 0 NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: proposal_items_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.proposal_items_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: proposal_items_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.proposal_items_id_seq OWNED BY public.proposal_items.id;
+
+
+--
+-- Name: proposals; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.proposals (
+    id bigint NOT NULL,
+    year integer NOT NULL,
+    number integer NOT NULL,
+    title character varying NOT NULL,
+    company_id bigint,
+    lead_id bigint,
+    opportunity_id bigint,
+    contact_id bigint,
+    user_id bigint NOT NULL,
+    status character varying DEFAULT 'draft'::character varying NOT NULL,
+    description text,
+    payment_terms character varying,
+    delivery_terms character varying,
+    valid_until date NOT NULL,
+    notes text,
+    total_cents integer DEFAULT 0 NOT NULL,
+    sent_at timestamp(6) without time zone,
+    viewed_at timestamp(6) without time zone,
+    decided_on date,
+    rejection_reason character varying,
+    rejection_details text,
+    contract_id bigint,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL,
+    CONSTRAINT proposals_recipient_present CHECK (((company_id IS NOT NULL) OR (lead_id IS NOT NULL)))
+);
+
+
+--
+-- Name: proposals_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.proposals_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: proposals_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.proposals_id_seq OWNED BY public.proposals.id;
 
 
 --
@@ -706,10 +927,45 @@ ALTER TABLE ONLY public.documents ALTER COLUMN id SET DEFAULT nextval('public.do
 
 
 --
+-- Name: interactions id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.interactions ALTER COLUMN id SET DEFAULT nextval('public.interactions_id_seq'::regclass);
+
+
+--
+-- Name: leads id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.leads ALTER COLUMN id SET DEFAULT nextval('public.leads_id_seq'::regclass);
+
+
+--
 -- Name: notifications id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.notifications ALTER COLUMN id SET DEFAULT nextval('public.notifications_id_seq'::regclass);
+
+
+--
+-- Name: opportunities id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.opportunities ALTER COLUMN id SET DEFAULT nextval('public.opportunities_id_seq'::regclass);
+
+
+--
+-- Name: proposal_items id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.proposal_items ALTER COLUMN id SET DEFAULT nextval('public.proposal_items_id_seq'::regclass);
+
+
+--
+-- Name: proposals id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.proposals ALTER COLUMN id SET DEFAULT nextval('public.proposals_id_seq'::regclass);
 
 
 --
@@ -829,11 +1085,51 @@ ALTER TABLE ONLY public.documents
 
 
 --
+-- Name: interactions interactions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.interactions
+    ADD CONSTRAINT interactions_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: leads leads_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.leads
+    ADD CONSTRAINT leads_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: notifications notifications_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.notifications
     ADD CONSTRAINT notifications_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: opportunities opportunities_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.opportunities
+    ADD CONSTRAINT opportunities_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: proposal_items proposal_items_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.proposal_items
+    ADD CONSTRAINT proposal_items_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: proposals proposals_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.proposals
+    ADD CONSTRAINT proposals_pkey PRIMARY KEY (id);
 
 
 --
@@ -1087,6 +1383,55 @@ CREATE INDEX index_documents_on_uploaded_by_id ON public.documents USING btree (
 
 
 --
+-- Name: index_interactions_on_subject_type_and_subject_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_interactions_on_subject_type_and_subject_id ON public.interactions USING btree (subject_type, subject_id);
+
+
+--
+-- Name: index_interactions_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_interactions_on_user_id ON public.interactions USING btree (user_id);
+
+
+--
+-- Name: index_leads_on_company_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_leads_on_company_id ON public.leads USING btree (company_id);
+
+
+--
+-- Name: index_leads_on_external_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_leads_on_external_id ON public.leads USING btree (external_id) WHERE (external_id IS NOT NULL);
+
+
+--
+-- Name: index_leads_on_service_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_leads_on_service_id ON public.leads USING btree (service_id);
+
+
+--
+-- Name: index_leads_on_status; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_leads_on_status ON public.leads USING btree (status);
+
+
+--
+-- Name: index_leads_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_leads_on_user_id ON public.leads USING btree (user_id);
+
+
+--
 -- Name: index_notifications_on_notifiable_type_and_notifiable_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1112,6 +1457,118 @@ CREATE UNIQUE INDEX index_notifications_on_user_id_and_dedup_key ON public.notif
 --
 
 CREATE INDEX index_notifications_on_user_id_and_read_at ON public.notifications USING btree (user_id, read_at);
+
+
+--
+-- Name: index_opportunities_on_company_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_opportunities_on_company_id ON public.opportunities USING btree (company_id);
+
+
+--
+-- Name: index_opportunities_on_external_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_opportunities_on_external_id ON public.opportunities USING btree (external_id) WHERE (external_id IS NOT NULL);
+
+
+--
+-- Name: index_opportunities_on_lead_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_opportunities_on_lead_id ON public.opportunities USING btree (lead_id);
+
+
+--
+-- Name: index_opportunities_on_service_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_opportunities_on_service_id ON public.opportunities USING btree (service_id);
+
+
+--
+-- Name: index_opportunities_on_stage; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_opportunities_on_stage ON public.opportunities USING btree (stage);
+
+
+--
+-- Name: index_opportunities_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_opportunities_on_user_id ON public.opportunities USING btree (user_id);
+
+
+--
+-- Name: index_proposal_items_on_proposal_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_proposal_items_on_proposal_id ON public.proposal_items USING btree (proposal_id);
+
+
+--
+-- Name: index_proposal_items_on_service_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_proposal_items_on_service_id ON public.proposal_items USING btree (service_id);
+
+
+--
+-- Name: index_proposals_on_company_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_proposals_on_company_id ON public.proposals USING btree (company_id);
+
+
+--
+-- Name: index_proposals_on_contact_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_proposals_on_contact_id ON public.proposals USING btree (contact_id);
+
+
+--
+-- Name: index_proposals_on_contract_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_proposals_on_contract_id ON public.proposals USING btree (contract_id);
+
+
+--
+-- Name: index_proposals_on_lead_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_proposals_on_lead_id ON public.proposals USING btree (lead_id);
+
+
+--
+-- Name: index_proposals_on_opportunity_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_proposals_on_opportunity_id ON public.proposals USING btree (opportunity_id);
+
+
+--
+-- Name: index_proposals_on_status; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_proposals_on_status ON public.proposals USING btree (status);
+
+
+--
+-- Name: index_proposals_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_proposals_on_user_id ON public.proposals USING btree (user_id);
+
+
+--
+-- Name: index_proposals_on_year_and_number; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_proposals_on_year_and_number ON public.proposals USING btree (year, number);
 
 
 --
@@ -1164,11 +1621,35 @@ CREATE TRIGGER audit_logs_no_update_delete BEFORE DELETE OR UPDATE ON public.aud
 
 
 --
+-- Name: proposals fk_rails_0224a90884; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.proposals
+    ADD CONSTRAINT fk_rails_0224a90884 FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
+-- Name: leads fk_rails_1d08b36969; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.leads
+    ADD CONSTRAINT fk_rails_1d08b36969 FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
 -- Name: audit_logs fk_rails_1f26bc34ae; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.audit_logs
     ADD CONSTRAINT fk_rails_1f26bc34ae FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
+-- Name: opportunities fk_rails_2903255e8d; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.opportunities
+    ADD CONSTRAINT fk_rails_2903255e8d FOREIGN KEY (service_id) REFERENCES public.services(id);
 
 
 --
@@ -1188,11 +1669,27 @@ ALTER TABLE ONLY public.customer_services
 
 
 --
+-- Name: proposals fk_rails_4197667de7; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.proposals
+    ADD CONSTRAINT fk_rails_4197667de7 FOREIGN KEY (contact_id) REFERENCES public.contacts(id);
+
+
+--
 -- Name: contacts fk_rails_42b4583938; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.contacts
     ADD CONSTRAINT fk_rails_42b4583938 FOREIGN KEY (company_id) REFERENCES public.companies(id);
+
+
+--
+-- Name: proposals fk_rails_630ac967de; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.proposals
+    ADD CONSTRAINT fk_rails_630ac967de FOREIGN KEY (lead_id) REFERENCES public.leads(id);
 
 
 --
@@ -1209,6 +1706,38 @@ ALTER TABLE ONLY public.users
 
 ALTER TABLE ONLY public.contracts
     ADD CONSTRAINT fk_rails_676562988a FOREIGN KEY (company_id) REFERENCES public.companies(id);
+
+
+--
+-- Name: proposals fk_rails_682fc30fda; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.proposals
+    ADD CONSTRAINT fk_rails_682fc30fda FOREIGN KEY (contract_id) REFERENCES public.contracts(id);
+
+
+--
+-- Name: interactions fk_rails_69c9b45391; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.interactions
+    ADD CONSTRAINT fk_rails_69c9b45391 FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
+-- Name: opportunities fk_rails_6eedd6d9fe; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.opportunities
+    ADD CONSTRAINT fk_rails_6eedd6d9fe FOREIGN KEY (lead_id) REFERENCES public.leads(id);
+
+
+--
+-- Name: opportunities fk_rails_7a1e18e277; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.opportunities
+    ADD CONSTRAINT fk_rails_7a1e18e277 FOREIGN KEY (user_id) REFERENCES public.users(id);
 
 
 --
@@ -1233,6 +1762,38 @@ ALTER TABLE ONLY public.documents
 
 ALTER TABLE ONLY public.active_storage_variant_records
     ADD CONSTRAINT fk_rails_993965df05 FOREIGN KEY (blob_id) REFERENCES public.active_storage_blobs(id);
+
+
+--
+-- Name: leads fk_rails_a05a032b61; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.leads
+    ADD CONSTRAINT fk_rails_a05a032b61 FOREIGN KEY (service_id) REFERENCES public.services(id);
+
+
+--
+-- Name: opportunities fk_rails_a3ec24b133; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.opportunities
+    ADD CONSTRAINT fk_rails_a3ec24b133 FOREIGN KEY (company_id) REFERENCES public.companies(id);
+
+
+--
+-- Name: proposals fk_rails_a7b91303ea; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.proposals
+    ADD CONSTRAINT fk_rails_a7b91303ea FOREIGN KEY (company_id) REFERENCES public.companies(id);
+
+
+--
+-- Name: proposal_items fk_rails_aca8d0afd8; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.proposal_items
+    ADD CONSTRAINT fk_rails_aca8d0afd8 FOREIGN KEY (proposal_id) REFERENCES public.proposals(id) ON DELETE CASCADE;
 
 
 --
@@ -1276,12 +1837,41 @@ ALTER TABLE ONLY public.customer_services
 
 
 --
+-- Name: proposal_items fk_rails_f0ef1ccf9b; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.proposal_items
+    ADD CONSTRAINT fk_rails_f0ef1ccf9b FOREIGN KEY (service_id) REFERENCES public.services(id);
+
+
+--
+-- Name: proposals fk_rails_f643061ad3; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.proposals
+    ADD CONSTRAINT fk_rails_f643061ad3 FOREIGN KEY (opportunity_id) REFERENCES public.opportunities(id);
+
+
+--
+-- Name: leads fk_rails_ff7b5232cd; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.leads
+    ADD CONSTRAINT fk_rails_ff7b5232cd FOREIGN KEY (company_id) REFERENCES public.companies(id);
+
+
+--
 -- PostgreSQL database dump complete
 --
 
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261002120004'),
+('20261002120003'),
+('20261002120002'),
+('20261002120001'),
+('20261002120000'),
 ('20261001224249'),
 ('20261001215904'),
 ('20261001215831'),

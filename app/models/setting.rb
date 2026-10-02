@@ -17,10 +17,7 @@ class Setting < ApplicationRecord
     "contract_alert_days" => [ 60, 30, 15 ],
     "domain_alert_days" => [ 60, 30, 7 ],
     "proposal_alert_days" => 3,
-    "loss_reasons" => [
-      "Preço acima do orçamento", "Escolheu outro fornecedor", "Sem orçamento no momento",
-      "Projeto adiado ou cancelado", "Sem retorno do cliente", "Fora do nosso escopo", "Outros"
-    ]
+    "loss_reasons" => [ "Preço", "Prazo", "Sem retorno", "Optou por concorrente", "Sem orçamento", "Fora do perfil", "Outro" ]
   }.freeze
 
   validates :key, presence: true, uniqueness: true, inclusion: { in: DEFAULTS.keys }

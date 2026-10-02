@@ -20,7 +20,7 @@
     <div class="palette" role="dialog" aria-label="Busca global" data-palette data-url="<%= search_path(format: :json) %>">
       <form class="palette-input" action="<%= search_path %>" method="get" data-turbo="false">
         <%= icon(:search, size: 18, stroke: 1.8) %>
-        <input type="search" name="q" placeholder="Buscar em clientes, contatos e contratos" aria-label="Termo de busca" autocomplete="off" data-palette-input>
+        <input type="search" name="q" placeholder="Buscar em clientes, contatos, contratos, propostas e leads" aria-label="Termo de busca" autocomplete="off" data-palette-input>
         <span class="kbd">Esc</span>
       </form>
       <div class="palette-results" data-palette-results style="max-height:52vh;overflow-y:auto;padding-bottom:8px"><div class="palette-group">Digite pelo menos 2 letras</div></div>

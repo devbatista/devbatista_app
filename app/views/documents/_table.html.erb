@@ -10,6 +10,7 @@
             <td data-label="Tipo"><%= status_badge(doc.kind_label, "mute") %></td>
             <td data-label="Vínculo"><%= case doc.documentable
                                            when Contract then link_to("Contrato #{doc.documentable.code}", doc.documentable)
+                                           when Proposal then link_to("Proposta #{doc.documentable.code}", doc.documentable)
                                            when Company then "Cliente"
                                            else "—" end %></td>
             <% if show_company %><td data-label="Cliente"><%= doc.company ? link_to(doc.company.trade_name, company_path(doc.company)) : "—" %></td><% end %>

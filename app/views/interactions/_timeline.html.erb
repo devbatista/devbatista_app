@@ -1,0 +1,27 @@
+<%# Locals: subject (Lead ou Opportunity), interactions, history (AuditLog), created_label %>
+<section class="card">
+  <div class="card-head"><h2>Interações</h2><span class="caption"><%= pluralize(interactions.size, "registro") %></span></div>
+  <% if policy(subject).update? %>
+    <%= form_with model: Interaction.new(occurred_on: Date.current, kind: "call"), url: (subject.is_a?(Lead) ? lead_interactions_path(subject) : opportunity_interactions_path(subject)), class: "card-body form", style: "padding-top:0;gap:12px" do |f| %>
+      <div class="row wrap" style="align-items:flex-end">
+        <div class="field" style="width:180px"><%= f.label :kind, "Tipo" %><%= f.select :kind, Interaction.options_for_kind, {}, class: "select" %></div>
+        <div class="field" style="width:180px"><%= f.label :occurred_on, "Data" %><%= f.date_field :occurred_on, class: "input" %></div>
+      </div>
+      <div class="field"><%= f.label :notes, "Registro" %><%= f.text_area :notes, class: "textarea", style: "min-height:72px", required: true, placeholder: "O que foi conversado e qual o próximo passo?" %></div>
+      <div class="row" style="justify-content:flex-end"><%= f.submit "Registrar interação", class: "btn sm pri" %></div>
+    <% end %>
+  <% end %>
+  <% events = interactions.map { |i| [ i.occurred_on.in_time_zone.change(hour: 12), :interaction, i ] } +
+              history.select { |l| l.action.in?(%w[create status_change]) }.map { |l| [ l.created_at, :log, l ] } %>
+  <% events.sort_by { |time, _, _| -time.to_i }.each do |_time, type, item| %>
+    <% if type == :interaction %>
+      <div class="tl"><i></i><div><span class="strong"><%= item.kind_label %></span> — <%= item.notes %><small><%= date_br(item.occurred_on) %> · <%= item.user.name %></small></div></div>
+    <% elsif item.action == "create" %>
+      <div class="tl"><i class="mute"></i><div><span class="strong"><%= created_label %></span><small><%= datetime_br(item.created_at) %> · <%= item.user&.name || "Sistema" %></small></div></div>
+    <% else %>
+      <% from, to = item.changeset[subject.is_a?(Lead) ? "status" : "stage"] || item.changeset["status"] || item.changeset["stage"] %>
+      <% labels = subject.class.const_get(subject.is_a?(Lead) ? :STATUS_LABELS : :STAGE_LABELS) %>
+      <div class="tl"><i class="warn"></i><div><span class="strong">Etapa alterada</span> — <%= labels[from] || from %> → <%= labels[to] || to %><small><%= datetime_br(item.created_at) %> · <%= item.user&.name || "Sistema" %></small></div></div>
+    <% end %>
+  <% end %>
+</section>

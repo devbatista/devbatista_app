@@ -4,7 +4,7 @@ Acompanha a construção da V1, fase por fase. Cada item é um requisito funcion
 
 Marque `[x]` só quando o item cumprir o [Pronto quando](#pronto-quando) abaixo.
 
-**Andamento:** fases 1 e 2 concluídas · próxima: fase 3 (Comercial)
+**Andamento:** fases 1 a 3 concluídas · próxima: fase 4 (Operação)
 
 ## Pronto quando
 
@@ -59,12 +59,12 @@ Primeiro módulo de negócio. Traz também o que os outros módulos vão usar: h
   - [x] Campo `external_id` para o HubSpot
 - [x] **RF 13 · Contatos** — [contatos](design/clientes/contatos.html)
   - [x] Vários por empresa; só um principal (marcar outro desmarca o anterior)
-  - [ ] Principal sugerido por padrão em propostas, chamados e cobranças (entra nas fases 3, 4 e 5)
+  - [ ] Principal sugerido por padrão em propostas ✓, chamados e cobranças (fases 4 e 5)
   - [x] Campo `external_id` para o HubSpot
 - [x] **RF 15 · Catálogo de serviços** — [catálogo](design/administracao/catalogo-servicos.html)
   - [x] Categoria, tipo (Recorrente, Projeto, Avulso) e preço padrão
   - [x] Serviço Inativo não aparece em novos serviços contratados
-  - [ ] Nem em novas propostas (fase 3)
+  - [x] Nem em novas propostas
 - [x] **RF 16 · Serviços contratados** — [serviços contratados](design/clientes/servicos-contratados.html)
   - [x] MRR calculado, nunca digitado: mensal = valor; trimestral ÷ 3; semestral ÷ 6; anual ÷ 12; avulso fora
   - [x] Status Ativo, Suspenso, Encerrado; só Ativo compõe o MRR
@@ -75,7 +75,7 @@ Primeiro módulo de negócio. Traz também o que os outros módulos vão usar: h
 - [x] **RF 37 · Documentos** — [spec](specs/admin-devbatista-mvp/04-requisitos-funcionais/06-gestao-e-administracao.md) · [documentos](design/gestao/documentos.html)
   - [x] Upload por Active Storage (S3 em produção)
   - [x] Vínculo polimórfico e obrigatório; nesta fase, cliente ou contrato
-  - [ ] Projeto, proposta e fornecedor (entram nas fases 3, 4 e 5)
+  - [ ] Proposta ✓; projeto e fornecedor (fases 4 e 5)
   - [x] "Enviado por" e data automáticos
 - [x] **RF 5 · Notificações (base)** — [spec](specs/admin-devbatista-mvp/04-requisitos-funcionais/01-core.md) · [central](design/geral/notificacoes.html)
   - [x] Central com lida/não lida e link para o registro; sino da barra superior
@@ -91,36 +91,38 @@ Primeiro módulo de negócio. Traz também o que os outros módulos vão usar: h
   - [x] Abas desta fase: Resumo, Serviços, Contratos, Documentos, Atividades
   - [x] Aba sem permissão não aparece
 
-## Fase 3 · Comercial
+## Fase 3 · Comercial ✅
 
-- [ ] **RF 6 · Leads** — [spec](specs/admin-devbatista-mvp/04-requisitos-funcionais/02-comercial.md) · [leads](design/comercial/leads.html) · [lead](design/comercial/lead.html)
-  - [ ] Origem obrigatória (WhatsApp, Indicação, Site, Diagnóstico, Meta Ads, Google Ads, LinkedIn, Outbound, Outros)
-  - [ ] Data de entrada automática; campo `external_id`
-- [ ] **RF 7 · Pipeline** — [pipeline](design/comercial/pipeline.html)
-  - [ ] Kanban com 7 etapas; arrastar muda a etapa
-  - [ ] Lead até Qualificado; de Reunião em diante o cartão é a oportunidade
-  - [ ] Perdido em qualquer etapa aberta, com motivo obrigatório
-  - [ ] Cada coluna mostra quantidade e valor somado
-- [ ] **RF 8 · Converter lead** — [lead](design/comercial/lead.html)
-  - [ ] Gera empresa, contato e oportunidade sem redigitar
-  - [ ] Avisa se já existe empresa com o mesmo CNPJ
-- [ ] **RF 9 · Oportunidades** — [oportunidades](design/comercial/oportunidades.html)
-  - [ ] Valor estimado, probabilidade, previsão de fechamento; campo `external_id`
-  - [ ] Previsão ponderada = valor × probabilidade, no pipeline e nos relatórios
-- [ ] **RF 10 · Propostas** — [propostas](design/comercial/propostas.html) · [proposta](design/comercial/proposta.html)
-  - [ ] Itens do catálogo (ProposalItem); total = soma dos itens; preço padrão editável
-  - [ ] Status: Rascunho, Enviada, Visualizada, Aprovada, Recusada, Expirada
-  - [ ] Enviada ou Visualizada vira Expirada ao fim da validade; responsável avisado 3 dias antes
-- [ ] **RF 11 · Fechar negócio** — [proposta](design/comercial/proposta.html)
-  - [ ] Proposta aprovada gera contrato e serviços contratados com cliente, valores e prazos dela
-  - [ ] Empresa passa a Ativo
-- [ ] **RF 42 · Configurações (parte 3):** motivos de perda editáveis
-- [ ] Busca global: propostas
-- [ ] Contato principal sugerido ao criar proposta
-- [ ] Documentos: vínculo com proposta
-- [ ] Notificações: propostas expirando (responsável pela proposta)
-- [ ] Decidir: probabilidade livre ou sugerida pela etapa ([dúvida](specs/admin-devbatista-mvp/08-duvidas-em-aberto-e-premissas.md))
-- [ ] Decidir: como marcar proposta Visualizada sem portal (proposta: manual)
+- [x] **RF 6 · Leads** — [spec](specs/admin-devbatista-mvp/04-requisitos-funcionais/02-comercial.md) · [leads](design/comercial/leads.html) · [lead](design/comercial/lead.html)
+  - [x] Origem obrigatória (WhatsApp, Indicação, Site, Diagnóstico, Meta Ads, Google Ads, LinkedIn, Outbound, Outros)
+  - [x] Data de entrada automática; campo `external_id`
+- [x] **RF 7 · Pipeline** — [pipeline](design/comercial/pipeline.html)
+  - [x] Kanban com 7 etapas; arrastar muda a etapa
+  - [x] Lead até Qualificado; de Reunião em diante o cartão é a oportunidade
+  - [x] Perdido em qualquer etapa aberta, com motivo obrigatório
+  - [x] Cada coluna mostra quantidade e valor somado
+- [x] **RF 8 · Converter lead** — [lead](design/comercial/lead.html)
+  - [x] Gera empresa, contato e oportunidade sem redigitar
+  - [x] Avisa se já existe empresa com o mesmo CNPJ
+- [x] **RF 9 · Oportunidades** — [oportunidades](design/comercial/oportunidades.html)
+  - [x] Valor estimado, probabilidade, previsão de fechamento; campo `external_id`
+  - [x] Previsão ponderada = valor × probabilidade, no pipeline e nas oportunidades (relatórios na fase 7)
+- [x] **RF 10 · Propostas** — [propostas](design/comercial/propostas.html) · [proposta](design/comercial/proposta.html)
+  - [x] Itens do catálogo (ProposalItem); total = soma dos itens; preço padrão editável
+  - [x] Status: Rascunho, Enviada, Visualizada, Aprovada, Recusada, Expirada
+  - [x] Enviada ou Visualizada vira Expirada ao fim da validade; responsável avisado 3 dias antes
+- [x] **RF 11 · Fechar negócio** — [proposta](design/comercial/proposta.html)
+  - [x] Proposta aprovada gera contrato e serviços contratados com cliente, valores e prazos dela
+  - [x] Empresa passa a Ativo
+- [x] **RF 42 · Configurações (parte 3):** motivos de perda editáveis
+- [x] Busca global: propostas e leads
+- [x] Visão 360º: cartão Comercial com oportunidades e propostas em aberto
+- [x] Interações registradas no lead e na oportunidade (ligação, WhatsApp, e-mail, reunião, nota)
+- [x] Contato principal sugerido ao criar proposta
+- [x] Documentos: vínculo com proposta
+- [x] Notificações: propostas expirando (responsável pela proposta)
+- [x] Probabilidade sugerida pela etapa e editável (premissa adotada; [confirmar](specs/admin-devbatista-mvp/08-duvidas-em-aberto-e-premissas.md))
+- [x] Proposta Visualizada por marcação manual (premissa adotada; confirmar)
 
 ## Fase 4 · Operação
 

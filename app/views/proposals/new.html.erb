@@ -1,0 +1,10 @@
+<% page_title "Nova proposta" %>
+<% nav_location :com, "Propostas" %>
+<% breadcrumb ["Comercial"], ["Propostas", proposals_path], ["Nova proposta"] %>
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Comercial · Propostas</span>
+    <h1>Nova proposta</h1>
+  </div>
+</div>
+<%= render "form", proposal: @proposal %>

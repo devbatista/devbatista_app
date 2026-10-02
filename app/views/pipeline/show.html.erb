@@ -1,0 +1,60 @@
+<% page_title "Pipeline" %>
+<% nav_location :com, "Pipeline" %>
+<% breadcrumb ["Comercial"], ["Pipeline"] %>
+<% content_for :wide, true %>
+<% can_move = policy(Lead).update? %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Comercial</span>
+    <h1>Pipeline</h1>
+    <p class="lead">Leads até Qualificado; de Reunião em diante, a oportunidade. Arraste os cartões para mudar de etapa<%= " (soltar um lead em Reunião abre a conversão)" if can_move %>.</p>
+  </div>
+  <% if policy(Lead).create? %>
+    <div class="actions"><%= drawer_link_to new_lead_path(voltar: "pipeline"), class: "btn pri" do %><%= icon(:plus, size: 16, stroke: 2) %>Novo lead<% end %></div>
+  <% end %>
+</div>
+
+<div class="grid-kpi g4">
+  <%= link_to proposals_path(status: "sent"), class: "card kpi" do %><span class="eyebrow">Propostas abertas</span><span class="v"><%= @kpis[:proposals_open] %></span><span class="f"><%= brl(@kpis[:proposals_value]) %> em negociação</span><% end %>
+  <div class="card kpi"><span class="eyebrow">Previsão ponderada</span><span class="v"><%= brl(@kpis[:weighted]) %></span><span class="f">oportunidades em aberto</span></div>
+  <div class="card kpi"><span class="eyebrow">Fechado no mês</span><span class="v"><%= brl(@kpis[:won_month]) %></span><span class="f"><%= l(Date.current, format: "%B").capitalize %></span></div>
+  <div class="card kpi"><span class="eyebrow">Negócios em aberto</span><span class="v"><%= @kpis[:open_deals] %></span><span class="f">leads e oportunidades</span></div>
+</div>
+
+<%= form_with url: pipeline_path, method: :get, class: "toolbar" do %>
+  <%= search_field placeholder: "Lead, empresa ou negócio", label: "Buscar no pipeline" %>
+  <label class="sr-only" for="f-resp">Responsável</label>
+  <%= select_tag :responsavel, options_from_collection_for_select(@users, :id, :name, params[:responsavel]), include_blank: "Todos os responsáveis", class: "select", id: "f-resp", onchange: "this.form.requestSubmit()" %>
+  <label class="sr-only" for="f-origem">Origem</label>
+  <%= select_tag :origem, options_for_select(Lead.options_for_origin, params[:origem]), include_blank: "Todas as origens", class: "select", id: "f-origem", onchange: "this.form.requestSubmit()" %>
+  <label class="sr-only" for="f-servico">Serviço</label>
+  <%= select_tag :servico, options_from_collection_for_select(@services, :id, :name, params[:servico]), include_blank: "Todos os serviços", class: "select", id: "f-servico", onchange: "this.form.requestSubmit()" %>
+<% end %>
+
+<div class="board" data-board>
+  <% @lanes.each do |lane| %>
+    <section class="lane" data-lane="<%= lane[:key] %>" data-lane-kind="<%= lane[:kind] %>" aria-label="<%= lane[:label] %>">
+      <div class="lane-head"><b><%= lane[:label] %></b><span class="badge b-mute"><%= lane[:cards].size %></span></div>
+      <div class="lane-sum"><%= lane[:kind] == :lead ? "#{pluralize(lane[:cards].size, 'lead')} · sem valor estimado" : "#{brl(lane[:total])} · ponderado #{brl(lane[:weighted])}" %></div>
+      <% lane[:cards].each do |card| %>
+        <% if card.is_a?(Lead) %>
+          <%= link_to lead_path(card), class: "kcard", draggable: can_move, data: { card_kind: "lead", move_url: move_lead_path(card, format: :json), convert_url: new_lead_conversion_path(card), lose_url: lose_lead_path(card, voltar: "pipeline") } do %>
+            <span class="n"><%= card.display_name %></span><span class="s"><%= card.service&.name || "Serviço a definir" %></span>
+            <span class="r"><span class="badge b-mute"><%= card.origin_label %></span><span class="avatar sm soft" title="<%= card.user.name %>"><%= card.user.initials %></span></span>
+            <span class="meta"><%= card.name %> · entrada <%= card.entered_on == Date.current ? "hoje" : date_br(card.entered_on).first(5) %></span>
+          <% end %>
+        <% else %>
+          <%= link_to edit_opportunity_path(card, voltar: "pipeline"), class: "kcard", draggable: can_move && card.open?, data: { card_kind: "opportunity", move_url: move_opportunity_path(card, format: :json), lose_url: lose_opportunity_path(card, voltar: "pipeline"), turbo_frame: "drawer-frame", open: "drawer" } do %>
+            <span class="n"><%= card.title %></span><span class="s"><%= card.company.trade_name %><%= " · #{card.service.name}" if card.service %></span>
+            <span class="r"><span class="val"><%= brl(card.estimated_value_cents) %></span><span class="badge <%= card.stage_won? ? 'b-good' : 'b-info' %>"><%= card.probability %>%</span></span>
+            <span class="meta"><%= card.stage_won? ? "fechado em #{date_br(card.closed_on)}" : "previsão #{date_br(card.expected_close_on)}" %> · <%= card.user.first_name %></span>
+          <% end %>
+        <% end %>
+      <% end %>
+    </section>
+  <% end %>
+  <% if can_move %>
+    <section class="lane drop" data-lane="lost" data-lane-kind="lost" aria-label="Perdido">Solte aqui para marcar como perdido<br><span class="caption">o motivo é obrigatório</span></section>
+  <% end %>
+</div>

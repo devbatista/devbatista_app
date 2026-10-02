@@ -1,0 +1,43 @@
+# Extraído de docs/design/comercial/lead.html (bloco "Interações" do lead Grupo Norte
+# Logística — Henrique Duarte). As demais telas do Comercial (leads.html, pipeline.html,
+# oportunidades.html, propostas.html, proposta.html) não mostram outras interações.
+#
+# Fora deste arquivo (gerados pelo sistema): "Status alterado — Contato Realizado →
+# Qualificado" (12/09/2026 17:05) e "Lead criado pelo formulário de diagnóstico" (03/09/2026 21:14).
+# A interação de WhatsApp de 04/09 trazia também "Status: Novo Lead → Contato Realizado",
+# removido das notas pelo mesmo motivo.
+# Horários do design (não há campo de hora): 16/09 14:20 · 12/09 16:48 · 10/09 10:00 · 04/09 09:32.
+
+- subject_type: Lead
+  subject: Henrique Duarte
+  user: rafael@devbatista.com.br
+  kind: call
+  occurred_on: "2026-09-16"
+  notes: >-
+    Confirmou orçamento para consultoria a partir de outubro. Decisão conjunta com o CFO;
+    pediu reunião para apresentar o plano de trabalho.
+
+- subject_type: Lead
+  subject: Henrique Duarte
+  user: rafael@devbatista.com.br
+  kind: email
+  occurred_on: "2026-09-12"
+  notes: >-
+    Enviado o relatório do diagnóstico (12 páginas) com 3 frentes priorizadas: integração
+    TMS × ERP, roteirização e indicadores de entrega.
+
+- subject_type: Lead
+  subject: Henrique Duarte
+  user: rafael@devbatista.com.br
+  kind: meeting
+  occurred_on: "2026-09-10"
+  notes: >-
+    Diagnóstico online (1h) com Henrique e a coordenadora de TI. Mapeados TMS próprio, ERP
+    sem integração e roteirização em planilhas.
+
+- subject_type: Lead
+  subject: Henrique Duarte
+  user: rafael@devbatista.com.br
+  kind: whatsapp
+  occurred_on: "2026-09-04"
+  notes: Primeiro contato; diagnóstico agendado para 10/09.

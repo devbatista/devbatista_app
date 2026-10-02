@@ -24,9 +24,14 @@ team.each do |name, email, role_key, hourly_cost|
 end
 
 # Dados de negócio do design só fora de produção.
-load Rails.root.join("db/seeds/clientes.rb") unless Rails.env.production?
+unless Rails.env.production?
+  load Rails.root.join("db/seeds/clientes.rb")
+  load Rails.root.join("db/seeds/comercial.rb")
+end
 
 puts "Perfis: #{Role.count} · Usuários: #{User.count}"
 puts "Empresas: #{Company.count} · Contatos: #{Contact.count} · Contratos: #{Contract.count} · " \
      "Serviços contratados: #{CustomerService.count} · MRR: R$ #{CustomerService.active.sum(:mrr_cents) / 100}" unless Rails.env.production?
+puts "Leads: #{Lead.count} · Oportunidades: #{Opportunity.count} · Propostas: #{Proposal.count} · " \
+     "Ponderada em aberto: R$ #{Opportunity.open.sum(&:weighted_cents) / 100}" unless Rails.env.production?
 puts "Senha dos usuários de exemplo: #{password}" unless Rails.env.production?

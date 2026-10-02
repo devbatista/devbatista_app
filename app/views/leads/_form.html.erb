@@ -1,0 +1,30 @@
+<% back = lead.persisted? ? lead_path(lead) : (params[:voltar] == "pipeline" ? pipeline_path : leads_path) %>
+<%= render layout: "shared/drawer_form", locals: { title: lead.new_record? ? "Novo lead" : "Editar lead", cancel_path: back } do %>
+  <%= form_with model: lead, class: "form", data: { turbo_frame: "_top" } do |f| %>
+    <%= hidden_field_tag :voltar, params[:voltar] if params[:voltar] %>
+    <div class="drawer-body form">
+      <%= render "shared/form_errors", record: lead %>
+      <div class="form-grid">
+        <div class="field"><%= f.label :name do %>Nome <span class="req">*</span><% end %><%= f.text_field :name, class: "input", required: true, placeholder: "Pessoa de contato" %></div>
+        <div class="field"><%= f.label :company_name, "Empresa" %><%= f.text_field :company_name, class: "input", placeholder: "Quando houver" %></div>
+        <div class="field"><%= f.label :phone, "Telefone" %><%= f.telephone_field :phone, class: "input" %></div>
+        <div class="field"><%= f.label :whatsapp, "WhatsApp" %><%= f.telephone_field :whatsapp, class: "input" %></div>
+        <div class="field full"><%= f.label :email, "E-mail" %><%= f.email_field :email, class: "input" %></div>
+        <div class="field"><%= f.label :origin do %>Origem <span class="req">*</span><% end %><%= f.select :origin, Lead.options_for_origin, { prompt: "Selecione" }, class: "select", required: true %></div>
+        <div class="field"><%= f.label :service_id, "Serviço de interesse" %><%= f.collection_select :service_id, Service.available, :id, :name, { include_blank: "—" }, class: "select" %></div>
+        <div class="field"><%= f.label :user_id do %>Responsável <span class="req">*</span><% end %><%= f.collection_select :user_id, User.active.by_name, :id, :name, {}, class: "select" %></div>
+        <% if lead.new_record? || lead.open? %>
+          <div class="field"><%= f.label :status do %>Status <span class="req">*</span><% end %><%= f.select :status, Lead::OPEN_STATUSES.map { |s| [ Lead::STATUS_LABELS[s], s ] }, {}, class: "select" %><span class="hint">De Reunião em diante, converta em oportunidade</span></div>
+        <% end %>
+        <div class="field"><%= f.label :entered_on, "Data de entrada" %><%= f.date_field :entered_on, class: "input" %></div>
+        <div class="field"><%= f.label :next_step_on, "Próximo passo em" %><%= f.date_field :next_step_on, class: "input" %></div>
+        <div class="field full"><%= f.label :next_step, "Próximo passo" %><%= f.text_field :next_step, class: "input", placeholder: "Ex.: enviar diagnóstico, agendar reunião" %></div>
+      </div>
+      <div class="field"><%= f.label :notes, "Observações" %><%= f.text_area :notes, class: "textarea", placeholder: "Contexto e histórico resumido" %></div>
+    </div>
+    <div class="drawer-foot">
+      <%= link_to "Cancelar", back, class: "btn", data: { close: true, turbo_frame: "_top" } %>
+      <%= f.submit lead.new_record? ? "Cadastrar lead" : "Salvar alterações", class: "btn pri" %>
+    </div>
+  <% end %>
+<% end %>

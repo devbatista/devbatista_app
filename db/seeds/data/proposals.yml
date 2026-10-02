@@ -1,0 +1,296 @@
+# Extraído de docs/design/comercial/propostas.html (lista: 9 propostas visíveis) e
+# docs/design/comercial/proposta.html (editor da #P-2026-031 "Portal de Pedidos": itens,
+# escopo, condições e histórico). Conferido com comercial/oportunidades.html,
+# comercial/lead.html, geral/notificacoes.html, administracao/logs.html e gestao/documentos.html.
+#
+# Observações:
+# - Valores em reais; total da proposta = soma dos price dos itens.
+# - #P-2026-031: os "preços padrão" mostrados no editor (R$ 9.500 / 3.500 / 1.500) não são os
+#   do catálogo (services.yml: 24.000 / 5.500 / 3.000). Foram mantidos os do design como
+#   default_price dos itens. Criada em 15/09/2026; valor ajustado de 14.500 para 14.000 em 16/09.
+#   Enviada para Marina Costa (marina.costa@xyz.com.br), que não existe em contacts.yml:
+#   contact fica null (atenção: o model sugere o contato principal, Fernanda Lopes).
+# - Demais propostas só mostram serviço e valor: um item por serviço, default_price = preço do
+#   catálogo, recurrence one_off (valores de projeto). Gestão de infraestrutura (#030 e #022)
+#   também foi tratada como one_off, embora o serviço seja recorrente no catálogo.
+# - #P-2026-032 (rascunho): o design só mostra o total (R$ 12.000) e os serviços; a divisão
+#   8.500 + 3.500 é premissa. valid_until (obrigatório) não aparece: usado 02/10/2026
+#   (padrão de 15 dias a partir de 17/09). O contrato #110 (draft, Grupo Norte) não foi
+#   ligado porque a proposta ainda é rascunho.
+# - #P-2026-024 e #P-2026-022: validade não aparece; usado envio + 15 dias.
+# - #P-2026-024 aprovada ("Ver contrato"), mas não há contrato de R$ 7.200 do Cliente E em
+#   contracts.yml: contract fica null.
+# - viewed_at das Visualizadas não aparece no design: fica null.
+# - Fora deste arquivo (sem número no design): "Portal ACME — Fase 2" (Empresa ACME,
+#   R$ 24.000, aprovada em 30/07/2026) e "Automação de NF Delta" (Empresa Delta, PDF de 28/08/2026).
+
+- year: 2026
+  number: 31
+  title: Portal de Pedidos
+  company: Empresa XYZ
+  lead: null
+  opportunity: Portal de Pedidos
+  contact: null
+  user: ana.souza@devbatista.com.br
+  status: sent
+  description: |-
+    Portal web para que os revendedores da Empresa XYZ façam pedidos diretamente, sem depender de WhatsApp e planilhas.
+
+    Escopo:
+    • Catálogo com preços por tabela de revendedor e disponibilidade de estoque em tempo real.
+    • Carrinho, envio de pedido e acompanhamento de status (recebido, separado, faturado, entregue).
+    • Painel do cliente com histórico de pedidos e 2ª via de boletos.
+    • Integração com o Sistema ERP já em produção (pedidos, estoque e faturamento).
+    • Painel administrativo para a equipe comercial da XYZ.
+
+    Fora do escopo: aplicativo mobile nativo e integração com transportadoras.
+  payment_terms: 40% na aprovação, 30% na homologação e 30% na entrega · boleto ou Pix
+  delivery_terms: 10 semanas após a aprovação; início em até 5 dias úteis
+  valid_until: "2026-10-02"
+  notes: >-
+    A hospedagem do portal entra no serviço de Hospedagem já contratado (R$ 800/mês), sem
+    custo adicional. Alterações de escopo após a aprovação são orçadas à parte. Garantia de
+    90 dias para correções.
+  sent_at: "2026-09-17T13:10:00-03:00"
+  viewed_at: null
+  decided_on: null
+  rejection_reason: null
+  rejection_details: null
+  contract: null
+  items:
+    - service: Desenvolvimento de sistemas
+      description: "Portal B2B: catálogo, carrinho, pedidos e painel do cliente"
+      recurrence: one_off
+      default_price: 9500
+      price: 9500
+    - service: Integrações
+      description: "Integração com o Sistema ERP: pedidos, estoque e faturamento"
+      recurrence: one_off
+      default_price: 3500
+      price: 3000
+    - service: Consultoria de TI
+      description: Levantamento de requisitos e homologação (20 h)
+      recurrence: one_off
+      default_price: 1500
+      price: 1500
+
+- year: 2026
+  number: 27
+  title: Integração ERP
+  company: Cliente C
+  lead: null
+  opportunity: Integração ERP
+  contact: null
+  user: ana.souza@devbatista.com.br
+  status: viewed
+  description: null
+  payment_terms: null
+  delivery_terms: null
+  valid_until: "2026-09-19"
+  notes: null
+  sent_at: "2026-09-04"
+  viewed_at: null
+  decided_on: null
+  rejection_reason: null
+  rejection_details: null
+  contract: null
+  items:
+    - service: Integrações
+      description: null
+      recurrence: one_off
+      default_price: 5500
+      price: 4500
+
+- year: 2026
+  number: 29
+  title: Novo site institucional
+  company: Studio Arq
+  lead: null
+  opportunity: Novo site institucional
+  contact: null
+  user: ana.souza@devbatista.com.br
+  status: sent
+  description: null
+  payment_terms: null
+  delivery_terms: null
+  valid_until: "2026-09-20"
+  notes: null
+  sent_at: "2026-09-06"
+  viewed_at: null
+  decided_on: null
+  rejection_reason: null
+  rejection_details: null
+  contract: null
+  items:
+    - service: Desenvolvimento de sites
+      description: null
+      recurrence: one_off
+      default_price: 6500
+      price: 4000
+
+- year: 2026
+  number: 28
+  title: Automação de notas e pedidos
+  company: Agro Campos
+  lead: null
+  opportunity: Automação de notas e pedidos
+  contact: null
+  user: ana.souza@devbatista.com.br
+  status: viewed
+  description: null
+  payment_terms: null
+  delivery_terms: null
+  valid_until: "2026-09-25"
+  notes: Versão 2 da proposta.
+  sent_at: "2026-09-05"
+  viewed_at: null
+  decided_on: null
+  rejection_reason: null
+  rejection_details: null
+  contract: null
+  items:
+    - service: Automação/RPA
+      description: null
+      recurrence: one_off
+      default_price: 8000
+      price: 9000
+
+- year: 2026
+  number: 30
+  title: Gestão de infraestrutura AWS
+  company: Empresa Delta
+  lead: null
+  opportunity: Gestão de infraestrutura AWS
+  contact: null
+  user: rafael@devbatista.com.br
+  status: viewed
+  description: null
+  payment_terms: null
+  delivery_terms: null
+  valid_until: "2026-09-30"
+  notes: null
+  sent_at: "2026-09-09"
+  viewed_at: null
+  decided_on: null
+  rejection_reason: null
+  rejection_details: null
+  contract: null
+  items:
+    - service: Gestão de infraestrutura
+      description: null
+      recurrence: one_off
+      default_price: 1500
+      price: 6500
+
+- year: 2026
+  number: 32
+  title: Sistema de roteirização
+  company: Grupo Norte Logística
+  lead: Henrique Duarte
+  opportunity: Sistema de roteirização
+  contact: null
+  user: rafael@devbatista.com.br
+  status: draft
+  description: null
+  payment_terms: null
+  delivery_terms: null
+  valid_until: "2026-10-02"
+  notes: null
+  sent_at: null
+  viewed_at: null
+  decided_on: null
+  rejection_reason: null
+  rejection_details: null
+  contract: null
+  items:
+    - service: Desenvolvimento de sistemas
+      description: null
+      recurrence: one_off
+      default_price: 24000
+      price: 8500
+    - service: Integrações
+      description: null
+      recurrence: one_off
+      default_price: 5500
+      price: 3500
+
+- year: 2026
+  number: 24
+  title: Sistema de controle de estoque
+  company: Cliente E
+  lead: Tiago Moreira
+  opportunity: Sistema de controle de estoque
+  contact: null
+  user: ana.souza@devbatista.com.br
+  status: approved
+  description: null
+  payment_terms: null
+  delivery_terms: null
+  valid_until: "2026-09-09"
+  notes: null
+  sent_at: "2026-08-25"
+  viewed_at: null
+  decided_on: "2026-09-08"
+  rejection_reason: null
+  rejection_details: null
+  contract: null
+  items:
+    - service: Desenvolvimento de sistemas
+      description: null
+      recurrence: one_off
+      default_price: 24000
+      price: 7200
+
+- year: 2026
+  number: 22
+  title: Sustentação de servidores
+  company: null
+  lead: Eduardo Matos
+  opportunity: null
+  contact: null
+  user: rafael@devbatista.com.br
+  status: rejected
+  description: null
+  payment_terms: null
+  delivery_terms: null
+  valid_until: "2026-09-04"
+  notes: null
+  sent_at: "2026-08-20"
+  viewed_at: null
+  decided_on: "2026-09-04"
+  rejection_reason: Optou por concorrente
+  rejection_details: null
+  contract: null
+  items:
+    - service: Gestão de infraestrutura
+      description: null
+      recurrence: one_off
+      default_price: 1500
+      price: 4800
+
+- year: 2026
+  number: 19
+  title: Chatbot de atendimento
+  company: Empresa Orion
+  lead: null
+  opportunity: null
+  contact: null
+  user: rafael@devbatista.com.br
+  status: expired
+  description: null
+  payment_terms: null
+  delivery_terms: null
+  valid_until: "2026-08-31"
+  notes: null
+  sent_at: "2026-08-01"
+  viewed_at: null
+  decided_on: null
+  rejection_reason: null
+  rejection_details: null
+  contract: null
+  items:
+    - service: Inteligência Artificial
+      description: null
+      recurrence: one_off
+      default_price: 12000
+      price: 5500

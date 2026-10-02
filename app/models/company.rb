@@ -13,6 +13,9 @@ class Company < ApplicationRecord
   has_many :customer_services, dependent: :restrict_with_error
   has_many :documents, dependent: :restrict_with_error
   has_many :activities, dependent: nil
+  has_many :opportunities, dependent: :restrict_with_error
+  has_many :proposals, dependent: :restrict_with_error
+  has_many :leads, dependent: :nullify
 
   normalizes :cnpj, with: ->(value) { value.to_s.gsub(/\D/, "") }
   normalizes :state, with: ->(value) { value.to_s.strip.upcase.presence }

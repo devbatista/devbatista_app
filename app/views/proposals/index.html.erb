@@ -1,0 +1,61 @@
+<% page_title "Propostas" %>
+<% nav_location :com, "Propostas" %>
+<% breadcrumb ["Comercial"], ["Propostas"] %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Comercial</span>
+    <h1>Propostas</h1>
+    <p class="lead">Propostas montadas com serviços do catálogo. Enviadas sem resposta expiram sozinhas ao fim da validade, com aviso ao responsável <%= Setting[:proposal_alert_days] %> dias antes.</p>
+  </div>
+  <% if policy(Proposal).create? %>
+    <div class="actions"><%= link_to new_proposal_path, class: "btn pri" do %><%= icon(:plus, size: 16, stroke: 2) %>Nova proposta<% end %></div>
+  <% end %>
+</div>
+
+<div class="grid-kpi g4">
+  <div class="card kpi"><span class="eyebrow">Em negociação</span><span class="v"><%= brl(@kpis[:negotiating]) %></span><span class="f"><%= pluralize(@kpis[:negotiating_count], "proposta enviada", plural: "propostas enviadas") %></span></div>
+  <div class="card kpi<%= ' warn' if @kpis[:expiring] > 0 %>"><span class="eyebrow">Expiram em <%= Setting[:proposal_alert_days] %> dias</span><span class="v"><%= @kpis[:expiring] %></span><span class="f">sem resposta do cliente</span></div>
+  <div class="card kpi"><span class="eyebrow">Aprovadas no mês</span><span class="v"><%= brl(@kpis[:approved_month]) %></span><span class="f"><%= pluralize(@kpis[:approved_month_count], "proposta") %></span></div>
+  <div class="card kpi"><span class="eyebrow">Taxa de aprovação</span><span class="v"><%= @kpis[:approval_rate] ? "#{@kpis[:approval_rate]}%" : "—" %></span><span class="f">aprovadas ÷ decididas, 90 dias</span></div>
+</div>
+
+<%= form_with url: proposals_path, method: :get, class: "toolbar" do %>
+  <%= status_filter :status, [ [ "todos", "Todas", @counts.values.sum ] ] + Proposal::STATUS_LABELS.map { |k, v| [ k, v, @counts[k].to_i ] } %>
+  <span class="spacer"></span>
+  <%= hidden_field_tag :status, params[:status], id: nil if params[:status].present? %>
+  <%= search_field placeholder: "Título ou número (P-2026-031)", label: "Buscar proposta" %>
+  <label class="sr-only" for="f-empresa">Cliente</label>
+  <%= select_tag :empresa, options_from_collection_for_select(@companies, :id, :trade_name, params[:empresa]), include_blank: "Todos os clientes", class: "select", id: "f-empresa", onchange: "this.form.requestSubmit()" %>
+  <label class="sr-only" for="f-resp">Responsável</label>
+  <%= select_tag :responsavel, options_from_collection_for_select(@users, :id, :name, params[:responsavel]), include_blank: "Todos os responsáveis", class: "select", id: "f-resp", onchange: "this.form.requestSubmit()" %>
+  <%= render "shared/sort_select" %>
+<% end %>
+
+<section class="card" aria-label="Lista de propostas">
+  <% if @proposals.any? %>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr><th>Proposta</th><th>Cliente</th><th>Serviços</th><th class="num">Valor</th><th>Validade</th><th>Responsável</th><th>Status</th></tr></thead>
+        <tbody>
+          <% @proposals.each do |p| %>
+            <% left = p.days_to_expire %>
+            <% soon = (p.sent? || p.viewed?) && left <= Setting[:proposal_alert_days].to_i %>
+            <tr data-href="<%= proposal_path(p) %>" class="<%= 'soon' if soon %>">
+              <td data-label="Proposta"><%= link_to p.title, p, class: "strong" %><span class="cell-sub mono"><%= p.code %></span></td>
+              <td data-label="Cliente"><%= p.company ? link_to(p.company.trade_name, company_path(p.company)) : (p.lead ? link_to("#{p.lead.display_name} (lead)", lead_path(p.lead)) : "—") %></td>
+              <td data-label="Serviços"><%= p.items.first&.service&.name || "—" %><% if p.items.size > 1 %><span class="cell-sub">+ <%= p.items.drop(1).map { |i| i.service.name }.join(", ") %></span><% end %></td>
+              <td data-label="Valor" class="num strong nowrap"><%= brl(p.total_cents) %></td>
+              <td data-label="Validade" class="mono nowrap"><%= date_br(p.valid_until) %><% if soon %><span class="cell-sub"><span class="badge b-warn"><%= left.zero? ? "expira hoje" : "expira em #{left} #{left == 1 ? 'dia' : 'dias'}" %></span></span><% elsif p.sent_at %><span class="cell-sub">enviada <%= date_br(p.sent_at) %></span><% end %></td>
+              <td data-label="Responsável"><%= p.user.first_name %></td>
+              <td data-label="Status"><%= proposal_badge(p) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <%= render "shared/pagination", pager: @pager %>
+  <% else %>
+    <%= render "shared/empty", title: "Nenhuma proposta encontrada", text: "Monte uma proposta com serviços do catálogo a partir de uma oportunidade ou de um cliente." %>
+  <% end %>
+</section>

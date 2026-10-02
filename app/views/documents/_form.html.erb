@@ -1,4 +1,8 @@
-<% back = document.documentable.is_a?(Contract) ? contract_path(document.documentable) : (document.documentable.is_a?(Company) && params[:voltar] == "empresa" ? company_path(document.documentable, aba: "documentos") : documents_path) %>
+<% back = case document.documentable
+          when Contract then contract_path(document.documentable)
+          when Proposal then proposal_path(document.documentable)
+          when Company then params[:voltar] == "empresa" ? company_path(document.documentable, aba: "documentos") : documents_path
+          else documents_path end %>
 <%= render layout: "shared/drawer_form", locals: { title: "Enviar arquivo", cancel_path: back } do %>
   <%= form_with model: document, class: "form", data: { turbo_frame: "_top" } do |f| %>
     <%= hidden_field_tag :voltar, params[:voltar] if params[:voltar] %>
@@ -16,7 +20,10 @@
           <%= f.label :documentable_id do %>Vínculo <span class="req">*</span><% end %>
           <% if document.documentable %>
             <%= f.hidden_field :documentable_type %><%= f.hidden_field :documentable_id %>
-            <input class="input" value="<%= document.documentable.is_a?(Contract) ? "Contrato #{document.documentable.code} · #{document.documentable.company.trade_name}" : document.documentable.to_s %>" disabled>
+            <input class="input" value="<%= case document.documentable
+                                              when Contract then "Contrato #{document.documentable.code} · #{document.documentable.company.trade_name}"
+                                              when Proposal then "Proposta #{document.documentable.code} · #{document.documentable.recipient_name}"
+                                              else document.documentable.to_s end %>" disabled>
           <% else %>
             <%= f.hidden_field :documentable_type, value: "Company" %>
             <%= f.collection_select :documentable_id, Company.by_name, :id, :trade_name, { include_blank: "Selecione o cliente" }, class: "select", required: true %>

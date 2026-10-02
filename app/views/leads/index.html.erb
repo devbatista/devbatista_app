@@ -1,0 +1,72 @@
+<% page_title "Leads" %>
+<% nav_location :com, "Leads" %>
+<% breadcrumb ["Comercial"], ["Leads"] %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Comercial</span>
+    <h1>Leads</h1>
+    <p class="lead">Contatos com potencial de negócio, antes de virar cliente. Qualificado, o lead é convertido em empresa, contato e oportunidade.</p>
+  </div>
+  <div class="actions">
+    <%= link_to "Ver pipeline", pipeline_path, class: "btn" %>
+    <% if policy(Lead).create? %><%= drawer_link_to new_lead_path, class: "btn pri" do %><%= icon(:plus, size: 16, stroke: 2) %>Novo lead<% end %><% end %>
+  </div>
+</div>
+
+<div class="cols-2-1">
+  <div class="grid-2">
+    <div class="card kpi"><span class="eyebrow">Novos no mês</span><span class="v"><%= @kpis[:new_month] %></span><span class="f"><%= l(Date.current, format: "%B").capitalize %></span></div>
+    <div class="card kpi"><span class="eyebrow">Em aberto</span><span class="v"><%= @kpis[:open] %></span><span class="f">Novo, Contato Realizado e Qualificado</span></div>
+    <div class="card kpi"><span class="eyebrow">Taxa de conversão</span><span class="v"><%= @kpis[:entered_90].zero? ? "—" : "#{@kpis[:converted] * 100 / @kpis[:entered_90]}%" %></span><span class="f">convertidos ÷ entradas, 90 dias</span></div>
+    <div class="card kpi"><span class="eyebrow">Perdidos no mês</span><span class="v"><%= @kpis[:lost_month] %></span><span class="f">com motivo registrado</span></div>
+  </div>
+  <section class="card">
+    <div class="card-head"><div><h2>Leads por origem</h2><span class="caption">Entradas nos últimos 90 dias</span></div></div>
+    <div class="card-body hbars">
+      <% max = @by_origin.map(&:last).max.to_i %>
+      <% @by_origin.first(6).each do |origin, count| %>
+        <div class="hbar"><span><%= Lead::ORIGIN_LABELS[origin] %></span><span class="track"><span class="fill" style="display:block;width:<%= max.zero? ? 0 : count * 100 / max %>%"></span></span><span class="val"><%= count %></span></div>
+      <% end %>
+      <% if @by_origin.empty? %><span class="caption">Nenhuma entrada no período.</span><% end %>
+    </div>
+  </section>
+</div>
+
+<%= form_with url: leads_path, method: :get, class: "toolbar" do %>
+  <%= status_filter :status, [ [ "todos", "Todos", @counts.values.sum ] ] + Lead::STATUS_LABELS.map { |k, v| [ k, v, @counts[k].to_i ] } %>
+  <span class="spacer"></span>
+  <%= hidden_field_tag :status, params[:status], id: nil if params[:status].present? %>
+  <%= search_field placeholder: "Nome, empresa ou e-mail", label: "Buscar lead" %>
+  <label class="sr-only" for="f-origem">Origem</label>
+  <%= select_tag :origem, options_for_select(Lead.options_for_origin, params[:origem]), include_blank: "Todas as origens", class: "select", id: "f-origem", onchange: "this.form.requestSubmit()" %>
+  <label class="sr-only" for="f-resp">Responsável</label>
+  <%= select_tag :responsavel, options_from_collection_for_select(@users, :id, :name, params[:responsavel]), include_blank: "Todos os responsáveis", class: "select", id: "f-resp", onchange: "this.form.requestSubmit()" %>
+  <label class="sr-only" for="f-periodo">Período de entrada</label>
+  <%= select_tag :periodo, options_for_select([ [ "Este mês", "mes" ], [ "Últimos 30 dias", "30d" ], [ "Últimos 90 dias", "90d" ] ], params[:periodo]), include_blank: "Qualquer data", class: "select", id: "f-periodo", onchange: "this.form.requestSubmit()" %>
+<% end %>
+
+<section class="card" aria-label="Lista de leads">
+  <% if @leads.any? %>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr><th>Nome</th><th>Contato</th><th>Origem</th><th>Serviço de interesse</th><th>Status</th><th>Entrada</th></tr></thead>
+        <tbody>
+          <% @leads.each do |lead| %>
+            <tr data-href="<%= lead_path(lead) %>" class="<%= 'inactive' if lead.status_lost? %>">
+              <td data-label="Nome"><div class="p-cell"><span class="avatar sm soft"><%= lead.initials %></span><div><%= link_to lead.name, lead, class: "strong" %><span class="cell-sub"><%= lead.company ? link_to(lead.company.trade_name, company_path(lead.company)) : lead.company_name %></span></div></div></td>
+              <td data-label="Contato" class="nowrap"><%= lead.whatsapp.presence || lead.phone.presence || "—" %><% if lead.email.present? %><span class="cell-sub"><%= lead.email %></span><% end %></td>
+              <td data-label="Origem"><%= status_badge(lead.origin_label, "mute") %></td>
+              <td data-label="Serviço de interesse"><%= lead.service&.name || "—" %></td>
+              <td data-label="Status"><%= status_badge(lead.status_label, { "new" => "info", "contacted" => "blue", "qualified" => "good", "converted" => "good", "lost" => "crit" }[lead.status]) %><% if lead.status_lost? %><span class="cell-sub"><%= lead.lost_reason %></span><% end %></td>
+              <td data-label="Entrada" class="mono nowrap"><%= date_br(lead.entered_on) %><span class="cell-sub"><%= lead.user.first_name %></span></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <%= render "shared/pagination", pager: @pager %>
+  <% else %>
+    <%= render "shared/empty", title: "Nenhum lead encontrado", text: "Ajuste os filtros ou cadastre um lead." %>
+  <% end %>
+</section>

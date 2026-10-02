@@ -14,9 +14,9 @@ Foram encontradas dez lacunas ou contradições no documento original. As quatro
 **Detalhar durante o desenvolvimento**
 
 - [ ] **Horizonte das recorrências.** Quantos períodos à frente a rotina gera? Proposta: 3 meses, como no exemplo do cap. 18.
-- [ ] **Proposta Visualizada.** Como o sistema sabe que o cliente abriu a proposta, se não há portal na V1? Proposta: marcação manual no MVP.
+- [x] **Proposta Visualizada.** Premissa adotada na fase 3 (confirmar): marcação manual pelo botão "Cliente visualizou".
 - [ ] **Câmbio.** De onde vem a cotação para converter despesas em dólar: digitada pelo financeiro ou de uma API?
-- [ ] **Probabilidade da oportunidade.** Livre ou sugerida pela etapa do pipeline?
+- [x] **Probabilidade da oportunidade.** Premissa adotada na fase 3 (confirmar): sugerida pela etapa (Reunião 25%, Proposta 50%, Negociação 75%, Fechado 100%) e editável; ao mudar de etapa volta para a sugerida, a menos que seja alterada junto.
 - [ ] **Tentativas de login.** Quantas tentativas antes do bloqueio e por quanto tempo? Proposta: 5 tentativas, 15 minutos.
 - [ ] **Churn e CAC.** Precisam de período padrão e regra para cliente que volta.
 

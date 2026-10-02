@@ -15,6 +15,35 @@ Rails.application.routes.draw do
     resources :customer_services, path: "servicos-contratados", except: %i[show destroy]
     resources :documents, path: "documentos", only: %i[index new create show destroy]
 
+    # Comercial
+    resources :leads, path: "leads" do
+      member do
+        patch :move, path: "etapa"
+        get :lose, path: "perder", action: :new_loss
+        patch :lose, path: "perder"
+      end
+      resource :conversion, only: %i[new create], controller: "lead_conversions", path: "conversao"
+      resources :interactions, only: :create, path: "interacoes"
+    end
+    resources :opportunities, path: "oportunidades", except: :show do
+      member do
+        patch :move, path: "etapa"
+        get :lose, path: "perder", action: :new_loss
+        patch :lose, path: "perder"
+      end
+      resources :interactions, only: :create, path: "interacoes"
+    end
+    resources :proposals, path: "propostas" do
+      member do
+        patch :mark, path: "status"
+        get :approve, path: "aprovar", action: :new_approval
+        post :approve, path: "aprovar"
+        get :reject, path: "recusar", action: :new_rejection
+        patch :reject, path: "recusar"
+      end
+    end
+    get "pipeline", to: "pipeline#show", as: :pipeline
+
     resources :notifications, path: "notificacoes", only: %i[index update] do
       patch :read_all, on: :collection, path: "marcar-todas"
       patch :preferences, on: :collection, path: "preferencias"

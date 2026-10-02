@@ -1,0 +1,27 @@
+<% page_title "Aprovar proposta" %>
+<% nav_location :com, "Propostas" %>
+<% breadcrumb ["Comercial"], ["Propostas", proposals_path], [@proposal.code, proposal_path(@proposal)], ["Aprovar"] %>
+<% a = @approval %>
+<div class="form-page">
+  <%= render layout: "shared/drawer_form", locals: { title: "Aprovar proposta e fechar negócio", cancel_path: proposal_path(@proposal) } do %>
+    <%= form_with model: a, scope: :approval, url: approve_proposal_path(@proposal), method: :post, class: "form", data: { turbo_frame: "_top" } do |f| %>
+      <div class="drawer-body form">
+        <% if a.errors.any? %><div class="callout crit" role="alert"><span><%= a.errors.full_messages.to_sentence %></span></div><% end %>
+        <div class="callout"><span><b class="strong">O que será criado</b> a partir de <%= @proposal.code %>:
+          contrato <%= a.periodicity == "monthly" ? "mensal de #{brl(a.contract_value_cents)}" : "de valor único de #{brl(a.contract_value_cents)}" %>
+          e <%= pluralize(@proposal.items.size, "serviço contratado", plural: "serviços contratados") %> para <%= @proposal.recipient_name %>. A empresa passa a Ativo<%= " e a oportunidade a Fechado" if @proposal.opportunity %>.</span></div>
+        <div class="form-grid">
+          <div class="field"><%= f.label :approved_on do %>Data da aprovação <span class="req">*</span><% end %><%= f.date_field :approved_on, class: "input", required: true %></div>
+          <div class="field"><%= f.label :due_day, "Dia de vencimento" %><%= f.number_field :due_day, class: "input", min: 1, max: 31 %></div>
+          <div class="field"><%= f.label :start_date do %>Início do contrato <span class="req">*</span><% end %><%= f.date_field :start_date, class: "input", required: true %></div>
+          <div class="field"><%= f.label :end_date do %>Término previsto <span class="req">*</span><% end %><%= f.date_field :end_date, class: "input", required: true %></div>
+          <div class="field full"><%= f.label :renewal, "Renovação" %><%= f.select :renewal, Contract.options_for_renewal, {}, class: "select" %></div>
+        </div>
+      </div>
+      <div class="drawer-foot">
+        <%= link_to "Cancelar", proposal_path(@proposal), class: "btn", data: { close: true, turbo_frame: "_top" } %>
+        <%= f.submit "Aprovar e gerar contrato", class: "btn pri" %>
+      </div>
+    <% end %>
+  <% end %>
+</div>

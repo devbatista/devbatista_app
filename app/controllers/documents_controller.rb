@@ -13,7 +13,7 @@ class DocumentsController < ApplicationController
 
   def new
     link = find_link
-    @document = authorize Document.new(documentable: link, kind: link.is_a?(Contract) ? "contract" : "other")
+    @document = authorize Document.new(documentable: link, kind: { Contract => "contract", Proposal => "proposal" }.fetch(link.class, "other"))
   end
 
   def create
@@ -50,13 +50,15 @@ class DocumentsController < ApplicationController
   end
 
   def find_link
-    if params[:contrato].present? then Contract.find(params[:contrato])
+    if params[:proposta].present? then Proposal.find(params[:proposta])
+    elsif params[:contrato].present? then Contract.find(params[:contrato])
     elsif params[:empresa].present? then Company.find(params[:empresa])
     end
   end
 
   def return_path
     case @document.documentable
+    when Proposal then proposal_path(@document.documentable)
     when Contract then contract_path(@document.documentable)
     when Company then params[:voltar] == "empresa" ? company_path(@document.documentable, aba: "documentos") : documents_path
     else documents_path

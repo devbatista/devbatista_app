@@ -1,0 +1,53 @@
+<% page_title "Converter lead" %>
+<% nav_location :com, "Leads" %>
+<% breadcrumb ["Comercial"], ["Leads", leads_path], [@lead.display_name, lead_path(@lead)], ["Converter"] %>
+<% c = @conversion %>
+<% existing = c.existing_company %>
+<div class="form-page">
+  <%= render layout: "shared/drawer_form", locals: { title: "Converter lead", cancel_path: lead_path(@lead) } do %>
+    <%= form_with model: c, scope: :conversion, url: lead_conversion_path(@lead), method: :post, class: "form", data: { turbo_frame: "_top" } do |f| %>
+      <div class="drawer-body form">
+        <% if c.errors.any? %><div class="callout crit" role="alert"><span><b class="strong">Revise os campos:</b> <%= c.errors.full_messages.to_sentence %>.</span></div><% end %>
+        <p class="caption" style="margin:0">Cria a empresa, o contato e a oportunidade a partir do lead, sem redigitar. O lead sai do pipeline e a oportunidade entra em Reunião.</p>
+
+        <span class="fieldset-title">Empresa</span>
+        <% if existing %>
+          <div class="callout warn"><span>Já existe <b class="strong"><%= existing.trade_name %></b> com este CNPJ. A conversão vai vincular o lead a ela.</span></div>
+        <% end %>
+        <div class="field">
+          <%= f.label :company_id, "Vincular à empresa existente (recomendado quando já é cliente)" %>
+          <%= f.collection_select :company_id, Company.by_name, :id, :trade_name, { include_blank: "Não, cadastrar nova empresa" }, class: "select" %>
+        </div>
+        <div class="form-grid">
+          <div class="field"><%= f.label :trade_name do %>Nome fantasia <span class="req">*</span><% end %><%= f.text_field :trade_name, class: "input" %></div>
+          <div class="field"><%= f.label :cnpj do %>CNPJ <span class="req">*</span><% end %><%= f.text_field :cnpj, class: "input mono", inputmode: "numeric", placeholder: "00.000.000/0000-00", maxlength: 18 %><span class="hint">Avisamos se o CNPJ já estiver cadastrado</span></div>
+          <div class="field full"><%= f.label :legal_name, "Razão social" %><%= f.text_field :legal_name, class: "input" %></div>
+        </div>
+
+        <span class="fieldset-title">Contato</span>
+        <div class="form-grid">
+          <div class="field"><%= f.label :contact_name do %>Nome <span class="req">*</span><% end %><%= f.text_field :contact_name, class: "input" %></div>
+          <div class="field"><%= f.label :contact_position, "Cargo" %><%= f.text_field :contact_position, class: "input" %></div>
+          <div class="field"><%= f.label :contact_whatsapp, "WhatsApp" %><%= f.telephone_field :contact_whatsapp, class: "input" %></div>
+          <div class="field"><%= f.label :contact_email, "E-mail" %><%= f.email_field :contact_email, class: "input" %></div>
+        </div>
+        <label class="check"><%= f.check_box :contact_primary %> Contato principal da empresa</label>
+
+        <span class="fieldset-title">Oportunidade</span>
+        <div class="form-grid">
+          <div class="field full"><%= f.label :title do %>Negócio <span class="req">*</span><% end %><%= f.text_field :title, class: "input", placeholder: "Ex.: Portal de Pedidos" %></div>
+          <div class="field"><%= f.label :service_id, "Serviço" %><%= f.collection_select :service_id, Service.available, :id, :name, { include_blank: "—" }, class: "select" %></div>
+          <div class="field"><%= f.label :estimated_value, "Valor estimado (R$)" %><%= f.number_field :estimated_value, class: "input", step: "0.01", min: 0 %></div>
+          <div class="field"><%= f.label :stage, "Etapa inicial" %><%= f.select :stage, Opportunity::OPEN_STAGES.map { |s| [ Opportunity::STAGE_LABELS[s], s ] }, {}, class: "select" %></div>
+          <div class="field"><%= f.label :probability, "Probabilidade (%)" %><%= f.number_field :probability, class: "input", min: 0, max: 100 %><span class="hint">Sugerida pela etapa: Reunião 25%, Proposta 50%, Negociação 75%</span></div>
+          <div class="field"><%= f.label :expected_close_on, "Previsão de fechamento" %><%= f.date_field :expected_close_on, class: "input" %></div>
+          <div class="field"><%= f.label :user_id, "Responsável" %><%= f.collection_select :user_id, User.active.by_name, :id, :name, {}, class: "select" %></div>
+        </div>
+      </div>
+      <div class="drawer-foot">
+        <%= link_to "Cancelar", lead_path(@lead), class: "btn", data: { close: true, turbo_frame: "_top" } %>
+        <%= f.submit "Converter", class: "btn pri" %>
+      </div>
+    <% end %>
+  <% end %>
+</div>

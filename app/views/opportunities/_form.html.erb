@@ -1,0 +1,39 @@
+<% back = params[:voltar] == "pipeline" ? pipeline_path : opportunities_path %>
+<%= render layout: "shared/drawer_form", locals: { title: opportunity.new_record? ? "Nova oportunidade" : "Editar oportunidade", cancel_path: back } do %>
+  <%= form_with model: opportunity, class: "form", data: { turbo_frame: "_top" } do |f| %>
+    <%= hidden_field_tag :voltar, params[:voltar] if params[:voltar] %>
+    <div class="drawer-body form">
+      <%= render "shared/form_errors", record: opportunity %>
+      <div class="form-grid">
+        <div class="field full"><%= f.label :title do %>Negócio <span class="req">*</span><% end %><%= f.text_field :title, class: "input", required: true, placeholder: "Ex.: Portal de Pedidos" %></div>
+        <div class="field"><%= f.label :company_id do %>Cliente <span class="req">*</span><% end %><%= f.collection_select :company_id, Company.by_name, :id, :trade_name, { prompt: "Selecione" }, class: "select", required: true %><span class="hint">Lead ainda sem empresa? Converta o lead.</span></div>
+        <div class="field"><%= f.label :service_id, "Serviço" %><%= f.collection_select :service_id, (Service.available.to_a | [ opportunity.service ].compact), :id, :name, { include_blank: "—" }, class: "select" %></div>
+        <div class="field"><%= f.label :estimated_value do %>Valor estimado (R$) <span class="req">*</span><% end %><%= f.number_field :estimated_value, class: "input", step: "0.01", min: 0, required: true %></div>
+        <div class="field"><%= f.label :probability do %>Probabilidade (%) <span class="req">*</span><% end %><%= f.number_field :probability, class: "input", min: 0, max: 100, required: true %><span class="hint">Ao mudar a etapa, volta para a sugerida (25/50/75%) se você não alterar aqui</span></div>
+        <div class="field"><%= f.label :stage do %>Etapa <span class="req">*</span><% end %>
+          <% if opportunity.open? || opportunity.new_record? %>
+            <%= f.select :stage, (Opportunity::OPEN_STAGES + %w[won]).map { |s| [ Opportunity::STAGE_LABELS[s], s ] }, {}, class: "select" %>
+          <% else %>
+            <input class="input" value="<%= opportunity.stage_label %>" disabled>
+          <% end %>
+        </div>
+        <div class="field"><%= f.label :expected_close_on do %>Previsão de fechamento <span class="req">*</span><% end %><%= f.date_field :expected_close_on, class: "input", required: true %></div>
+        <div class="field"><%= f.label :user_id do %>Responsável <span class="req">*</span><% end %><%= f.collection_select :user_id, User.active.by_name, :id, :name, {}, class: "select" %></div>
+        <div class="field"><%= f.label :next_step_on, "Próximo passo em" %><%= f.date_field :next_step_on, class: "input" %></div>
+        <div class="field full"><%= f.label :next_step, "Próximo passo" %><%= f.text_field :next_step, class: "input" %></div>
+      </div>
+      <div class="field"><%= f.label :notes, "Observações" %><%= f.text_area :notes, class: "textarea", placeholder: "Notas da negociação" %></div>
+      <% if opportunity.persisted? %>
+        <% weighted = opportunity.weighted_cents %>
+        <p class="caption" style="margin:0">Previsão ponderada atual: <b class="strong"><%= brl(weighted) %></b><%= " · origem: lead #{link_to(opportunity.lead.display_name, lead_path(opportunity.lead))}".html_safe if opportunity.lead %></p>
+      <% end %>
+    </div>
+    <div class="drawer-foot">
+      <% if opportunity.persisted? && opportunity.open? %>
+        <%= link_to "Marcar como perdida", lose_opportunity_path(opportunity, voltar: params[:voltar]), class: "btn danger", style: "margin-right:auto", data: { turbo_frame: "drawer-frame" } %>
+      <% end %>
+      <%= link_to "Cancelar", back, class: "btn", data: { close: true, turbo_frame: "_top" } %>
+      <%= f.submit opportunity.new_record? ? "Cadastrar" : "Salvar alterações", class: "btn pri" %>
+    </div>
+  <% end %>
+<% end %>

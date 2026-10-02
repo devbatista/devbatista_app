@@ -1,0 +1,12 @@
+<% item = f.object %>
+<tr data-item <%= "hidden" if item.marked_for_destruction? %>>
+  <td data-label="Serviço"><%= f.label :service_id, "Serviço", class: "sr-only" %><%= f.select :service_id, service_options_for_items(item.service_id, [ item.service ]), { prompt: "Selecione" }, class: "select", data: { item_service: true } %></td>
+  <td data-label="Descrição"><%= f.label :description, "Descrição", class: "sr-only" %><%= f.text_field :description, class: "input", placeholder: "O que está incluído" %></td>
+  <td data-label="Recorrência"><%= f.label :recurrence, "Recorrência", class: "sr-only" %><%= f.select :recurrence, ProposalItem.options_for_recurrence, {}, class: "select", data: { item_recurrence: true } %></td>
+  <td data-label="Valor" class="num"><%= f.label :price, "Valor", class: "sr-only" %><%= f.number_field :price, value: (format("%.2f", item.price) if item.price_cents.to_i.positive?), class: "input num", step: "0.01", min: 0, data: { item_price: true } %>
+    <% if item.persisted? && item.default_price_cents.positive? && item.price_cents != item.default_price_cents %>
+      <span class="cell-sub" style="color:var(--warn)" title="Preço padrão <%= brl(item.default_price_cents) %>"><%= ((item.price_cents - item.default_price_cents) * 100.0 / item.default_price_cents).round %>% do padrão</span>
+    <% end %>
+  </td>
+  <td data-label="" class="right"><%= f.hidden_field :_destroy, data: { item_destroy: true } %><%= f.hidden_field :position, data: { item_position: true } %><button class="icon-btn ghost" type="button" aria-label="Remover item" data-remove-item><%= icon(:close, size: 16, stroke: 1.8) %></button></td>
+</tr>

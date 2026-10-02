@@ -24,7 +24,11 @@ module NavigationHelper
     upload: "M12 16V4M7 9l5-5 5 5M4 20h16",
     star: "M12 3l2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z",
     phone: "M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2",
-    whatsapp: "M4 20l1.4-4.2A8 8 0 1112 20a8 8 0 01-3.8-1z"
+    whatsapp: "M4 20l1.4-4.2A8 8 0 1112 20a8 8 0 01-3.8-1z",
+    check: "M5 12l5 5L20 7",
+    send: "M4 12l16-8-6 16-2-7z",
+    x: "M6 6l12 12M18 6L6 18",
+    swap: "M7 7h11l-3-3M17 17H6l3 3"
   }.freeze
 
   # Grupos do menu. Cada item aponta para a rota (símbolo do helper de path) e a área da
@@ -32,8 +36,8 @@ module NavigationHelper
   NAV = [
     { key: :dash, label: "Dashboard", area: "dashboard", route: :root_path },
     { key: :com, label: "Comercial", items: [
-      [ "Leads", nil, "comercial" ], [ "Oportunidades", nil, "comercial" ],
-      [ "Propostas", nil, "comercial" ], [ "Pipeline", nil, "comercial" ]
+      [ "Leads", :leads_path, "comercial" ], [ "Oportunidades", :opportunities_path, "comercial" ],
+      [ "Propostas", :proposals_path, "comercial" ], [ "Pipeline", :pipeline_path, "comercial" ]
     ] },
     { key: :cli, label: "Clientes", items: [
       [ "Empresas", :companies_path, "clientes" ], [ "Contatos", :contacts_path, "clientes" ],

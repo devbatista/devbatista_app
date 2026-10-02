@@ -1,0 +1,19 @@
+<% page_title "Registrar recusa" %>
+<% nav_location :com, "Propostas" %>
+<% breadcrumb ["Comercial"], ["Propostas", proposals_path], [@proposal.code, proposal_path(@proposal)], ["Recusar"] %>
+<div class="form-page">
+  <%= render layout: "shared/drawer_form", locals: { title: "Registrar recusa", cancel_path: proposal_path(@proposal) } do %>
+    <%= form_with scope: :rejection, url: reject_proposal_path(@proposal), method: :patch, class: "form", data: { turbo_frame: "_top" } do |f| %>
+      <div class="drawer-body form">
+        <%= render "shared/form_errors", record: @proposal %>
+        <div class="field"><%= f.label :rejection_reason do %>Motivo da perda <span class="req">*</span><% end %><%= f.select :rejection_reason, Setting[:loss_reasons], { prompt: "Selecione", selected: @proposal.rejection_reason }, class: "select", required: true %></div>
+        <div class="field"><%= f.label :rejection_details, "Detalhes" %><%= f.text_area :rejection_details, value: @proposal.rejection_details, class: "textarea" %></div>
+        <% if @proposal.opportunity&.open? %><p class="caption" style="margin:0">A oportunidade “<%= @proposal.opportunity.title %>” também será marcada como perdida, com o mesmo motivo.</p><% end %>
+      </div>
+      <div class="drawer-foot">
+        <%= link_to "Cancelar", proposal_path(@proposal), class: "btn", data: { close: true, turbo_frame: "_top" } %>
+        <%= f.submit "Registrar recusa", class: "btn danger" %>
+      </div>
+    <% end %>
+  <% end %>
+</div>

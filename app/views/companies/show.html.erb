@@ -16,6 +16,7 @@
     </div>
   </div>
   <div class="actions">
+    <% if policy(Proposal).create? %><%= link_to new_proposal_path(empresa: @company.id), class: "btn" do %><%= icon(:plus, size: 16, stroke: 2) %>Nova proposta<% end %><% end %>
     <% if policy(Contact).create? %><%= drawer_link_to new_contact_path(empresa: @company.id, voltar: "empresa"), class: "btn" do %><%= icon(:plus, size: 16, stroke: 2) %>Novo contato<% end %><% end %>
     <% if policy(@company).edit? %><%= drawer_link_to edit_company_path(@company), class: "btn pri" do %><%= icon(:edit, size: 16, stroke: 1.8) %>Editar<% end %><% end %>
   </div>

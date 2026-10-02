@@ -38,10 +38,10 @@
         <thead><tr><th>Alerta</th><th>Gatilho</th><th>Receber por e-mail</th></tr></thead>
         <tbody>
           <% Notification::KINDS.each do |kind, config| %>
-            <% visible = config[:roles].include?(current_user.role.key) %>
+            <% visible = Notification.receives?(kind, current_user) %>
             <tr class="<%= 'inactive' unless visible %>">
               <td data-label="Alerta" class="strong"><%= config[:label] %><% unless visible %><span class="cell-sub">Não é enviado para o seu perfil</span><% end %></td>
-              <td data-label="Gatilho"><%= Setting[:contract_alert_days].to_sentence %> dias antes do término</td>
+              <td data-label="Gatilho"><%= config[:trigger].call %><%= " · só para o responsável" if config[:roles] == :owner %></td>
               <td data-label="Receber por e-mail"><label class="switch"><%= check_box_tag "email_kinds[]", kind, current_user.email_for?(kind), id: "email-#{kind}", disabled: !visible, "aria-label": "Receber #{config[:label]} por e-mail" %><span></span></label></td>
             </tr>
           <% end %>

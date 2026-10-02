@@ -34,6 +34,21 @@ pt-BR:
       setting:
         one: Configuração
         other: Configurações
+      lead:
+        one: Lead
+        other: Leads
+      opportunity:
+        one: Oportunidade
+        other: Oportunidades
+      proposal:
+        one: Proposta
+        other: Propostas
+      proposal_item:
+        one: Item da proposta
+        other: Itens da proposta
+      interaction:
+        one: Interação
+        other: Interações
     attributes:
       user:
         name: Nome
@@ -125,6 +140,76 @@ pt-BR:
       setting:
         key: Configuração
         value: Valor
+      lead:
+        name: Nome
+        company_name: Empresa
+        phone: Telefone
+        whatsapp: WhatsApp
+        email: E-mail
+        origin: Origem
+        service: Serviço de interesse
+        service_id: Serviço de interesse
+        user: Responsável
+        user_id: Responsável
+        status: Status
+        entered_on: Data de entrada
+        notes: Observações
+        next_step: Próximo passo
+        next_step_on: Data do próximo passo
+        lost_reason: Motivo da perda
+        lost_details: Detalhes da perda
+        company: Empresa
+      opportunity:
+        title: Negócio
+        lead: Lead
+        company: Cliente
+        company_id: Cliente
+        service: Serviço
+        service_id: Serviço
+        user: Responsável
+        user_id: Responsável
+        stage: Etapa
+        estimated_value: Valor estimado
+        estimated_value_cents: Valor estimado
+        probability: Probabilidade
+        expected_close_on: Previsão de fechamento
+        notes: Observações
+        next_step: Próximo passo
+        next_step_on: Data do próximo passo
+        lost_reason: Motivo da perda
+        lost_details: Detalhes da perda
+        closed_on: Data de fechamento
+      proposal:
+        title: Título
+        company: Cliente
+        company_id: Cliente
+        lead: Lead
+        opportunity: Oportunidade
+        contact: Destinatário
+        contact_id: Destinatário
+        user: Responsável
+        user_id: Responsável
+        status: Status
+        description: Descrição
+        payment_terms: Forma de pagamento
+        delivery_terms: Prazo
+        valid_until: Validade
+        notes: Observações
+        total_cents: Total
+        rejection_reason: Motivo da recusa
+        rejection_details: Detalhes da recusa
+        items: Itens
+      proposal_item:
+        service: Serviço
+        service_id: Serviço
+        description: Descrição
+        recurrence: Recorrência
+        price: Valor
+        price_cents: Valor
+      interaction:
+        kind: Tipo
+        occurred_on: Data
+        notes: Registro
   date:
     formats:
       month_year: "%B de %Y"

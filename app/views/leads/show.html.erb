@@ -1,0 +1,67 @@
+<% page_title @lead.display_name %>
+<% nav_location :com, "Leads" %>
+<% breadcrumb ["Comercial"], ["Leads", leads_path], [@lead.display_name] %>
+<% steps = %w[new contacted qualified] %>
+<% current_index = steps.index(@lead.status) || (@lead.status_converted? ? 3 : -1) %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Lead · <%= @lead.origin_label %></span>
+    <div class="row wrap" style="gap:10px"><h1><%= @lead.display_name %></h1><%= status_badge(@lead.status_label, { "new" => "info", "contacted" => "blue", "qualified" => "good", "converted" => "good", "lost" => "crit" }[@lead.status]) %></div>
+    <p class="lead"><%= @lead.name %><%= " · #{@lead.service.name}" if @lead.service %> · entrada <%= date_br(@lead.entered_on) %> · responsável <%= @lead.user.name %></p>
+  </div>
+  <div class="actions">
+    <% if @lead.open? && policy(@lead).update? %>
+      <%= drawer_link_to "Marcar como perdido", lose_lead_path(@lead), class: "btn danger" %>
+      <%= drawer_link_to edit_lead_path(@lead), class: "btn" do %><%= icon(:edit, size: 16, stroke: 1.8) %>Editar<% end %>
+      <%= drawer_link_to new_lead_conversion_path(@lead), class: "btn pri" do %><%= icon(:swap, size: 16, stroke: 1.8) %>Converter em cliente<% end %>
+    <% end %>
+  </div>
+</div>
+
+<% if @lead.status_converted? && @lead.company %>
+  <div class="callout"><span>Convertido em <%= datetime_br(@lead.converted_at) %>: <%= link_to @lead.company.trade_name, company_path(@lead.company), class: "strong" %><% if (opp = @lead.opportunities.first) %> · oportunidade <%= link_to opp.title, edit_opportunity_path(opp) %> (<%= opp.stage_label %>)<% end %>.</span></div>
+<% elsif @lead.status_lost? %>
+  <div class="callout crit"><span><b class="strong">Perdido</b> em <%= datetime_br(@lead.lost_at) %> · <%= @lead.lost_reason %><%= " — #{@lead.lost_details}" if @lead.lost_details.present? %></span></div>
+<% end %>
+
+<section class="card">
+  <div class="card-head"><h2>Etapa no pipeline</h2><%= link_to "Abrir pipeline →", pipeline_path, style: "font-size:13px;font-weight:600" %></div>
+  <div class="steps" style="padding:0 20px 20px">
+    <% (steps.map { |s| [ s, Lead::STATUS_LABELS[s] ] } + [ [ "converted", "Oportunidade" ] ]).each_with_index do |(key, label), i| %>
+      <% if @lead.open? && policy(@lead).update? && key != "converted" && key != @lead.status %>
+        <%= button_to label, move_lead_path(@lead, to: key), method: :patch, class: "step #{'done' if i < current_index}", form_class: "inline-form", form: { style: "flex:1;display:flex" }, style: "flex:1;background:none;border-left:0;border-right:0;border-bottom:0;text-align:left;cursor:pointer;font:inherit;font-size:12px;font-weight:600" %>
+      <% else %>
+        <span class="step <%= i < current_index ? 'done' : (i == current_index ? 'cur' : '') %>"><%= label %></span>
+      <% end %>
+    <% end %>
+  </div>
+</section>
+
+<div class="cols-2-1">
+  <div class="stack">
+    <%= render "interactions/timeline", subject: @lead, interactions: @interactions, history: @history, created_label: "Lead criado · origem #{@lead.origin_label}" %>
+  </div>
+  <div class="stack">
+    <section class="card">
+      <div class="card-head"><h2>Dados do lead</h2></div>
+      <dl class="dl" style="grid-template-columns:1fr">
+        <div><dt>Nome</dt><dd><%= @lead.name %></dd></div>
+        <div><dt>Empresa</dt><dd><%= @lead.company ? link_to(@lead.company.trade_name, company_path(@lead.company)) : (@lead.company_name.presence || "—") %></dd></div>
+        <div><dt>Telefone</dt><dd><%= @lead.phone.presence || "—" %></dd></div>
+        <div><dt>WhatsApp</dt><dd><%= @lead.whatsapp.present? ? link_to(@lead.whatsapp, "https://wa.me/55#{@lead.whatsapp.gsub(/\D/, '')}", target: "_blank", rel: "noopener") : "—" %></dd></div>
+        <div><dt>E-mail</dt><dd><%= @lead.email.present? ? mail_to(@lead.email) : "—" %></dd></div>
+        <div><dt>Origem</dt><dd><%= @lead.origin_label %></dd></div>
+        <div><dt>Serviço de interesse</dt><dd><%= @lead.service&.name || "—" %></dd></div>
+        <div><dt>Data de entrada</dt><dd class="mono"><%= date_br(@lead.entered_on) %></dd></div>
+      </dl>
+    </section>
+    <section class="card">
+      <div class="card-head"><h2>Próximo passo</h2></div>
+      <div class="card-body"><% if @lead.next_step.present? %><b class="strong"><%= @lead.next_step %></b><span class="cell-sub"><%= @lead.next_step_on ? "até #{date_br(@lead.next_step_on)}" : "sem data" %></span><% else %><span class="caption">Nenhum próximo passo definido.</span><% end %></div>
+    </section>
+    <% if @lead.notes.present? %>
+      <section class="card"><div class="card-head"><h2>Observações</h2></div><div class="card-body"><%= simple_format(@lead.notes, { style: "margin:0" }) %></div></section>
+    <% end %>
+  </div>
+</div>

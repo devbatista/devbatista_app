@@ -1,0 +1,27 @@
+<%# Gaveta "Marcar como perdido" para lead ou oportunidade. %>
+<% record = @record %>
+<% path = record.is_a?(Lead) ? lose_lead_path(record) : lose_opportunity_path(record) %>
+<% back = params[:voltar] == "pipeline" ? pipeline_path : (record.is_a?(Lead) ? lead_path(record) : opportunities_path) %>
+<% page_title "Marcar como perdido" %>
+<% breadcrumb ["Comercial"], [record.is_a?(Lead) ? "Leads" : "Oportunidades", record.is_a?(Lead) ? leads_path : opportunities_path], ["Marcar como perdido"] %>
+<div class="form-page">
+  <%= render layout: "shared/drawer_form", locals: { title: "Marcar como perdido", cancel_path: back } do %>
+    <%= form_with scope: :loss, url: path, method: :patch, class: "form", data: { turbo_frame: "_top" } do |f| %>
+      <%= hidden_field_tag :voltar, params[:voltar] if params[:voltar] %>
+      <div class="drawer-body form">
+        <%= render "shared/form_errors", record: record %>
+        <div class="callout warn"><span><b class="strong"><%= record.is_a?(Lead) ? record.to_s : "#{record.title} · #{record.company.trade_name}" %></b> sai do pipeline. O motivo entra nos relatórios de perda.</span></div>
+        <div class="field">
+          <%= f.label :lost_reason do %>Motivo da perda <span class="req">*</span><% end %>
+          <%= f.select :lost_reason, Setting[:loss_reasons], { prompt: "Selecione", selected: record.lost_reason }, class: "select", required: true %>
+          <span class="hint">Lista editável em Administração → Configurações</span>
+        </div>
+        <div class="field"><%= f.label :lost_details, "Detalhes" %><%= f.text_area :lost_details, value: record.lost_details, class: "textarea", placeholder: "O que aconteceu? Vale tentar de novo em algum momento?" %></div>
+      </div>
+      <div class="drawer-foot">
+        <%= link_to "Cancelar", back, class: "btn", data: { close: true, turbo_frame: "_top" } %>
+        <%= f.submit "Marcar como perdido", class: "btn danger" %>
+      </div>
+    <% end %>
+  <% end %>
+</div>

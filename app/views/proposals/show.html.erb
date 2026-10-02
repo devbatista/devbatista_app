@@ -1,0 +1,113 @@
+<% page_title @proposal.title %>
+<% nav_location :com, "Propostas" %>
+<% breadcrumb ["Comercial"], ["Propostas", proposals_path], [@proposal.code] %>
+<% p = @proposal %>
+<% left = p.days_to_expire %>
+<% open_sent = p.sent? || p.viewed? %>
+<% can_update = policy(p).update? %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Proposta <%= p.code %><% if p.company %> · <%= link_to p.company.trade_name, company_path(p.company) %><% elsif p.lead %> · lead <%= link_to p.lead.display_name, lead_path(p.lead) %><% end %></span>
+    <h1><%= p.title %></h1>
+    <div class="row wrap" style="gap:8px">
+      <%= tag.span(p.status_label, class: "badge b-#{CommercialHelper::PROPOSAL_TONES[p.status]} dot-l") %>
+      <span class="chip">Válida até <%= date_br(p.valid_until) %><%= " · #{left} dias" if open_sent && left >= 0 %></span>
+      <span class="caption">Responsável: <%= p.user.name %></span>
+    </div>
+  </div>
+  <% if can_update %>
+    <div class="actions">
+      <% if p.draft? %>
+        <%= link_to "Excluir rascunho", proposal_path(p), class: "btn danger", data: { turbo_method: :delete, turbo_confirm: "Excluir o rascunho #{p.code}?" } if policy(p).destroy? %>
+        <%= link_to edit_proposal_path(p), class: "btn" do %><%= icon(:edit, size: 16, stroke: 1.8) %>Editar<% end %>
+        <%= button_to mark_proposal_path(p, to: "sent"), method: :patch, class: "btn pri", form: { data: { turbo_confirm: "Registrar o envio da proposta para #{p.contact&.name || p.recipient_name}?" } } do %><%= icon(:send, size: 16, stroke: 1.8) %>Marcar como enviada<% end %>
+      <% elsif open_sent %>
+        <%= drawer_link_to "Recusar", reject_proposal_path(p), class: "btn danger" %>
+        <%= link_to edit_proposal_path(p), class: "btn" do %><%= icon(:edit, size: 16, stroke: 1.8) %>Editar<% end %>
+        <% if p.sent? %><%= button_to "Cliente visualizou", mark_proposal_path(p, to: "viewed"), method: :patch, class: "btn" %><% end %>
+        <%= drawer_link_to approve_proposal_path(p), class: "btn pri" do %><%= icon(:check, size: 16, stroke: 2) %>Marcar como aprovada<% end %>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+
+<% if p.draft? %>
+  <div class="callout"><span>Rascunho. Revise os itens e as condições e marque como enviada quando mandar ao cliente (e-mail ou WhatsApp). A partir do envio, a validade passa a contar.</span></div>
+<% elsif open_sent %>
+  <div class="callout<%= ' warn' if left <= Setting[:proposal_alert_days].to_i %>"><span>Enviada em <%= datetime_br(p.sent_at) %><%= " para #{p.contact.name}#{" (#{p.contact.email})" if p.contact.email.present?}" if p.contact %>.
+    <%= p.viewed? ? "Visualizada em #{datetime_br(p.viewed_at)}." : "Ainda não visualizada." %>
+    <%= p.user.first_name %> é avisado(a) <%= Setting[:proposal_alert_days] %> dias antes do fim da validade; sem resposta, passa a Expirada em <%= date_br(p.valid_until + 1) %>.</span></div>
+<% elsif p.approved? %>
+  <div class="callout"><span><b class="strong">Aprovada</b> em <%= date_br(p.decided_on) %>.<% if p.contract %> Gerou o contrato <%= link_to p.contract.to_s, contract_path(p.contract), class: "strong" %> e os serviços contratados.<% end %></span></div>
+<% elsif p.rejected? %>
+  <div class="callout crit"><span><b class="strong">Recusada</b> em <%= date_br(p.decided_on) %> · <%= p.rejection_reason %><%= " — #{p.rejection_details}" if p.rejection_details.present? %></span></div>
+<% elsif p.expired? %>
+  <div class="callout warn"><span><b class="strong">Expirada</b>: a validade terminou em <%= date_br(p.valid_until) %> sem resposta do cliente.</span></div>
+<% end %>
+
+<div class="cols-2-1">
+  <div class="stack">
+    <section class="card">
+      <div class="card-head"><h2>Serviços da proposta</h2></div>
+      <div class="table-wrap">
+        <table class="table cards">
+          <thead><tr><th>Serviço</th><th>Recorrência</th><th class="num">Preço padrão</th><th class="num">Valor</th></tr></thead>
+          <tbody>
+            <% p.items.each do |item| %>
+              <tr>
+                <td data-label="Serviço" class="strong"><%= item.service.name %><% if item.description.present? %><span class="cell-sub"><%= item.description %></span><% end %></td>
+                <td data-label="Recorrência"><%= item.recurrence_label %></td>
+                <td data-label="Preço padrão" class="num muted nowrap"><%= brl(item.default_price_cents) %></td>
+                <td data-label="Valor" class="num nowrap"><%= brl(item.price_cents) %>
+                  <% if item.default_price_cents.positive? && item.price_cents != item.default_price_cents %><span class="cell-sub" style="color:var(--warn)"><%= ((item.price_cents - item.default_price_cents) * 100.0 / item.default_price_cents).round %>% do padrão</span><% end %></td>
+              </tr>
+            <% end %>
+          </tbody>
+          <tfoot><tr><td data-label="" colspan="3">Total (soma dos itens)</td><td data-label="Total" class="num nowrap"><%= brl(p.total_cents) %></td></tr></tfoot>
+        </table>
+      </div>
+    </section>
+    <% if p.description.present? %>
+      <section class="card"><div class="card-head"><h2>Descrição e escopo</h2></div><div class="card-body" style="padding-top:0"><%= simple_format(p.description, { style: "margin:0 0 8px" }) %></div></section>
+    <% end %>
+    <section class="card">
+      <div class="card-head"><h2>Histórico de status</h2></div>
+      <% @history.each do |log| %>
+        <% from, to = log.changeset["status"] %>
+        <div class="tl"><i class="<%= { 'create' => 'mute', 'status_change' => 'warn' }[log.action] %>"></i><div>
+          <% if log.action == "create" %>Proposta criada como rascunho<% elsif log.action == "status_change" %><span class="strong"><%= Proposal::STATUS_LABELS[from] %> → <%= Proposal::STATUS_LABELS[to] %></span><% else %>Proposta alterada (<%= log.readable_changes.map(&:first).first(3).to_sentence %>)<% end %>
+          <small><%= datetime_br(log.created_at) %> · <%= log.user&.name || "Sistema" %></small></div></div>
+      <% end %>
+    </section>
+  </div>
+
+  <div class="stack">
+    <section class="card">
+      <div class="card-head"><h2>Resumo</h2></div>
+      <div class="kv"><span>Valor total</span><b><%= brl(p.total_cents) %></b></div>
+      <div class="kv"><span>Recorrente (MRR)</span><b><%= brl(p.mrr_cents) %>/mês</b></div>
+      <div class="kv"><span>Avulso</span><b><%= brl(p.items.select(&:one_off?).sum(&:price_cents)) %></b></div>
+      <div class="kv"><span>Forma de pagamento</span><b style="text-align:right"><%= p.payment_terms.presence || "—" %></b></div>
+      <div class="kv"><span>Prazo</span><b style="text-align:right"><%= p.delivery_terms.presence || "—" %></b></div>
+      <div class="kv"><span>Destinatário</span><b><%= p.contact&.name || "—" %></b></div>
+      <% if p.notes.present? %><div class="card-body caption" style="border-top:1px solid var(--rule)"><%= p.notes %></div><% end %>
+    </section>
+    <section class="card">
+      <div class="card-head"><h2>Vínculos</h2></div>
+      <div class="kv"><span>Cliente</span><%= p.company ? link_to("#{p.company.trade_name} · Visão 360º", company_path(p.company), style: "font-weight:600") : tag.b("—") %></div>
+      <% if p.lead %><div class="kv"><span>Lead</span><%= link_to p.lead.display_name, lead_path(p.lead), style: "font-weight:600" %></div><% end %>
+      <% if p.opportunity %><div class="kv"><span>Oportunidade</span><%= link_to "#{p.opportunity.title} · #{p.opportunity.stage_label}", edit_opportunity_path(p.opportunity), style: "font-weight:600", data: { turbo_frame: "drawer-frame", open: "drawer" } %></div><% end %>
+      <% if p.contract %><div class="kv"><span>Contrato</span><%= link_to p.contract.code, contract_path(p.contract), style: "font-weight:600" %></div><% end %>
+    </section>
+    <% if policy(Document).index? %>
+      <section class="card">
+        <div class="card-head"><h2>Documentos</h2><% if policy(Document).create? %><%= drawer_link_to "Anexar", new_document_path(proposta: p.id), style: "font-size:13px;font-weight:600" %><% end %></div>
+        <% @documents.each do |doc| %>
+          <div class="file-row"><span class="file-ic"><%= icon(:file, size: 18, stroke: 1.8) %></span><div><%= link_to doc.title, document_path(doc), target: "_blank", class: "strong" %><span class="cell-sub"><%= date_br(doc.created_at) %> · <%= doc.uploaded_by.first_name %></span></div><%= link_to "Abrir", document_path(doc), target: "_blank", class: "link-btn" %></div>
+        <% end %>
+        <% if @documents.empty? %><div class="card-foot"><span>Anexe o PDF enviado ao cliente para manter o histórico.</span></div><% end %>
+      </section>
+    <% end %>
+  </div>
+</div>

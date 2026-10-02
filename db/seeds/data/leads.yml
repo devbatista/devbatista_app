@@ -1,0 +1,197 @@
+# Extraído de docs/design/comercial/leads.html (lista: 10 de 31 leads visíveis),
+# docs/design/comercial/lead.html (detalhe do lead Grupo Norte Logística) e
+# docs/design/comercial/pipeline.html (cartões de Novo Lead, Contato Realizado e Qualificado).
+# Conferido com docs/design/comercial/oportunidades.html e propostas.html.
+#
+# Observações:
+# - Na lista, a coluna "Contato / WhatsApp" mostra o WhatsApp (bate com lead.html para
+#   Henrique Duarte). Só Henrique tem telefone fixo no design; os demais ficam phone: null.
+# - company = trade_name de companies.yml quando o lead é de empresa já cadastrada
+#   (Grupo Norte Logística, Agro Campos, Cliente E); senão null.
+# - Henrique Duarte segue "qualified" (como em lead.html e no pipeline), embora já exista a
+#   oportunidade "Sistema de roteirização" ligada a ele (ver opportunities.yml).
+# - Tiago Moreira: "convertido em 08/09" (data de conversão = 2026-09-08; não há campo no YAML).
+# - Eduardo Matos (Construtora Alicerce): empresa não cadastrada; a oportunidade perdida dele
+#   ficou fora de opportunities.yml. Perdido em 04/09/2026 (recusa da proposta #P-2026-022).
+# - Sérgio Nunes: entrada 05/09 (lista); qualificado em 11/09 (pipeline).
+# - Último contato de Rodrigo Campos (15/09) e Juliana Arantes (14/09) aparece só no pipeline,
+#   sem tipo nem descrição; não virou interação.
+
+# Novo Lead
+- name: Paulo Lima
+  company_name: Transportes Lima
+  phone: null
+  whatsapp: "(11) 98712-4410"
+  email: paulo@transporteslima.com.br
+  origin: whatsapp
+  service: Automação/RPA
+  user: ana.souza@devbatista.com.br
+  status: new
+  entered_on: "2026-09-17"
+  notes: null
+  next_step: null
+  next_step_on: null
+  lost_reason: null
+  lost_details: null
+  company: null
+
+- name: Fernanda Reis
+  company_name: Clínica Bem Estar
+  phone: null
+  whatsapp: "(11) 99234-1187"
+  email: contato@clinicabemestar.com.br
+  origin: site
+  service: Desenvolvimento de sites
+  user: ana.souza@devbatista.com.br
+  status: new
+  entered_on: "2026-09-16"
+  notes: null
+  next_step: null
+  next_step_on: null
+  lost_reason: null
+  lost_details: null
+  company: null
+
+- name: Márcia Tavares
+  company_name: Colégio Horizonte
+  phone: null
+  whatsapp: "(19) 99611-0042"
+  email: marcia.tavares@colegiohorizonte.com.br
+  origin: referral
+  service: Desenvolvimento de sistemas
+  user: rafael@devbatista.com.br
+  status: new
+  entered_on: "2026-09-15"
+  notes: null
+  next_step: null
+  next_step_on: null
+  lost_reason: null
+  lost_details: null
+  company: null
+
+# Contato Realizado
+- name: Rodrigo Campos
+  company_name: Agro Campos
+  phone: null
+  whatsapp: "(34) 99876-2201"
+  email: rodrigo@agrocampos.com.br
+  origin: meta_ads
+  service: Integrações
+  user: ana.souza@devbatista.com.br
+  status: contacted
+  entered_on: "2026-09-11"
+  notes: null
+  next_step: null
+  next_step_on: null
+  lost_reason: null
+  lost_details: null
+  company: Agro Campos
+
+- name: Juliana Arantes
+  company_name: Ótica Visão Clara
+  phone: null
+  whatsapp: "(11) 98455-7310"
+  email: juliana@oticavisaoclara.com.br
+  origin: linkedin
+  service: Desenvolvimento de sites
+  user: ana.souza@devbatista.com.br
+  status: contacted
+  entered_on: "2026-09-09"
+  notes: null
+  next_step: null
+  next_step_on: null
+  lost_reason: null
+  lost_details: null
+  company: null
+
+# Qualificado
+- name: Sérgio Nunes
+  company_name: Padaria Trigo Bom
+  phone: null
+  whatsapp: "(11) 97733-5120"
+  email: sergio@trigobom.com.br
+  origin: google_ads
+  service: Hospedagem
+  user: ana.souza@devbatista.com.br
+  status: qualified
+  entered_on: "2026-09-05"
+  notes: null
+  next_step: null
+  next_step_on: null
+  lost_reason: null
+  lost_details: null
+  company: null
+
+- name: Henrique Duarte
+  company_name: Grupo Norte Logística
+  phone: "(11) 3214-8800"
+  whatsapp: "(11) 99102-3344"
+  email: henrique.duarte@gruponorte.com.br
+  origin: diagnosis
+  service: Consultoria de TI
+  user: rafael@devbatista.com.br
+  status: qualified
+  entered_on: "2026-09-03"
+  notes: >-
+    Transportadora com 3 filiais (SP, Campinas e Sorocaba) e cerca de 120 veículos.
+    Chegou pelo diagnóstico gratuito após anúncio sobre integração de sistemas. Quer
+    consultoria contínua para organizar a TI antes de investir em novo sistema. Sensível
+    a prazo: quer começar em outubro.
+  next_step: "Reunião de plano de trabalho (10:00, online) · converter antes para registrar a oportunidade de Consultoria de TI"
+  next_step_on: "2026-09-22"
+  lost_reason: null
+  lost_details: null
+  company: Grupo Norte Logística
+
+# Convertido (Fechado no pipeline)
+- name: Tiago Moreira
+  company_name: Cliente E
+  phone: null
+  whatsapp: "(11) 99540-2276"
+  email: tiago@clientee.com.br
+  origin: referral
+  service: Desenvolvimento de sistemas
+  user: ana.souza@devbatista.com.br
+  status: converted
+  entered_on: "2026-08-12"
+  notes: Convertido em 08/09/2026 na oportunidade "Sistema de controle de estoque" (ganha).
+  next_step: null
+  next_step_on: null
+  lost_reason: null
+  lost_details: null
+  company: Cliente E
+
+# Perdidos
+- name: Vanessa Lopes
+  company_name: Ótica Visão Clara
+  phone: null
+  whatsapp: "(11) 98877-1209"
+  email: vanessa@visaoclara.com.br
+  origin: google_ads
+  service: Desenvolvimento de sites
+  user: ana.souza@devbatista.com.br
+  status: lost
+  entered_on: "2026-09-02"
+  notes: null
+  next_step: null
+  next_step_on: null
+  lost_reason: Preço
+  lost_details: null
+  company: null
+
+- name: Eduardo Matos
+  company_name: Construtora Alicerce
+  phone: null
+  whatsapp: "(31) 99214-6630"
+  email: eduardo.matos@alicerce.eng.br
+  origin: outbound
+  service: Gestão de infraestrutura
+  user: rafael@devbatista.com.br
+  status: lost
+  entered_on: "2026-08-21"
+  notes: null
+  next_step: null
+  next_step_on: null
+  lost_reason: Optou por concorrente
+  lost_details: Proposta #P-2026-022 (Sustentação de servidores, R$ 4.800) recusada em 04/09/2026.
+  company: null

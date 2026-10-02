@@ -180,3 +180,111 @@ document.addEventListener("turbo:frame-load", (e) => {
 })
 // Fecha painéis abertos antes de o Turbo guardar a página no cache.
 document.addEventListener("turbo:before-cache", () => { closeAll(); palette()?.classList.remove("open"); document.body.classList.remove("nav-open") })
+
+
+// ---------- Editor de itens da proposta ----------
+const brl = (n) => n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
+
+const updateItemsTotal = (box) => {
+  let total = 0
+  box.querySelectorAll("[data-item]").forEach((row, i) => {
+    if (row.hidden) return
+    total += parseFloat(row.querySelector("[data-item-price]")?.value || 0) || 0
+    const pos = row.querySelector("[data-item-position]")
+    if (pos) pos.value = i
+  })
+  const out = box.querySelector("[data-items-total]")
+  if (out) out.textContent = brl(total)
+}
+
+document.addEventListener("click", (e) => {
+  const add = e.target.closest("[data-add-item]")
+  if (add) {
+    const box = add.closest("[data-items]")
+    const html = box.querySelector("[data-item-template]").innerHTML.replaceAll("NEW_ITEM", Date.now())
+    box.querySelector("[data-items-list]").insertAdjacentHTML("beforeend", html)
+    updateItemsTotal(box)
+    return
+  }
+  const remove = e.target.closest("[data-remove-item]")
+  if (remove) {
+    const row = remove.closest("[data-item]")
+    row.querySelector("[data-item-destroy]").value = "1"
+    row.hidden = true
+    updateItemsTotal(row.closest("[data-items]"))
+  }
+})
+
+document.addEventListener("change", (e) => {
+  const select = e.target.closest("[data-item-service]")
+  if (!select) return
+  const row = select.closest("[data-item]")
+  const option = select.selectedOptions[0]
+  const price = row.querySelector("[data-item-price]")
+  if (option?.dataset.price && (!parseFloat(price.value) || price.dataset.fromCatalog === "1")) { price.value = option.dataset.price; price.dataset.fromCatalog = "1" }
+  const rec = row.querySelector("[data-item-recurrence]")
+  if (option?.dataset.recurrence && rec) rec.value = option.dataset.recurrence
+  updateItemsTotal(row.closest("[data-items]"))
+})
+
+document.addEventListener("input", (e) => {
+  const price = e.target.closest("[data-item-price]")
+  if (!price) return
+  price.dataset.fromCatalog = "0"
+  updateItemsTotal(price.closest("[data-items]"))
+})
+
+// ---------- Pipeline: arrastar cartões entre etapas ----------
+let dragged = null
+
+document.addEventListener("dragstart", (e) => {
+  const card = e.target.closest?.(".kcard[draggable=true]")
+  if (!card) return
+  dragged = card
+  card.classList.add("dragging")
+  e.dataTransfer.effectAllowed = "move"
+})
+
+document.addEventListener("dragend", () => {
+  dragged?.classList.remove("dragging")
+  dragged = null
+  document.querySelectorAll(".lane.over").forEach((l) => l.classList.remove("over"))
+})
+
+document.addEventListener("dragover", (e) => {
+  const lane = e.target.closest?.("[data-lane]")
+  if (!lane || !dragged) return
+  e.preventDefault()
+  document.querySelectorAll(".lane.over").forEach((l) => l !== lane && l.classList.remove("over"))
+  lane.classList.add("over")
+})
+
+const openDrawerWith = (url) => {
+  const drawer = document.getElementById("drawer")
+  const frame = document.getElementById("drawer-frame")
+  if (!drawer || !frame) return Turbo.visit(url)
+  openPanel(drawer)
+  frame.src = url
+}
+
+document.addEventListener("drop", async (e) => {
+  const lane = e.target.closest?.("[data-lane]")
+  if (!lane || !dragged) return
+  e.preventDefault()
+  const card = dragged
+  const kind = card.dataset.cardKind
+  const to = lane.dataset.lane
+  const laneKind = lane.dataset.laneKind
+  if (card.closest("[data-lane]") === lane) return
+
+  if (laneKind === "lost") return openDrawerWith(card.dataset.loseUrl)
+  if (kind === "lead" && laneKind === "opportunity") return openDrawerWith(card.dataset.convertUrl)
+  if (kind === "opportunity" && laneKind === "lead") return alert("Oportunidade não volta para as etapas de lead.")
+
+  const token = document.querySelector("meta[name=csrf-token]")?.content
+  const res = await fetch(`${card.dataset.moveUrl}?to=${encodeURIComponent(to)}`, {
+    method: "PATCH", headers: { "X-CSRF-Token": token, Accept: "application/json" }
+  })
+  if (res.ok) Turbo.visit(location.href, { action: "replace" })
+  else alert((await res.json().catch(() => ({}))).error || "Não foi possível mudar a etapa.")
+})
