@@ -15,6 +15,7 @@ class RecurringExpense < ApplicationRecord
   money_attribute :amount
 
   belongs_to :supplier
+  belongs_to :external_service, optional: true
   has_many :payables, dependent: :nullify
 
   validates :description, :category, :start_on, presence: true
@@ -40,7 +41,8 @@ class RecurringExpense < ApplicationRecord
   # Atributos de um título a pagar gerado por esta regra.
   def payable_attributes(due_on)
     { supplier: supplier, description: "#{description} — #{I18n.l(due_on, format: '%B/%Y').capitalize}", category: category,
-      company_id: company_id, cost_center: cost_center, currency: currency, due_on: due_on, competence: due_on.beginning_of_month }
+      company_id: company_id, cost_center: cost_center, currency: currency, due_on: due_on, competence: due_on.beginning_of_month,
+      external_service_id: external_service_id }
       .merge(foreign? ? { original_amount_cents: amount_cents } : { amount_cents: amount_cents })
   end
 

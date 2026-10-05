@@ -1,0 +1,35 @@
+<% s = service %>
+<% back = params[:voltar] == "aplicacao" && s.app ? app_path(s.app) : external_services_path %>
+<%= render layout: "shared/drawer_form", locals: { title: s.new_record? ? "Novo serviço externo" : "Editar serviço externo", cancel_path: back } do %>
+  <%= form_with model: s, class: "form", data: { turbo_frame: "_top" } do |f| %>
+    <%= hidden_field_tag :voltar, params[:voltar] if params[:voltar] %>
+    <div class="drawer-body form">
+      <%= render "shared/form_errors", record: s %>
+      <div class="form-grid">
+        <div class="field"><%= f.label :name do %>Serviço <span class="req">*</span><% end %><%= f.text_field :name, class: "input", required: true, placeholder: "Ex.: Railway" %></div>
+        <div class="field"><%= f.label :plan, "Plano ou uso" %><%= f.text_field :plan, class: "input", placeholder: "Ex.: Plano Pro · hospedagem" %></div>
+        <div class="field"><%= f.label :supplier_id do %>Fornecedor <span class="req">*</span><% end %><%= f.collection_select :supplier_id, Supplier.active.or(Supplier.where(id: s.supplier_id)).by_name, :id, :name, { prompt: "Selecione" }, class: "select", required: true %><span class="hint">Cadastrado em Fornecedores</span></div>
+        <div class="field"><%= f.label :company_id do %>Cliente <span class="req">*</span><% end %><%= f.collection_select :company_id, Company.where.not(status: "inactive").or(Company.where(id: s.company_id)).by_name, :id, :trade_name, { prompt: "Selecione" }, class: "select", required: true %><span class="hint">Cliente beneficiado</span></div>
+        <div class="field full"><%= f.label :app_id, "Aplicação" %><%= f.select :app_id, app_options(s.app_id), { include_blank: "Nenhuma" }, class: "select" %><span class="hint">Precisa ser do mesmo cliente</span></div>
+        <div class="field"><%= f.label :cost do %>Custo <span class="req">*</span><% end %><%= f.number_field :cost, class: "input num", step: "0.01", min: 0, required: true, placeholder: "20,00" %></div>
+        <div class="field"><%= f.label :currency do %>Moeda <span class="req">*</span><% end %><%= f.select :currency, ExchangeRate::CURRENCIES.map { |code, name| [ "#{ExchangeRate::SYMBOLS[code]} — #{name}", code ] }, {}, class: "select" %></div>
+        <div class="field full"><%= f.label :periodicity do %>Periodicidade <span class="req">*</span><% end %><%= f.select :periodicity, ExternalService.options_for_periodicity, {}, class: "select" %><span class="hint">Por consumo: informe o valor da última fatura</span></div>
+        <fieldset class="field full" style="border:0;padding:0;margin:0">
+          <legend class="label" style="margin-bottom:8px">Responsável pelo pagamento <span class="req">*</span></legend>
+          <div class="row wrap" style="gap:20px">
+            <% ExternalService.options_for_paid_by.each do |label, value| %><label class="check"><%= f.radio_button :paid_by, value %> <%= label %></label><% end %>
+          </div>
+          <span class="hint" style="margin-top:6px">Só os pagos pela DevBatista entram no custo direto do cliente.</span>
+        </fieldset>
+        <% if s.persisted? %><div class="field full"><label class="check"><%= f.check_box :active %> Serviço ativo</label></div><% end %>
+        <div class="field full"><%= f.label :notes, "Observações" %><%= f.text_area :notes, class: "textarea", placeholder: "Plano contratado e demais notas" %></div>
+        <div class="field full"><%= f.label :vault_reference, "Referência no cofre de senhas" %><%= f.text_field :vault_reference, class: "input", placeholder: "Ex.: Cofre DevBatista › Fornecedores › Railway" %><span class="hint"><%= vault_hint %></span></div>
+      </div>
+    </div>
+    <div class="drawer-foot">
+      <% if s.persisted? && policy(s).destroy? %><%= link_to "Excluir", external_service_path(s), class: "btn danger", style: "margin-right:auto", data: { turbo_method: :delete, turbo_confirm: "Excluir o serviço #{s}?", turbo_frame: "_top" } %><% end %>
+      <%= link_to "Cancelar", back, class: "btn", data: { close: true, turbo_frame: "_top" } %>
+      <%= f.submit s.new_record? ? "Salvar serviço" : "Salvar alterações", class: "btn pri" %>
+    </div>
+  <% end %>
+<% end %>

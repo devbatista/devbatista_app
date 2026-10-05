@@ -22,8 +22,10 @@ class SuppliersController < ApplicationController
     @kpis = {
       active: Supplier.active.count, categories: Supplier.active.distinct.count(:category),
       month: payables.sum(:amount_cents), month_count: payables.count,
-      foreign: Payable.foreign.not_cancelled.distinct.count(:supplier_id)
+      foreign: Payable.foreign.not_cancelled.distinct.count(:supplier_id),
+      services: ExternalService.active.count, service_suppliers: ExternalService.active.distinct.count(:supplier_id)
     }
+    @services = ExternalService.active.where(supplier_id: @suppliers.map(&:id)).group(:supplier_id).count
     @rate = ExchangeRate.where(currency: "USD").order(quoted_on: :desc).first
   end
 

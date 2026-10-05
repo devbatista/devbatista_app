@@ -177,6 +177,50 @@ ALTER SEQUENCE public.activities_id_seq OWNED BY public.activities.id;
 
 
 --
+-- Name: apps; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.apps (
+    id bigint NOT NULL,
+    company_id bigint NOT NULL,
+    name character varying NOT NULL,
+    description text,
+    environment character varying DEFAULT 'production'::character varying NOT NULL,
+    status character varying DEFAULT 'active'::character varying NOT NULL,
+    url character varying,
+    tech_stack character varying,
+    repository_url character varying,
+    hosting_type character varying,
+    hosting_id bigint,
+    project_id bigint,
+    contract_id bigint,
+    user_id bigint,
+    vault_reference character varying,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: apps_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.apps_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: apps_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.apps_id_seq OWNED BY public.apps.id;
+
+
+--
 -- Name: ar_internal_metadata; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -403,6 +447,44 @@ ALTER SEQUENCE public.customer_services_id_seq OWNED BY public.customer_services
 
 
 --
+-- Name: databases; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.databases (
+    id bigint NOT NULL,
+    app_id bigint NOT NULL,
+    technology character varying NOT NULL,
+    version character varying,
+    environment character varying DEFAULT 'production'::character varying NOT NULL,
+    provider character varying,
+    backup_policy character varying,
+    vault_reference character varying,
+    notes text,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: databases_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.databases_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: databases_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.databases_id_seq OWNED BY public.databases.id;
+
+
+--
 -- Name: documents; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -440,6 +522,47 @@ ALTER SEQUENCE public.documents_id_seq OWNED BY public.documents.id;
 
 
 --
+-- Name: domains; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.domains (
+    id bigint NOT NULL,
+    company_id bigint NOT NULL,
+    name character varying NOT NULL,
+    registrar character varying NOT NULL,
+    registered_on date,
+    expires_on date NOT NULL,
+    auto_renew boolean DEFAULT false NOT NULL,
+    currency character varying DEFAULT 'BRL'::character varying NOT NULL,
+    renewal_cost_cents integer DEFAULT 0 NOT NULL,
+    paid_by character varying DEFAULT 'client'::character varying NOT NULL,
+    dns_provider character varying,
+    notes text,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: domains_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.domains_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: domains_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.domains_id_seq OWNED BY public.domains.id;
+
+
+--
 -- Name: exchange_rates; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -471,6 +594,85 @@ CREATE SEQUENCE public.exchange_rates_id_seq
 --
 
 ALTER SEQUENCE public.exchange_rates_id_seq OWNED BY public.exchange_rates.id;
+
+
+--
+-- Name: external_services; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.external_services (
+    id bigint NOT NULL,
+    name character varying NOT NULL,
+    plan character varying,
+    supplier_id bigint NOT NULL,
+    company_id bigint NOT NULL,
+    app_id bigint,
+    currency character varying DEFAULT 'BRL'::character varying NOT NULL,
+    cost_cents integer DEFAULT 0 NOT NULL,
+    periodicity character varying DEFAULT 'monthly'::character varying NOT NULL,
+    paid_by character varying DEFAULT 'devbatista'::character varying NOT NULL,
+    active boolean DEFAULT true NOT NULL,
+    vault_reference character varying,
+    notes text,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: external_services_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.external_services_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: external_services_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.external_services_id_seq OWNED BY public.external_services.id;
+
+
+--
+-- Name: integrations; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.integrations (
+    id bigint NOT NULL,
+    app_id bigint NOT NULL,
+    platform character varying NOT NULL,
+    variant character varying,
+    environment character varying DEFAULT 'production'::character varying NOT NULL,
+    status character varying DEFAULT 'configuring'::character varying NOT NULL,
+    purpose character varying NOT NULL,
+    notes text,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: integrations_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.integrations_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: integrations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.integrations_id_seq OWNED BY public.integrations.id;
 
 
 --
@@ -707,6 +909,7 @@ CREATE TABLE public.payables (
     notes text,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
+    external_service_id bigint,
     CONSTRAINT payables_amount_positive CHECK ((amount_cents >= 0)),
     CONSTRAINT payables_cost_center_present CHECK (((company_id IS NOT NULL) OR (cost_center IS NOT NULL)))
 );
@@ -729,6 +932,74 @@ CREATE SEQUENCE public.payables_id_seq
 --
 
 ALTER SEQUENCE public.payables_id_seq OWNED BY public.payables.id;
+
+
+--
+-- Name: product_costs; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.product_costs (
+    id bigint NOT NULL,
+    product_id bigint NOT NULL,
+    month date NOT NULL,
+    amount_cents integer DEFAULT 0 NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: product_costs_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.product_costs_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: product_costs_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.product_costs_id_seq OWNED BY public.product_costs.id;
+
+
+--
+-- Name: products; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.products (
+    id bigint NOT NULL,
+    name character varying NOT NULL,
+    url character varying,
+    description text,
+    status character varying DEFAULT 'idea'::character varying NOT NULL,
+    notes text,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: products_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.products_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: products_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.products_id_seq OWNED BY public.products.id;
 
 
 --
@@ -970,6 +1241,7 @@ CREATE TABLE public.recurring_expenses (
     notes text,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
+    external_service_id bigint,
     CONSTRAINT recurring_expenses_cost_center_present CHECK (((company_id IS NOT NULL) OR (cost_center IS NOT NULL)))
 );
 
@@ -1033,6 +1305,46 @@ ALTER SEQUENCE public.roles_id_seq OWNED BY public.roles.id;
 CREATE TABLE public.schema_migrations (
     version character varying NOT NULL
 );
+
+
+--
+-- Name: servers; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.servers (
+    id bigint NOT NULL,
+    company_id bigint NOT NULL,
+    supplier_id bigint NOT NULL,
+    name character varying NOT NULL,
+    host character varying NOT NULL,
+    environment character varying DEFAULT 'production'::character varying NOT NULL,
+    os character varying,
+    instance_type character varying,
+    monthly_cost_cents integer DEFAULT 0 NOT NULL,
+    vault_reference character varying,
+    notes text,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: servers_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.servers_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: servers_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.servers_id_seq OWNED BY public.servers.id;
 
 
 --
@@ -1101,6 +1413,47 @@ CREATE SEQUENCE public.settings_id_seq
 --
 
 ALTER SEQUENCE public.settings_id_seq OWNED BY public.settings.id;
+
+
+--
+-- Name: subscriptions; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.subscriptions (
+    id bigint NOT NULL,
+    product_id bigint NOT NULL,
+    company_id bigint,
+    subscriber_name character varying NOT NULL,
+    email character varying,
+    plan character varying NOT NULL,
+    monthly_value_cents integer DEFAULT 0 NOT NULL,
+    started_on date NOT NULL,
+    trial_ends_on date,
+    cancelled_on date,
+    status character varying DEFAULT 'active'::character varying NOT NULL,
+    notes text,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: subscriptions_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.subscriptions_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: subscriptions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.subscriptions_id_seq OWNED BY public.subscriptions.id;
 
 
 --
@@ -1246,7 +1599,8 @@ CREATE TABLE public.tickets (
     opened_at timestamp(6) without time zone NOT NULL,
     resolved_at timestamp(6) without time zone,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    app_id bigint
 );
 
 
@@ -1383,6 +1737,13 @@ ALTER TABLE ONLY public.activities ALTER COLUMN id SET DEFAULT nextval('public.a
 
 
 --
+-- Name: apps id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.apps ALTER COLUMN id SET DEFAULT nextval('public.apps_id_seq'::regclass);
+
+
+--
 -- Name: audit_logs id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -1418,6 +1779,13 @@ ALTER TABLE ONLY public.customer_services ALTER COLUMN id SET DEFAULT nextval('p
 
 
 --
+-- Name: databases id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.databases ALTER COLUMN id SET DEFAULT nextval('public.databases_id_seq'::regclass);
+
+
+--
 -- Name: documents id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -1425,10 +1793,31 @@ ALTER TABLE ONLY public.documents ALTER COLUMN id SET DEFAULT nextval('public.do
 
 
 --
+-- Name: domains id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.domains ALTER COLUMN id SET DEFAULT nextval('public.domains_id_seq'::regclass);
+
+
+--
 -- Name: exchange_rates id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.exchange_rates ALTER COLUMN id SET DEFAULT nextval('public.exchange_rates_id_seq'::regclass);
+
+
+--
+-- Name: external_services id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.external_services ALTER COLUMN id SET DEFAULT nextval('public.external_services_id_seq'::regclass);
+
+
+--
+-- Name: integrations id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.integrations ALTER COLUMN id SET DEFAULT nextval('public.integrations_id_seq'::regclass);
 
 
 --
@@ -1471,6 +1860,20 @@ ALTER TABLE ONLY public.opportunities ALTER COLUMN id SET DEFAULT nextval('publi
 --
 
 ALTER TABLE ONLY public.payables ALTER COLUMN id SET DEFAULT nextval('public.payables_id_seq'::regclass);
+
+
+--
+-- Name: product_costs id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.product_costs ALTER COLUMN id SET DEFAULT nextval('public.product_costs_id_seq'::regclass);
+
+
+--
+-- Name: products id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.products ALTER COLUMN id SET DEFAULT nextval('public.products_id_seq'::regclass);
 
 
 --
@@ -1523,6 +1926,13 @@ ALTER TABLE ONLY public.roles ALTER COLUMN id SET DEFAULT nextval('public.roles_
 
 
 --
+-- Name: servers id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.servers ALTER COLUMN id SET DEFAULT nextval('public.servers_id_seq'::regclass);
+
+
+--
 -- Name: services id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -1534,6 +1944,13 @@ ALTER TABLE ONLY public.services ALTER COLUMN id SET DEFAULT nextval('public.ser
 --
 
 ALTER TABLE ONLY public.settings ALTER COLUMN id SET DEFAULT nextval('public.settings_id_seq'::regclass);
+
+
+--
+-- Name: subscriptions id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.subscriptions ALTER COLUMN id SET DEFAULT nextval('public.subscriptions_id_seq'::regclass);
 
 
 --
@@ -1611,6 +2028,14 @@ ALTER TABLE ONLY public.activities
 
 
 --
+-- Name: apps apps_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.apps
+    ADD CONSTRAINT apps_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: ar_internal_metadata ar_internal_metadata_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1659,6 +2084,14 @@ ALTER TABLE ONLY public.customer_services
 
 
 --
+-- Name: databases databases_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.databases
+    ADD CONSTRAINT databases_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: documents documents_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1667,11 +2100,35 @@ ALTER TABLE ONLY public.documents
 
 
 --
+-- Name: domains domains_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.domains
+    ADD CONSTRAINT domains_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: exchange_rates exchange_rates_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.exchange_rates
     ADD CONSTRAINT exchange_rates_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: external_services external_services_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.external_services
+    ADD CONSTRAINT external_services_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: integrations integrations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.integrations
+    ADD CONSTRAINT integrations_pkey PRIMARY KEY (id);
 
 
 --
@@ -1720,6 +2177,22 @@ ALTER TABLE ONLY public.opportunities
 
 ALTER TABLE ONLY public.payables
     ADD CONSTRAINT payables_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: product_costs product_costs_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.product_costs
+    ADD CONSTRAINT product_costs_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: products products_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.products
+    ADD CONSTRAINT products_pkey PRIMARY KEY (id);
 
 
 --
@@ -1787,6 +2260,14 @@ ALTER TABLE ONLY public.schema_migrations
 
 
 --
+-- Name: servers servers_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.servers
+    ADD CONSTRAINT servers_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: services services_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1800,6 +2281,14 @@ ALTER TABLE ONLY public.services
 
 ALTER TABLE ONLY public.settings
     ADD CONSTRAINT settings_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: subscriptions subscriptions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.subscriptions
+    ADD CONSTRAINT subscriptions_pkey PRIMARY KEY (id);
 
 
 --
@@ -1904,6 +2393,48 @@ CREATE INDEX index_activities_on_subject_type_and_subject_id ON public.activitie
 --
 
 CREATE INDEX index_activities_on_user_id ON public.activities USING btree (user_id);
+
+
+--
+-- Name: index_apps_on_company_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_apps_on_company_id ON public.apps USING btree (company_id);
+
+
+--
+-- Name: index_apps_on_contract_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_apps_on_contract_id ON public.apps USING btree (contract_id);
+
+
+--
+-- Name: index_apps_on_hosting_type_and_hosting_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_apps_on_hosting_type_and_hosting_id ON public.apps USING btree (hosting_type, hosting_id);
+
+
+--
+-- Name: index_apps_on_project_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_apps_on_project_id ON public.apps USING btree (project_id);
+
+
+--
+-- Name: index_apps_on_status; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_apps_on_status ON public.apps USING btree (status);
+
+
+--
+-- Name: index_apps_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_apps_on_user_id ON public.apps USING btree (user_id);
 
 
 --
@@ -2040,6 +2571,13 @@ CREATE INDEX index_customer_services_on_status ON public.customer_services USING
 
 
 --
+-- Name: index_databases_on_app_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_databases_on_app_id ON public.databases USING btree (app_id);
+
+
+--
 -- Name: index_documents_on_company_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2061,10 +2599,59 @@ CREATE INDEX index_documents_on_uploaded_by_id ON public.documents USING btree (
 
 
 --
+-- Name: index_domains_on_company_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_domains_on_company_id ON public.domains USING btree (company_id);
+
+
+--
+-- Name: index_domains_on_expires_on; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_domains_on_expires_on ON public.domains USING btree (expires_on);
+
+
+--
+-- Name: index_domains_on_name; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_domains_on_name ON public.domains USING btree (name);
+
+
+--
 -- Name: index_exchange_rates_on_currency_and_quoted_on; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_exchange_rates_on_currency_and_quoted_on ON public.exchange_rates USING btree (currency, quoted_on);
+
+
+--
+-- Name: index_external_services_on_app_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_external_services_on_app_id ON public.external_services USING btree (app_id);
+
+
+--
+-- Name: index_external_services_on_company_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_external_services_on_company_id ON public.external_services USING btree (company_id);
+
+
+--
+-- Name: index_external_services_on_supplier_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_external_services_on_supplier_id ON public.external_services USING btree (supplier_id);
+
+
+--
+-- Name: index_integrations_on_app_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_integrations_on_app_id ON public.integrations USING btree (app_id);
 
 
 --
@@ -2229,6 +2816,13 @@ CREATE INDEX index_payables_on_due_on ON public.payables USING btree (due_on);
 
 
 --
+-- Name: index_payables_on_external_service_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_payables_on_external_service_id ON public.payables USING btree (external_service_id);
+
+
+--
 -- Name: index_payables_on_recurring_expense_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2254,6 +2848,27 @@ CREATE INDEX index_payables_on_supplier_id ON public.payables USING btree (suppl
 --
 
 CREATE UNIQUE INDEX index_payables_once_per_competence ON public.payables USING btree (recurring_expense_id, competence) WHERE (recurring_expense_id IS NOT NULL);
+
+
+--
+-- Name: index_product_costs_on_product_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_product_costs_on_product_id ON public.product_costs USING btree (product_id);
+
+
+--
+-- Name: index_product_costs_on_product_id_and_month; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_product_costs_on_product_id_and_month ON public.product_costs USING btree (product_id, month);
+
+
+--
+-- Name: index_products_on_name; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_products_on_name ON public.products USING btree (name);
 
 
 --
@@ -2453,6 +3068,13 @@ CREATE INDEX index_recurring_expenses_on_company_id ON public.recurring_expenses
 
 
 --
+-- Name: index_recurring_expenses_on_external_service_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_recurring_expenses_on_external_service_id ON public.recurring_expenses USING btree (external_service_id);
+
+
+--
 -- Name: index_recurring_expenses_on_supplier_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2467,6 +3089,27 @@ CREATE UNIQUE INDEX index_roles_on_key ON public.roles USING btree (key);
 
 
 --
+-- Name: index_servers_on_company_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_servers_on_company_id ON public.servers USING btree (company_id);
+
+
+--
+-- Name: index_servers_on_name; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_servers_on_name ON public.servers USING btree (name);
+
+
+--
+-- Name: index_servers_on_supplier_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_servers_on_supplier_id ON public.servers USING btree (supplier_id);
+
+
+--
 -- Name: index_services_on_name; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2478,6 +3121,27 @@ CREATE UNIQUE INDEX index_services_on_name ON public.services USING btree (name)
 --
 
 CREATE UNIQUE INDEX index_settings_on_key ON public.settings USING btree (key);
+
+
+--
+-- Name: index_subscriptions_on_company_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_subscriptions_on_company_id ON public.subscriptions USING btree (company_id);
+
+
+--
+-- Name: index_subscriptions_on_product_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_subscriptions_on_product_id ON public.subscriptions USING btree (product_id);
+
+
+--
+-- Name: index_subscriptions_on_status; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_subscriptions_on_status ON public.subscriptions USING btree (status);
 
 
 --
@@ -2534,6 +3198,13 @@ CREATE INDEX index_ticket_messages_on_ticket_id ON public.ticket_messages USING 
 --
 
 CREATE INDEX index_ticket_messages_on_user_id ON public.ticket_messages USING btree (user_id);
+
+
+--
+-- Name: index_tickets_on_app_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_tickets_on_app_id ON public.tickets USING btree (app_id);
 
 
 --
@@ -2673,6 +3344,22 @@ ALTER TABLE ONLY public.tasks
 
 
 --
+-- Name: integrations fk_rails_07594015fc; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.integrations
+    ADD CONSTRAINT fk_rails_07594015fc FOREIGN KEY (app_id) REFERENCES public.apps(id);
+
+
+--
+-- Name: subscriptions fk_rails_0e8fef2fc0; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.subscriptions
+    ADD CONSTRAINT fk_rails_0e8fef2fc0 FOREIGN KEY (company_id) REFERENCES public.companies(id);
+
+
+--
 -- Name: recurrence_runs fk_rails_1843863e6d; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2697,11 +3384,35 @@ ALTER TABLE ONLY public.audit_logs
 
 
 --
+-- Name: apps fk_rails_2701a89c0b; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.apps
+    ADD CONSTRAINT fk_rails_2701a89c0b FOREIGN KEY (company_id) REFERENCES public.companies(id);
+
+
+--
+-- Name: external_services fk_rails_2827a48830; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.external_services
+    ADD CONSTRAINT fk_rails_2827a48830 FOREIGN KEY (app_id) REFERENCES public.apps(id);
+
+
+--
 -- Name: opportunities fk_rails_2903255e8d; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.opportunities
     ADD CONSTRAINT fk_rails_2903255e8d FOREIGN KEY (service_id) REFERENCES public.services(id);
+
+
+--
+-- Name: apps fk_rails_29fc5882e0; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.apps
+    ADD CONSTRAINT fk_rails_29fc5882e0 FOREIGN KEY (contract_id) REFERENCES public.contracts(id);
 
 
 --
@@ -2734,6 +3445,14 @@ ALTER TABLE ONLY public.ticket_messages
 
 ALTER TABLE ONLY public.customer_services
     ADD CONSTRAINT fk_rails_3b1d3cceca FOREIGN KEY (service_id) REFERENCES public.services(id);
+
+
+--
+-- Name: external_services fk_rails_3baf5b0829; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.external_services
+    ADD CONSTRAINT fk_rails_3baf5b0829 FOREIGN KEY (company_id) REFERENCES public.companies(id);
 
 
 --
@@ -2790,6 +3509,22 @@ ALTER TABLE ONLY public.projects
 
 ALTER TABLE ONLY public.tasks
     ADD CONSTRAINT fk_rails_4d2a9e4d7e FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
+-- Name: servers fk_rails_4d53dc7c43; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.servers
+    ADD CONSTRAINT fk_rails_4d53dc7c43 FOREIGN KEY (supplier_id) REFERENCES public.suppliers(id);
+
+
+--
+-- Name: subscriptions fk_rails_52a3b81fce; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.subscriptions
+    ADD CONSTRAINT fk_rails_52a3b81fce FOREIGN KEY (product_id) REFERENCES public.products(id);
 
 
 --
@@ -2881,6 +3616,22 @@ ALTER TABLE ONLY public.opportunities
 
 
 --
+-- Name: payables fk_rails_731b1d001f; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.payables
+    ADD CONSTRAINT fk_rails_731b1d001f FOREIGN KEY (external_service_id) REFERENCES public.external_services(id);
+
+
+--
+-- Name: domains fk_rails_76d46ed28d; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.domains
+    ADD CONSTRAINT fk_rails_76d46ed28d FOREIGN KEY (company_id) REFERENCES public.companies(id);
+
+
+--
 -- Name: opportunities fk_rails_7a1e18e277; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2929,6 +3680,14 @@ ALTER TABLE ONLY public.active_storage_variant_records
 
 
 --
+-- Name: apps fk_rails_995ae3be76; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.apps
+    ADD CONSTRAINT fk_rails_995ae3be76 FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
 -- Name: leads fk_rails_a05a032b61; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2961,6 +3720,14 @@ ALTER TABLE ONLY public.receivables
 
 
 --
+-- Name: servers fk_rails_abd7b47675; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.servers
+    ADD CONSTRAINT fk_rails_abd7b47675 FOREIGN KEY (company_id) REFERENCES public.companies(id);
+
+
+--
 -- Name: receivables fk_rails_ac4affce01; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2977,11 +3744,27 @@ ALTER TABLE ONLY public.proposal_items
 
 
 --
+-- Name: tickets fk_rails_af94b68228; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.tickets
+    ADD CONSTRAINT fk_rails_af94b68228 FOREIGN KEY (app_id) REFERENCES public.apps(id);
+
+
+--
 -- Name: notifications fk_rails_b080fb4855; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.notifications
     ADD CONSTRAINT fk_rails_b080fb4855 FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
+-- Name: product_costs fk_rails_b0ba7c2dfb; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.product_costs
+    ADD CONSTRAINT fk_rails_b0ba7c2dfb FOREIGN KEY (product_id) REFERENCES public.products(id);
 
 
 --
@@ -3041,6 +3824,14 @@ ALTER TABLE ONLY public.active_storage_attachments
 
 
 --
+-- Name: databases fk_rails_ca21348b41; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.databases
+    ADD CONSTRAINT fk_rails_ca21348b41 FOREIGN KEY (app_id) REFERENCES public.apps(id);
+
+
+--
 -- Name: customer_services fk_rails_caa146859c; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3054,6 +3845,22 @@ ALTER TABLE ONLY public.customer_services
 
 ALTER TABLE ONLY public.customer_services
     ADD CONSTRAINT fk_rails_d1d6dcd85b FOREIGN KEY (company_id) REFERENCES public.companies(id);
+
+
+--
+-- Name: recurring_expenses fk_rails_d2410703ae; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.recurring_expenses
+    ADD CONSTRAINT fk_rails_d2410703ae FOREIGN KEY (external_service_id) REFERENCES public.external_services(id);
+
+
+--
+-- Name: apps fk_rails_d296c622dc; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.apps
+    ADD CONSTRAINT fk_rails_d296c622dc FOREIGN KEY (project_id) REFERENCES public.projects(id);
 
 
 --
@@ -3113,6 +3920,14 @@ ALTER TABLE ONLY public.recurring_expenses
 
 
 --
+-- Name: external_services fk_rails_fd07a767ac; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.external_services
+    ADD CONSTRAINT fk_rails_fd07a767ac FOREIGN KEY (supplier_id) REFERENCES public.suppliers(id);
+
+
+--
 -- Name: time_entries fk_rails_fea7a886c0; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3135,6 +3950,15 @@ ALTER TABLE ONLY public.leads
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261006130008'),
+('20261006130007'),
+('20261006130006'),
+('20261006130005'),
+('20261006130004'),
+('20261006130003'),
+('20261006130002'),
+('20261006130001'),
+('20261006130000'),
 ('20261006120006'),
 ('20261006120005'),
 ('20261006120004'),

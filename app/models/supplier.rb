@@ -6,6 +6,8 @@ class Supplier < ApplicationRecord
 
   has_many :payables, dependent: :restrict_with_error
   has_many :recurring_expenses, dependent: :restrict_with_error
+  has_many :servers, dependent: :restrict_with_error
+  has_many :external_services, dependent: :restrict_with_error
   has_many :documents, as: :documentable, dependent: :restrict_with_error
 
   normalizes :email, with: ->(value) { value.to_s.strip.downcase.presence }

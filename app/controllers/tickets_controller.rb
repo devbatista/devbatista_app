@@ -3,7 +3,7 @@ class TicketsController < ApplicationController
 
   def index
     authorize Ticket
-    scope = policy_scope(Ticket).joins(:company).includes(:company, :user, :contact)
+    scope = policy_scope(Ticket).joins(:company).includes(:company, :user, :contact, :app)
     @counts = scope.group(:status).count
     scope = scope.where(status: params[:status]) if Ticket.statuses.key?(params[:status])
     scope = scope.where(priority: params[:prioridade]) if Ticket.priorities.key?(params[:prioridade])
@@ -39,7 +39,8 @@ class TicketsController < ApplicationController
   end
 
   def new
-    @ticket = authorize Ticket.new(company_id: params[:empresa], status: "open", priority: "normal", user: current_user)
+    app = App.find_by(id: params[:aplicacao])
+    @ticket = authorize Ticket.new(company_id: params[:empresa] || app&.company_id, app: app, status: "open", priority: "normal", user: current_user)
   end
 
   def create
@@ -89,7 +90,7 @@ class TicketsController < ApplicationController
   end
 
   def ticket_params
-    params.expect(ticket: %i[company_id contact_id subject description category priority user_id])
+    params.expect(ticket: %i[company_id contact_id app_id subject description category priority user_id])
   end
 
   def next_status

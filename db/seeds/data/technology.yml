@@ -1,0 +1,190 @@
+# Extraído de docs/design/tecnologia/*.html (aplicações, aplicação, servidores, domínios, bancos
+# de dados, integrações, serviços externos) e da aba Infraestrutura de clientes/empresa.html.
+#
+# Observações:
+# - Custos dos servidores em R$ (o design converte de US$ a R$ 5,62). Serviços externos guardam
+#   a moeda original; o valor em reais sai da PTAX do dia.
+# - Sentry, Twilio e Apple não estão em suppliers.yml (Fornecedores): o seed os cadastra.
+# - clientes/empresa.html mostra outra infraestrutura da ACME (acme-api-01, acmeloja.com.br,
+#   acme.app, Mailgun no Portal ACME). Valem as telas de Tecnologia.
+# - Os chamados ligados às aplicações (aplicação afetada) seguem chamados.html: #2394 e #2395
+#   na API Delta, #2398 no Sistema ERP, #2381/#2390/#2397 no Portal ACME e #2396 no App Orion.
+# - Referências ao cofre: as do detalhe do Portal ACME; nas demais, o mesmo padrão de caminho.
+
+servers:
+  - { name: acme-worker-01, company: Empresa ACME, supplier: AWS, host: 18.231.44.12, environment: production, os: Ubuntu 24.04 LTS, instance_type: EC2 t3.small, monthly_cost: 220, vault_reference: "Cofre DevBatista › Clientes › ACME › SSH acme-worker-01" }
+  - { name: clientea-prod, company: Cliente A, supplier: AWS, host: 54.94.120.33, environment: production, os: Ubuntu 22.04 LTS, instance_type: EC2 t3.medium, monthly_cost: 290, vault_reference: "Cofre DevBatista › Clientes › Cliente A › SSH clientea-prod" }
+  - { name: clienteb-dev, company: Cliente B, supplier: AWS, host: dev.painel.clienteb.com.br, environment: development, os: Ubuntu 24.04 LTS, instance_type: Lightsail 2 GB, monthly_cost: 45 }
+  - { name: clientec-homolog, company: Cliente C, supplier: AWS, host: homolog.erp-clientec.com.br, environment: staging, os: Ubuntu 24.04 LTS, instance_type: EC2 t3.small, monthly_cost: 140 }
+  - { name: delta-api-prod, company: Empresa Delta, supplier: AWS, host: 54.207.81.90, environment: production, os: Ubuntu 22.04 LTS, instance_type: EC2 t3.large, monthly_cost: 380, vault_reference: "Cofre DevBatista › Clientes › Delta › SSH delta-api-prod" }
+  - { name: delta-api-stg, company: Empresa Delta, supplier: AWS, host: 15.228.9.140, environment: staging, os: Ubuntu 22.04 LTS, instance_type: EC2 t3.micro, monthly_cost: 95 }
+  - { name: orion-stg, company: Empresa Orion, supplier: AWS, host: staging.orion.app, environment: staging, os: Amazon Linux 2023, instance_type: EC2 t3.small, monthly_cost: 110 }
+  - { name: xyz-files-01, company: Empresa XYZ, supplier: AWS, host: arquivos.xyz.com.br, environment: production, os: Debian 12, instance_type: EC2 t3.small + 200 GB, monthly_cost: 160 }
+
+new_suppliers:
+  - { name: Sentry, category: Software, website: sentry.io, email: infra@devbatista.com.br }
+  - { name: Twilio, category: Software, website: console.twilio.com }
+  - { name: Apple, category: Software, website: developer.apple.com }
+
+# key: nome usado nas aplicações para apontar a hospedagem.
+external_services:
+  - { key: railway-acme, name: Railway, plan: Plano Pro · hospedagem, supplier: Railway, company: Empresa ACME, app: Portal ACME, currency: USD, cost: 26.70, periodicity: monthly, paid_by: devbatista, payable: Hospedagem — Portal ACME, vault_reference: "Cofre DevBatista › Clientes › ACME › Railway" }
+  - { key: railway-xyz, name: Railway, plan: Plano Hobby · hospedagem, supplier: Railway, company: Empresa XYZ, app: Sistema ERP, currency: USD, cost: 20.00, periodicity: monthly, paid_by: devbatista, payable: Hospedagem — Sistema ERP }
+  - { name: OpenAI API, plan: Fatura de agosto, supplier: OpenAI, company: Empresa ACME, app: Portal ACME, currency: USD, cost: 21.35, periodicity: usage, paid_by: devbatista, payable: API — assistente do Portal ACME }
+  - { name: Amazon SES, plan: E-mails transacionais · fatura de agosto, supplier: Amazon SES, company: Empresa ACME, app: Portal ACME, currency: USD, cost: 14.25, periodicity: usage, paid_by: devbatista }
+  - { name: Cloudflare Pro, plan: "DNS, CDN e WAF", supplier: Cloudflare, company: Empresa Delta, app: API Delta, currency: USD, cost: 25.00, periodicity: monthly, paid_by: devbatista, payable: Plano Pro — DNS e CDN }
+  - { name: Sentry, plan: Plano Team · monitoramento de erros, supplier: Sentry, company: Cliente C, app: ERP Cliente C, currency: USD, cost: 26.00, periodicity: monthly, paid_by: devbatista }
+  - { name: Mailgun, plan: Plano Foundation · conta do cliente, supplier: Mailgun, company: Empresa XYZ, app: Sistema ERP, currency: USD, cost: 35.00, periodicity: monthly, paid_by: client }
+  - { name: Twilio, plan: SMS de verificação · estimativa, supplier: Twilio, company: Empresa Orion, app: App Orion, currency: USD, cost: 40.00, periodicity: usage, paid_by: client }
+  - { name: Apple Developer Program, plan: Publicação na App Store · renova em 03/2027, supplier: Apple, company: Empresa Orion, app: App Orion, currency: USD, cost: 99.00, periodicity: annual, paid_by: client }
+
+apps:
+  - name: Portal ACME
+    company: Empresa ACME
+    description: Portal web da Empresa ACME para pedidos de clientes, acompanhamento de entregas e relatórios gerenciais. Envia e-mails transacionais e gera resumos automáticos de atendimento.
+    environment: production
+    status: active
+    url: https://portal.acme.com.br
+    tech_stack: Ruby on Rails 7.2 · Hotwire · PostgreSQL
+    repository_url: https://github.com/devbatista/portal-acme
+    hosting: railway-acme
+    project: Portal ACME — Fase 2
+    contract: 104
+    user: diego.rocha@devbatista.com.br
+    vault_reference: "Cofre DevBatista › Clientes › ACME › Portal ACME (produção)"
+    tickets: [2381, 2390, 2397]
+    databases:
+      - { technology: PostgreSQL, version: "16.4", environment: production, provider: Railway (gerenciado), backup_policy: Diário · 7 dias, notes: + dump semanal no S3, vault_reference: "Cofre DevBatista › Clientes › ACME › PostgreSQL produção" }
+    integrations:
+      - { platform: OpenAI, environment: production, status: active, purpose: Resumo automático de chamados e relatórios }
+      - { platform: Amazon SES, environment: production, status: active, purpose: E-mails transacionais de pedidos }
+      - { platform: WhatsApp, variant: Cloud API, environment: production, status: configuring, purpose: Notificação de status do pedido }
+  - name: Site institucional ACME
+    company: Empresa ACME
+    description: Site e blog da empresa
+    environment: production
+    status: active
+    url: https://acme.com.br
+    tech_stack: Astro · site estático
+    hosting: acme-worker-01
+  - name: Sistema ERP
+    company: Empresa XYZ
+    description: Estoque, faturamento e NF
+    environment: production
+    status: active
+    url: https://erp.xyz.com.br
+    tech_stack: Ruby on Rails 7.1 · PostgreSQL
+    hosting: railway-xyz
+    contract: 98
+    tickets: [2398]
+    databases:
+      - { technology: PostgreSQL, version: "15.8", environment: production, provider: Railway (gerenciado), backup_policy: Diário · 7 dias, notes: Restauração testada em 15/08/2026 }
+    integrations:
+      - { platform: Mailgun, environment: production, status: active, purpose: Envio de notas fiscais e cobranças por e-mail }
+      - { platform: PayPal, environment: production, status: active, purpose: Recebimentos de clientes no exterior }
+      - { platform: Gateway de pagamento, variant: Asaas, environment: production, status: active, purpose: Boletos e Pix das vendas }
+  - name: Portal de arquivos XYZ
+    company: Empresa XYZ
+    description: Compartilhamento interno
+    environment: production
+    status: active
+    url: https://arquivos.xyz.com.br
+    tech_stack: Nextcloud 29 · PHP
+    hosting: xyz-files-01
+    databases:
+      - { technology: MySQL, version: 8.0.39, environment: production, provider: Servidor próprio · xyz-files-01, backup_policy: Dump noturno no S3 · 30 dias }
+  - name: API Delta
+    company: Empresa Delta
+    description: Integração de notas fiscais
+    environment: production
+    status: maintenance
+    url: https://api.deltaservicos.com.br
+    tech_stack: Ruby on Rails 7.0 (API)
+    hosting: delta-api-prod
+    contract: 111
+    tickets: [2394, 2395]
+    databases:
+      - { technology: PostgreSQL, version: "14.12", environment: production, provider: Amazon RDS, backup_policy: Snapshots diários · 14 dias, notes: Recuperação a um ponto no tempo ativa }
+    integrations:
+      - { platform: API externa, variant: SEFAZ · NF-e, environment: production, status: active, purpose: Emissão e consulta de notas fiscais eletrônicas }
+  - name: API Delta (staging)
+    company: Empresa Delta
+    description: Homologação da API
+    environment: staging
+    status: active
+    url: https://staging-api.deltaservicos.com.br
+    tech_stack: Ruby on Rails 7.0 (API)
+    hosting: delta-api-stg
+    databases:
+      - { technology: PostgreSQL, version: "14.12", environment: staging, provider: Servidor próprio · delta-api-stg, notes: "Dados de teste, recriados por seed" }
+  - name: App Orion
+    company: Empresa Orion
+    description: Aplicativo de agendamento · projeto pausado
+    environment: staging
+    status: active
+    url: https://staging.orion.app
+    tech_stack: React Native · Rails API
+    hosting: orion-stg
+    project: App Orion
+    tickets: [2396]
+    databases:
+      - { technology: MongoDB, version: "7.0", environment: staging, provider: MongoDB Atlas (M10), backup_policy: Snapshot diário · 2 dias }
+    integrations:
+      - { platform: Twilio, environment: staging, status: configuring, purpose: SMS de verificação de telefone }
+      - { platform: Meta, variant: Login com Facebook, environment: staging, status: disabled, purpose: Login social (substituído por login com e-mail) }
+  - name: ERP Cliente C
+    company: Cliente C
+    description: Homologação do projeto ERP Cliente C
+    environment: staging
+    status: active
+    url: https://homolog.erp-clientec.com.br
+    tech_stack: Ruby on Rails 7.2 · Vue 3
+    hosting: clientec-homolog
+    project: ERP Cliente C
+    contract: 92
+    databases:
+      - { technology: PostgreSQL, version: "16.4", environment: staging, provider: Amazon RDS, backup_policy: Snapshot diário · 7 dias }
+    integrations:
+      - { platform: OpenAI, environment: staging, status: configuring, purpose: Classificação automática de documentos }
+  - name: Sistema de agendamento
+    company: Cliente A
+    description: Agenda e lembretes por WhatsApp
+    environment: production
+    status: active
+    url: https://agenda.clientea.com.br
+    tech_stack: Ruby on Rails 7.1 · MySQL
+    hosting: clientea-prod
+    databases:
+      - { technology: MySQL, version: 8.0.39, environment: production, provider: Amazon RDS, backup_policy: Diário · 30 dias, notes: Restauração testada em 02/09/2026 }
+    integrations:
+      - { platform: WhatsApp, variant: Cloud API, environment: production, status: active, purpose: Lembretes e confirmação de horários }
+  - name: Painel de vendas
+    company: Cliente B
+    description: Dashboard comercial
+    environment: development
+    status: active
+    url: https://dev.painel.clienteb.com.br
+    tech_stack: Next.js · Rails API
+    hosting: clienteb-dev
+    databases:
+      - { technology: PostgreSQL, version: "16.4", environment: development, provider: Docker · clienteb-dev, notes: Ambiente descartável }
+    integrations:
+      - { platform: Meta, variant: Conversions API, environment: development, status: configuring, purpose: Eventos de conversão das campanhas }
+  - name: Landing Black Friday 2025
+    company: Cliente B
+    description: Campanha encerrada em 30/11/2025
+    environment: production
+    status: disabled
+    url: https://bf.clienteb.com.br
+    tech_stack: HTML estático
+
+domains:
+  - { name: acme.com.br, company: Empresa ACME, registrar: Registro.br, registered_on: "2018-09-24", expires_on: "2026-09-24", auto_renew: false, cost: 40, paid_by: client, dns_provider: Cloudflare }
+  - { name: lojaacme.com.br, company: Empresa ACME, registrar: Registro.br, registered_on: "2022-10-14", expires_on: "2026-10-14", auto_renew: true, cost: 40, paid_by: client }
+  - { name: orion.app, company: Empresa Orion, registrar: Cloudflare, registered_on: "2024-11-05", expires_on: "2026-11-05", auto_renew: true, cost: 14.20, currency: USD, paid_by: devbatista }
+  - { name: xyz.com.br, company: Empresa XYZ, registrar: Registro.br, registered_on: "2015-12-02", expires_on: "2026-12-02", auto_renew: true, cost: 40, paid_by: client }
+  - { name: deltaservicos.com.br, company: Empresa Delta, registrar: Registro.br, registered_on: "2019-03-18", expires_on: "2027-03-18", auto_renew: true, cost: 40, paid_by: client }
+  - { name: acme.app.br, company: Empresa ACME, registrar: Registro.br, registered_on: "2025-05-10", expires_on: "2027-05-10", auto_renew: false, cost: 40, paid_by: client, notes: Redireciona para acme.com.br }
+  - { name: clientea.com.br, company: Cliente A, registrar: Registro.br, registered_on: "2020-07-21", expires_on: "2027-07-21", auto_renew: true, cost: 40, paid_by: client }
+  - { name: erp-clientec.com.br, company: Cliente C, registrar: Registro.br, registered_on: "2025-08-12", expires_on: "2027-08-12", auto_renew: true, cost: 40, paid_by: devbatista }
+  - { name: clienteb.com.br, company: Cliente B, registrar: Registro.br, registered_on: "2021-01-30", expires_on: "2028-01-30", auto_renew: true, cost: 40, paid_by: client }

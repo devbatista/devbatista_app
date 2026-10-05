@@ -1,0 +1,4 @@
+<% page_title "Editar aplicação" %>
+<% nav_location :tec, "Aplicações" %>
+<% breadcrumb ["Tecnologia"], ["Aplicações", apps_path], [@app.name, app_path(@app)], ["Editar"] %>
+<div class="form-page"><%= render "form", app: @app %></div>

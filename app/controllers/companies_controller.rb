@@ -36,6 +36,7 @@ class CompaniesController < ApplicationController
     @current_contract = @contracts.find { |c| c.active? || c.expiring? }
     load_operation
     load_finance
+    load_infrastructure
   end
 
   def new
@@ -90,6 +91,16 @@ class CompaniesController < ApplicationController
       first_paid: @company.receivables.paid.minimum(:paid_on),
       direct_cost_month: @company.direct_cost_cents(Date.current.all_month)
     }
+  end
+
+  # Aba Infraestrutura (RF 14): aplicações, servidores, bancos, domínios, integrações e serviços externos.
+  def load_infrastructure
+    return @apps = [] unless current_user.can_read?("tecnologia")
+
+    @apps = @company.apps.preload(:hosting, :databases, :integrations).order(:name).to_a
+    @servers = @company.servers.includes(:supplier).order(:name).to_a
+    @domains = @company.domains.by_expiration.to_a
+    @external_services = @company.external_services.includes(:supplier, :app).order(Arel.sql("paid_by = 'devbatista' DESC"), :name).to_a
   end
 
   def set_company

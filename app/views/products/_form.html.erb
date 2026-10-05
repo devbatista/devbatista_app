@@ -1,0 +1,22 @@
+<% p = product %>
+<%= render layout: "shared/drawer_form", locals: { title: p.new_record? ? "Novo produto" : "Editar produto", cancel_path: products_path } do %>
+  <%= form_with model: p, class: "form", data: { turbo_frame: "_top" } do |f| %>
+    <div class="drawer-body form">
+      <%= render "shared/form_errors", record: p %>
+      <div class="form-grid">
+        <div class="field full"><%= f.label :name do %>Nome <span class="req">*</span><% end %><%= f.text_field :name, class: "input", required: true, placeholder: "Ex.: CatalystOps" %></div>
+        <div class="field full"><%= f.label :url, "Domínio" %><%= f.text_field :url, class: "input", placeholder: "https://" %><span class="hint">Endereço principal do produto</span></div>
+        <div class="field full"><%= f.label :description, "Descrição" %><%= f.text_area :description, class: "textarea", placeholder: "Proposta de valor e público" %></div>
+        <div class="field"><%= f.label :status do %>Status <span class="req">*</span><% end %><%= f.select :status, Product.options_for_status, {}, class: "select" %></div>
+        <div class="field"><%= f.label :monthly_cost, "Custo mensal (R$)" %><%= f.number_field :monthly_cost, class: "input num", step: "0.01", min: 0, placeholder: "0,00" %><span class="hint">Infraestrutura e serviços para operar; grava o custo de <%= l(Date.current, format: "%B") %></span></div>
+        <div class="field full"><%= f.label :notes, "Observações" %><%= f.text_area :notes, class: "textarea" %></div>
+      </div>
+      <div class="callout"><span>MRR e clientes não são digitados: vêm das assinaturas ativas do produto.</span></div>
+    </div>
+    <div class="drawer-foot">
+      <% if p.persisted? && policy(p).destroy? %><%= link_to "Excluir", product_path(p), class: "btn danger", style: "margin-right:auto", data: { turbo_method: :delete, turbo_confirm: "Excluir o produto #{p.name}?", turbo_frame: "_top" } %><% end %>
+      <%= link_to "Cancelar", products_path, class: "btn", data: { close: true, turbo_frame: "_top" } %>
+      <%= f.submit p.new_record? ? "Salvar produto" : "Salvar alterações", class: "btn pri" %>
+    </div>
+  <% end %>
+<% end %>

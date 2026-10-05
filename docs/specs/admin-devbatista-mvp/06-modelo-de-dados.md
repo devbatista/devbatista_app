@@ -34,7 +34,8 @@ flowchart LR
     Domain
   end
   subgraph PR["Produtos"]
-    Subscription
+    Product --> Subscription
+    Product --> ProductCost
   end
   subgraph DH["Documentos e histórico (polimórficos)"]
     Document
@@ -58,9 +59,11 @@ Fora do eixo da empresa: User, Role (perfil com a matriz de permissões), Notifi
 
 **Receita e despesa são uma entidade só cada.** Receivable é todo valor a receber: as telas Receitas (por competência) e Contas a receber (por vencimento) são duas visões dele. Payable é o mesmo para despesas e contas a pagar. Status de ambos: Previsto, Pendente, Pago, Vencido, Cancelado.
 
+**Tecnologia (fase 6).** No código, Application é o model `App` (tabela `apps`), para não colidir com ApplicationRecord e ApplicationPolicy. A hospedagem da aplicação é polimórfica (Server ou ExternalService). Ticket ganhou a aplicação afetada; Payable e RecurringExpense, o serviço externo. ProductCost guarda o custo mensal de cada produto, mês a mês, para os indicadores.
+
 **Recorrências (fase 5).** O próprio serviço contratado é a regra da receita recorrente (valor, periodicidade e dia de vencimento): não há entidade RecurringCharge separada. Do lado das despesas, a regra é RecurringExpense. Os títulos gerados guardam a origem (customer_service_id ou recurring_expense_id) e são únicos por competência.
 
-As ligações que geram comportamento automático são três: CustomerService gera Receivable; Payable com centro de custo em uma Company entra no custo direto dela; ExternalService pago pela DevBatista também.
+As ligações que geram comportamento automático são três: CustomerService gera Receivable; Payable com centro de custo em uma Company entra no custo direto dela; ExternalService pago pela DevBatista também (assim como Server e Domain pago pela DevBatista). Payable ligado a um ExternalService representa o mesmo gasto e não deve ser somado duas vezes na rentabilidade.
 
 **Regras de integridade para o time de desenvolvimento**
 

@@ -1,0 +1,163 @@
+<% a = @app %>
+<% page_title a.name %>
+<% nav_location :tec, "Aplicações" %>
+<% breadcrumb ["Tecnologia"], ["Aplicações", apps_path], [a.name] %>
+<% can_edit = policy(a).update? %>
+<% hosting_server = a.hosting if a.hosting.is_a?(Server) %>
+<% paid = @services.select(&:paid_by_devbatista?) %>
+<% cost_items = [ (hosting_server && [ "#{hosting_server.name} · #{hosting_server.supplier.name}", hosting_server.monthly_cost_cents, nil ]) ].compact +
+                @services.map { |s| [ s.to_s, s.monthly_brl_cents, (s.paid_by_client? ? "Pago pelo cliente" : nil) ] } %>
+<% open_tickets = @tickets&.select(&:open?) %>
+<% days = @domain&.days_left %>
+
+<div class="page-head">
+  <div class="head360">
+    <span class="co-avatar" aria-hidden="true"><%= a.name.split.first(2).map { |w| w[0] }.join.upcase %></span>
+    <div class="titles">
+      <span class="section-label">Aplicação · <%= link_to a.company.trade_name, company_path(a.company), style: "color:inherit" %></span>
+      <h1><%= a.name %></h1>
+      <div class="row wrap" style="gap:8px"><%= env_badge(a) %><%= app_badge(a) %><% if a.tech_stack.present? %><span class="badge b-mute"><%= a.tech_stack.split("·").first.strip %></span><% end %><% if a.hosting %><span class="badge b-mute"><%= a.hosting.is_a?(Server) ? a.hosting.supplier.name : a.hosting.name %></span><% end %></div>
+    </div>
+  </div>
+  <div class="actions">
+    <% if policy(Ticket).create? %><%= drawer_link_to "Abrir chamado", new_ticket_path(empresa: a.company_id, aplicacao: a.id), class: "btn" %><% end %>
+    <% if can_edit %><%= drawer_link_to edit_app_path(a), class: "btn pri" do %><%= icon(:edit, size: 16, stroke: 1.8) %>Editar aplicação<% end %><% end %>
+  </div>
+</div>
+
+<div class="grid-kpi g4">
+  <div class="card kpi"><span class="eyebrow">Custo mensal</span><span class="v"><%= brl(a.monthly_cost_cents) %></span><span class="f"><%= pluralize((hosting_server ? 1 : 0) + paid.size, "item pago", plural: "itens pagos") %> pela DevBatista</span></div>
+  <div class="card kpi"><span class="eyebrow">Dependências</span><span class="v"><%= (a.hosting ? 1 : 0) + @databases.size + @integrations.size + @services.size + (@domain ? 1 : 0) %></span><span class="f"><%= [ ("hospedagem" if a.hosting), pluralize(@databases.size, "banco"), pluralize(@integrations.size, "integração", plural: "integrações"), pluralize(@services.size, "serviço"), ("domínio" if @domain) ].compact.join(", ") %></span></div>
+  <% if open_tickets %>
+    <%= link_to tickets_path(empresa: a.company_id), class: "card kpi#{' alert' if open_tickets.any?(&:critical?)}" do %><span class="eyebrow">Chamados abertos</span><span class="v"><%= open_tickets.size %></span><span class="f"><span class="badge <%= open_tickets.any?(&:critical?) ? 'b-crit' : 'b-good' %>"><%= open_tickets.count(&:critical?) %></span>críticos</span><% end %>
+  <% else %>
+    <div class="card kpi"><span class="eyebrow">Ambiente</span><span class="v" style="font-size:22px"><%= a.environment_label %></span><span class="f"><%= a.status_label %></span></div>
+  <% end %>
+  <% if @domain %>
+    <%= link_to domains_path, class: "card kpi#{' alert' if @domain.attention? && !@domain.auto_renew?}" do %><span class="eyebrow">Domínio</span><span class="v"><%= days.negative? ? "vencido" : pluralize(days, "dia") %></span><span class="f"><%= @domain.auto_renew? ? status_badge("Renova sozinho", "good") : status_badge("Sem renovação", @domain.attention? ? "crit" : "warn") %><%= @domain.name %></span><% end %>
+  <% else %>
+    <div class="card kpi"><span class="eyebrow">Domínio</span><span class="v">—</span><span class="f">nenhum domínio do cliente atende esta URL</span></div>
+  <% end %>
+</div>
+
+<div class="cols-2-1">
+  <div class="stack">
+    <section class="card" aria-labelledby="dados-t">
+      <div class="card-head"><h2 id="dados-t">Dados da aplicação</h2><span class="caption">Cadastrada em <%= date_br(a.created_at) %></span></div>
+      <dl class="dl" style="border-top:1px solid var(--rule)">
+        <div><dt>Cliente</dt><dd><%= link_to a.company.trade_name, company_path(a.company) %></dd></div>
+        <div><dt>Ambiente</dt><dd><%= a.environment_label %></dd></div>
+        <div><dt>Status</dt><dd><%= a.status_label %></dd></div>
+        <div><dt>URL</dt><dd class="mono"><%= a.url.present? ? link_to(a.url, a.url_href, target: "_blank", rel: "noopener") : "—" %></dd></div>
+        <div><dt>Tecnologia</dt><dd><%= a.tech_stack.presence || "—" %></dd></div>
+        <div><dt>Repositório</dt><dd class="mono"><%= a.repository_url.present? ? link_to(a.repository_url.sub(%r{\Ahttps?://}, ""), a.repository_href, target: "_blank", rel: "noopener") : "—" %></dd></div>
+        <div><dt>Hospedagem</dt><dd><%= a.hosting ? (a.hosting.is_a?(Server) ? "#{a.hosting.name} · servidor" : "#{a.hosting.name} · serviço externo") : "—" %></dd></div>
+        <div><dt>Projeto</dt><dd><%= a.project ? (current_user.can_read?("projetos") ? link_to(a.project.name, project_path(a.project)) : a.project.name) : "—" %></dd></div>
+        <div><dt>Contrato</dt><dd><%= a.contract ? (current_user.can_read?("contratos") ? link_to(a.contract.to_s, contract_path(a.contract)) : a.contract.to_s) : "—" %></dd></div>
+        <div><dt>Responsável técnico</dt><dd><%= a.user&.name || "—" %></dd></div>
+      </dl>
+      <% if a.description.present? %><div class="kv" style="display:block"><span class="eyebrow">Descrição</span><p style="margin:6px 0 0;color:var(--text-2)"><%= a.description %></p></div><% end %>
+    </section>
+
+    <section class="stack" aria-labelledby="mapa-t">
+      <div class="section-title"><h2 id="mapa-t">Mapa de dependências</h2><span class="caption">O que precisa estar no ar para <%= a.name %> funcionar</span></div>
+      <div class="grid-2">
+        <div class="card dep">
+          <div class="card-head"><div><span class="eyebrow">Servidor e hospedagem</span><h3><%= a.hosting ? a.hosting.name : "Não informada" %></h3></div><%= link_to (hosting_server ? "Servidores" : "Serviços"), (hosting_server ? servers_path : external_services_path), class: "link-btn" %></div>
+          <% if hosting_server %>
+            <div class="kv"><span><%= hosting_server.name %> · <%= hosting_server.supplier.name %><span class="cell-sub"><%= [ hosting_server.instance_type, hosting_server.host, hosting_server.os ].compact_blank.join(" · ") %></span></span><b><%= brl(hosting_server.monthly_cost_cents) %></b></div>
+          <% elsif a.hosting %>
+            <div class="kv"><span><%= a.hosting %><span class="cell-sub"><%= a.hosting.periodicity_label %> · <%= a.hosting.paid_by_label %> paga</span></span><b class="nowrap"><%= brl(a.hosting.monthly_brl_cents) %></b></div>
+          <% end %>
+        </div>
+
+        <div class="card dep">
+          <div class="card-head"><div><span class="eyebrow">Banco de dados</span><h3><%= @databases.first&.to_s || "Nenhum" %><%= " + #{@databases.size - 1}" if @databases.size > 1 %></h3></div><% if can_edit %><%= drawer_link_to "+ Banco", new_database_path(aplicacao: a.id, voltar: "aplicacao"), class: "link-btn" %><% end %></div>
+          <% @databases.each do |db| %>
+            <div class="kv"><span><%= db %> · <%= db.environment_label %><span class="cell-sub"><%= db.provider.presence || "provedor não informado" %></span></span><% if db.backup? %><b style="text-align:right;font-weight:500"><%= db.backup_policy %></b><% else %><%= status_badge("Sem backup", "mute") %><% end %></div>
+          <% end %>
+        </div>
+
+        <div class="card dep">
+          <div class="card-head"><div><span class="eyebrow">Integrações</span><h3><%= pluralize(@integrations.size, "integração", plural: "integrações") %></h3></div><% if can_edit %><%= drawer_link_to "+ Integração", new_integration_path(aplicacao: a.id, voltar: "aplicacao"), class: "link-btn" %><% end %></div>
+          <% @integrations.each do |i| %>
+            <div class="kv"><span><%= can_edit ? drawer_link_to(i.to_s, edit_integration_path(i, voltar: "aplicacao")) : i.to_s %><span class="cell-sub"><%= i.purpose %></span></span><%= integration_badge(i) %></div>
+          <% end %>
+        </div>
+
+        <div class="card dep">
+          <div class="card-head"><div><span class="eyebrow">Serviços externos</span><h3><%= pluralize(@services.size, "serviço") %><%= " · DevBatista paga" if @services.any? && @services.all?(&:paid_by_devbatista?) %></h3></div><% if policy(ExternalService).create? %><%= drawer_link_to "+ Serviço", new_external_service_path(aplicacao: a.id, voltar: "aplicacao"), class: "link-btn" %><% end %></div>
+          <% @services.each do |s| %>
+            <div class="kv"><span><%= s %><span class="cell-sub"><%= money_in(s.cost_cents, s.currency) %> · <%= s.periodicity_label %><%= " · pago pelo cliente" if s.paid_by_client? %></span></span><b class="nowrap"><%= brl(s.monthly_brl_cents) %></b></div>
+          <% end %>
+        </div>
+
+        <div class="card dep<%= ' crit' if @domain && !@domain.auto_renew? && @domain.attention? %>">
+          <div class="card-head"><div><span class="eyebrow">Domínio</span><h3><%= @domain&.name || "Não cadastrado" %></h3></div><%= link_to "Domínios", domains_path, class: "link-btn" %></div>
+          <% if @domain %>
+            <div class="kv"><span>Endereço da aplicação</span><b class="mono"><%= a.host_name %></b></div>
+            <div class="kv"><span>Registrador · DNS</span><b><%= [ @domain.registrar, @domain.dns_provider ].compact_blank.join(" · ") %></b></div>
+            <div class="kv"><span>Vencimento</span><span class="row" style="gap:8px"><b><%= date_br(@domain.expires_on) %></b><% if @domain.attention? %><span class="badge <%= @domain.auto_renew? ? 'b-warn' : 'b-crit' %>"><%= @domain.expired? ? "vencido" : pluralize(days, "dia") %></span><% end %></span></div>
+            <div class="kv"><span>Renovação automática</span><%= @domain.auto_renew? ? status_badge("Sim", "good") : status_badge("Não", "crit") %></div>
+          <% end %>
+        </div>
+
+        <div class="card dep">
+          <div class="card-head"><div><span class="eyebrow">Projeto e contrato</span><h3>Vínculos comerciais</h3></div></div>
+          <% if a.project %><div class="kv"><span><%= current_user.can_read?("projetos") ? link_to(a.project.name, project_path(a.project)) : a.project.name %><span class="cell-sub"><%= a.project.user.name %> · <%= a.project.status_label.downcase %></span></span><b><%= a.project.progress %>%</b></div><% end %>
+          <% if a.contract %><div class="kv"><span><%= current_user.can_read?("contratos") ? link_to("Contrato #{a.contract.code}", contract_path(a.contract)) : "Contrato #{a.contract.code}" %><span class="cell-sub"><%= a.contract.title %> · <%= a.contract.periodicity_label.downcase %></span></span><b><%= brl(a.contract.value_cents) %></b></div><% end %>
+          <% if a.project.nil? && a.contract.nil? %><div class="card-foot"><span>Sem projeto ou contrato vinculado.</span></div><% end %>
+        </div>
+      </div>
+    </section>
+
+    <% if @tickets %>
+      <section class="card" aria-labelledby="chamados-t">
+        <div class="card-head"><h2 id="chamados-t">Chamados recentes</h2><%= link_to "Ver todos", tickets_path(empresa: a.company_id), class: "link-btn" %></div>
+        <% if @tickets.any? %>
+          <div class="table-wrap">
+            <table class="table cards">
+              <thead><tr><th>Chamado</th><th>Assunto</th><th>Responsável</th><th>Aberto em</th><th>Status</th></tr></thead>
+              <tbody>
+                <% @tickets.each do |t| %>
+                  <tr data-href="<%= ticket_path(t) %>"><td data-label="Chamado"><%= link_to t.code, ticket_path(t), class: "strong" %></td><td data-label="Assunto"><%= t.subject %></td><td data-label="Responsável"><%= t.user&.name || "—" %></td><td data-label="Aberto em" class="mono"><%= date_br(t.opened_at) %></td><td data-label="Status"><%= ticket_badge(t) %></td></tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        <% else %>
+          <div class="card-foot"><span>Nenhum chamado ligado a esta aplicação.</span></div>
+        <% end %>
+      </section>
+    <% end %>
+  </div>
+
+  <div class="stack">
+    <section class="card" aria-labelledby="custo-t">
+      <div class="card-head"><h2 id="custo-t">Custo mensal</h2><span class="unit"><%= l(Date.current, format: "%b/%Y").upcase.delete(".") %></span></div>
+      <% cost_items.each do |label, cents, note| %>
+        <div class="kv"><span><%= label %><% if note %><span class="cell-sub"><%= note %></span><% end %></span><% if note %><span class="muted">—</span><% else %><b class="nowrap"><%= brl(cents) %></b><% end %></div>
+      <% end %>
+      <% if @domain %><div class="kv"><span>Domínio <%= @domain.name %><span class="cell-sub"><%= @domain.paid_by_client? ? "Pago pelo cliente" : "#{brl(@domain.renewal_cost_brl_cents)}/ano" %></span></span><% if @domain.paid_by_client? %><span class="muted">—</span><% else %><b><%= brl(@domain.renewal_cost_brl_cents / 12) %></b><% end %></div><% end %>
+      <div class="kv" style="background:var(--surface-hover)"><span class="strong" style="color:var(--white)">Total</span><b style="font-size:18px;color:var(--white)"><%= brl(a.monthly_cost_cents) %>/mês</b></div>
+      <% if (rate = ExchangeRate.lookup("USD")) %><div class="card-foot"><span>US$ convertido pela PTAX: <%= rate %> (<%= date_br(rate.quoted_on) %>)</span></div><% end %>
+    </section>
+
+    <% refs = [ a.vault_reference, *@databases.map(&:vault_reference), hosting_server&.vault_reference, *@services.map(&:vault_reference) ].compact_blank.uniq %>
+    <div class="callout">
+      <div>
+        <b class="strong">Credenciais</b>
+        <p style="margin:4px 0 0">O sistema guarda só a referência ao cofre de senhas. Senhas, chaves e tokens nunca são cadastrados aqui.</p>
+        <% refs.each do |ref| %><span class="ref mono"><%= ref %></span><% end %>
+        <% if refs.empty? %><span class="ref muted">Nenhuma referência ao cofre registrada.</span><% end %>
+      </div>
+    </div>
+
+    <section class="card" aria-labelledby="hist-t">
+      <div class="card-head"><h2 id="hist-t">Histórico</h2><%= link_to "Auditoria", admin_audit_logs_path, class: "link-btn" if policy(AuditLog).index? %></div>
+      <% @history.each do |log| %>
+        <div class="tl"><i></i><div><%= log.action == "create" ? "Aplicação cadastrada" : "#{log.action_name}: #{log.readable_changes.map(&:first).first(3).to_sentence}" %><small><%= datetime_br(log.created_at) %> · <%= log.user&.name || "Sistema" %></small></div></div>
+      <% end %>
+    </section>
+  </div>
+</div>

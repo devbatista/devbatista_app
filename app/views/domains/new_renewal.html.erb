@@ -1,0 +1,24 @@
+<% d = @domain %>
+<% page_title "Registrar renovação" %>
+<% nav_location :tec, "Domínios" %>
+<% breadcrumb ["Tecnologia"], ["Domínios", domains_path], [d.name] %>
+<div class="form-page">
+  <%= render layout: "shared/drawer_form", locals: { title: "Registrar renovação", cancel_path: domains_path } do %>
+    <%= form_with scope: :renewal, url: renewal_domain_path(d), method: :patch, class: "form", data: { turbo_frame: "_top" } do |f| %>
+      <div class="drawer-body form">
+        <%= render "shared/form_errors", record: d %>
+        <div class="callout<%= ' crit' if d.alert_window %>"><span><b class="strong"><%= d.name %></b> · <%= d.company.trade_name %> · <%= d.registrar %> · vence em <%= date_br(d.expires_on) %></span></div>
+        <div class="form-grid">
+          <div class="field"><%= f.label :expires_on do %>Novo vencimento <span class="req">*</span><% end %><%= f.date_field :expires_on, value: d.expires_on + 1.year, class: "input", required: true %></div>
+          <div class="field"><%= f.label :cost, "Custo pago" %><%= f.number_field :cost, value: format("%.2f", d.renewal_cost_cents / 100.0), class: "input num", step: "0.01", min: 0 %></div>
+        </div>
+        <label class="check"><%= f.check_box :auto_renew, { checked: true }, "1", "0" %> Renovação automática ativada no registrador</label>
+        <div class="field"><%= f.label :notes, "Observações" %><%= f.text_area :notes, class: "textarea", placeholder: "Quem pagou, comprovante, prazo da renovação" %></div>
+      </div>
+      <div class="drawer-foot">
+        <%= link_to "Cancelar", domains_path, class: "btn", data: { close: true, turbo_frame: "_top" } %>
+        <%= f.submit "Salvar renovação", class: "btn pri" %>
+      </div>
+    <% end %>
+  <% end %>
+</div>

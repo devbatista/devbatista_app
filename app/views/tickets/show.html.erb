@@ -94,6 +94,7 @@
       <div class="kv"><span>Cliente</span><%= link_to t.company.trade_name, company_path(t.company), style: "font-weight:600" %></div>
       <div class="kv"><span>Contato</span><% if t.contact %><span class="right"><b><%= t.contact.name %></b><span class="cell-sub"><%= [ t.contact.position, t.contact.email ].compact_blank.join(" · ") %></span></span><% else %><b>—</b><% end %></div>
       <div class="kv"><span>Categoria</span><b><%= t.category_label %></b></div>
+      <% if t.app %><div class="kv"><span>Aplicação afetada</span><span class="right"><%= current_user.can_read?("tecnologia") ? link_to(t.app.name, app_path(t.app), style: "font-weight:600") : tag.b(t.app.name) %><span class="cell-sub"><%= t.app.environment_label %><%= " · #{t.app.hosting.is_a?(Server) ? t.app.hosting.supplier.name : t.app.hosting.name}" if t.app.hosting %></span></span></div><% end %>
       <div class="kv"><span>Prioridade</span><%= priority_badge(t) %></div>
       <div class="kv"><span>Responsável</span><% if t.user %><span class="row" style="gap:8px"><span class="avatar sm soft"><%= t.user.initials %></span><b><%= t.user.name %></b></span><% else %><b>—</b><% end %></div>
       <% if @contract %><div class="kv"><span>Contrato</span><%= link_to @contract.to_s, contract_path(@contract), style: "font-weight:600" %></div><% end %>

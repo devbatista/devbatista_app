@@ -108,7 +108,7 @@
               <% else %>
                 <td data-label="Vencimento" class="mono"><%= date_br(p.due_on) %></td>
                 <td data-label="Fornecedor"><%= link_to p.supplier.name, payables_path(fornecedor: p.supplier_id), class: "strong" %></td>
-                <td data-label="Descrição"><%= p.description %></td>
+                <td data-label="Descrição"><%= p.description %><% if p.external_service %><span class="cell-sub">Serviço externo: <%= current_user.can_read?("tecnologia") ? link_to(p.external_service.to_s, external_services_path(empresa: p.external_service.company_id)) : p.external_service.to_s %></span><% end %></td>
                 <td data-label="Categoria"><%= p.category %></td>
                 <td data-label="Cliente" class="<%= 'muted' unless p.company %>"><%= p.company ? link_to(p.company.trade_name, company_path(p.company)) : "Interno" %></td>
                 <td data-label="Valor" class="num nowrap<%= ' strike' if p.cancelled? %>"><%= payable_amount(p) %></td>

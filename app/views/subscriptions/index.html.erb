@@ -1,0 +1,65 @@
+<% page_title "Assinaturas" %>
+<% nav_location :prod, "Assinaturas" %>
+<% breadcrumb ["Produtos"], ["Assinaturas"] %>
+<% k = @kpis %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Produtos · <%= l(Date.current, format: :month_year).capitalize %></span>
+    <h1>Assinaturas</h1>
+    <p class="lead">Base de assinantes de cada produto próprio.</p>
+  </div>
+  <% if policy(Subscription).create? %><div class="actions"><%= drawer_link_to new_subscription_path(produto: params[:produto]), class: "btn pri" do %><%= icon(:plus, size: 16, stroke: 2) %>Nova assinatura<% end %></div><% end %>
+</div>
+
+<div class="callout"><div><b class="strong">Registro manual no MVP</b><p style="margin:4px 0 0">As assinaturas são lançadas e atualizadas à mão pela equipe. Não há sincronização com o checkout nem com o gateway de cobrança dos produtos; novas assinaturas, cancelamentos e inadimplência precisam ser registrados aqui.</p></div></div>
+
+<div class="grid-kpi g5">
+  <div class="card kpi"><span class="eyebrow">Assinaturas ativas</span><span class="v"><%= k[:active] %></span><span class="f"><%= k[:by_product].map { |name, n| "#{name} #{n}" }.join(" · ").presence || "nenhuma" %></span></div>
+  <div class="card kpi"><span class="eyebrow">MRR das assinaturas</span><span class="v"><%= brl(k[:mrr]) %></span><span class="f">ativas e inadimplentes</span></div>
+  <div class="card kpi"><span class="eyebrow">Em teste</span><span class="v"><%= k[:trial].size %></span><span class="f"><%= k[:trial].group_by { |s| s.product.name }.map { |name, list| "#{list.size} #{name}" }.join(" · ").presence || "nenhuma" %></span></div>
+  <%= link_to subscriptions_path(status: "delinquent"), class: "card kpi#{' alert' if k[:delinquent].any?}" do %><span class="eyebrow">Inadimplentes</span><span class="v"><%= k[:delinquent].size %></span><span class="f"><% if k[:delinquent].any? %><span class="badge b-crit"><%= brl(k[:delinquent].sum(&:monthly_value_cents)) %></span>em aberto<% else %>nenhuma<% end %></span><% end %>
+  <div class="card kpi"><span class="eyebrow">Canceladas em <%= l(Date.current, format: "%B") %></span><span class="v"><%= k[:cancelled_month] %></span><span class="f"><%= k[:churn] ? "churn de #{number_with_precision(k[:churn], precision: 1, separator: ',')}% no mês" : "sem base no mês anterior" %></span></div>
+</div>
+
+<%= form_with url: subscriptions_path, method: :get, class: "toolbar" do %>
+  <%= status_filter :status, [ [ "todos", "Todas", @counts.values.sum ] ] + Subscription::STATUS_LABELS.map { |key, label| [ key, label, @counts[key].to_i ] } %>
+  <%= hidden_field_tag :status, params[:status], id: nil if params[:status].present? %>
+  <label class="sr-only" for="f-prod">Produto</label>
+  <%= select_tag :produto, options_from_collection_for_select(@products, :id, :name, params[:produto]), include_blank: "Todos os produtos", class: "select", id: "f-prod", onchange: "this.form.requestSubmit()" %>
+  <span class="spacer"></span>
+  <%= search_field placeholder: "Assinante ou e-mail", label: "Buscar assinante" %>
+  <label class="sr-only" for="f-plano">Plano</label>
+  <%= select_tag :plano, options_for_select(@plans, params[:plano]), include_blank: "Todos os planos", class: "select", id: "f-plano", onchange: "this.form.requestSubmit()" %>
+  <%= render "shared/sort_select" %>
+<% end %>
+
+<section class="card" aria-label="Lista de assinaturas">
+  <% if @subscriptions.any? %>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr><th>Assinante</th><th>Produto</th><th>Plano</th><th class="num">Valor</th><th>Início</th><th>Status</th><th><span class="sr-only">Ações</span></th></tr></thead>
+        <tbody>
+          <% @subscriptions.each do |s| %>
+            <% sub = if s.cancelled? then "Cancelada em #{date_br(s.cancelled_on)}#{" · #{s.notes}" if s.notes.present?}"
+                     elsif s.trial? && s.trial_ends_on then "Teste gratuito até #{date_br(s.trial_ends_on)}"
+                     elsif s.delinquent? && s.notes.present? then s.notes
+                     else s.email end %>
+            <tr class="<%= 'late' if s.delinquent? %>">
+              <td data-label="Assinante" class="strong"><%= s.company ? link_to(s.subscriber_name, company_path(s.company)) : s.subscriber_name %><% if sub.present? %><span class="cell-sub"><%= sub %></span><% end %></td>
+              <td data-label="Produto"><%= s.product.name %></td>
+              <td data-label="Plano"><%= s.plan %></td>
+              <td data-label="Valor" class="num nowrap<%= ' strike' if s.cancelled? %><%= ' muted' if s.monthly_value_cents.zero? %>"><%= s.monthly_value_cents.zero? ? "Sem cobrança" : "#{brl(s.monthly_value_cents)}/mês" %></td>
+              <td data-label="Início" class="mono"><%= date_br(s.started_on) %></td>
+              <td data-label="Status"><%= subscription_badge(s) %></td>
+              <td data-label="" class="right"><% if policy(s).edit? && !s.cancelled? %><%= drawer_link_to "Editar", edit_subscription_path(s), class: "link-btn" %><% else %><span class="muted">—</span><% end %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <%= render "shared/pagination", pager: @pager %>
+  <% else %>
+    <%= render "shared/empty", title: "Nenhuma assinatura encontrada", text: "Lance aqui cada nova assinatura, mudança de plano, inadimplência ou cancelamento." %>
+  <% end %>
+</section>

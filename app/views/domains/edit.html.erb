@@ -1,0 +1,4 @@
+<% page_title "Editar domínio" %>
+<% nav_location :tec, "Domínios" %>
+<% breadcrumb ["Tecnologia"], ["Domínios", domains_path], [@domain.name] %>
+<div class="form-page"><%= render "form", domain: @domain %></div>

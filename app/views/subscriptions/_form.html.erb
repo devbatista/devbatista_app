@@ -1,0 +1,27 @@
+<% s = subscription %>
+<%= render layout: "shared/drawer_form", locals: { title: s.new_record? ? "Nova assinatura" : "Editar assinatura", cancel_path: subscriptions_path } do %>
+  <%= form_with model: s, class: "form", data: { turbo_frame: "_top" } do |f| %>
+    <div class="drawer-body form">
+      <%= render "shared/form_errors", record: s %>
+      <div class="callout"><span>Registro manual: lance aqui cada nova assinatura, mudança de plano, inadimplência ou cancelamento.</span></div>
+      <div class="form-grid">
+        <div class="field full"><%= f.label :product_id do %>Produto <span class="req">*</span><% end %><%= f.collection_select :product_id, Product.where.not(status: "discontinued").or(Product.where(id: s.product_id)).by_name, :id, :name, { prompt: "Selecione" }, class: "select", required: true %></div>
+        <div class="field full"><%= f.label :subscriber_name do %>Assinante <span class="req">*</span><% end %><%= f.text_field :subscriber_name, class: "input", required: true, placeholder: "Empresa ou profissional" %></div>
+        <div class="field"><%= f.label :email, "E-mail de contato" %><%= f.email_field :email, class: "input", placeholder: "nome@empresa.com.br" %></div>
+        <div class="field"><%= f.label :company_id, "Cliente da DevBatista" %><%= f.collection_select :company_id, Company.by_name, :id, :trade_name, { include_blank: "Não é cliente" }, class: "select" %></div>
+        <div class="field"><%= f.label :plan do %>Plano <span class="req">*</span><% end %><%= f.text_field :plan, class: "input", required: true, list: "planos", placeholder: "Ex.: Profissional" %><datalist id="planos"><% (Subscription::PLANS | Subscription.distinct.pluck(:plan)).each do |p| %><option value="<%= p %>"></option><% end %></datalist></div>
+        <div class="field"><%= f.label :monthly_value do %>Valor mensal (R$) <span class="req">*</span><% end %><%= f.number_field :monthly_value, class: "input num", step: "0.01", min: 0, required: true, placeholder: "0,00" %></div>
+        <div class="field"><%= f.label :started_on do %>Início <span class="req">*</span><% end %><%= f.date_field :started_on, class: "input", required: true %></div>
+        <div class="field"><%= f.label :status do %>Status <span class="req">*</span><% end %><%= f.select :status, Subscription.options_for_status, {}, class: "select" %></div>
+        <div class="field"><%= f.label :trial_ends_on, "Fim do teste" %><%= f.date_field :trial_ends_on, class: "input" %><span class="hint">Só para assinaturas em teste</span></div>
+        <div class="field"><%= f.label :cancelled_on, "Cancelada em" %><%= f.date_field :cancelled_on, class: "input" %><span class="hint">Preenchida sozinha ao cancelar</span></div>
+        <div class="field full"><%= f.label :notes, "Observações" %><%= f.text_area :notes, class: "textarea", placeholder: "Forma de pagamento, desconto, motivo de cancelamento…" %></div>
+      </div>
+    </div>
+    <div class="drawer-foot">
+      <% if s.persisted? && policy(s).destroy? %><%= link_to "Excluir", subscription_path(s), class: "btn danger", style: "margin-right:auto", data: { turbo_method: :delete, turbo_confirm: "Excluir a assinatura de #{s.subscriber_name}? Para registrar a saída, prefira mudar para Cancelada.", turbo_frame: "_top" } %><% end %>
+      <%= link_to "Cancelar", subscriptions_path, class: "btn", data: { close: true, turbo_frame: "_top" } %>
+      <%= f.submit s.new_record? ? "Salvar assinatura" : "Salvar alterações", class: "btn pri" %>
+    </div>
+  <% end %>
+<% end %>

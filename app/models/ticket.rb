@@ -17,11 +17,13 @@ class Ticket < ApplicationRecord
   belongs_to :company
   belongs_to :contact, optional: true
   belongs_to :user, optional: true
+  belongs_to :app, optional: true
   has_many :messages, -> { order(:created_at, :id) }, class_name: "TicketMessage", dependent: :destroy, inverse_of: :ticket
   has_many :time_entries, dependent: :nullify
 
   validates :subject, :description, :category, presence: true
   validate :contact_from_company
+  validate :app_from_company
 
   before_validation :suggest_contact
   before_validation { self.opened_at ||= Time.current }
@@ -79,6 +81,10 @@ class Ticket < ApplicationRecord
       title: created ? "Chamado crítico #{code} aberto para #{company.trade_name}: #{subject}" : "Chamado #{code} de #{company.trade_name} passou para prioridade Crítica: #{subject}",
       path: Rails.application.routes.url_helpers.ticket_path(self)
     )
+  end
+
+  def app_from_company
+    errors.add(:app, "é de outro cliente") if app && app.company_id != company_id
   end
 
   def contact_from_company

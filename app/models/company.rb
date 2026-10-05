@@ -22,6 +22,10 @@ class Company < ApplicationRecord
   has_many :receivables, dependent: :restrict_with_error
   has_many :invoices, dependent: :restrict_with_error
   has_many :payables, dependent: :restrict_with_error
+  has_many :apps, dependent: :restrict_with_error
+  has_many :servers, dependent: :restrict_with_error
+  has_many :domains, dependent: :restrict_with_error
+  has_many :external_services, dependent: :restrict_with_error
 
   normalizes :cnpj, with: ->(value) { value.to_s.gsub(/\D/, "") }
   normalizes :state, with: ->(value) { value.to_s.strip.upcase.presence }
@@ -67,10 +71,19 @@ class Company < ApplicationRecord
     { date: date, cents: dues.select { |d, _| d == date }.sum(&:last), count: nil }
   end
 
-  # Custo direto do cliente: despesas com centro de custo nele (RF 24). Servidores, domínios e
-  # serviços externos pagos pela DevBatista entram com o módulo Tecnologia.
+  # Despesas com centro de custo no cliente, por competência (RF 24).
   def direct_cost_cents(range)
     payables.not_cancelled.where(competence: range.first.beginning_of_month..range.last).sum(:amount_cents)
+  end
+
+  # Custo mensal de infraestrutura pago pela DevBatista para o cliente (RF 34): servidores,
+  # serviços externos pagos pela DevBatista e domínios pagos pela DevBatista (anual ÷ 12).
+  # A rentabilidade (fase 7) junta este custo às despesas sem contar duas vezes o que já virou
+  # conta a pagar ligada ao serviço externo.
+  def infrastructure_cost_cents
+    servers.sum(:monthly_cost_cents) +
+      external_services.active.paid_by_devbatista.to_a.sum(&:monthly_brl_cents) +
+      domains.paid_by_devbatista.to_a.sum { |d| d.renewal_cost_brl_cents / 12 }
   end
 
   # Iniciais do avatar, como no design: "Empresa ACME" → AC, "Cliente A" → CA, "Grupo Norte Logística" → GL.

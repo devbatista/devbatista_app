@@ -1,0 +1,67 @@
+<% page_title "Aplicações" %>
+<% nav_location :tec, "Aplicações" %>
+<% breadcrumb ["Tecnologia"], ["Aplicações"] %>
+<% k = @kpis %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Tecnologia · Inventário</span>
+    <h1>Aplicações</h1>
+    <p class="lead">Sistemas, sites e aplicativos desenvolvidos ou mantidos pela DevBatista, com ambiente e hospedagem.</p>
+  </div>
+  <% if policy(App).create? %>
+    <div class="actions"><%= drawer_link_to new_app_path, class: "btn pri" do %><%= icon(:plus, size: 16, stroke: 2) %>Nova aplicação<% end %></div>
+  <% end %>
+</div>
+
+<div class="grid-kpi g4">
+  <div class="card kpi"><span class="eyebrow">Aplicações cadastradas</span><span class="v"><%= k[:total] %></span><span class="f">de <%= pluralize(k[:companies], "cliente") %></span></div>
+  <div class="card kpi"><span class="eyebrow">Em produção</span><span class="v"><%= k[:production] %></span><span class="f"><span class="badge b-good">Ativas</span>em ambiente de produção</span></div>
+  <%= link_to apps_path(status: "maintenance"), class: "card kpi#{' alert' if k[:maintenance].any?}" do %>
+    <span class="eyebrow">Em manutenção</span><span class="v"><%= k[:maintenance].size %></span>
+    <span class="f"><% if (m = k[:maintenance].first) %><span class="badge b-warn"><%= m.name %></span><%= m.company.trade_name %><% else %>nenhuma<% end %></span>
+  <% end %>
+  <%= link_to external_services_path, class: "card kpi" do %><span class="eyebrow">Custo mensal de infraestrutura</span><span class="v"><%= brl(k[:servers] + k[:services]) %></span><span class="f">servidores <%= brl(k[:servers]) %> + serviços externos <%= brl(k[:services]) %></span><% end %>
+</div>
+
+<%= form_with url: apps_path, method: :get, class: "toolbar" do %>
+  <%= status_filter :status, [ [ "todos", "Todas", @counts.values.sum ] ] + App::STATUS_LABELS.map { |key, label| [ key, label, @counts[key].to_i ] } %>
+  <%= hidden_field_tag :status, params[:status], id: nil if params[:status].present? %>
+  <label class="sr-only" for="f-amb">Ambiente</label>
+  <%= select_tag :ambiente, options_for_select(App.options_for_environment, params[:ambiente]), include_blank: "Todos os ambientes", class: "select", id: "f-amb", onchange: "this.form.requestSubmit()" %>
+  <span class="spacer"></span>
+  <%= search_field placeholder: "Aplicação, URL ou tecnologia", label: "Buscar aplicação" %>
+  <label class="sr-only" for="f-cli">Cliente</label>
+  <%= select_tag :empresa, options_from_collection_for_select(@companies, :id, :trade_name, params[:empresa]), include_blank: "Todos os clientes", class: "select", id: "f-cli", onchange: "this.form.requestSubmit()" %>
+  <label class="sr-only" for="f-host">Hospedagem</label>
+  <%= select_tag :hospedagem, options_for_select([ [ "Servidores", "Server" ], [ "Serviços externos", "ExternalService" ] ], params[:hospedagem]), include_blank: "Toda hospedagem", class: "select", id: "f-host", onchange: "this.form.requestSubmit()" %>
+  <%= render "shared/sort_select" %>
+<% end %>
+
+<section class="card" aria-label="Lista de aplicações">
+  <% if @apps.any? %>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr><th>Aplicação</th><th>Cliente</th><th>Ambiente</th><th>URL</th><th>Tecnologia</th><th>Hospedagem</th><th>Status</th></tr></thead>
+        <tbody>
+          <% @apps.each do |app| %>
+            <tr data-href="<%= app_path(app) %>">
+              <td data-label="Aplicação"><%= link_to app.name, app, class: "strong" %><span class="cell-sub"><%= truncate(app.description.to_s, length: 60) %><%= " · #{pluralize(@open_tickets[app.id], 'chamado aberto', plural: 'chamados abertos')}" if @open_tickets[app.id] %></span></td>
+              <td data-label="Cliente"><%= link_to app.company.trade_name, company_path(app.company) %></td>
+              <td data-label="Ambiente"><%= env_badge(app) %></td>
+              <td data-label="URL" class="mono<%= ' muted' if app.disabled? %>"><%= app.host_name || "—" %></td>
+              <td data-label="Tecnologia"><%= app.tech_stack.presence || "—" %></td>
+              <td data-label="Hospedagem"><%= hosting_cell(app) %></td>
+              <td data-label="Status"><%= app_badge(app) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <%= render "shared/pagination", pager: @pager %>
+  <% else %>
+    <%= render "shared/empty", title: "Nenhuma aplicação encontrada", text: "Cadastre cada sistema, site ou app com ambiente, URL, tecnologia e hospedagem." %>
+  <% end %>
+</section>
+
+<div class="note"><span><b>Credenciais não fazem parte do inventário.</b> Nenhuma tela de Tecnologia aceita senha, chave ou token; cada registro guarda só a referência ao item no cofre de senhas.</span></div>

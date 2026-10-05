@@ -40,6 +40,7 @@
    tabs += [ [ "servicos", "Serviços", @services.size ], [ "contratos", "Contratos", @contracts.size ] ] if can_contracts
    tabs << [ "projetos", "Projetos", @projects.size ] if can_projects
    tabs << [ "chamados", "Chamados", @tickets.count(&:open?) ] if can_tickets
+   tabs << [ "infraestrutura", "Infraestrutura", @apps.size ] if current_user.can_read?("tecnologia")
    tabs << [ "financeiro", "Financeiro", nil ] if current_user.can_read?("financeiro")
    tabs << [ "documentos", "Documentos", @documents.size ] if can_documents
    tabs << [ "atividades", "Atividades", nil ]

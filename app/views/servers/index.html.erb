@@ -1,0 +1,62 @@
+<% page_title "Servidores" %>
+<% nav_location :tec, "Servidores" %>
+<% breadcrumb ["Tecnologia"], ["Servidores"] %>
+<% k = @kpis %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Tecnologia · Inventário</span>
+    <h1>Servidores</h1>
+    <p class="lead">Recursos de nuvem e hospedagem mantidos para os clientes, com custo mensal.</p>
+  </div>
+  <% if policy(Server).create? %><div class="actions"><%= drawer_link_to new_server_path, class: "btn pri" do %><%= icon(:plus, size: 16, stroke: 2) %>Novo servidor<% end %></div><% end %>
+</div>
+
+<div class="grid-kpi g4">
+  <div class="card kpi"><span class="eyebrow">Servidores</span><span class="v"><%= k[:count] %></span><span class="f"><%= Inventory::ENVIRONMENTS.reverse_each.filter_map { |key, label| "#{k[:by_env][key]} #{label.downcase}" if k[:by_env][key] }.join(" · ") %></span></div>
+  <div class="card kpi"><span class="eyebrow">Custo mensal total</span><span class="v"><%= brl(k[:total]) %></span><span class="f">entra no custo direto de cada cliente</span></div>
+  <div class="card kpi"><span class="eyebrow">Produção</span><span class="v"><%= brl(k[:production]) %></span><span class="f"><%= "#{(k[:production] * 100.0 / k[:total]).round}% do custo de servidores" if k[:total].positive? %></span></div>
+  <div class="card kpi"><span class="eyebrow">Maior custo</span><span class="v"><%= k[:top] ? brl(k[:top].monthly_cost_cents) : "—" %></span><span class="f"><%= "#{k[:top].name} · #{k[:top].company.trade_name}" if k[:top] %></span></div>
+</div>
+
+<%= form_with url: servers_path, method: :get, class: "toolbar" do %>
+  <%= status_filter :ambiente, [ [ "todos", "Todos", @counts.values.sum ] ] + Inventory::ENVIRONMENTS.to_a.reverse.map { |key, label| [ key, label, @counts[key].to_i ] }, label: "Filtrar por ambiente" %>
+  <%= hidden_field_tag :ambiente, params[:ambiente], id: nil if params[:ambiente].present? %>
+  <span class="spacer"></span>
+  <%= search_field placeholder: "Nome, IP ou hostname", label: "Buscar servidor" %>
+  <label class="sr-only" for="f-cli">Cliente</label>
+  <%= select_tag :empresa, options_from_collection_for_select(@companies, :id, :trade_name, params[:empresa]), include_blank: "Todos os clientes", class: "select", id: "f-cli", onchange: "this.form.requestSubmit()" %>
+  <label class="sr-only" for="f-forn">Fornecedor</label>
+  <%= select_tag :fornecedor, options_from_collection_for_select(@suppliers, :id, :name, params[:fornecedor]), include_blank: "Todos os fornecedores", class: "select", id: "f-forn", onchange: "this.form.requestSubmit()" %>
+  <%= render "shared/sort_select" %>
+<% end %>
+
+<section class="card" aria-label="Lista de servidores">
+  <% if @servers.any? %>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr><th>Nome</th><th>Cliente</th><th>Fornecedor</th><th>IP ou hostname</th><th>Ambiente</th><th>Sistema operacional</th><th class="num">Custo mensal</th><th><span class="sr-only">Ações</span></th></tr></thead>
+        <tbody>
+          <% @servers.each do |s| %>
+            <tr>
+              <td data-label="Nome"><span class="strong"><%= s.name %></span><span class="cell-sub"><%= safe_join([ s.instance_type.presence, *s.apps.map { |app| link_to(app.name, app_path(app)) } ].compact, ", ") %></span></td>
+              <td data-label="Cliente"><%= link_to s.company.trade_name, company_path(s.company) %></td>
+              <td data-label="Fornecedor"><%= s.supplier.name %></td>
+              <td data-label="IP ou hostname" class="mono"><%= s.host %></td>
+              <td data-label="Ambiente"><%= env_badge(s) %></td>
+              <td data-label="Sistema operacional"><%= s.os.presence || "—" %></td>
+              <td data-label="Custo mensal" class="num nowrap"><%= brl(s.monthly_cost_cents) %></td>
+              <td data-label="" class="right"><% if policy(s).edit? %><%= drawer_link_to "Editar", edit_server_path(s), class: "link-btn" %><% end %></td>
+            </tr>
+          <% end %>
+        </tbody>
+        <tfoot><tr><td data-label="" colspan="6">Total mensal · <%= pluralize(@pager.total, "servidor", plural: "servidores") %></td><td data-label="Total" class="num nowrap"><%= brl(@total) %></td><td data-label=""></td></tr></tfoot>
+      </table>
+    </div>
+    <%= render "shared/pagination", pager: @pager %>
+  <% else %>
+    <%= render "shared/empty", title: "Nenhum servidor encontrado", text: "Registre os servidores com fornecedor, IP ou hostname, ambiente, sistema operacional e custo mensal." %>
+  <% end %>
+</section>
+
+<div class="note"><span><b>Sem senhas nem chaves SSH.</b> O cadastro de servidores é inventário: o acesso fica no cofre de senhas e aqui só a referência a ele. O custo mensal de cada servidor entra no custo direto do cliente.</span></div>

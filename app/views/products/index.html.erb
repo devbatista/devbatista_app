@@ -1,0 +1,64 @@
+<% page_title "Produtos próprios" %>
+<% nav_location :prod, "Produtos próprios" %>
+<% breadcrumb ["Produtos"], ["Produtos próprios"] %>
+<% k = @kpis %>
+<% growth = @previous[:mrr].positive? ? ((k[:mrr] - @previous[:mrr]) * 100.0 / @previous[:mrr]).round(1) : nil %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Produtos · <%= l(Date.current, format: :month_year).capitalize %></span>
+    <h1>Produtos próprios</h1>
+    <p class="lead">Produtos da DevBatista acompanhados como unidades de negócio: quanto faturam, quantos clientes têm e quanto custam.</p>
+  </div>
+  <div class="actions">
+    <%= link_to "Ver indicadores", product_indicators_path, class: "btn" %>
+    <% if policy(Product).create? %><%= drawer_link_to new_product_path, class: "btn pri" do %><%= icon(:plus, size: 16, stroke: 2) %>Novo produto<% end %><% end %>
+  </div>
+</div>
+
+<div class="grid-kpi g4">
+  <%= link_to product_indicators_path, class: "card kpi" do %><span class="eyebrow">MRR dos produtos</span><span class="v"><%= brl(k[:mrr]) %></span><span class="f"><% if growth %><span class="badge <%= growth.negative? ? 'b-crit' : 'b-good' %>"><%= growth.positive? ? "+" : "" %><%= number_with_precision(growth, precision: 1, separator: ",") %>%</span>vs. <%= l(Date.current.prev_month, format: "%B") %><% else %>soma das assinaturas<% end %></span><% end %>
+  <%= link_to subscriptions_path(status: "active"), class: "card kpi" do %><span class="eyebrow">Clientes ativos</span><span class="v"><%= k[:clients] %></span><span class="f"><%= k[:by_product].map { |name, n| "#{name} #{n}" }.join(" · ").presence || "nenhuma assinatura ativa" %></span><% end %>
+  <div class="card kpi"><span class="eyebrow">Custo mensal</span><span class="v"><%= brl(k[:cost]) %></span><span class="f">infraestrutura e serviços</span></div>
+  <div class="card kpi"><span class="eyebrow">Margem</span><span class="v"><%= k[:margin] ? "#{number_with_precision(k[:margin], precision: 1, separator: ',')}%" : "—" %></span><span class="f"><%= brl(k[:result]) %> no mês</span></div>
+</div>
+
+<div class="toolbar">
+  <%= status_filter :status, [ [ "todos", "Todos", @counts.values.sum ] ] + Product::STATUS_LABELS.map { |key, label| [ key, label, @counts[key].to_i ] } %>
+</div>
+
+<% if @products.any? %>
+  <div class="grid-2">
+    <% @products.each do |p| %>
+      <% mrr = p.mrr_cents %>
+      <% cost = p.monthly_cost_cents %>
+      <% margin = p.margin_percent %>
+      <% active = !p.idea? %>
+      <article class="card prod">
+        <div class="card-head">
+          <div class="row"><span class="co-avatar" aria-hidden="true"><%= p.initials %></span><div><h2><%= p.name %></h2><% if p.url.present? %><%= link_to p.url.sub(%r{\Ahttps?://}, ""), p.url_href, class: "caption mono", target: "_blank", rel: "noopener" %><% else %><span class="caption">Domínio a definir</span><% end %></div></div>
+          <%= product_badge(p) %>
+        </div>
+        <% if p.description.present? %><p class="desc"><%= p.description %></p><% end %>
+        <dl class="dl">
+          <div><dt>MRR</dt><dd class="v<%= ' muted' if mrr.zero? %>"><%= active ? brl(mrr) : "—" %></dd></div>
+          <div><dt>Clientes</dt><dd class="v<%= ' muted' if mrr.zero? %>"><%= active ? p.clients_count : "—" %></dd></div>
+          <div><dt>Custo mensal</dt><dd class="v<%= ' muted' if cost.zero? %>"><%= brl(cost) %></dd></div>
+          <div><dt>Margem</dt><dd class="v<%= ' muted' unless margin || cost.positive? %>" style="<%= margin ? 'color:var(--good)' : (cost.positive? ? 'color:var(--crit)' : '') %>"><%= margin ? "#{number_with_precision(margin, precision: 1, separator: ',')}%" : (cost.positive? ? "− #{brl(cost)}" : "—") %></dd></div>
+        </dl>
+        <div class="card-foot">
+          <span><% if @new_this_month[p.id] %>+<%= pluralize(@new_this_month[p.id], "assinante") %> em <%= l(Date.current, format: "%B") %><% elsif p.idea? %>Em avaliação desde <%= l(p.created_at.to_date, format: "%m/%Y") %><% else %><%= pluralize(p.subscriptions.count(&:trial?), "assinatura em teste", plural: "assinaturas em teste") %><% end %></span>
+          <span class="row" style="gap:16px">
+            <% if p.subscriptions.any? %><%= link_to "Assinaturas", subscriptions_path(produto: p.id), style: "font-weight:600" %><% end %>
+            <%= link_to "Indicadores", product_indicators_path(produto: p.id), style: "font-weight:600" unless p.idea? %>
+            <% if policy(p).edit? %><%= drawer_link_to "Editar", edit_product_path(p), style: "font-weight:600" %><% end %>
+          </span>
+        </div>
+      </article>
+    <% end %>
+  </div>
+<% else %>
+  <section class="card"><%= render "shared/empty", title: "Nenhum produto cadastrado", text: "Cadastre os produtos próprios da DevBatista para acompanhar MRR, clientes e custo." %></section>
+<% end %>
+
+<div class="note"><span><b>Margem = (MRR − custo mensal) ÷ MRR.</b> A receita dos produtos próprios é acompanhada à parte do MRR de serviços da DevBatista. MRR e clientes vêm das assinaturas ativas, registradas em <%= link_to "Assinaturas", subscriptions_path %>.</span></div>

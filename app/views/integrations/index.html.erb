@@ -1,0 +1,59 @@
+<% page_title "Integrações" %>
+<% nav_location :tec, "Integrações" %>
+<% breadcrumb ["Tecnologia"], ["Integrações"] %>
+<% k = @kpis %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Tecnologia · Inventário</span>
+    <h1>Integrações</h1>
+    <p class="lead">Plataformas e APIs externas que cada aplicação consome.</p>
+  </div>
+  <% if policy(Integration).create? %><div class="actions"><%= drawer_link_to new_integration_path, class: "btn pri" do %><%= icon(:plus, size: 16, stroke: 2) %>Nova integração<% end %></div><% end %>
+</div>
+
+<div class="grid-kpi g4">
+  <div class="card kpi"><span class="eyebrow">Integrações</span><span class="v"><%= k[:count] %></span><span class="f">em <%= pluralize(k[:apps], "aplicação", plural: "aplicações") %></span></div>
+  <div class="card kpi"><span class="eyebrow">Ativas</span><span class="v"><%= k[:active].size %></span><span class="f"><%= k[:active].all?(&:env_production?) && k[:active].any? ? "todas em produção" : "#{k[:active].count(&:env_production?)} em produção" %></span></div>
+  <div class="card kpi"><span class="eyebrow">Em configuração</span><span class="v"><%= k[:configuring].size %></span><span class="f"><%= k[:configuring].map(&:platform).uniq.join(", ").presence || "nenhuma" %></span></div>
+  <div class="card kpi"><span class="eyebrow">Desativadas</span><span class="v"><%= k[:disabled].size %></span><span class="f"><%= k[:disabled].map { |i| "#{i.platform} · #{i.app.name}" }.first(2).join(", ").presence || "nenhuma" %></span></div>
+</div>
+
+<%= form_with url: integrations_path, method: :get, class: "toolbar" do %>
+  <%= status_filter :status, [ [ "todos", "Todas", @counts.values.sum ] ] + Integration::STATUS_LABELS.map { |key, label| [ key, label, @counts[key].to_i ] } %>
+  <%= hidden_field_tag :status, params[:status], id: nil if params[:status].present? %>
+  <span class="spacer"></span>
+  <%= search_field placeholder: "Integração, aplicação ou finalidade", label: "Buscar integração" %>
+  <label class="sr-only" for="f-plat">Plataforma</label>
+  <%= select_tag :plataforma, options_for_select(@platforms, params[:plataforma]), include_blank: "Todas as plataformas", class: "select", id: "f-plat", onchange: "this.form.requestSubmit()" %>
+  <label class="sr-only" for="f-amb">Ambiente</label>
+  <%= select_tag :ambiente, options_for_select(Integration.options_for_environment, params[:ambiente]), include_blank: "Todos os ambientes", class: "select", id: "f-amb", onchange: "this.form.requestSubmit()" %>
+<% end %>
+
+<section class="card" aria-label="Lista de integrações">
+  <% if @integrations.any? %>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr><th>Integração</th><th>Cliente</th><th>Aplicação</th><th>Ambiente</th><th>Finalidade</th><th>Status</th><th><span class="sr-only">Ações</span></th></tr></thead>
+        <tbody>
+          <% @integrations.each do |i| %>
+            <tr>
+              <td data-label="Integração" class="strong"><%= i.platform %><% if i.variant.present? %><span class="cell-sub"><%= i.variant %></span><% end %></td>
+              <td data-label="Cliente"><%= link_to i.app.company.trade_name, company_path(i.app.company) %></td>
+              <td data-label="Aplicação"><%= link_to i.app.name, app_path(i.app) %></td>
+              <td data-label="Ambiente"><%= env_badge(i) %></td>
+              <td data-label="Finalidade"><%= i.purpose %></td>
+              <td data-label="Status"><%= integration_badge(i) %></td>
+              <td data-label="" class="right"><% if policy(i).edit? %><%= drawer_link_to "Editar", edit_integration_path(i), class: "link-btn" %><% end %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <%= render "shared/pagination", pager: @pager %>
+  <% else %>
+    <%= render "shared/empty", title: "Nenhuma integração encontrada", text: "Registre as plataformas e APIs que cada aplicação consome: Meta, WhatsApp, Twilio, OpenAI, SES, Mailgun, PayPal…" %>
+  <% end %>
+</section>
+
+<div class="note"><span><b>Chaves de API e tokens não são cadastrados.</b> Titularidade da conta, limites e particularidades vão em Observações; a credencial fica no cofre de senhas. Custos dessas plataformas são registrados em <%= link_to "Serviços externos", external_services_path %>.</span></div>

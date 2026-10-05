@@ -1,0 +1,27 @@
+<% d = domain %>
+<%= render layout: "shared/drawer_form", locals: { title: d.new_record? ? "Novo domínio" : "Editar domínio", cancel_path: domains_path } do %>
+  <%= form_with model: d, class: "form", data: { turbo_frame: "_top" } do |f| %>
+    <div class="drawer-body form">
+      <%= render "shared/form_errors", record: d %>
+      <div class="form-grid">
+        <div class="field full"><%= f.label :company_id do %>Cliente <span class="req">*</span><% end %><%= f.collection_select :company_id, Company.where.not(status: "inactive").or(Company.where(id: d.company_id)).by_name, :id, :trade_name, { prompt: "Selecione" }, class: "select", required: true %><span class="hint">Titular ou beneficiário do domínio</span></div>
+        <div class="field full"><%= f.label :name do %>Domínio <span class="req">*</span><% end %><%= f.text_field :name, class: "input mono", required: true, placeholder: "Ex.: empresa.com.br" %></div>
+        <div class="field"><%= f.label :registrar do %>Registrador <span class="req">*</span><% end %><%= f.text_field :registrar, class: "input", required: true, list: "registradores" %><datalist id="registradores"><% Domain::REGISTRARS.each do |r| %><option value="<%= r %>"></option><% end %></datalist></div>
+        <div class="field"><%= f.label :dns_provider, "DNS" %><%= f.text_field :dns_provider, class: "input", placeholder: "Ex.: Cloudflare" %></div>
+        <div class="field"><%= f.label :registered_on, "Registro" %><%= f.date_field :registered_on, class: "input" %><span class="hint">Data do registro original</span></div>
+        <div class="field"><%= f.label :expires_on do %>Vencimento <span class="req">*</span><% end %><%= f.date_field :expires_on, class: "input", required: true %></div>
+        <div class="field"><%= f.label :currency, "Moeda" %><%= f.select :currency, ExchangeRate::CURRENCIES.map { |code, name| [ "#{code} — #{name}", code ] }, {}, class: "select" %></div>
+        <div class="field"><%= f.label :renewal_cost, "Custo da renovação (por ano)" %><%= f.number_field :renewal_cost, class: "input num", step: "0.01", min: 0, placeholder: "40,00" %></div>
+        <div class="field"><%= f.label :paid_by, "Quem paga" %><%= f.select :paid_by, Domain.options_for_paid_by, {}, class: "select" %><span class="hint">Pago pela DevBatista entra no custo direto do cliente</span></div>
+        <div class="field"><span class="label">Renovação automática</span><div class="row" style="height:40px"><label class="switch"><%= f.check_box :auto_renew, "aria-label": "Renovação automática" %><span></span></label><span class="caption">Ativa no registrador</span></div></div>
+        <div class="field full"><%= f.label :notes, "Observações" %><%= f.text_area :notes, class: "textarea", placeholder: "Responsável pelo pagamento, DNS e demais notas" %></div>
+      </div>
+      <div class="callout"><span>Alertas automáticos a <%= Setting[:domain_alert_days].to_sentence %> dias do vencimento para Desenvolvedor e Administrador. Sem renovação automática, o domínio ganha destaque na lista.</span></div>
+    </div>
+    <div class="drawer-foot">
+      <% if d.persisted? && policy(d).destroy? %><%= link_to "Excluir", domain_path(d), class: "btn danger", style: "margin-right:auto", data: { turbo_method: :delete, turbo_confirm: "Excluir o domínio #{d.name}?", turbo_frame: "_top" } %><% end %>
+      <%= link_to "Cancelar", domains_path, class: "btn", data: { close: true, turbo_frame: "_top" } %>
+      <%= f.submit d.new_record? ? "Salvar domínio" : "Salvar alterações", class: "btn pri" %>
+    </div>
+  <% end %>
+<% end %>

@@ -12,6 +12,7 @@
         <div class="field full"><%= f.label :supplier_id do %>Fornecedor <span class="req">*</span><% end %><%= f.collection_select :supplier_id, Supplier.active.or(Supplier.where(id: p.supplier_id)).by_name, :id, :name, { prompt: "Selecione um fornecedor cadastrado" }, class: "select", required: true %><span class="hint">Não encontrou? <%= link_to "Cadastre em Fornecedores", new_supplier_path, data: { turbo_frame: "_top" } if policy(Supplier).create? %></span></div>
         <div class="field"><%= f.label :category, "Categoria" %><%= f.select :category, (Setting[:expense_categories] | [ p.category ].compact), { include_blank: "A do fornecedor" }, class: "select" %></div>
         <div class="field"><%= f.label :description do %>Descrição <span class="req">*</span><% end %><%= f.text_field :description, class: "input", required: true, placeholder: "Ex.: Hospedagem — Sistema ERP" %></div>
+        <div class="field full"><%= f.label :external_service_id, "Serviço externo" %><%= f.select :external_service_id, grouped_options_for_select(ExternalService.active.or(ExternalService.where(id: p.external_service_id)).includes(:company, :supplier).order(:name).group_by(&:company).sort_by { |c, _| c.trade_name }.map { |c, list| [ c.trade_name, list.map { |s| [ "#{s} · #{s.supplier.name}", s.id ] } ] }, p.external_service_id), { include_blank: "Nenhum" }, class: "select" %><span class="hint">Quando houver, ligado em Serviços externos</span></div>
       </div>
       <span class="fieldset-title">Valor</span>
       <div class="form-grid">

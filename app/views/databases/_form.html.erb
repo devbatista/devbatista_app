@@ -1,0 +1,26 @@
+<% db = database %>
+<% back = params[:voltar] == "aplicacao" && db.app ? app_path(db.app) : databases_path %>
+<%= render layout: "shared/drawer_form", locals: { title: db.new_record? ? "Novo banco de dados" : "Editar banco de dados", cancel_path: back } do %>
+  <%= form_with model: db, class: "form", data: { turbo_frame: "_top" } do |f| %>
+    <%= hidden_field_tag :voltar, params[:voltar] if params[:voltar] %>
+    <div class="drawer-body form">
+      <%= render "shared/form_errors", record: db %>
+      <div class="callout crit"><span>Não informe senha, usuário de acesso nem string de conexão. As credenciais ficam no cofre de senhas.</span></div>
+      <div class="form-grid">
+        <div class="field full"><%= f.label :app_id do %>Aplicação <span class="req">*</span><% end %><%= f.select :app_id, app_options(db.app_id), { prompt: "Selecione" }, class: "select", required: true %></div>
+        <div class="field"><%= f.label :technology do %>Tecnologia <span class="req">*</span><% end %><%= f.text_field :technology, class: "input", required: true, list: "tecnologias", placeholder: "Ex.: PostgreSQL" %><datalist id="tecnologias"><% Database::TECHNOLOGIES.each do |t| %><option value="<%= t %>"></option><% end %></datalist></div>
+        <div class="field"><%= f.label :version, "Versão" %><%= f.text_field :version, class: "input mono", placeholder: "Ex.: 16.4" %></div>
+        <div class="field"><%= f.label :environment do %>Ambiente <span class="req">*</span><% end %><%= f.select :environment, Database.options_for_environment, {}, class: "select" %></div>
+        <div class="field"><%= f.label :provider, "Provedor" %><%= f.text_field :provider, class: "input", placeholder: "Ex.: Amazon RDS ou servidor próprio" %><span class="hint">Serviço gerenciado ou servidor próprio</span></div>
+        <div class="field full"><%= f.label :backup_policy, "Política de backup" %><%= f.text_field :backup_policy, class: "input", placeholder: "Ex.: Diário · 7 dias + dump semanal no S3" %><span class="hint">Em branco = sem backup</span></div>
+        <div class="field full"><%= f.label :notes, "Observações" %><%= f.text_area :notes, class: "textarea", placeholder: "Porte, restauração testada, particularidades" %></div>
+        <div class="field full"><%= f.label :vault_reference, "Referência no cofre de senhas" %><%= f.text_field :vault_reference, class: "input", placeholder: "Ex.: Cofre DevBatista › Clientes › ACME › PostgreSQL produção" %><span class="hint"><%= vault_hint %></span></div>
+      </div>
+    </div>
+    <div class="drawer-foot">
+      <% if db.persisted? && policy(db).destroy? %><%= link_to "Excluir", database_path(db, voltar: params[:voltar]), class: "btn danger", style: "margin-right:auto", data: { turbo_method: :delete, turbo_confirm: "Excluir o banco #{db} de #{db.app.name}?", turbo_frame: "_top" } %><% end %>
+      <%= link_to "Cancelar", back, class: "btn", data: { close: true, turbo_frame: "_top" } %>
+      <%= f.submit db.new_record? ? "Salvar banco de dados" : "Salvar alterações", class: "btn pri" %>
+    </div>
+  <% end %>
+<% end %>

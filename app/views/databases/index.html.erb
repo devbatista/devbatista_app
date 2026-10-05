@@ -1,0 +1,60 @@
+<% page_title "Bancos de dados" %>
+<% nav_location :tec, "Bancos de dados" %>
+<% breadcrumb ["Tecnologia"], ["Bancos de dados"] %>
+<% k = @kpis %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Tecnologia · Inventário</span>
+    <h1>Bancos de dados</h1>
+    <p class="lead">Banco de cada aplicação, com tecnologia, versão, provedor e política de backup.</p>
+  </div>
+  <% if policy(Database).create? %><div class="actions"><%= drawer_link_to new_database_path, class: "btn pri" do %><%= icon(:plus, size: 16, stroke: 2) %>Novo banco de dados<% end %></div><% end %>
+</div>
+
+<div class="callout crit"><div><b class="strong">Não armazenar senhas</b><p style="margin:4px 0 0">Este cadastro é um inventário. Usuário, senha e string de conexão ficam no cofre de senhas; aqui só a referência ao item do cofre.</p></div></div>
+
+<div class="grid-kpi g4">
+  <div class="card kpi"><span class="eyebrow">Bancos cadastrados</span><span class="v"><%= k[:count] %></span><span class="f">em <%= pluralize(k[:apps], "aplicação", plural: "aplicações") %> de <%= pluralize(k[:companies], "cliente") %></span></div>
+  <div class="card kpi"><span class="eyebrow">Em produção</span><span class="v"><%= k[:production] %></span><span class="f"><span class="badge <%= k[:production_backup] == k[:production] ? 'b-good' : 'b-warn' %>"><%= k[:production_backup] %></span>com backup</span></div>
+  <div class="card kpi"><span class="eyebrow">Tecnologias</span><span class="v"><%= k[:by_tech].size %></span><span class="f"><%= k[:by_tech].map { |tech, n| "#{tech} #{n}" }.join(" · ") %></span></div>
+  <div class="card kpi<%= ' alert' if k[:without_backup].any?(&:env_production?) %>"><span class="eyebrow">Sem backup</span><span class="v"><%= k[:without_backup].size %></span><span class="f"><%= k[:without_backup].any?(&:env_production?) ? status_badge("Há banco de produção sem backup", "crit") : status_badge("Só staging e desenvolvimento", "mute") %></span></div>
+</div>
+
+<%= form_with url: databases_path, method: :get, class: "toolbar" do %>
+  <%= status_filter :ambiente, [ [ "todos", "Todos", @counts.values.sum ] ] + Inventory::ENVIRONMENTS.to_a.reverse.map { |key, label| [ key, label, @counts[key].to_i ] }, label: "Filtrar por ambiente" %>
+  <%= hidden_field_tag :ambiente, params[:ambiente], id: nil if params[:ambiente].present? %>
+  <span class="spacer"></span>
+  <%= search_field placeholder: "Aplicação, cliente ou provedor", label: "Buscar banco de dados" %>
+  <label class="sr-only" for="f-tec">Tecnologia</label>
+  <%= select_tag :tecnologia, options_for_select(@technologies, params[:tecnologia]), include_blank: "Todas as tecnologias", class: "select", id: "f-tec", onchange: "this.form.requestSubmit()" %>
+  <label class="sr-only" for="f-cli">Cliente</label>
+  <%= select_tag :empresa, options_from_collection_for_select(@companies, :id, :trade_name, params[:empresa]), include_blank: "Todos os clientes", class: "select", id: "f-cli", onchange: "this.form.requestSubmit()" %>
+<% end %>
+
+<section class="card" aria-label="Lista de bancos de dados">
+  <% if @databases.any? %>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr><th>Cliente</th><th>Aplicação</th><th>Tecnologia</th><th>Versão</th><th>Ambiente</th><th>Provedor</th><th>Política de backup</th><th><span class="sr-only">Ações</span></th></tr></thead>
+        <tbody>
+          <% @databases.each do |db| %>
+            <tr>
+              <td data-label="Cliente"><%= link_to db.app.company.trade_name, company_path(db.app.company) %></td>
+              <td data-label="Aplicação"><%= link_to db.app.name, app_path(db.app), class: "strong" %></td>
+              <td data-label="Tecnologia"><%= db.technology %></td>
+              <td data-label="Versão" class="mono"><%= db.version.presence || "—" %></td>
+              <td data-label="Ambiente"><%= env_badge(db) %></td>
+              <td data-label="Provedor"><%= db.provider.presence || "—" %></td>
+              <td data-label="Política de backup"><%= db.backup? ? db.backup_policy : status_badge("Sem backup", db.env_production? ? "crit" : "mute") %><% if db.notes.present? %><span class="cell-sub"><%= db.notes %></span><% end %></td>
+              <td data-label="" class="right"><% if policy(db).edit? %><%= drawer_link_to "Editar", edit_database_path(db), class: "link-btn" %><% end %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <%= render "shared/pagination", pager: @pager %>
+  <% else %>
+    <%= render "shared/empty", title: "Nenhum banco de dados encontrado", text: "Registre o banco de cada aplicação com tecnologia, versão, ambiente, provedor e backup." %>
+  <% end %>
+</section>

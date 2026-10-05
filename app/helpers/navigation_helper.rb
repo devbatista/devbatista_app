@@ -60,13 +60,13 @@ module NavigationHelper
       [ "Notas fiscais", :invoices_path, "financeiro" ]
     ] },
     { key: :tec, label: "Tecnologia", items: [
-      [ "Aplicações", nil, "tecnologia" ], [ "Servidores", nil, "tecnologia" ],
-      [ "Domínios", nil, "tecnologia" ], [ "Bancos de dados", nil, "tecnologia" ],
-      [ "Integrações", nil, "tecnologia" ], [ "Serviços externos", nil, "tecnologia" ]
+      [ "Aplicações", :apps_path, "tecnologia" ], [ "Servidores", :servers_path, "tecnologia" ],
+      [ "Domínios", :domains_path, "tecnologia" ], [ "Bancos de dados", :databases_path, "tecnologia" ],
+      [ "Integrações", :integrations_path, "tecnologia" ], [ "Serviços externos", :external_services_path, "tecnologia" ]
     ] },
     { key: :prod, label: "Produtos", items: [
-      [ "Produtos próprios", nil, "produtos" ], [ "Assinaturas", nil, "produtos" ],
-      [ "Indicadores", nil, "produtos" ]
+      [ "Produtos próprios", :products_path, "produtos" ], [ "Assinaturas", :subscriptions_path, "produtos" ],
+      [ "Indicadores", :product_indicators_path, "produtos" ]
     ] },
     { key: :ges, label: "Gestão", items: [
       [ "Fornecedores", :suppliers_path, "fornecedores" ], [ "Documentos", :documents_path, "documentos" ],

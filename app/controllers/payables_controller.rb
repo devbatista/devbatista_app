@@ -15,8 +15,8 @@ class PayablesController < ApplicationController
     base = @view == "despesas" ? base.where(competence: @range) : base.where(due_on: @range)
     @kpis = kpis(base)
     @by_category = base.not_cancelled.group(:category).sum(:amount_cents).sort_by { |_, v| -v }
-    all = policy_scope(Payable).joins(:supplier).includes(:supplier, :company, :recurring_expense)
-    scope = params[:status] == "overdue" ? all : base.joins(:supplier).includes(:supplier, :company, :recurring_expense)
+    all = policy_scope(Payable).joins(:supplier).includes(:supplier, :company, :recurring_expense, :external_service)
+    scope = params[:status] == "overdue" ? all : base.joins(:supplier).includes(:supplier, :company, :recurring_expense, :external_service)
     @counts = (@view == "despesas" ? base.group(:category) : base.group(:status)).count
     @counts["overdue"] = policy_scope(Payable).overdue.count if @view == "pagar"
     scope = scope.where(status: params[:status]) if Payable.statuses.key?(params[:status])
@@ -108,7 +108,7 @@ class PayablesController < ApplicationController
   end
 
   def payable_params
-    params.expect(payable: %i[supplier_id description category currency original_amount amount competence_month due_on paid_on cost_center_key notes])
+    params.expect(payable: %i[supplier_id external_service_id description category currency original_amount amount competence_month due_on paid_on cost_center_key notes])
   end
 
   # Regra criada a partir da primeira despesa: mesmo valor, dia de vencimento e centro de custo.
@@ -117,7 +117,7 @@ class PayablesController < ApplicationController
     RecurringExpense.new(supplier: p.supplier, description: p.description.sub(/\s+—\s+\p{L}+\/\d{4}\z/, ""), category: p.category.presence || p.supplier&.category,
                          company_id: p.company_id, cost_center: p.cost_center, currency: p.currency,
                          amount_cents: p.foreign? ? p.original_amount_cents : p.amount_cents, periodicity: params[:periodicidade].presence_in(RecurringExpense.periodicities.keys) || "monthly",
-                         due_day: p.due_on&.day, start_on: p.due_on)
+                         due_day: p.due_on&.day, start_on: p.due_on, external_service_id: p.external_service_id)
   end
 
   def filter_cost_center(scope)

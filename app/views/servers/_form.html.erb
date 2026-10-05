@@ -1,0 +1,25 @@
+<% s = server %>
+<%= render layout: "shared/drawer_form", locals: { title: s.new_record? ? "Novo servidor" : "Editar servidor", cancel_path: servers_path } do %>
+  <%= form_with model: s, class: "form", data: { turbo_frame: "_top" } do |f| %>
+    <div class="drawer-body form">
+      <%= render "shared/form_errors", record: s %>
+      <div class="form-grid">
+        <div class="field full"><%= f.label :company_id do %>Cliente <span class="req">*</span><% end %><%= f.collection_select :company_id, Company.where.not(status: "inactive").or(Company.where(id: s.company_id)).by_name, :id, :trade_name, { prompt: "Selecione" }, class: "select", required: true %></div>
+        <div class="field full"><%= f.label :supplier_id do %>Fornecedor <span class="req">*</span><% end %><%= f.collection_select :supplier_id, Supplier.active.or(Supplier.where(id: s.supplier_id)).by_name, :id, :name, { prompt: "Selecione" }, class: "select", required: true %><span class="hint">Provedor de nuvem ou hospedagem cadastrado em Fornecedores</span></div>
+        <div class="field"><%= f.label :name do %>Nome <span class="req">*</span><% end %><%= f.text_field :name, class: "input", required: true, placeholder: "Ex.: xyz-app-02" %></div>
+        <div class="field"><%= f.label :host do %>IP ou hostname <span class="req">*</span><% end %><%= f.text_field :host, class: "input mono", required: true, placeholder: "Ex.: 18.231.44.12" %></div>
+        <div class="field"><%= f.label :environment do %>Ambiente <span class="req">*</span><% end %><%= f.select :environment, Server.options_for_environment, {}, class: "select" %></div>
+        <div class="field"><%= f.label :instance_type, "Porte" %><%= f.text_field :instance_type, class: "input", placeholder: "Ex.: EC2 t3.small" %></div>
+        <div class="field"><%= f.label :os, "Sistema operacional" %><%= f.text_field :os, class: "input", placeholder: "Ex.: Ubuntu 24.04 LTS" %></div>
+        <div class="field"><%= f.label :monthly_cost, "Custo mensal (R$)" %><%= f.number_field :monthly_cost, class: "input num", step: "0.01", min: 0, placeholder: "0,00" %></div>
+        <div class="field full"><%= f.label :notes, "Observações" %><%= f.text_area :notes, class: "textarea", placeholder: "Configuração, porte e particularidades" %></div>
+        <div class="field full"><%= f.label :vault_reference, "Referência no cofre de senhas" %><%= f.text_field :vault_reference, class: "input", placeholder: "Ex.: Cofre DevBatista › Clientes › XYZ › SSH xyz-app-02" %><span class="hint">Caminho do item no cofre, nunca a senha ou a chave</span></div>
+      </div>
+    </div>
+    <div class="drawer-foot">
+      <% if s.persisted? && policy(s).destroy? %><%= link_to "Excluir", server_path(s), class: "btn danger", style: "margin-right:auto", data: { turbo_method: :delete, turbo_confirm: "Excluir o servidor #{s.name}?", turbo_frame: "_top" } %><% end %>
+      <%= link_to "Cancelar", servers_path, class: "btn", data: { close: true, turbo_frame: "_top" } %>
+      <%= f.submit s.new_record? ? "Salvar servidor" : "Salvar alterações", class: "btn pri" %>
+    </div>
+  <% end %>
+<% end %>

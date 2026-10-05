@@ -13,6 +13,7 @@ class Payable < ApplicationRecord
 
   belongs_to :supplier
   belongs_to :recurring_expense, optional: true
+  belongs_to :external_service, optional: true
 
   validates :currency, inclusion: { in: ExchangeRate::CURRENCIES.keys }
   validates :original_amount_cents, presence: { message: "é obrigatório em moeda estrangeira" }, if: :foreign?

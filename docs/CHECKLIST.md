@@ -4,7 +4,7 @@ Acompanha a construção da V1, fase por fase. Cada item é um requisito funcion
 
 Marque `[x]` só quando o item cumprir o [Pronto quando](#pronto-quando) abaixo.
 
-**Andamento:** fases 1 a 5 concluídas · próxima: fase 6 (Tecnologia e Produtos)
+**Andamento:** fases 1 a 6 concluídas · próxima: fase 7 (Gestão e dashboard)
 
 ## Pronto quando
 
@@ -165,7 +165,7 @@ Primeiro módulo de negócio. Traz também o que os outros módulos vão usar: h
   - [x] Despesa com cliente entra no custo direto dele
   - [x] Moeda estrangeira: valor original, moeda e valor em R$ na data do pagamento
   - [x] Ligação com fornecedor e cliente
-  - [ ] Ligação com serviço externo (o model chega na fase 6)
+  - [x] Ligação com serviço externo (fase 6)
 - [x] **RF 27 · Recorrências** — [recorrências](design/financeiro/recorrencias.html)
   - [x] Job gera títulos dos próximos períodos a partir dos serviços contratados ativos, como Previsto (diário às 06:00 e "Executar rotina agora")
   - [x] Idempotente: rodar duas vezes no mesmo dia não duplica título
@@ -188,27 +188,30 @@ Primeiro módulo de negócio. Traz também o que os outros módulos vão usar: h
 - [x] Decidido: câmbio pela PTAX de venda do Banco Central (API Olinda), com cotações guardadas, última conhecida como fallback e correção manual no pagamento
 - [x] RF 42 · Configurações (parte 4): categorias de despesa, centros de custo internos e horizonte das recorrências
 
-## Fase 6 · Tecnologia e Produtos
+## Fase 6 · Tecnologia e Produtos ✅
 
-- [ ] **RF 29 · Aplicações** — [spec](specs/admin-devbatista-mvp/04-requisitos-funcionais/05-tecnologia.md) · [aplicações](design/tecnologia/aplicacoes.html) · [aplicação](design/tecnologia/aplicacao.html)
-  - [ ] Hospedagem aponta para servidor ou serviço externo; status Ativa, Em manutenção, Desativada
-- [ ] **RF 30 · Servidores** — [servidores](design/tecnologia/servidores.html)
-- [ ] **RF 31 · Domínios** — [domínios](design/tecnologia/dominios.html)
-  - [ ] Alertas a 60, 30 e 7 dias do vencimento
-  - [ ] Destaque para domínio sem renovação automática
-- [ ] **RF 32 · Bancos de dados** — [bancos de dados](design/tecnologia/bancos-dados.html)
-- [ ] **RF 33 · Integrações** — [integrações](design/tecnologia/integracoes.html)
-- [ ] **RF 34 · Serviços externos** — [serviços externos](design/tecnologia/servicos-externos.html)
-  - [ ] Custo, moeda, periodicidade e quem paga (DevBatista ou Cliente)
-  - [ ] Só os pagos pela DevBatista entram no custo direto do cliente
-  - [ ] Contas a pagar ligadas ao serviço externo (pendente da fase 5)
-- [ ] Nenhum model de Tecnologia tem campo de senha, chave ou token; só referência ao cofre (teste que verifica as colunas)
-- [ ] **RF 35 · Produtos próprios** — [spec](specs/admin-devbatista-mvp/04-requisitos-funcionais/06-gestao-e-administracao.md) · [produtos](design/produtos/produtos.html) · [assinaturas](design/produtos/assinaturas.html) · [indicadores](design/produtos/produtos-indicadores.html)
-  - [ ] Status, MRR, clientes e custo mensal
-  - [ ] Assinaturas (Subscription) com registro manual
-- [ ] Visão 360º: aba Infraestrutura
-- [ ] Busca global: aplicações
-- [ ] Notificações: domínios vencendo (prazos já configuráveis)
+- [x] **RF 29 · Aplicações** — [spec](specs/admin-devbatista-mvp/04-requisitos-funcionais/05-tecnologia.md) · [aplicações](design/tecnologia/aplicacoes.html) · [aplicação](design/tecnologia/aplicacao.html)
+  - [x] Hospedagem aponta para servidor ou serviço externo; status Ativa, Em manutenção, Desativada
+- [x] **RF 30 · Servidores** — [servidores](design/tecnologia/servidores.html)
+- [x] **RF 31 · Domínios** — [domínios](design/tecnologia/dominios.html)
+  - [x] Alertas a 60, 30 e 7 dias do vencimento
+  - [x] Destaque para domínio sem renovação automática
+- [x] **RF 32 · Bancos de dados** — [bancos de dados](design/tecnologia/bancos-dados.html)
+- [x] **RF 33 · Integrações** — [integrações](design/tecnologia/integracoes.html)
+- [x] **RF 34 · Serviços externos** — [serviços externos](design/tecnologia/servicos-externos.html)
+  - [x] Custo, moeda, periodicidade e quem paga (DevBatista ou Cliente)
+  - [x] Só os pagos pela DevBatista entram no custo direto do cliente
+  - [x] Contas a pagar e despesas recorrentes ligadas ao serviço externo
+- [x] Nenhum model de Tecnologia tem campo de senha, chave ou token; só referência ao cofre (teste que verifica as colunas e validação que recusa credencial colada no texto)
+- [x] **RF 35 · Produtos próprios** — [spec](specs/admin-devbatista-mvp/04-requisitos-funcionais/06-gestao-e-administracao.md) · [produtos](design/produtos/produtos.html) · [assinaturas](design/produtos/assinaturas.html) · [indicadores](design/produtos/produtos-indicadores.html)
+  - [x] Status, MRR, clientes e custo mensal
+  - [x] Assinaturas (Subscription) com registro manual
+- [x] Visão 360º: aba Infraestrutura
+- [x] Busca global: aplicações
+- [x] Notificações: domínios vencendo (prazos já configuráveis) e domínio vencido sem renovação
+- [x] Chamado com aplicação afetada; detalhe da aplicação com mapa de dependências, custo mensal e chamados
+- [x] Visão 360º: custo mensal de infraestrutura pago pela DevBatista (base da rentabilidade da fase 7)
+- [x] Premissas adotadas (model App no lugar de Application; inadimplentes contam no MRR dos produtos; [confirmar](specs/admin-devbatista-mvp/08-duvidas-em-aberto-e-premissas.md))
 
 ## Fase 7 · Gestão e dashboard
 

@@ -1,0 +1,122 @@
+<% windows = Setting[:domain_alert_days].map(&:to_i).sort %>
+<% alerts = @domains.select { |d| !d.auto_renew? && d.attention?(Date.current, windows) } %>
+<% databases = @apps.flat_map(&:databases) %>
+<% integrations = @apps.flat_map { |a| a.integrations.map { |i| [ a, i ] } } %>
+
+<% alerts.each do |d| %>
+  <div class="callout crit"><%= icon(:alert, size: 20, stroke: 1.8, style: "color:var(--crit);flex:none") %><span><b class="strong"><%= d.name %> <%= d.expired? ? "venceu em #{date_br(d.expires_on)}" : "vence em #{pluralize(d.days_left, 'dia')} (#{date_br(d.expires_on)})" %> e não tem renovação automática.</b> Renove no <%= d.registrar %> ou ative a renovação automática para evitar indisponibilidade do site e do e-mail.</span></div>
+<% end %>
+
+<div class="grid-kpi g4">
+  <div class="card kpi"><span class="eyebrow">Aplicações</span><span class="v"><%= @apps.size %></span><span class="f"><%= @apps.count { |a| a.active? && a.env_production? } %> ativas em produção</span></div>
+  <div class="card kpi"><span class="eyebrow">Custo mensal de infraestrutura</span><span class="v"><%= brl(@company.infrastructure_cost_cents) %></span><span class="f">pago pela DevBatista · entra no custo direto</span></div>
+  <div class="card kpi<%= ' alert' if alerts.any? %>"><span class="eyebrow">Domínios</span><span class="v"><%= @domains.size %></span><span class="f"><%= alerts.any? ? status_badge("#{alerts.size} pede#{'m' if alerts.size > 1} atenção", "crit") : "nenhum vencendo sem renovação" %></span></div>
+  <div class="card kpi"><span class="eyebrow">Servidores</span><span class="v"><%= @servers.size %></span><span class="f"><%= brl(@servers.sum(&:monthly_cost_cents)) %>/mês</span></div>
+</div>
+
+<div class="card">
+  <div class="card-head"><h2>Aplicações</h2>
+    <span class="row-actions"><%= link_to "Ver em Tecnologia", apps_path(empresa: @company.id), style: "font-size:13px;font-weight:600" %>
+    <% if policy(App).create? %><%= drawer_link_to new_app_path(empresa: @company.id), class: "btn sm" do %><%= icon(:plus, size: 14, stroke: 2) %>Nova aplicação<% end %><% end %></span></div>
+  <% if @apps.any? %>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr><th>Aplicação</th><th>Ambiente</th><th>Tecnologia</th><th>Hospedagem</th><th>URL</th><th>Status</th></tr></thead>
+        <tbody>
+          <% @apps.each do |a| %>
+            <tr data-href="<%= app_path(a) %>">
+              <td data-label="Aplicação"><%= link_to a.name, app_path(a), class: "strong" %><% if a.description.present? %><span class="cell-sub"><%= truncate(a.description, length: 60) %></span><% end %></td>
+              <td data-label="Ambiente"><%= env_badge(a) %></td>
+              <td data-label="Tecnologia"><%= a.tech_stack.presence || "—" %></td>
+              <td data-label="Hospedagem"><%= hosting_cell(a) %></td>
+              <td data-label="URL" class="mono"><%= a.host_name || "—" %></td>
+              <td data-label="Status"><%= app_badge(a) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <%= render "shared/empty", title: "Nenhuma aplicação", text: "Sistemas, sites e apps do cliente, com hospedagem, banco e integrações, aparecem aqui." %>
+  <% end %>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <div class="card-head"><h2>Servidores</h2><%= link_to "Servidores", servers_path(empresa: @company.id), style: "font-size:13px;font-weight:600" %></div>
+    <% @servers.each do |s| %>
+      <div class="kv"><span><b class="strong"><%= s.name %></b> · <%= s.supplier.name %><%= " · #{s.instance_type}" if s.instance_type.present? %><span class="cell-sub mono"><%= s.host %> · <%= s.environment_label %> · <%= s.os %></span></span><b><%= brl(s.monthly_cost_cents) %></b></div>
+    <% end %>
+    <% if @servers.empty? %><div class="card-foot"><span>Nenhum servidor dedicado ao cliente.</span></div><% end %>
+  </div>
+  <div class="card">
+    <div class="card-head"><h2>Bancos de dados</h2><%= link_to "Bancos de dados", databases_path(empresa: @company.id), style: "font-size:13px;font-weight:600" %></div>
+    <% databases.each do |db| %>
+      <div class="kv"><span><b class="strong"><%= db %></b> · <%= db.app.name %><span class="cell-sub"><%= db.environment_label %> · <%= db.provider.presence || "provedor não informado" %><%= " · credenciais no cofre" if db.vault_reference.present? %></span></span><% if db.backup? %><b style="text-align:right;font-weight:500"><%= db.backup_policy %></b><% else %><%= status_badge("Sem backup", db.env_production? ? "crit" : "mute") %><% end %></div>
+    <% end %>
+    <% if databases.empty? %><div class="card-foot"><span>Nenhum banco cadastrado.</span></div><% end %>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-head"><h2>Domínios</h2><%= link_to "Ver em Domínios", domains_path(q: @company.trade_name), style: "font-size:13px;font-weight:600" %></div>
+  <% if @domains.any? %>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr><th>Domínio</th><th>Registrador</th><th>Registro</th><th>Vencimento</th><th>Renovação automática</th><th class="num">Custo</th></tr></thead>
+        <tbody>
+          <% @domains.each do |d| %>
+            <% window = d.alert_window(Date.current, windows) %>
+            <% window ||= ("vencido" if d.expired?) %>
+            <tr class="<%= 'late' if window && !d.auto_renew? %>">
+              <td data-label="Domínio" class="strong"><%= d.name %><span class="cell-sub"><%= d.paid_by_client? ? "Pago pelo cliente" : "Pago pela DevBatista" %></span></td>
+              <td data-label="Registrador"><%= d.registrar %></td>
+              <td data-label="Registro" class="mono"><%= date_br(d.registered_on) %></td>
+              <td data-label="Vencimento"><span class="mono<%= ' late-text' if window && !d.auto_renew? %>"><%= date_br(d.expires_on) %></span><% if window %> <span class="badge <%= d.auto_renew? ? 'b-warn' : 'b-crit' %>"><%= d.expired? ? "vencido" : pluralize(d.days_left, "dia") %></span><% end %></td>
+              <td data-label="Renovação automática"><%= d.auto_renew? ? status_badge("Sim", "good") : status_badge("Não", window ? "crit" : "warn") %></td>
+              <td data-label="Custo" class="num nowrap"><%= money_in(d.renewal_cost_cents, d.currency) %> / ano</td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="card-foot"><span>Nenhum domínio cadastrado.</span></div>
+  <% end %>
+</div>
+
+<div class="card">
+  <div class="card-head"><h2>Integrações</h2><%= link_to "Ver em Integrações", integrations_path(q: @company.trade_name), style: "font-size:13px;font-weight:600" %></div>
+  <% if integrations.any? %>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr><th>Integração</th><th>Aplicação</th><th>Ambiente</th><th>Finalidade</th><th>Status</th></tr></thead>
+        <tbody>
+          <% integrations.each do |app, i| %>
+            <tr><td data-label="Integração" class="strong"><%= i %></td><td data-label="Aplicação"><%= link_to app.name, app_path(app) %></td><td data-label="Ambiente"><%= i.environment_label %></td><td data-label="Finalidade"><%= i.purpose %></td><td data-label="Status"><%= integration_badge(i) %></td></tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="card-foot"><span>Nenhuma integração cadastrada.</span></div>
+  <% end %>
+</div>
+
+<div class="card">
+  <div class="card-head"><h2>Serviços externos</h2><%= link_to "Ver em Serviços externos", external_services_path(empresa: @company.id), style: "font-size:13px;font-weight:600" %></div>
+  <% if @external_services.any? %>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr><th>Serviço</th><th>Fornecedor</th><th>Aplicação</th><th>Periodicidade</th><th class="num">Custo</th><th>Pago por</th></tr></thead>
+        <tbody>
+          <% @external_services.each do |s| %>
+            <tr class="<%= 'inactive' unless s.active? %>"><td data-label="Serviço" class="strong"><%= s %></td><td data-label="Fornecedor"><%= s.supplier.name %></td><td data-label="Aplicação"><%= s.app ? link_to(s.app.name, app_path(s.app)) : "—" %></td><td data-label="Periodicidade"><%= s.periodicity_label %></td><td data-label="Custo" class="num nowrap"><%= service_cost(s) %></td><td data-label="Pago por"><%= paid_by_badge(s) %></td></tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="card-foot"><span>Nenhum serviço externo cadastrado.</span></div>
+  <% end %>
+</div>

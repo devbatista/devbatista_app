@@ -15,7 +15,7 @@ module Search
     def groups
       return [] if @term.size < 2
 
-      [ companies, contacts, contracts, projects, tickets, receivables, invoices, proposals, leads ].compact.reject { |g| g.items.empty? }
+      [ companies, contacts, contracts, apps, projects, tickets, receivables, invoices, proposals, leads ].compact.reject { |g| g.items.empty? }
     end
 
     private
@@ -46,6 +46,15 @@ module Search
         Item.new(title: c.to_s, subtitle: "#{c.company.trade_name} · #{c.status_label}", path: contract_path(c))
       end
       Group.new(label: "Contratos", area: "contratos", items: items)
+    end
+
+    def apps
+      return unless @user.can_read?("tecnologia")
+
+      items = App.search(@term).includes(:company).order(:name).limit(LIMIT).map do |a|
+        Item.new(title: a.name, subtitle: [ a.company.trade_name, a.environment_label, a.status_label, a.host_name ].compact.join(" · "), path: app_path(a))
+      end
+      Group.new(label: "Aplicações", area: "tecnologia", items: items)
     end
 
     def projects

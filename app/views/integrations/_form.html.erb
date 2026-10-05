@@ -1,0 +1,25 @@
+<% i = integration %>
+<% back = params[:voltar] == "aplicacao" && i.app ? app_path(i.app) : integrations_path %>
+<%= render layout: "shared/drawer_form", locals: { title: i.new_record? ? "Nova integração" : "Editar integração", cancel_path: back } do %>
+  <%= form_with model: i, class: "form", data: { turbo_frame: "_top" } do |f| %>
+    <%= hidden_field_tag :voltar, params[:voltar] if params[:voltar] %>
+    <div class="drawer-body form">
+      <%= render "shared/form_errors", record: i %>
+      <div class="form-grid">
+        <div class="field full"><%= f.label :app_id do %>Aplicação <span class="req">*</span><% end %><%= f.select :app_id, app_options(i.app_id), { prompt: "Selecione" }, class: "select", required: true %></div>
+        <div class="field"><%= f.label :platform do %>Integração <span class="req">*</span><% end %><%= f.text_field :platform, class: "input", required: true, list: "plataformas", placeholder: "Plataforma ou API integrada" %><datalist id="plataformas"><% Integration::PLATFORMS.each do |p| %><option value="<%= p %>"></option><% end %></datalist></div>
+        <div class="field"><%= f.label :variant, "Produto ou API" %><%= f.text_field :variant, class: "input", placeholder: "Ex.: Cloud API, Conversions API" %></div>
+        <div class="field"><%= f.label :environment do %>Ambiente <span class="req">*</span><% end %><%= f.select :environment, Integration.options_for_environment, {}, class: "select" %></div>
+        <div class="field"><%= f.label :status do %>Status <span class="req">*</span><% end %><%= f.select :status, Integration.options_for_status, {}, class: "select" %></div>
+        <div class="field full"><%= f.label :purpose do %>Finalidade <span class="req">*</span><% end %><%= f.text_field :purpose, class: "input", required: true, placeholder: "Para que a integração é utilizada" %></div>
+        <div class="field full"><%= f.label :notes, "Observações" %><%= f.text_area :notes, class: "textarea", placeholder: "Titularidade da conta, limites e particularidades" %></div>
+      </div>
+      <div class="callout"><span>Não cole chaves de API, tokens ou segredos de webhook. Eles ficam no cofre de senhas.</span></div>
+    </div>
+    <div class="drawer-foot">
+      <% if i.persisted? && policy(i).destroy? %><%= link_to "Excluir", integration_path(i, voltar: params[:voltar]), class: "btn danger", style: "margin-right:auto", data: { turbo_method: :delete, turbo_confirm: "Excluir a integração #{i}?", turbo_frame: "_top" } %><% end %>
+      <%= link_to "Cancelar", back, class: "btn", data: { close: true, turbo_frame: "_top" } %>
+      <%= f.submit i.new_record? ? "Salvar integração" : "Salvar alterações", class: "btn pri" %>
+    </div>
+  <% end %>
+<% end %>

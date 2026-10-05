@@ -82,6 +82,33 @@ pt-BR:
       exchange_rate:
         one: Cotação
         other: Cotações
+      app:
+        one: Aplicação
+        other: Aplicações
+      server:
+        one: Servidor
+        other: Servidores
+      domain:
+        one: Domínio
+        other: Domínios
+      database:
+        one: Banco de dados
+        other: Bancos de dados
+      integration:
+        one: Integração
+        other: Integrações
+      external_service:
+        one: Serviço externo
+        other: Serviços externos
+      product:
+        one: Produto
+        other: Produtos
+      product_cost:
+        one: Custo do produto
+        other: Custos do produto
+      subscription:
+        one: Assinatura
+        other: Assinaturas
     attributes:
       user:
         name: Nome
@@ -294,6 +321,8 @@ pt-BR:
         duration: Duração
         description: Descrição
       ticket:
+        app: Aplicação afetada
+        app_id: Aplicação afetada
         number: Número
         company: Cliente
         company_id: Cliente
@@ -369,6 +398,8 @@ pt-BR:
         amount: Valor em reais
         amount_cents: Valor em reais
         recurring_expense: Despesa recorrente
+        external_service: Serviço externo
+        external_service_id: Serviço externo
       recurring_expense:
         supplier: Fornecedor
         supplier_id: Fornecedor
@@ -385,6 +416,110 @@ pt-BR:
         start_on: Início
         status: Situação
         ended_on: Encerrada em
+        notes: Observações
+      app:
+        company: Cliente
+        company_id: Cliente
+        name: Nome
+        description: Descrição
+        environment: Ambiente
+        status: Status
+        url: URL
+        tech_stack: Tecnologia
+        repository_url: Repositório
+        hosting: Hospedagem
+        hosting_key: Hospedagem
+        project: Projeto
+        project_id: Projeto
+        contract: Contrato
+        contract_id: Contrato
+        user: Responsável técnico
+        user_id: Responsável técnico
+        vault_reference: Referência no cofre
+      server:
+        company: Cliente
+        company_id: Cliente
+        supplier: Fornecedor
+        supplier_id: Fornecedor
+        name: Nome
+        host: IP ou hostname
+        environment: Ambiente
+        os: Sistema operacional
+        instance_type: Porte
+        monthly_cost: Custo mensal
+        monthly_cost_cents: Custo mensal
+        vault_reference: Referência no cofre
+        notes: Observações
+      domain:
+        company: Cliente
+        company_id: Cliente
+        name: Domínio
+        registrar: Registrador
+        registered_on: Registro
+        expires_on: Vencimento
+        auto_renew: Renovação automática
+        currency: Moeda
+        renewal_cost: Custo da renovação
+        renewal_cost_cents: Custo da renovação
+        paid_by: Quem paga
+        dns_provider: DNS
+        notes: Observações
+      database:
+        app: Aplicação
+        app_id: Aplicação
+        technology: Tecnologia
+        version: Versão
+        environment: Ambiente
+        provider: Provedor
+        backup_policy: Política de backup
+        vault_reference: Referência no cofre
+        notes: Observações
+      integration:
+        app: Aplicação
+        app_id: Aplicação
+        platform: Integração
+        variant: Produto ou API
+        environment: Ambiente
+        status: Status
+        purpose: Finalidade
+        notes: Observações
+      external_service:
+        name: Serviço
+        plan: Plano
+        supplier: Fornecedor
+        supplier_id: Fornecedor
+        company: Cliente
+        company_id: Cliente
+        app: Aplicação
+        app_id: Aplicação
+        currency: Moeda
+        cost: Custo
+        cost_cents: Custo
+        periodicity: Periodicidade
+        paid_by: Responsável pelo pagamento
+        active: Ativo
+        vault_reference: Referência no cofre
+        notes: Observações
+      product:
+        name: Nome
+        url: Domínio
+        description: Descrição
+        status: Status
+        monthly_cost: Custo mensal
+        notes: Observações
+      subscription:
+        product: Produto
+        product_id: Produto
+        company: Cliente
+        subscriber_name: Assinante
+        email: E-mail
+        plan: Plano
+        monthly_value: Valor mensal
+        monthly_value_cents: Valor mensal
+        started_on: Início
+        trial_ends_on: Fim do teste
+        cancelled_on: Cancelada em
+        status: Status
         notes: Observações
       invoice:
         company: Cliente

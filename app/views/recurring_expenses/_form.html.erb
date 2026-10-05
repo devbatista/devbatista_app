@@ -13,6 +13,7 @@
         <div class="field"><%= f.label :amount do %>Valor na moeda <span class="req">*</span><% end %><%= f.number_field :amount, class: "input num", step: "0.01", min: 0, required: true %></div>
         <div class="field"><%= f.label :periodicity do %>Periodicidade <span class="req">*</span><% end %><%= f.select :periodicity, RecurringExpense.options_for_periodicity, {}, class: "select" %></div>
         <div class="field"><%= f.label :due_day do %>Dia de vencimento <span class="req">*</span><% end %><%= f.number_field :due_day, class: "input", min: 1, max: 31, required: true %></div>
+        <div class="field full"><%= f.label :external_service_id, "Serviço externo" %><%= f.collection_select :external_service_id, ExternalService.active.or(ExternalService.where(id: e.external_service_id)).includes(:company).order(:name), :id, :hosting_label, { include_blank: "Nenhum" }, class: "select" %></div>
         <div class="field full"><%= f.label :cost_center_key do %>Centro de custo <span class="req">*</span><% end %><%= f.select :cost_center_key, grouped_options_for_select(RecurringExpense.cost_center_options(e.company_id), e.cost_center_key), {}, class: "select" %></div>
       </div>
       <div class="field"><%= f.label :notes, "Observações" %><%= f.text_area :notes, class: "textarea" %></div>

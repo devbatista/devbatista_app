@@ -6,5 +6,6 @@ class DailyAlertsJob < ApplicationJob
     ContractAlertsJob.perform_now
     ProposalAlertsJob.perform_now
     OperationAlertsJob.perform_now
+    DomainAlertsJob.perform_now
   end
 end

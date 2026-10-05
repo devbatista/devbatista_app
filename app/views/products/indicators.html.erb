@@ -1,0 +1,167 @@
+<% page_title "Indicadores dos produtos" %>
+<% nav_location :prod, "Indicadores" %>
+<% breadcrumb ["Produtos"], ["Produtos próprios", products_path], ["Indicadores"] %>
+<% colors = [ "var(--cyan)", "var(--blue)", "var(--cyan-800)", "var(--faint)" ] %>
+<% last = @totals.last %>
+<% prev = @totals[-2] || last %>
+<% first = @totals.first %>
+<% pct = ->(a, b) { b.to_i.positive? ? ((a - b) * 100.0 / b).round(1) : nil } %>
+<% fmt_pct = ->(v) { v ? "#{v.positive? ? '+' : ''}#{number_with_precision(v, precision: 1, separator: ',')}%" : "—" } %>
+<% month_label = ->(m) { l(m, format: "%b").capitalize.delete(".") } %>
+<% earning = @products.select { |p| @series[p].any? { |s| s[:mrr].positive? } } %>
+<% margin = last[:mrr].positive? ? ((last[:mrr] - last[:cost]) * 100.0 / last[:mrr]).round(1) : nil %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Produtos · <%= l(@months.first, format: "%B").capitalize %> a <%= l(@months.last, format: "%B de %Y") %></span>
+    <h1>Indicadores dos produtos</h1>
+    <p class="lead">MRR, clientes e custo de cada produto próprio ao longo dos últimos <%= @span %> meses.</p>
+  </div>
+  <%= form_with url: product_indicators_path, method: :get, class: "actions" do %>
+    <label class="sr-only" for="periodo">Período</label>
+    <%= select_tag :periodo, options_for_select([ [ "Últimos 6 meses", "6" ], [ "Últimos 12 meses", "12" ] ], @span.to_s), class: "select", id: "periodo", onchange: "this.form.requestSubmit()" %>
+    <label class="sr-only" for="f-prod">Produto</label>
+    <%= select_tag :produto, options_from_collection_for_select(Product.by_name, :id, :name, params[:produto]), include_blank: "Todos os produtos", class: "select", id: "f-prod", onchange: "this.form.requestSubmit()" %>
+  <% end %>
+</div>
+
+<div class="grid-kpi g4">
+  <div class="card kpi"><span class="eyebrow">MRR dos produtos</span><span class="v"><%= brl(last[:mrr]) %></span><span class="f"><span class="badge b-good"><%= fmt_pct.call(pct.call(last[:mrr], prev[:mrr])) %></span>vs. <%= l(@months[-2] || @months.last, format: "%B") %> · <%= fmt_pct.call(pct.call(last[:mrr], first[:mrr])) %> em <%= @span %> meses</span></div>
+  <div class="card kpi"><span class="eyebrow">Clientes ativos</span><span class="v"><%= last[:clients] %></span><span class="f"><span class="badge b-good"><%= last[:clients] - prev[:clients] >= 0 ? "+" : "" %><%= last[:clients] - prev[:clients] %></span>vs. <%= l(@months[-2] || @months.last, format: "%B") %></span></div>
+  <div class="card kpi"><span class="eyebrow">Custo mensal</span><span class="v"><%= brl(last[:cost]) %></span><span class="f"><span class="badge b-warn"><%= fmt_pct.call(pct.call(last[:cost], prev[:cost])) %></span>vs. <%= l(@months[-2] || @months.last, format: "%B") %></span></div>
+  <div class="card kpi"><span class="eyebrow">Margem</span><span class="v"><%= margin ? "#{number_with_precision(margin, precision: 1, separator: ',')}%" : "—" %></span><span class="f"><%= brl(last[:mrr] - last[:cost]) %><%= " · ticket médio #{brl(last[:mrr] / last[:clients])}" if last[:clients].positive? %></span></div>
+</div>
+
+<section class="stack">
+  <div class="section-title"><span class="eyebrow">Últimos <%= @span %> meses</span><span class="caption">MRR e clientes vêm das assinaturas lançadas em Assinaturas; o mês corrente é a posição de hoje</span></div>
+  <div class="grid-3">
+    <% max_mrr = [ @totals.map { |t| t[:mrr] }.max.to_i, 1 ].max %>
+    <div class="card card-body stack">
+      <div class="section-title"><h2>MRR total</h2><span class="unit">R$</span></div>
+      <div class="bars" role="img" aria-label="MRR total por mês: <%= @months.each_with_index.map { |m, i| "#{month_label.call(m)} #{brl(@totals[i][:mrr])}" }.join(', ') %>">
+        <% @totals.each_with_index do |t, i| %>
+          <div class="col" title="<%= month_label.call(@months[i]) %>: <%= brl(t[:mrr]) %>"><% if i == @totals.size - 1 %><span class="lbl"><%= number_with_delimiter((t[:mrr] / 100.0).round, delimiter: ".") %></span><% end %><div class="bar<%= ' cur' if i == @totals.size - 1 %>" style="height:<%= (t[:mrr] * 92.0 / max_mrr).round %>%"></div></div>
+        <% end %>
+      </div>
+      <div class="axis"><% @months.each do |m| %><span><%= month_label.call(m) %></span><% end %></div>
+    </div>
+
+    <div class="card card-body stack">
+      <div class="section-title"><h2>MRR por produto</h2><span class="unit">R$</span></div>
+      <% peak = [ earning.flat_map { |p| @series[p].map { |s| s[:mrr] } }.max.to_i, 1 ].max %>
+      <% step = @months.size > 1 ? 300.0 / (@months.size - 1) : 0 %>
+      <div style="position:relative;height:150px;border-bottom:1px solid var(--border-strong)">
+        <svg width="100%" height="150" viewBox="0 0 300 150" preserveAspectRatio="none" role="img" aria-label="MRR por produto: <%= earning.map { |p| "#{p.name} #{brl(@series[p].last[:mrr])}" }.join(', ') %>">
+          <line x1="0" y1="50" x2="300" y2="50" style="stroke:var(--rule)" vector-effect="non-scaling-stroke"/>
+          <line x1="0" y1="100" x2="300" y2="100" style="stroke:var(--rule)" vector-effect="non-scaling-stroke"/>
+          <% earning.each_with_index do |p, i| %>
+            <polyline points="<%= @series[p].each_with_index.map { |s, j| "#{(j * step).round(1)},#{(150 - s[:mrr] * 130.0 / peak).round(1)}" }.join(' ') %>" fill="none" style="stroke:<%= colors[i] || colors.last %>" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round"><title><%= p.name %></title></polyline>
+          <% end %>
+        </svg>
+      </div>
+      <div class="axis"><% @months.each do |m| %><span><%= month_label.call(m) %></span><% end %></div>
+      <div class="legend"><% earning.each_with_index do |p, i| %><span><i style="background:<%= colors[i] || colors.last %>"></i><%= p.name %> <%= brl(@series[p].last[:mrr]) %></span><% end %></div>
+    </div>
+
+    <div class="card card-body stack">
+      <div class="section-title"><h2>Clientes por produto</h2><span class="unit">ASSINANTES</span></div>
+      <% max_clients = [ @totals.map { |t| t[:clients] }.max.to_i, 1 ].max %>
+      <div class="bars stacked" role="img" aria-label="Clientes por mês: <%= @months.each_with_index.map { |m, i| "#{month_label.call(m)} #{@totals[i][:clients]}" }.join(', ') %>">
+        <% @months.each_with_index do |m, i| %>
+          <div class="col" title="<%= month_label.call(m) %>: <%= @totals[i][:clients] %> (<%= earning.map { |p| "#{p.name} #{@series[p][i][:clients]}" }.join(', ') %>)">
+            <% if i == @months.size - 1 %><span class="lbl"><%= @totals[i][:clients] %></span><% end %>
+            <% earning.each_with_index.reverse_each do |p, k| %><div class="bar" style="height:<%= (@series[p][i][:clients] * 92.0 / max_clients).round %>%;background:<%= [ 'var(--cyan)', 'var(--cyan-800)', 'var(--blue)' ][k] || 'var(--faint)' %>"></div><% end %>
+          </div>
+        <% end %>
+      </div>
+      <div class="axis"><% @months.each do |m| %><span><%= month_label.call(m) %></span><% end %></div>
+      <div class="legend"><% earning.each_with_index do |p, k| %><span><i style="background:<%= [ 'var(--cyan)', 'var(--cyan-800)', 'var(--blue)' ][k] || 'var(--faint)' %>"></i><%= p.name %></span><% end %></div>
+    </div>
+
+    <div class="card card-body stack">
+      <div class="section-title"><h2>Custo mensal total</h2><span class="unit">R$</span></div>
+      <% max_cost = [ @totals.map { |t| t[:cost] }.max.to_i, 1 ].max %>
+      <div class="bars" role="img" aria-label="Custo por mês: <%= @months.each_with_index.map { |m, i| "#{month_label.call(m)} #{brl(@totals[i][:cost])}" }.join(', ') %>">
+        <% @totals.each_with_index do |t, i| %>
+          <div class="col" title="<%= month_label.call(@months[i]) %>: <%= brl(t[:cost]) %>"><% if i == @totals.size - 1 %><span class="lbl"><%= number_with_delimiter((t[:cost] / 100.0).round, delimiter: ".") %></span><% end %><div class="bar<%= ' cur' if i == @totals.size - 1 %>" style="height:<%= (t[:cost] * 92.0 / max_cost).round %>%"></div></div>
+        <% end %>
+      </div>
+      <div class="axis"><% @months.each do |m| %><span><%= month_label.call(m) %></span><% end %></div>
+    </div>
+
+    <div class="card card-body stack">
+      <div class="section-title"><h2>Custo por produto</h2><span class="unit">R$ · <%= month_label.call(@months.last).upcase %></span></div>
+      <% top_cost = [ @products.map { |p| @series[p].last[:cost] }.max.to_i, 1 ].max %>
+      <div class="hbars">
+        <% @products.sort_by { |p| -@series[p].last[:cost] }.each_with_index do |p, i| %>
+          <div class="hbar"><span><%= p.name %></span><div class="track"><div class="fill<%= ' alt' if @series[p].last[:mrr].zero? %>" style="width:<%= (@series[p].last[:cost] * 100.0 / top_cost).round %>%"></div></div><span class="val"><%= number_with_delimiter((@series[p].last[:cost] / 100.0).round, delimiter: ".") %></span></div>
+        <% end %>
+      </div>
+      <% if (no_revenue = @products.select { |p| @series[p].last[:mrr].zero? && @series[p].last[:cost].positive? }).any? %><span class="caption"><%= no_revenue.map(&:name).to_sentence %> ainda sem receita: custo de infraestrutura.</span><% end %>
+    </div>
+
+    <div class="card card-body stack">
+      <div class="section-title"><h2>Margem por produto</h2><span class="unit">% · <%= month_label.call(@months.last).upcase %></span></div>
+      <div class="hbars">
+        <% earning.map { |p| [ p.name, p.margin_percent ] }.select(&:last).sort_by { |_, v| -v }.each do |name, value| %>
+          <div class="hbar"><span><%= name %></span><div class="track"><div class="fill" style="width:<%= value.clamp(0, 100) %>%"></div></div><span class="val"><%= number_with_precision(value, precision: 1, separator: ",") %></span></div>
+        <% end %>
+        <% if margin %><div class="hbar"><span>Consolidado</span><div class="track"><div class="fill alt" style="width:<%= margin.clamp(0, 100) %>%"></div></div><span class="val"><%= number_with_precision(margin, precision: 1, separator: ",") %></span></div><% end %>
+      </div>
+      <span class="caption">Margem = (MRR − custo mensal) ÷ MRR. Produtos sem receita ficam fora.</span>
+    </div>
+  </div>
+</section>
+
+<section class="card" aria-labelledby="comp-t">
+  <div class="card-head"><h2 id="comp-t">Comparação entre produtos</h2><span class="eyebrow"><%= l(Date.current, format: :month_year).capitalize %></span></div>
+  <div class="table-wrap">
+    <table class="table cards">
+      <thead><tr><th>Produto</th><th>Status</th><th class="num">MRR</th><th class="num">Var. <%= @span %> meses</th><th class="num">Clientes</th><th class="num">Ticket médio</th><th class="num">Custo mensal</th><th class="num">Resultado</th><th class="num">Margem</th></tr></thead>
+      <tbody>
+        <% @products.each do |p| %>
+          <% s = @series[p] %>
+          <% now = s.last %>
+          <% var = pct.call(now[:mrr], s.first[:mrr]) %>
+          <% result = now[:mrr] - now[:cost] %>
+          <tr>
+            <td data-label="Produto"><%= link_to p.name, products_path, class: "strong" %></td>
+            <td data-label="Status"><%= product_badge(p) %></td>
+            <td data-label="MRR" class="num nowrap<%= ' muted' if now[:mrr].zero? %>"><%= brl(now[:mrr]) %></td>
+            <td data-label="Var." class="num"<%= ' style="color:var(--good)"'.html_safe if var&.positive? %>><%= fmt_pct.call(var) %></td>
+            <td data-label="Clientes" class="num"><%= now[:clients] %></td>
+            <td data-label="Ticket médio" class="num"><%= now[:clients].positive? ? brl(now[:mrr] / now[:clients]) : "—" %></td>
+            <td data-label="Custo mensal" class="num"><%= brl(now[:cost]) %></td>
+            <td data-label="Resultado" class="num"<%= ' style="color:var(--crit)"'.html_safe if result.negative? %>><%= result.negative? ? "− #{brl(-result)}" : brl(result) %></td>
+            <td data-label="Margem" class="num strong"><%= (m = p.margin_percent) ? "#{number_with_precision(m, precision: 1, separator: ',')}%" : "—" %></td>
+          </tr>
+        <% end %>
+      </tbody>
+      <tfoot><tr><td data-label="" colspan="2">Total dos produtos</td><td data-label="MRR" class="num nowrap"><%= brl(last[:mrr]) %></td><td data-label="Var." class="num"><%= fmt_pct.call(pct.call(last[:mrr], first[:mrr])) %></td><td data-label="Clientes" class="num"><%= last[:clients] %></td><td data-label="Ticket médio" class="num"><%= last[:clients].positive? ? brl(last[:mrr] / last[:clients]) : "—" %></td><td data-label="Custo" class="num"><%= brl(last[:cost]) %></td><td data-label="Resultado" class="num"><%= brl(last[:mrr] - last[:cost]) %></td><td data-label="Margem" class="num"><%= margin ? "#{number_with_precision(margin, precision: 1, separator: ',')}%" : "—" %></td></tr></tfoot>
+    </table>
+  </div>
+</section>
+
+<section class="card" aria-labelledby="serie-t" data-tabs-scope>
+  <div class="card-head" style="padding-bottom:0;flex-wrap:wrap"><h2 id="serie-t">Série mensal por produto</h2>
+    <div class="tabs" role="tablist" data-tabs style="border-bottom:0">
+      <% [ [ "mrr", "MRR" ], [ "clients", "Clientes" ], [ "cost", "Custo mensal" ] ].each_with_index do |(key, label), i| %>
+        <button class="tab<%= ' on' if i.zero? %>" type="button" role="tab" aria-selected="<%= i.zero? %>" data-tab="<%= key %>"><%= label %></button>
+      <% end %>
+    </div>
+  </div>
+  <% %i[mrr clients cost].each_with_index do |key, i| %>
+    <div class="table-wrap" data-panel="<%= key %>" <%= "hidden" unless i.zero? %> style="border-top:1px solid var(--border)">
+      <table class="table cards">
+        <thead><tr><th>Produto</th><% @months.each do |m| %><th class="num"><%= month_label.call(m) %></th><% end %></tr></thead>
+        <tbody>
+          <% @products.reject(&:idea?).each do |p| %>
+            <tr><td data-label="Produto" class="strong"><%= p.name %></td><% @series[p].each_with_index do |s, j| %><td data-label="<%= month_label.call(@months[j]) %>" class="num<%= ' strong' if j == @months.size - 1 %><%= ' muted' if s[key].zero? %>"><%= key == :clients ? s[key] : brl(s[key]) %></td><% end %></tr>
+          <% end %>
+        </tbody>
+        <tfoot><tr><td data-label="">Total</td><% @totals.each_with_index do |t, j| %><td data-label="<%= month_label.call(@months[j]) %>" class="num"><%= key == :clients ? t[key] : brl(t[key]) %></td><% end %></tr></tfoot>
+      </table>
+    </div>
+  <% end %>
+  <div class="pagination"><span>Produtos em Ideia ainda não têm série histórica</span><%= link_to "Ver assinaturas", subscriptions_path, style: "font-weight:600" %></div>
+</section>

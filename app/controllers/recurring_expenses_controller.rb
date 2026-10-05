@@ -5,7 +5,7 @@ class RecurringExpensesController < ApplicationController
   def edit; end
 
   def update
-    if @rule.update(params.expect(recurring_expense: %i[supplier_id description category cost_center_key currency amount periodicity due_day notes]))
+    if @rule.update(params.expect(recurring_expense: %i[supplier_id external_service_id description category cost_center_key currency amount periodicity due_day notes]))
       redirect_to recurrences_path(aba: "despesas"), notice: "Despesa recorrente atualizada; os títulos futuros não pagos seguem o novo valor."
     else
       render :edit, status: :unprocessable_entity

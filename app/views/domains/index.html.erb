@@ -1,0 +1,91 @@
+<% page_title "Domínios" %>
+<% nav_location :tec, "Domínios" %>
+<% breadcrumb ["Tecnologia"], ["Domínios"] %>
+<% k = @kpis %>
+<% can_edit = policy(Domain).update? %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Tecnologia · Inventário</span>
+    <h1>Domínios</h1>
+    <p class="lead">Domínios dos clientes ordenados pelo vencimento mais próximo.</p>
+  </div>
+  <% if policy(Domain).create? %><div class="actions"><%= drawer_link_to new_domain_path, class: "btn pri" do %><%= icon(:plus, size: 16, stroke: 2) %>Novo domínio<% end %></div><% end %>
+</div>
+
+<% @urgent.first(2).each do |d| %>
+  <% apps = d.company.apps.select { |a| a.domain == d } %>
+  <div class="urgent" role="alert">
+    <%= icon(:alert, size: 24, stroke: 1.8, style: "color:var(--crit);flex:none") %>
+    <div class="txt">
+      <b><%= d.name %> <%= d.expired? ? "venceu em" : "vence em" %> <%= date_br(d.expires_on) %> e não tem renovação automática</b>
+      <span>Se expirar, <%= apps.any? ? safe_join(apps.map { |a| link_to(a.name, app_path(a)) }, ", ") : "o site e o e-mail" %> <%= apps.size > 1 ? "saem" : "sai" %> do ar. Renovação no <%= d.registrar %>, paga <%= d.paid_by_client? ? "pela #{d.company.trade_name}" : "pela DevBatista" %>.</span>
+    </div>
+    <div class="days"><%= d.days_left.abs %><small><%= d.expired? ? "dias vencido" : (d.days_left == 1 ? "dia" : "dias") %></small></div>
+    <% if can_edit %><%= drawer_link_to "Registrar renovação", renewal_domain_path(d), class: "btn pri" %><% end %>
+  </div>
+<% end %>
+
+<div class="grid-kpi g4">
+  <div class="card kpi"><span class="eyebrow">Domínios</span><span class="v"><%= k[:count] %></span><span class="f">de <%= pluralize(k[:companies], "cliente") %></span></div>
+  <div class="card kpi<%= ' alert' if @expired.any? %>"><span class="eyebrow">Vencem em <%= @windows.max %> dias</span><span class="v"><%= k[:within] %></span><span class="f"><% if @expired.any? %><span class="badge b-crit"><%= @expired.size %> vencido<%= "s" if @expired.size > 1 %></span><% end %><% @windows.each_with_index do |w, i| %><% n = @by_window[w].size %><% if n.positive? %><span class="badge <%= i.zero? ? 'b-crit' : (i == 1 ? 'b-warn' : 'b-info') %>"><%= n %> em <%= w %></span><% end %><% end %></span></div>
+  <div class="card kpi<%= ' alert' if k[:manual].any? %>"><span class="eyebrow">Sem renovação automática</span><span class="v"><%= k[:manual].size %></span><span class="f"><%= k[:manual].map(&:name).first(3).to_sentence %></span></div>
+  <div class="card kpi"><span class="eyebrow">Custo anual de renovação</span><span class="v"><%= brl(k[:yearly]) %></span><span class="f">soma dos domínios, pagos pelo cliente ou pela DevBatista</span></div>
+</div>
+
+<section class="stack" aria-labelledby="alertas-t">
+  <div class="section-title"><h2 id="alertas-t">Alertas de vencimento</h2><%= link_to "Ajustar antecedência", admin_settings_path(aba: "alertas"), class: "link-btn" if policy(Setting).index? %></div>
+  <div class="grid-3">
+    <% @windows.each_with_index do |w, i| %>
+      <% list = @by_window[w] %>
+      <div class="card alert-step"<%= ' style="border-color:var(--crit-line)"'.html_safe if i.zero? && list.any? %>>
+        <span class="eyebrow" style="color:<%= [ 'var(--crit)', 'var(--warn)', 'var(--muted)' ][i] || 'var(--muted)' %>"><%= w %> dias antes</span>
+        <span class="n"><%= pluralize(list.size, "domínio") %></span>
+        <span class="caption"><%= list.any? ? safe_join(list.map { |d| [ d.name, (@last_alerts[d.id] ? " · alerta enviado em #{datetime_br(@last_alerts[d.id])}" : " · alerta na próxima rotina") ].join }, tag.br) : "nenhum nesta faixa" %></span>
+      </div>
+    <% end %>
+  </div>
+</section>
+
+<%= form_with url: domains_path, method: :get, class: "toolbar" do %>
+  <%= status_filter :prazo, [ [ "todos", "Todos", nil ] ] + @window_options.map { |key, label| [ key, label, @counts[key] ] }, label: "Filtrar por vencimento" %>
+  <%= hidden_field_tag :prazo, params[:prazo], id: nil if params[:prazo].present? %>
+  <span class="spacer"></span>
+  <%= search_field placeholder: "Domínio ou cliente", label: "Buscar domínio" %>
+  <label class="sr-only" for="f-reg">Registrador</label>
+  <%= select_tag :registrador, options_for_select(@registrars, params[:registrador]), include_blank: "Todos os registradores", class: "select", id: "f-reg", onchange: "this.form.requestSubmit()" %>
+  <label class="sr-only" for="f-auto">Renovação automática</label>
+  <%= select_tag :renovacao, options_for_select([ [ "Com renovação automática", "sim" ], [ "Sem renovação automática", "nao" ] ], params[:renovacao]), include_blank: "Renovação: todas", class: "select", id: "f-auto", onchange: "this.form.requestSubmit()" %>
+<% end %>
+
+<section class="card" aria-label="Lista de domínios">
+  <% if @domains.any? %>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr><th>Domínio</th><th>Cliente</th><th>Registrador</th><th>Registro</th><th>Vencimento</th><th class="num">Dias</th><th>Renovação automática</th><th class="num">Custo</th><th>Alerta</th></tr></thead>
+        <tbody>
+          <% @domains.each do |d| %>
+            <% window = d.alert_window(Date.current, @windows) %>
+            <% hot = (window && (window == @windows.min || !d.auto_renew?)) || d.expired? %>
+            <% left = d.days_left %>
+            <tr class="<%= 'late' if hot || left.negative? %>">
+              <td data-label="Domínio"><%= can_edit ? drawer_link_to(d.name, edit_domain_path(d), class: "strong", style: ("color:var(--white)" if hot)) : tag.span(d.name, class: "strong") %><span class="cell-sub"><%= [ (d.paid_by_client? ? "Pago pelo cliente" : "Pago pela DevBatista"), ("DNS na #{d.dns_provider}" if d.dns_provider.present?) ].compact.join(" · ") %></span></td>
+              <td data-label="Cliente" class="nowrap"><%= link_to d.company.trade_name, company_path(d.company) %></td>
+              <td data-label="Registrador"><%= d.registrar %></td>
+              <td data-label="Registro" class="mono"><%= date_br(d.registered_on) %></td>
+              <td data-label="Vencimento" class="mono<%= ' late-text' if hot || left.negative? %>"><%= date_br(d.expires_on) %></td>
+              <td data-label="Dias restantes" class="num<%= ' late-text' if hot || left.negative? %>"<%= ' style="color:var(--warn);font-weight:600"'.html_safe if window && !hot %>><%= left.negative? ? "vencido" : left %></td>
+              <td data-label="Renovação automática"><%= d.auto_renew? ? status_badge("Sim", "good") : status_badge("Não", d.attention?(Date.current, @windows) ? "crit" : "warn") %></td>
+              <td data-label="Custo" class="num nowrap"><%= money_in(d.renewal_cost_cents, d.currency) %>/ano<% if d.currency != "BRL" %><span class="cell-sub">≈ <%= brl(d.renewal_cost_brl_cents) %></span><% end %></td>
+              <td data-label="Alerta"><span class="row-actions"><% if d.expired? %><span class="badge b-crit dot-l">Vencido</span><% elsif window %><span class="badge <%= hot ? 'b-crit' : (window == @windows.max ? 'b-info' : 'b-warn') %> dot-l"><%= window %> dias</span><% else %><span class="muted">—</span><% end %><% if can_edit && d.attention?(Date.current, @windows) %><%= drawer_link_to "Renovar", renewal_domain_path(d), class: "link-btn" %><% end %></span></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <%= render "shared/pagination", pager: @pager %>
+    <div class="card-foot"><span>Dias restantes calculados a partir de hoje, <%= date_br(Date.current) %>. Alertas automáticos a <%= @windows.reverse.to_sentence %> dias do vencimento.</span></div>
+  <% else %>
+    <%= render "shared/empty", title: "Nenhum domínio encontrado", text: "Cadastre os domínios dos clientes com registrador, vencimento e renovação automática." %>
+  <% end %>
+</section>

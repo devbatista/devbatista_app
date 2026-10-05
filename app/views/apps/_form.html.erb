@@ -1,0 +1,39 @@
+<% back = app.persisted? ? app_path(app) : apps_path %>
+<%= render layout: "shared/drawer_form", locals: { title: app.new_record? ? "Nova aplicação" : "Editar aplicação", cancel_path: back } do %>
+  <%= form_with model: app, class: "form", data: { turbo_frame: "_top" } do |f| %>
+    <div class="drawer-body form">
+      <%= render "shared/form_errors", record: app %>
+      <span class="fieldset-title">Identificação</span>
+      <div class="form-grid">
+        <div class="field full"><%= f.label :company_id do %>Cliente <span class="req">*</span><% end %><%= f.collection_select :company_id, Company.where.not(status: "inactive").or(Company.where(id: app.company_id)).by_name, :id, :trade_name, { prompt: "Selecione" }, class: "select", required: true %></div>
+        <div class="field full"><%= f.label :name do %>Nome <span class="req">*</span><% end %><%= f.text_field :name, class: "input", required: true, placeholder: "Ex.: Portal de Pedidos" %></div>
+        <div class="field full"><%= f.label :description, "Descrição" %><%= f.text_area :description, class: "textarea", placeholder: "Finalidade e principais funções" %></div>
+        <div class="field"><%= f.label :environment do %>Ambiente <span class="req">*</span><% end %><%= f.select :environment, App.options_for_environment, {}, class: "select" %></div>
+        <div class="field"><%= f.label :status do %>Status <span class="req">*</span><% end %><%= f.select :status, App.options_for_status, {}, class: "select" %></div>
+      </div>
+      <span class="fieldset-title">Acesso e código</span>
+      <div class="form-grid">
+        <div class="field full"><%= f.label :url, "URL" %><%= f.text_field :url, class: "input", placeholder: "https://" %></div>
+        <div class="field full"><%= f.label :tech_stack, "Tecnologia" %><%= f.text_field :tech_stack, class: "input", placeholder: "Ex.: Ruby on Rails 7.2 · PostgreSQL" %><span class="hint">Linguagens e frameworks principais</span></div>
+        <div class="field full"><%= f.label :repository_url, "Repositório" %><%= f.text_field :repository_url, class: "input", placeholder: "https://github.com/devbatista/…" %></div>
+      </div>
+      <span class="fieldset-title">Hospedagem, vínculos e credenciais</span>
+      <div class="form-grid">
+        <div class="field full"><%= f.label :hosting_key, "Hospedagem" %><%= f.select :hosting_key, hosting_options(app), { include_blank: "Selecione" }, class: "select" %>
+          <span class="hint">Servidor ou serviço externo onde a aplicação roda. Não achou? Cadastre em <%= link_to "Servidores", servers_path, data: { turbo_frame: "_top" } %> ou <%= link_to "Serviços externos", external_services_path, data: { turbo_frame: "_top" } %>.</span></div>
+        <div class="field"><%= f.label :user_id, "Responsável técnico" %><%= f.collection_select :user_id, User.active.or(User.where(id: app.user_id)).by_name, :id, :name, { include_blank: "—" }, class: "select" %></div>
+        <% if app.company %>
+          <div class="field"><%= f.label :project_id, "Projeto" %><%= f.collection_select :project_id, app.company.projects.by_name, :id, :name, { include_blank: "—" }, class: "select" %></div>
+          <div class="field full"><%= f.label :contract_id, "Contrato" %><%= f.select :contract_id, app.company.contracts.order(number: :desc).map { |c| [ c.to_s, c.id ] }, { include_blank: "—" }, class: "select" %></div>
+        <% end %>
+        <div class="field full"><%= f.label :vault_reference, "Referência no cofre de senhas" %><%= f.text_field :vault_reference, class: "input", placeholder: "Ex.: Cofre DevBatista › Clientes › ACME › Portal ACME" %><span class="hint"><%= vault_hint %></span></div>
+      </div>
+      <div class="callout"><span>Não informe senhas, chaves ou tokens. O sistema guarda só a referência ao cofre de senhas.</span></div>
+    </div>
+    <div class="drawer-foot">
+      <% if app.persisted? && policy(app).destroy? %><%= link_to "Excluir", app_path(app), class: "btn danger", style: "margin-right:auto", data: { turbo_method: :delete, turbo_confirm: "Excluir #{app.name} com os bancos e integrações cadastrados?", turbo_frame: "_top" } %><% end %>
+      <%= link_to "Cancelar", back, class: "btn", data: { close: true, turbo_frame: "_top" } %>
+      <%= f.submit app.new_record? ? "Salvar aplicação" : "Salvar alterações", class: "btn pri" %>
+    </div>
+  <% end %>
+<% end %>

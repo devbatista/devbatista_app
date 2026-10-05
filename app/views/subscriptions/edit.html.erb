@@ -1,0 +1,4 @@
+<% page_title "Editar assinatura" %>
+<% nav_location :prod, "Assinaturas" %>
+<% breadcrumb ["Produtos"], ["Assinaturas", subscriptions_path], [@subscription.subscriber_name] %>
+<div class="form-page"><%= render "form", subscription: @subscription %></div>

@@ -86,6 +86,24 @@ Rails.application.routes.draw do
     end
     resources :suppliers, path: "fornecedores", except: :show
 
+    # Tecnologia
+    resources :apps, path: "aplicacoes"
+    resources :servers, path: "servidores", except: :show
+    resources :domains, path: "dominios", except: :show do
+      member do
+        get :renewal, path: "renovacao", action: :new_renewal
+        patch :renewal, path: "renovacao", action: :renew
+      end
+    end
+    resources :databases, path: "bancos-de-dados", except: :show
+    resources :integrations, path: "integracoes", except: :show
+    resources :external_services, path: "servicos-externos", except: :show
+
+    # Produtos
+    get "produtos/indicadores", to: "products#indicators", as: :product_indicators
+    resources :products, path: "produtos", except: :show
+    resources :subscriptions, path: "assinaturas", except: :show
+
     resources :notifications, path: "notificacoes", only: %i[index update] do
       patch :read_all, on: :collection, path: "marcar-todas"
       patch :preferences, on: :collection, path: "preferencias"

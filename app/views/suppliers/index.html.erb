@@ -8,7 +8,7 @@
   <div class="titles">
     <span class="section-label">Gestão · <%= l(Date.current, format: :month_year).capitalize %></span>
     <h1>Fornecedores</h1>
-    <p class="lead">Quem a DevBatista paga. Cada fornecedor liga despesas e contas a pagar ao custo de cada cliente.</p>
+    <p class="lead">Quem a DevBatista paga. Cada fornecedor liga despesas, contas a pagar e serviços externos ao custo de cada cliente.</p>
   </div>
   <% if policy(Supplier).create? %>
     <div class="actions"><%= drawer_link_to new_supplier_path, class: "btn pri" do %><%= icon(:plus, size: 16, stroke: 2) %>Novo fornecedor<% end %></div>
@@ -19,7 +19,7 @@
   <div class="card kpi"><span class="eyebrow">Fornecedores ativos</span><span class="v"><%= k[:active] %></span><span class="f">em <%= pluralize(k[:categories], "categoria") %> de despesa</span></div>
   <%= link_to (can_finance ? expenses_path : suppliers_path), class: "card kpi" do %><span class="eyebrow">Gasto no mês</span><span class="v"><%= brl(k[:month]) %></span><span class="f"><%= pluralize(k[:month_count], "lançamento") %> em despesas</span><% end %>
   <div class="card kpi"><span class="eyebrow">Cobrança em moeda estrangeira</span><span class="v"><%= k[:foreign] %></span><span class="f">fornecedores<%= " · #{@rate}" if @rate %></span></div>
-  <div class="card kpi soon-card"><span class="eyebrow">Serviços externos vinculados</span><span class="v">—</span><span class="f">chega com o módulo Tecnologia</span></div>
+  <div class="card kpi"><span class="eyebrow">Serviços externos vinculados</span><span class="v"><%= k[:services] %></span><span class="f"><%= pluralize(k[:service_suppliers], "fornecedor", plural: "fornecedores") %> desta lista</span></div>
 </div>
 
 <%= form_with url: suppliers_path, method: :get, class: "toolbar" do %>
@@ -36,7 +36,7 @@
   <% if @suppliers.any? %>
     <div class="table-wrap">
       <table class="table cards">
-        <thead><tr><th>Empresa</th><th>Categoria</th><th>Contato</th><th>Site / painel</th><th>E-mail</th><th>Telefone</th><th class="num">Gasto no mês</th><th><span class="sr-only">Ações</span></th></tr></thead>
+        <thead><tr><th>Empresa</th><th>Categoria</th><th>Contato</th><th>Site / painel</th><th>E-mail</th><th>Telefone</th><th class="num">Gasto no mês</th><th class="num">Serviços externos</th><th><span class="sr-only">Ações</span></th></tr></thead>
         <tbody>
           <% @suppliers.each do |s| %>
             <tr class="<%= 'inactive' unless s.active? %>">
@@ -47,6 +47,7 @@
               <td data-label="E-mail"><%= s.email.present? ? mail_to(s.email) : tag.span("—", class: "muted") %></td>
               <td data-label="Telefone"><%= s.phone.present? ? tag.span(s.phone, class: "nowrap") : tag.span("—", class: "muted") %></td>
               <td data-label="Gasto no mês" class="num nowrap"><%= brl(@spend[s.id].to_i) %><% if @foreign.include?(s.id) %><span class="cell-sub">em moeda estrangeira</span><% end %></td>
+              <td data-label="Serviços externos" class="num"><%= @services[s.id] ? (current_user.can_read?("tecnologia") ? link_to(@services[s.id], external_services_path(q: s.name)) : @services[s.id]) : tag.span("—", class: "muted") %></td>
               <td data-label="" class="right">
                 <span class="row-actions">
                   <% if can_finance %><%= link_to "Ver despesas", payables_path(fornecedor: s.id), class: "link-btn" %><% end %>
@@ -56,7 +57,7 @@
             </tr>
           <% end %>
         </tbody>
-        <tfoot><tr><td data-label="">Total do mês</td><td data-label="" colspan="5"></td><td data-label="Gasto no mês" class="num nowrap"><%= brl(@spend.values.sum) %></td><td data-label=""></td></tr></tfoot>
+        <tfoot><tr><td data-label="">Total do mês</td><td data-label="" colspan="5"></td><td data-label="Gasto no mês" class="num nowrap"><%= brl(@spend.values.sum) %></td><td data-label="Serviços externos" class="num"><%= @services.values.sum %></td><td data-label=""></td></tr></tfoot>
       </table>
     </div>
     <%= render "shared/pagination", pager: @pager %>

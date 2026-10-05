@@ -1,0 +1,86 @@
+<% page_title "Serviços externos" %>
+<% nav_location :tec, "Serviços externos" %>
+<% breadcrumb ["Tecnologia"], ["Serviços externos"] %>
+<% k = @kpis %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Tecnologia · <%= l(Date.current, format: :month_year).capitalize %></span>
+    <h1>Serviços externos</h1>
+    <p class="lead">SaaS e infraestrutura de terceiros usados por cliente, com custo na moeda original e quem paga.</p>
+  </div>
+  <% if policy(ExternalService).create? %><div class="actions"><%= drawer_link_to new_external_service_path, class: "btn pri" do %><%= icon(:plus, size: 16, stroke: 2) %>Novo serviço externo<% end %></div><% end %>
+</div>
+
+<div class="grid-kpi g4">
+  <div class="card kpi" style="border-color:var(--cyan-line)"><span class="eyebrow" style="color:var(--cyan-300)">Pago pela DevBatista</span><span class="v"><%= brl(k[:ours]) %>/mês</span><span class="f"><%= pluralize(k[:ours_count], "serviço") %> em nome de <%= pluralize(k[:ours_companies], "cliente") %></span></div>
+  <div class="card kpi"><span class="eyebrow">Pago pelos clientes</span><span class="v"><%= brl(k[:theirs]) %>/mês</span><span class="f"><%= pluralize(k[:theirs_count], "serviço") %> · fora do custo direto</span></div>
+  <div class="card kpi"><span class="eyebrow">Serviços cadastrados</span><span class="v"><%= k[:count] %></span><span class="f"><%= k[:by_periodicity].map { |label, n| "#{n} #{label.downcase}" }.join(" · ") %></span></div>
+  <div class="card kpi"><span class="eyebrow">Cotação usada</span><span class="v"><%= @rate ? "R$ #{number_with_precision(@rate.rate, precision: 2, separator: ',')}" : "—" %></span><span class="f"><%= @rate ? "por US$ 1 · PTAX de #{date_br(@rate.quoted_on)}" : "sem cotação disponível" %></span></div>
+</div>
+
+<div class="grid-2">
+  <div class="callout" style="align-items:flex-start">
+    <div class="stack" style="gap:8px">
+      <b class="strong">Base da rentabilidade</b>
+      <span>Serviços pagos pela DevBatista em nome de um cliente são custos diretos daquele cliente. Os pagos pelo próprio cliente ficam só no inventário.</span>
+      <% if @example %>
+        <% servers = @example.servers.sum(:monthly_cost_cents) %>
+        <span>Ex.: <%= link_to @example.trade_name, company_path(@example) %> tem <%= brl(@by_company.first.last) %> em serviços externos<%= " + #{brl(servers)} de servidor" if servers.positive? %> = <b class="strong"><%= brl(@by_company.first.last + servers) %> de custo direto</b> por mês.</span>
+      <% end %>
+    </div>
+  </div>
+  <section class="card card-body stack" aria-labelledby="porcli-t">
+    <div class="section-title"><h2 id="porcli-t">Pago pela DevBatista por cliente</h2><span class="unit">R$ · MÊS</span></div>
+    <% if @by_company.any? %>
+      <div class="hbars">
+        <% top = @by_company.first.last %>
+        <% @by_company.each do |company, cents| %>
+          <div class="hbar"><%= link_to company.trade_name, company_path(company) %><div class="track"><div class="fill" style="width:<%= top.positive? ? (cents * 100.0 / top).round : 0 %>%"></div></div><span class="val"><%= number_with_delimiter((cents / 100.0).round, delimiter: ".") %></span></div>
+        <% end %>
+      </div>
+    <% else %>
+      <span class="caption">Nenhum serviço pago pela DevBatista.</span>
+    <% end %>
+  </section>
+</div>
+
+<%= form_with url: external_services_path, method: :get, class: "toolbar" do %>
+  <%= status_filter :pagador, [ [ "todos", "Todos", @counts.values.sum ], [ "devbatista", "Pago pela DevBatista", @counts["devbatista"].to_i ], [ "client", "Pago pelo cliente", @counts["client"].to_i ] ], label: "Filtrar por quem paga" %>
+  <%= hidden_field_tag :pagador, params[:pagador], id: nil if params[:pagador].present? %>
+  <span class="spacer"></span>
+  <%= search_field placeholder: "Serviço ou fornecedor", label: "Buscar serviço" %>
+  <label class="sr-only" for="f-per">Periodicidade</label>
+  <%= select_tag :periodicidade, options_for_select(ExternalService.options_for_periodicity, params[:periodicidade]), include_blank: "Toda periodicidade", class: "select", id: "f-per", onchange: "this.form.requestSubmit()" %>
+  <label class="sr-only" for="f-cli">Cliente</label>
+  <%= select_tag :empresa, options_from_collection_for_select(@companies, :id, :trade_name, params[:empresa]), include_blank: "Todos os clientes", class: "select", id: "f-cli", onchange: "this.form.requestSubmit()" %>
+<% end %>
+
+<section class="card" aria-label="Lista de serviços externos">
+  <% if @services.any? %>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr><th>Serviço</th><th>Fornecedor</th><th>Cliente</th><th>Aplicação</th><th class="num">Custo</th><th>Periodicidade</th><th>Responsável pelo pagamento</th><th><span class="sr-only">Ações</span></th></tr></thead>
+        <tbody>
+          <% @services.each do |s| %>
+            <tr class="<%= 'inactive' unless s.active? %>">
+              <td data-label="Serviço" class="strong"><%= s.name %><span class="cell-sub"><%= [ s.plan, ("encerrado" unless s.active?) ].compact_blank.join(" · ") %></span></td>
+              <td data-label="Fornecedor"><%= s.supplier.name %></td>
+              <td data-label="Cliente"><%= link_to s.company.trade_name, company_path(s.company) %></td>
+              <td data-label="Aplicação"><%= s.app ? link_to(s.app.name, app_path(s.app)) : "—" %></td>
+              <td data-label="Custo" class="num nowrap"><%= service_cost(s) %></td>
+              <td data-label="Periodicidade"><%= s.periodicity_label %></td>
+              <td data-label="Responsável pelo pagamento"><%= paid_by_badge(s) %></td>
+              <td data-label="" class="right"><% if policy(s).edit? %><%= drawer_link_to "Editar", edit_external_service_path(s), class: "link-btn" %><% end %></td>
+            </tr>
+          <% end %>
+        </tbody>
+        <tfoot><tr><td data-label="" colspan="4">Total pago pela DevBatista em nome de clientes · equivalente mensal</td><td data-label="Total" class="num nowrap"><%= brl(k[:ours]) %></td><td data-label="" colspan="3"></td></tr></tfoot>
+      </table>
+    </div>
+    <%= render "shared/pagination", pager: @pager %>
+    <div class="card-foot"><span>Moeda original preservada; valor em R$ pela PTAX do dia. Anual ÷ 12; por consumo usa a última fatura.</span></div>
+  <% else %>
+    <%= render "shared/empty", title: "Nenhum serviço externo encontrado", text: "Registre os SaaS e a infraestrutura de terceiros usados por cliente, com custo, moeda, periodicidade e quem paga." %>
+  <% end %>
+</section>

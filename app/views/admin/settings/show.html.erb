@@ -56,7 +56,6 @@
             <div class="field"><label for="s-d<%= i %>">Domínios, <%= i + 1 %>º aviso</label><%= number_field_tag "settings[domain_alert_days][]", days, class: "input", min: 1, max: 365, id: "s-d#{i}", disabled: !editable %></div>
           <% end %>
         </div>
-        <span class="caption">Usado quando o módulo Tecnologia estiver no ar.</span>
         <span class="fieldset-title">Propostas · responsável pela proposta</span>
         <div class="form-grid">
           <div class="field"><label for="s-p">Dias antes do fim da validade</label><%= number_field_tag "settings[proposal_alert_days]", Setting[:proposal_alert_days], class: "input", min: 1, max: 60, id: "s-p", disabled: !editable %><span class="hint">Usado quando o módulo Comercial estiver no ar</span></div>

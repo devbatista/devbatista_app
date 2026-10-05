@@ -16,6 +16,8 @@ class Notification < ApplicationRecord
                               trigger: -> { "Dia seguinte ao vencimento de um título a receber sem pagamento" } },
     "payable_overdue" => { label: "Contas a pagar vencidas", roles: %w[admin financeiro], area: "financeiro",
                            trigger: -> { "Dia seguinte ao vencimento de uma conta a pagar sem pagamento" } },
+    "domain_expiring" => { label: "Domínios vencendo", roles: %w[admin desenvolvedor], area: "tecnologia",
+                           trigger: -> { "#{Setting[:domain_alert_days].to_sentence} dias antes do vencimento" } },
     "ticket_critical" => { label: "Chamados críticos", roles: %w[admin suporte desenvolvedor], area: "suporte",
                            trigger: -> { "Abertura ou mudança para prioridade Crítica (na hora)" } }
   }.freeze

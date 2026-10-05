@@ -1,0 +1,4 @@
+<% page_title "Editar servidor" %>
+<% nav_location :tec, "Servidores" %>
+<% breadcrumb ["Tecnologia"], ["Servidores", servers_path], [@server.name] %>
+<div class="form-page"><%= render "form", server: @server %></div>

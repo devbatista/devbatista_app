@@ -1,0 +1,56 @@
+# Extraído de docs/design/produtos/produtos.html, assinaturas.html e produtos-indicadores.html.
+#
+# Observações:
+# - costs: custo mensal de abril a setembro/2026 (série "Custo mensal" dos indicadores).
+# - subscriptions: as 12 assinaturas nomeadas em assinaturas.html. As demais (o design mostra
+#   12 de 104) são geradas pelo seed com nomes fictícios, para a base bater com a série de
+#   clientes dos indicadores: CatalystOps 28 → 37 e PrescSign 34 → 49 de abril a setembro.
+#   O MRR do PrescSign fecha (R$ 30 por profissional); o do CatalystOps é aproximado, porque
+#   os planos de R$ 49, 79 e 149 não somam exatamente os valores do design.
+# - Inadimplentes: o design mostra 2 (R$ 128) e nomeia só a Construtora Vale Verde (R$ 79);
+#   a segunda (R$ 49) é fictícia. Em teste: 10, sendo 6 no beta do Ruby Rose.
+# - Inadimplentes seguem no MRR e nos clientes até o cancelamento (premissa adotada).
+
+products:
+  - name: CatalystOps
+    url: https://catalystops.com.br
+    status: operating
+    description: "SaaS de gestão operacional para pequenas equipes: rotinas, checklists e indicadores em um só painel."
+    costs: [560, 580, 600, 610, 620, 640]
+    # Novas assinaturas que continuam ativas, por mês (até abril: base inicial).
+    growth: { "2026-04": 25, "2026-05": 1, "2026-06": 2, "2026-07": 1, "2026-08": 1, "2026-09": 2 }
+    plans: [49, 49, 49, 79, 49]
+  - name: PrescSign
+    url: https://prescsign.com.br
+    status: operating
+    description: Emissão e assinatura digital de prescrições para profissionais de saúde, com plano mensal por profissional.
+    costs: [300, 320, 340, 360, 370, 390]
+    growth: { "2026-04": 32, "2026-05": 3, "2026-06": 2, "2026-07": 3, "2026-08": 3, "2026-09": 3 }
+    plans: [30]
+  - name: Ruby Rose
+    url: https://rubyrose.devbatista.com
+    status: development
+    description: Novo produto em desenvolvimento, com beta fechado para usuários convidados. Lançamento comercial previsto para o 1º trimestre de 2027.
+    costs: [0, 0, 40, 80, 100, 120]
+    beta: 5
+  - name: Plataforma de eBooks
+    status: idea
+    description: Plataforma de produtos digitais para venda e entrega de eBooks e materiais técnicos da DevBatista.
+    costs: []
+
+subscriptions:
+  - { product: CatalystOps, subscriber_name: Logística Rápida Ltda, email: financeiro@logisticarapida.com.br, plan: Equipe, value: 149, started_on: "2026-01-12", status: active }
+  - { product: CatalystOps, subscriber_name: Agência Pixel Norte, email: contato@pixelnorte.com.br, plan: Profissional, value: 79, started_on: "2026-09-02", status: active }
+  - { product: CatalystOps, subscriber_name: Padaria Pão de Ouro, email: gerencia@paodeouro.com.br, plan: Essencial, value: 49, started_on: "2026-04-08", status: active }
+  - { product: CatalystOps, subscriber_name: Construtora Vale Verde, plan: Profissional, value: 79, started_on: "2026-05-21", status: delinquent, notes: Mensalidade de 05/09/2026 em aberto }
+  - { product: CatalystOps, subscriber_name: Oficina Bom Motor, email: adm@bommotor.com.br, plan: Essencial, value: 49, started_on: "2026-03-03", status: delinquent, notes: Mensalidade de 10/09/2026 em aberto }
+  - { product: CatalystOps, subscriber_name: Studio Fit Academia, plan: Essencial, value: 49, started_on: "2026-09-10", trial_ends_on: "2026-09-24", status: trial }
+  - { product: CatalystOps, subscriber_name: Mercado Bom Preço, plan: Essencial, value: 49, started_on: "2026-07-14", cancelled_on: "2026-09-08", status: cancelled }
+  - { product: CatalystOps, subscriber_name: Ateliê Linha Fina, plan: Profissional, value: 79, started_on: "2026-09-14", trial_ends_on: "2026-09-28", status: trial }
+  - { product: PrescSign, subscriber_name: Dra. Marina Teles, email: marina.teles@clinicavida.med.br, plan: Profissional, value: 30, started_on: "2026-02-15", status: active }
+  - { product: PrescSign, subscriber_name: Consultório Bem Viver, email: recepcao@bemviver.med.br, plan: Profissional, value: 30, started_on: "2026-03-20", status: active }
+  - { product: PrescSign, subscriber_name: Clínica Sorriso Pleno, email: adm@sorrisopleno.com.br, plan: Profissional, value: 30, started_on: "2026-09-04", status: active }
+  - { product: PrescSign, subscriber_name: Dr. Paulo Nogueira, plan: Profissional, value: 30, started_on: "2026-09-11", trial_ends_on: "2026-09-25", status: trial }
+  - { product: PrescSign, subscriber_name: Dra. Lívia Campos, plan: Profissional, value: 30, started_on: "2026-09-15", trial_ends_on: "2026-09-29", status: trial }
+  - { product: PrescSign, subscriber_name: Dr. Henrique Alves, plan: Profissional, value: 30, started_on: "2026-06-30", cancelled_on: "2026-09-05", status: cancelled, notes: Mudou de sistema }
+  - { product: Ruby Rose, subscriber_name: Cliente A, company: Cliente A, plan: Beta fechado, value: 0, started_on: "2026-09-01", status: trial, notes: Convite do beta fechado }

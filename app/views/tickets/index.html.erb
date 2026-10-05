@@ -55,7 +55,7 @@
             <tr data-href="<%= ticket_path(ticket) %>" class="<%= 'late' if hot %>">
               <td data-label="Nº" class="mono"><%= link_to ticket.code, ticket, class: ("strong" if hot) %></td>
               <td data-label="Assunto"><%= link_to ticket.subject, ticket, class: "strong", style: "color:var(--text)" %>
-                <% if ticket.resolved_at && ticket.status_resolved? %><span class="cell-sub">Resolvido em <%= datetime_br(ticket.resolved_at) %></span><% elsif ticket.contact %><span class="cell-sub">Contato: <%= ticket.contact.name %></span><% end %></td>
+                <% if ticket.resolved_at && ticket.status_resolved? %><span class="cell-sub">Resolvido em <%= datetime_br(ticket.resolved_at) %></span><% elsif ticket.app %><span class="cell-sub">Aplicação afetada: <%= ticket.app.name %></span><% elsif ticket.contact %><span class="cell-sub">Contato: <%= ticket.contact.name %></span><% end %></td>
               <td data-label="Cliente"><%= link_to ticket.company.trade_name, company_path(ticket.company) %></td>
               <td data-label="Categoria"><%= ticket.category_label %></td>
               <td data-label="Prioridade"><%= priority_badge(ticket) %></td>
