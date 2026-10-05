@@ -1,0 +1,7 @@
+<%# Cartão de indicador: nome, botão com a definição, valor, comparação e definição por extenso. %>
+<div class="card kpi ind">
+  <div class="h"><span class="eyebrow"><%= label %></span><button class="def" type="button" title="<%= definition %>" aria-label="Definição de <%= label %>: <%= definition %>"><%= icon(:info, size: 16, stroke: 1.8) %></button></div>
+  <span class="v"><%= value %></span>
+  <span class="f"><%= foot %></span>
+  <span class="d"><%= local_assigns[:detail] || definition %></span>
+</div>

@@ -7,6 +7,7 @@
 //   data-popover-toggle="id"               abre e fecha um .popover
 //   data-nav-toggle / data-nav-group       menu lateral no celular e grupos do menu
 //   data-password-toggle                   mostra e oculta a senha
+//   data-search="grupo" / data-search-item / data-search-section   busca por texto em cartões
 
 const overlay = () => document.querySelector("[data-overlay]")
 
@@ -171,6 +172,17 @@ document.addEventListener("keydown", (e) => {
 })
 
 document.addEventListener("turbo:load", filterCounts)
+
+// Busca local: esconde os itens que não contêm o texto e as seções que ficarem vazias.
+const normalize = (text) => text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
+document.addEventListener("input", (e) => {
+  const input = e.target.closest("input[data-search]")
+  if (!input) return
+  const term = normalize(input.value.trim())
+  const scope = document.querySelector(`[data-search-scope="${input.dataset.search}"]`) || document
+  scope.querySelectorAll("[data-search-item]").forEach((el) => { el.hidden = term !== "" && !normalize(el.textContent).includes(term) })
+  scope.querySelectorAll("[data-search-section]").forEach((sec) => { sec.hidden = !sec.querySelector("[data-search-item]:not([hidden])") })
+})
 
 // Foco no primeiro campo quando o formulário chega na gaveta.
 document.addEventListener("turbo:frame-load", (e) => {

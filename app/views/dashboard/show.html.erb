@@ -1,25 +1,74 @@
 <% page_title "Dashboard" %>
 <% nav_location :dash %>
 <% breadcrumb ["Dashboard"] %>
+<% d = @data %>
+<% card = ->(path, permission, klass: "", &block) { permission && path ? link_to(path, class: "card kpi #{klass}", &block) : tag.div(class: "card kpi #{klass}", &block) } %>
 
 <div class="page-head">
   <div class="titles">
-    <span class="section-label"><%= l(Date.current, format: "%B de %Y").capitalize %></span>
-    <h1>Olá, <%= current_user.first_name %></h1>
-    <p class="lead">O dashboard executivo mostra os 12 cartões do mês assim que os módulos de clientes, comercial, operação e financeiro estiverem no ar.</p>
+    <span class="section-label">Visão executiva</span>
+    <h1><%= @period_label %></h1>
+    <p class="lead">Olá, <%= current_user.first_name %>. Números do período; atualizados a cada 15 minutos (às <%= l(d[:generated_at], format: "%H:%M") %>).</p>
   </div>
+  <%= form_with url: root_path, method: :get, class: "actions" do %>
+    <label class="sr-only" for="periodo">Período</label>
+    <%= select_tag :periodo, options_for_select(@periods, @period), class: "select", id: "periodo", onchange: "this.form.requestSubmit()" %>
+  <% end %>
 </div>
 
-<section class="card">
-  <div class="empty">
-    <span class="ic"><%= icon(:dash, size: 22, stroke: 1.8) %></span>
-    <h2>Clientes, Comercial e Operação no ar</h2>
-    <p style="margin:0;max-width:520px">Empresas, contratos, pipeline, propostas, projetos, tarefas, horas, chamados, documentos, busca e notificações já funcionam. Os itens marcados como “em breve” no menu chegam módulo a módulo.</p>
-    <div class="row wrap" style="justify-content:center">
-      <% if policy(Company).index? %><%= link_to "Empresas", companies_path, class: "btn" %><% end %>
-      <% if policy(Contract).index? %><%= link_to "Contratos", contracts_path, class: "btn" %><% end %>
-      <% if policy(Project).index? %><%= link_to "Projetos", projects_path, class: "btn" %><% end %>
-      <% if policy(Ticket).index? %><%= link_to "Suporte", tickets_path, class: "btn" %><% end %>
+<% if @financial %>
+  <% b = d[:billing] %>
+  <section class="stack" aria-label="Financeiro">
+    <span class="eyebrow">Financeiro</span>
+    <div class="grid-kpi g3">
+      <%= link_to revenues_path(periodo: @period), class: "card kpi" do %><span class="eyebrow">Faturamento</span><span class="v"><%= brl(b[:billed]) %></span><span class="f"><%= variation_badge(b[:billed], d[:previous_billed]) %>vs. período anterior</span><% end %>
+      <%= link_to revenues_path(periodo: @period, status: "paid"), class: "card kpi" do %><span class="eyebrow">Receita recebida</span><span class="v"><%= brl(b[:paid]) %></span><span class="f"><%= b[:billed].positive? ? "#{(b[:paid] * 100.0 / b[:billed]).round}% do faturamento" : "nenhum faturamento" %></span><% end %>
+      <%= link_to receivables_path(periodo: @period), class: "card kpi" do %><span class="eyebrow">Receita prevista</span><span class="v"><%= brl(b[:open] + b[:overdue]) %></span><span class="f">a receber no período</span><% end %>
+      <%= link_to expenses_path(periodo: @period), class: "card kpi" do %><span class="eyebrow">Despesas</span><span class="v"><%= brl(d[:expenses]) %></span><span class="f">pagas e previstas</span><% end %>
+      <%= link_to finance_path(periodo: @period), class: "card kpi" do %><span class="eyebrow">Resultado</span><span class="v"<%= ' style="color:var(--crit)"'.html_safe if b[:billed] < d[:expenses] %>><%= brl(b[:billed] - d[:expenses]) %></span><span class="f">faturamento − despesas</span><% end %>
+      <%= link_to indicators_path, class: "card kpi" do %><span class="eyebrow">MRR</span><span class="v"><%= brl(d[:mrr]) %></span><span class="f">receita recorrente mensal</span><% end %>
     </div>
+  </section>
+<% end %>
+
+<section class="stack" aria-label="Carteira e operação">
+  <span class="eyebrow">Carteira e operação</span>
+  <div class="grid-kpi g3">
+    <%= card.call(companies_path(status: "active"), current_user.can_read?("clientes")) do %><span class="eyebrow">Clientes ativos</span><span class="v"><%= d[:clients] %></span><span class="f"><% if d[:new_clients_quarter].positive? %><span class="badge b-info"><%= pluralize(d[:new_clients_quarter], "novo", plural: "novos") %></span>no trimestre<% else %>com serviço contratado vigente<% end %></span><% end %>
+    <%= card.call(contracts_path, current_user.can_read?("contratos")) do %><span class="eyebrow">Contratos ativos</span><span class="v"><%= d[:contracts] %></span><span class="f"><% if d[:contracts_expiring].positive? %><span class="badge b-warn"><%= d[:contracts_expiring] %></span>vencem em 60 dias<% else %>nenhum vence em 60 dias<% end %></span><% end %>
+    <%= card.call(projects_path, current_user.can_read?("projetos"), klass: ("alert" if d[:projects_late].positive?)) do %><span class="eyebrow">Projetos ativos</span><span class="v"><%= d[:projects] %></span><span class="f"><% if d[:projects_late].positive? %><span class="badge b-warn"><%= d[:projects_late] %></span>com atraso<% else %>todos no prazo<% end %></span><% end %>
+    <%= card.call(tickets_path, current_user.can_read?("suporte"), klass: ("alert" if d[:tickets_critical].positive?)) do %><span class="eyebrow">Chamados abertos</span><span class="v"><%= d[:tickets] %></span><span class="f"><% if d[:tickets_critical].positive? %><span class="badge b-crit"><%= d[:tickets_critical] %></span><%= d[:tickets_critical] == 1 ? "crítico" : "críticos" %><% else %>nenhum crítico<% end %></span><% end %>
+    <% if @financial %>
+      <%= link_to receivables_path(status: "overdue"), class: "card kpi#{' alert' if d[:overdue_count].positive?}" do %><span class="eyebrow">Contas vencidas</span><span class="v"><%= brl(d[:overdue]) %></span><span class="f"><% if d[:overdue_count].positive? %><span class="badge b-crit"><%= d[:overdue_count] %></span>títulos em atraso<% else %>nada em atraso<% end %></span><% end %>
+    <% end %>
+    <%= card.call(proposals_path(status: "sent"), current_user.can_read?("comercial")) do %><span class="eyebrow">Propostas abertas</span><span class="v"><%= d[:proposals][:count] %></span><span class="f"><%= brl(d[:proposals][:cents]) %> em negociação</span><% end %>
   </div>
+</section>
+
+<% if @financial %>
+  <% series = d[:series] %>
+  <section class="stack" aria-label="Últimos seis meses">
+    <div class="section-title"><span class="eyebrow">Últimos seis meses</span><span class="caption">R$ mil · por competência</span></div>
+    <div class="grid-3">
+      <div class="card card-body stack"><div class="section-title"><h2>Receitas</h2><span class="unit">R$ MIL</span></div><%= month_bar_chart(series.map { |s| [ s[:month], s[:revenue] ] }, title: "Receitas por mês") %></div>
+      <div class="card card-body stack"><div class="section-title"><h2>Despesas</h2><span class="unit">R$ MIL</span></div><%= month_bar_chart(series.map { |s| [ s[:month], s[:expense] ] }, title: "Despesas por mês") %></div>
+      <div class="card card-body stack"><div class="section-title"><h2>Resultado</h2><span class="unit">R$ MIL</span></div><%= month_bar_chart(series.map { |s| [ s[:month], [ s[:result], 0 ].max ] }, title: "Resultado por mês") %>
+        <% if (negative = series.select { |s| s[:result].negative? }).any? %><span class="caption" style="color:var(--crit)">Resultado negativo em <%= negative.map { |s| month_abbr(s[:month]) }.to_sentence %> (barra zerada)</span><% end %></div>
+      <div class="card card-body stack"><div class="section-title"><h2>Evolução do MRR</h2><span class="unit">R$ MIL</span></div><%= month_line_chart(series.map { |s| [ s[:month], s[:mrr] ] }, title: "MRR no fim de cada mês") %></div>
+      <div class="card card-body stack"><div class="section-title"><h2>Receita por serviço</h2><span class="unit">R$ MIL · <%= @period_label.upcase %></span></div>
+        <% if d[:by_service].any? %><%= ranked_hbars(d[:by_service]) %><% else %><span class="caption">Nenhuma receita no período.</span><% end %></div>
+      <div class="card card-body stack"><div class="section-title"><h2>Receita por cliente</h2><span class="unit">R$ MIL · <%= @period_label.upcase %></span></div>
+        <% if d[:by_company].any? %><%= ranked_hbars(d[:by_company]) %><% else %><span class="caption">Nenhuma receita no período.</span><% end %></div>
+    </div>
+  </section>
+<% end %>
+
+<section class="card" aria-label="Atividades recentes">
+  <div class="card-head"><h2>Atividades recentes</h2><span class="eyebrow">Só dos módulos que o seu perfil acessa</span></div>
+  <% @activities.each do |a| %>
+    <% text = a.user ? "#{a.user.name} #{a.description.sub(/\A./, &:downcase)}" : a.description %>
+    <div class="act"><span class="time"><%= a.created_at.to_date == Date.current ? l(a.created_at, format: "%H:%M") : l(a.created_at, format: "%d/%m") %></span><span><%= text %></span><span class="badge b-mute"><%= Role::AREAS.fetch(a.area, a.area) %></span></div>
+  <% end %>
+  <% if @activities.empty? %><div class="card-foot"><span>Nada registrado ainda.</span></div><% end %>
+  <%= link_to "Ver todas as atividades →", admin_audit_logs_path, class: "more" if policy(AuditLog).index? %>
 </section>

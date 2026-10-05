@@ -104,6 +104,11 @@ Rails.application.routes.draw do
     resources :products, path: "produtos", except: :show
     resources :subscriptions, path: "assinaturas", except: :show
 
+    # Gestão
+    get "indicadores", to: "indicators#show", as: :indicators
+    get "rentabilidade", to: "profitability#show", as: :profitability
+    resources :reports, path: "relatorios", only: %i[index show]
+
     resources :notifications, path: "notificacoes", only: %i[index update] do
       patch :read_all, on: :collection, path: "marcar-todas"
       patch :preferences, on: :collection, path: "preferencias"

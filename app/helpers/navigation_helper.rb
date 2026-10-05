@@ -34,11 +34,15 @@ module NavigationHelper
     board: "M4 4h4v16H4zM10 4h4v10h-4zM16 4h4v13h-4z",
     list: "M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01",
     cash: "M3 7h18v10H3zM12 15a3 3 0 100-6 3 3 0 000 6zM6 10v.01M18 14v.01",
-    play: "M7 4l12 8-12 8z"
+    play: "M7 4l12 8-12 8z",
+    info: "M12 22a10 10 0 100-20 10 10 0 000 20zM12 16v-4M12 8h.01",
+    chart: "M4 4h16v16H4zM8 15l3-3 2 2 3-4",
+    download: "M12 4v12M6 10l6 6 6-6M4 20h16"
   }.freeze
 
   # Grupos do menu. Cada item aponta para a rota (símbolo do helper de path) e a área da
   # matriz de permissões. Item com route: nil ainda não foi construído e aparece como "em breve".
+  # Item marcado com :financial só aparece para quem vê o financeiro (Administrador e Financeiro).
   NAV = [
     { key: :dash, label: "Dashboard", area: "dashboard", route: :root_path },
     { key: :com, label: "Comercial", items: [
@@ -70,8 +74,8 @@ module NavigationHelper
     ] },
     { key: :ges, label: "Gestão", items: [
       [ "Fornecedores", :suppliers_path, "fornecedores" ], [ "Documentos", :documents_path, "documentos" ],
-      [ "Relatórios", nil, "relatorios" ], [ "Indicadores", nil, "relatorios" ],
-      [ "Rentabilidade", nil, "relatorios" ]
+      [ "Relatórios", :reports_path, "relatorios" ], [ "Indicadores", :indicators_path, "relatorios" ],
+      [ "Rentabilidade", :profitability_path, "relatorios", :financial ]
     ] },
     { key: :adm, label: "Administração", items: [
       [ "Usuários", :admin_users_path, "administracao" ], [ "Permissões", :admin_permissions_path, "administracao" ],
@@ -90,7 +94,7 @@ module NavigationHelper
   def navigation_for(user)
     NAV.filter_map do |group|
       if group[:items]
-        items = group[:items].select { |(_label, _route, area)| user.can_read?(area) }
+        items = group[:items].select { |(_label, _route, area, only)| user.can_read?(area) && (only != :financial || user.sees_financials?) }
         group.merge(items: items) if items.any?
       elsif user.can_read?(group[:area])
         group

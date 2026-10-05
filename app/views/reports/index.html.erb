@@ -1,0 +1,103 @@
+<% page_title(@report ? "#{@report.title} · Relatórios" : "Relatórios") %>
+<% nav_location :ges, "Relatórios" %>
+<% breadcrumb(*[ ["Gestão"], ["Relatórios", (reports_path if @report)], ([ @report.title ] if @report) ].compact) %>
+<% groups = @reports.group_by(&:group) %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Gestão · <%= @reports.size %> <%= @reports.size == 1 ? "relatório" : "relatórios" %> em <%= groups.size %> <%= groups.size == 1 ? "área" : "áreas" %></span>
+    <h1>Relatórios</h1>
+    <p class="lead">Todos filtram por período e exportam CSV; os financeiros também filtram por cliente e por serviço.</p>
+  </div>
+  <div class="actions<%= ' catalog-hide-m' if @report %>">
+    <label class="search-field"><span class="sr-only">Buscar relatório</span><%= icon(:search, size: 16, stroke: 1.8) %><input class="input" type="search" placeholder="Buscar relatório" data-search="relatorios"></label>
+  </div>
+</div>
+
+<% if @report %><%= link_to "← Todos os relatórios", reports_path, class: "link-btn show-m" %><% end %>
+
+<% if @reports.size < ReportCatalog::REPORTS.size %>
+  <div class="note<%= ' catalog-hide-m' if @report %>"><%= icon(:lock) %><span>Aparecem só os relatórios das áreas que o seu perfil acessa<%= "; os financeiros ficam com Administrador e Financeiro" unless current_user.sees_financials? %>.</span></div>
+<% end %>
+
+<% ReportCatalog::GROUPS.each do |key, name| %>
+  <% next unless groups[key] %>
+  <section class="stack<%= ' catalog-hide-m' if @report %>" aria-labelledby="area-<%= key %>" data-search-section>
+    <div class="section-title"><span class="eyebrow" id="area-<%= key %>"><%= name %> · <%= groups[key].size %></span><% if key == "financeiro" %><span class="caption">Visível para Administrador e Financeiro</span><% end %></div>
+    <div class="grid-kpi <%= { 6 => 'g3', 4 => 'g4' }[groups[key].size] %>">
+      <% groups[key].each do |r| %>
+        <% current = @report == r %>
+        <div class="card rep<%= ' cur' if current %>" data-search-item>
+          <h3><%= r.title %></h3>
+          <p><%= r.description %></p>
+          <div class="r">
+            <% if current %>
+              <span class="badge b-info">Aberto abaixo</span><a class="link-btn" href="#relatorio-aberto">Ver</a>
+            <% else %>
+              <span class="caption"><%= r.financial ? "Período · cliente · serviço" : "Período" %></span><%= link_to "Abrir", report_path(r.key, periodo: params[:periodo].presence, anchor: "relatorio-aberto"), class: "link-btn", "aria-label": "Abrir #{r.title}" %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </section>
+<% end %>
+
+<% if @report %>
+  <% res = @result %>
+  <section class="card" id="relatorio-aberto" aria-labelledby="rel-t">
+    <div class="card-head">
+      <div class="stack" style="gap:4px">
+        <span class="eyebrow"><%= ReportCatalog::GROUPS[@report.group] %> · relatório</span>
+        <h2 id="rel-t" style="font-size:20px"><%= @report.title %></h2>
+        <span class="caption"><%= [ @period_label, @filters[:company]&.trade_name, @filters[:service]&.name, pluralize(res.rows.size, "linha") ].compact.join(" · ") %></span>
+      </div>
+      <%= link_to report_path(@report.key, format: :csv, **request.query_parameters.slice("periodo", "de", "ate", "cliente", "servico")), class: "btn" do %><%= icon(:download, size: 16, stroke: 1.8) %>Exportar CSV<% end %>
+    </div>
+
+    <%= form_with url: report_path(@report.key, anchor: "relatorio-aberto"), method: :get, class: "filters", "aria-label": "Filtros do relatório" do %>
+      <div class="field"><label for="r-per">Período</label><%= select_tag :periodo, options_for_select(@periods, @period), class: "select", id: "r-per" %></div>
+      <div class="field"><label for="r-de">De</label><%= date_field_tag :de, @range.first, class: "input", id: "r-de" %></div>
+      <div class="field"><label for="r-ate">Até</label><%= date_field_tag :ate, @range.last, class: "input", id: "r-ate" %></div>
+      <% if @report.financial %>
+        <div class="field"><label for="r-cli">Cliente</label><%= select_tag :cliente, options_from_collection_for_select(Company.where.not(status: "prospect").by_name, :id, :trade_name, params[:cliente]), include_blank: "Todos os clientes", class: "select", id: "r-cli" %></div>
+        <div class="field"><label for="r-svc">Serviço</label><%= select_tag :servico, options_from_collection_for_select(Service.by_name, :id, :name, params[:servico]), include_blank: "Todos os serviços", class: "select", id: "r-svc" %></div>
+      <% end %>
+      <button class="btn" type="submit">Aplicar</button>
+    <% end %>
+    <p class="caption" style="padding:0 20px 14px;margin:0">As datas valem com o período “Personalizado (de/até)”.</p>
+    <hr class="divider">
+
+    <div class="<%= res.chart ? 'cols-2-1' : 'stack' %>" style="padding:20px;gap:24px">
+      <% if res.rows.empty? %>
+        <%= render "shared/empty", title: "Nada no período", text: "Nenhum registro para #{@report.title.downcase} em #{@period_label}." %>
+      <% else %>
+        <div class="table-wrap">
+          <table class="table cards">
+            <thead><tr><% res.columns.each do |c| %><th<%= ' class="num"'.html_safe if report_numeric?(c.type) %>><%= c.label %></th><% end %></tr></thead>
+            <tbody>
+              <% res.rows.each do |row| %>
+                <tr><% row.each_with_index do |value, i| %><% c = res.columns[i] %><td data-label="<%= c.label %>" class="<%= 'num' if report_numeric?(c.type) %><%= ' strong' if i.zero? %>"><%= report_cell(value, c.type) %></td><% end %></tr>
+              <% end %>
+            </tbody>
+            <% if res.footer %>
+              <tfoot><tr><% res.footer.each_with_index do |value, i| %><% c = res.columns[i] %><td data-label="<%= c.label unless i.zero? %>" class="<%= 'num' if report_numeric?(c.type) %>"><%= value == "" ? "" : report_cell(value, c.type) %></td><% end %></tr></tfoot>
+            <% end %>
+          </table>
+        </div>
+      <% end %>
+      <% if res.chart || res.callout %>
+        <div class="stack">
+          <% if res.chart && res.chart.rows.any? { |_, v| v.to_f.positive? } %>
+            <div class="section-title"><h3><%= res.chart.title %></h3><span class="unit"><%= { money: "R$ MIL", hours: "HORAS", percent: "%", count: "QTD." }[res.chart.type] %></span></div>
+            <div role="img" aria-label="<%= res.chart.title %>: <%= res.chart.rows.map { |l, v| "#{l || '—'} #{report_chart_tip(res.chart.type).call(v)}" }.join('; ') %>">
+              <div class="rep-chart"><%= ranked_hbars(res.chart.rows.map { |l, v| [ (l || "—").to_s, v ] }, top: 8, value: report_chart_value(res.chart.type), tip: report_chart_tip(res.chart.type)) %></div>
+            </div>
+          <% end %>
+          <% if res.callout %><div class="callout"><span><%= res.callout %></span></div><% end %>
+        </div>
+      <% end %>
+    </div>
+    <div class="card-foot"><span>Gerado em <%= l(Time.current, format: "%d/%m/%Y %H:%M") %><%= " · #{res.note}" if res.note %></span><span>CSV com separador “;” para abrir no Excel</span></div>
+  </section>
+<% end %>

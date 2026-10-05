@@ -62,6 +62,8 @@ bundle exec sidekiq          # em outro terminal
 - **Interações:** `app/javascript/ui.js` implementa os atributos `data-open`, `data-tabs`, `data-filter` etc. do design system, compatíveis com o Turbo.
 - **Rotinas diárias:** `config/schedule.yml` (sidekiq-cron) chama o `DailyAlertsJob` às 07:00, que roda as verificações de cada módulo (contratos, propostas, Operação e domínios), e o `RecurrenceJob` às 06:00, que gera os títulos recorrentes, marca vencidos e atualiza o câmbio (PTAX do Banco Central, `BcbPtax`). Os prazos vêm de Administração → Configurações (`Setting`).
 - **Histórico:** além do `AuditLog`, o `Auditable` grava `Activity`, o histórico em linguagem natural mostrado na Visão 360º.
+- **Indicadores:** `Metrics` (`app/services/metrics.rb`) calcula tudo o que o dashboard, os indicadores, a rentabilidade e os relatórios mostram; nenhum número é digitado. As regras de MRR, churn e CAC estão no cabeçalho da classe e no doc. 08. Dashboard e indicadores ficam em cache por até 15 minutos.
+- **Relatórios:** `ReportCatalog` (`app/services/report_catalog.rb`) registra os 19 relatórios: quem pode ver, se é financeiro (filtra por cliente e serviço) e o método que monta a tabela. A mesma tabela vira o CSV (`CsvExport`: `;`, vírgula decimal e BOM para o Excel).
 - **Formulários:** abrem na gaveta lateral por Turbo Frame (`drawer_link_to`) e também funcionam como página própria.
 - **Seeds:** `db/seeds/data/*.yml` traz os mesmos dados do design (empresas, contatos, contratos, serviços contratados, documentos). Só carregam fora de produção.
 - **Menu:** `NavigationHelper::NAV`. Item sem rota aparece como "em breve".

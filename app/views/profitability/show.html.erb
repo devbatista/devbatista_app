@@ -1,0 +1,136 @@
+<% page_title "Rentabilidade por cliente" %>
+<% nav_location :ges, "Rentabilidade" %>
+<% breadcrumb ["Gestão"], ["Rentabilidade"] %>
+<% t = @totals %>
+<% with_cost = @rows.count { |r| r[:cost].positive? } %>
+<% earning = @rows.select { |r| r[:margin_percent] } %>
+<% worst = earning.min_by { |r| r[:margin_percent] } %>
+<% critical = ->(r) { r[:margin_percent].nil? || r[:margin_percent] < 30 } %>
+<% source_path = { "Server" => servers_path, "ExternalService" => external_services_path, "Domain" => domains_path, "Payable" => expenses_path(periodo: @period) } %>
+<% total_pct = t[:revenue].positive? ? t[:margin] * 100.0 / t[:revenue] : nil %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Gestão · Competência <%= @period_label %></span>
+    <h1>Rentabilidade por cliente</h1>
+    <p class="lead">Quanto cada cliente paga, quanto custa mantê-lo e qual margem ele deixa — antes da mão de obra.</p>
+  </div>
+  <%= form_with url: profitability_path, method: :get, class: "actions" do %>
+    <label class="sr-only" for="periodo">Competência</label>
+    <%= select_tag :periodo, options_for_select(@periods, @period), class: "select", id: "periodo", onchange: "this.form.requestSubmit()" %>
+    <%= hidden_field_tag :ordem, @sort %>
+    <%= link_to profitability_path(format: :csv, periodo: @period, ordem: @sort), class: "btn" do %><%= icon(:download, size: 16, stroke: 1.8) %>Exportar CSV<% end %>
+  <% end %>
+</div>
+
+<div class="grid-kpi g4">
+  <div class="card kpi"><span class="eyebrow">Receita dos clientes</span><span class="v"><%= brl(t[:revenue]) %></span><span class="f"><%= pluralize(@rows.count { |r| r[:revenue].positive? }, "cliente faturado", plural: "clientes faturados") %></span></div>
+  <div class="card kpi"><span class="eyebrow">Custos diretos</span><span class="v"><%= brl(t[:cost]) %></span><span class="f">em <%= pluralize(with_cost, "cliente") %> · serviços externos, servidores, domínios e despesas</span></div>
+  <div class="card kpi"><span class="eyebrow">Margem antes da mão de obra</span><span class="v"><%= brl(t[:margin]) %></span><span class="f"><% if total_pct %><%= status_badge(percent_br(total_pct), total_pct >= 30 ? "good" : "crit") %>da receita<% else %>sem receita no período<% end %></span></div>
+  <% if worst %>
+    <div class="card kpi<%= ' alert' if critical.call(worst) %>"><span class="eyebrow">Menor margem</span><span class="v"><%= percent_br(worst[:margin_percent]) %></span><span class="f"><%= status_badge(worst[:company].trade_name, critical.call(worst) ? "crit" : "mute") %><%= worst[:lines].first&.dig(:label) || "sem custo direto" %></span></div>
+  <% else %>
+    <div class="card kpi"><span class="eyebrow">Menor margem</span><span class="v">—</span><span class="f">nenhum cliente faturado</span></div>
+  <% end %>
+</div>
+
+<section class="card" aria-labelledby="rank-t">
+  <div class="card-head">
+    <h2 id="rank-t">Ranking de margem por cliente</h2>
+    <%= form_with url: profitability_path, method: :get, class: "row" do %>
+      <%= hidden_field_tag :periodo, @period %>
+      <label class="sr-only" for="ordem">Ordenar por</label>
+      <%= select_tag :ordem, options_for_select(ProfitabilityController::SORTS.map { |k, (label, _)| [ label, k ] }, @sort), class: "select", id: "ordem", onchange: "this.form.requestSubmit()" %>
+    <% end %>
+  </div>
+  <% if @rows.empty? %>
+    <%= render "shared/empty", title: "Nada a mostrar em #{@period_label}", text: "Nenhum cliente com receita ou custo direto na competência." %>
+  <% else %>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr><th>#</th><th>Cliente</th><th class="num">Receita</th><th class="num">Custos diretos</th><th class="num">Margem R$</th><th class="num">Margem %</th><th><span class="sr-only">Ações</span></th></tr></thead>
+        <tbody>
+          <% @rows.each_with_index do |r, i| %>
+            <% c = r[:company] %>
+            <% pct = r[:margin_percent] %>
+            <% current = @detail && @detail[:company] == c %>
+            <tr class="<%= 'late' if critical.call(r) %>"<%= ' style="background:var(--cyan-tint)"'.html_safe if current %>>
+              <td data-label="#" class="muted mono"><%= i + 1 %></td>
+              <td data-label="Cliente">
+                <%= link_to c.trade_name, company_path(c), class: "strong" %>
+                <% if critical.call(r) %> <span class="badge b-crit"><%= pct ? "Margem crítica" : "Sem receita" %></span><% end %>
+                <span class="cell-sub"><%= r[:lines].empty? ? "sem custo direto registrado" : r[:lines].first(2).map { |l| "#{l[:label]}: #{brl(l[:cents])}" }.join(" · ") %></span>
+              </td>
+              <td data-label="Receita" class="num"><%= brl(r[:revenue]) %></td>
+              <td data-label="Custos diretos" class="num<%= ' muted' if r[:cost].zero? %>"><%= r[:cost].zero? ? "—" : brl(r[:cost]) %></td>
+              <td data-label="Margem R$" class="num strong"<%= ' style="color:var(--crit)"'.html_safe if r[:margin].negative? %>><%= brl(r[:margin]) %></td>
+              <td data-label="Margem %" class="num"><span class="mcell"><span class="progress<%= ' crit' if critical.call(r) %>"><i style="width:<%= pct ? pct.clamp(0, 100) : 0 %>%"></i></span><%= percent_br(pct) %></span></td>
+              <td data-label="" class="right"><%= link_to (current ? "Detalhe abaixo" : "Detalhar"), profitability_path(periodo: @period, ordem: @sort, cliente: c.id, anchor: "detalhe"), class: "link-btn" %></td>
+            </tr>
+          <% end %>
+        </tbody>
+        <tfoot><tr><td data-label=""></td><td data-label="">Total · <%= pluralize(@rows.size, "cliente") %></td><td data-label="Receita" class="num"><%= brl(t[:revenue]) %></td><td data-label="Custos diretos" class="num"><%= brl(t[:cost]) %></td><td data-label="Margem R$" class="num"><%= brl(t[:margin]) %></td><td data-label="Margem %" class="num"><%= percent_br(total_pct) %></td><td data-label=""></td></tr></tfoot>
+      </table>
+    </div>
+  <% end %>
+  <div class="card-foot"><span>Margem antes da mão de obra = receita da competência − custos diretos</span><span>Custos em moeda estrangeira convertidos pela PTAX do Banco Central</span></div>
+</section>
+
+<% if @detail %>
+  <% c = @detail[:company] %>
+  <% pct = @detail[:margin_percent] %>
+  <section class="stack" id="detalhe" aria-labelledby="det-t">
+    <div class="section-title">
+      <div class="row"><span class="co-avatar sm" aria-hidden="true"><%= c.initials %></span><div><h2 id="det-t">Rentabilidade — <%= link_to c.trade_name, company_path(c) %></h2><span class="caption">Competência <%= @period_label %><%= " · cliente desde #{date_br(c.customer_since)}" if c.customer_since %></span></div></div>
+      <%= status_badge("Margem #{percent_br(pct)}", critical.call(@detail) ? "crit" : "good") %>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-head"><h3>Custos diretos vinculados ao cliente</h3><span class="unit">R$ NO PERÍODO</span></div>
+        <% @detail[:lines].each do |l| %>
+          <div class="cost"><span class="strong"><%= l[:label] %></span><b><%= brl(l[:cents]) %></b><span class="cell-sub"><%= link_to_if source_path[l[:record].class.name] && current_user.can_read?(l[:record].is_a?(Payable) ? "financeiro" : "tecnologia"), l[:origin], source_path[l[:record].class.name] %></span></div>
+        <% end %>
+        <% if @detail[:lines].empty? %><div class="cost"><span class="muted">Nenhum custo direto registrado para o cliente.</span></div><% end %>
+        <div class="kv" style="background:rgba(255,255,255,0.02)"><span class="strong" style="color:var(--text)">Custos diretos</span><b><%= brl(@detail[:cost]) %></b></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h3>Resultado do cliente</h3><span class="unit"><%= @period_label.upcase %></span></div>
+        <div class="kv"><span>Receita</span><b><%= brl(@detail[:revenue]) %></b></div>
+        <div class="kv"><span>Custos diretos</span><b style="color:var(--orange)">− <%= brl(@detail[:cost]) %></b></div>
+        <div class="card-body stack" style="border-top:1px solid var(--rule)">
+          <span class="eyebrow">Margem antes da mão de obra</span>
+          <div class="row" style="align-items:baseline;flex-wrap:wrap"><span class="big"><%= brl(@detail[:margin]) %></span><span class="muted"><%= pct ? "#{percent_br(pct)} da receita" : "sem receita no período" %></span></div>
+          <% if pct %>
+            <% margin_w = pct.clamp(0, 100).round(1) %>
+            <div class="mbar" role="img" aria-label="Da receita de <%= brl(@detail[:revenue]) %>, <%= percent_br(margin_w) %> é margem (<%= brl(@detail[:margin]) %>) e <%= percent_br(100 - margin_w) %> são custos diretos (<%= brl(@detail[:cost]) %>)">
+              <i style="width:<%= margin_w %>%;background:var(--cyan)"></i><i style="width:<%= (100 - margin_w).round(1) %>%;background:var(--orange)"></i>
+            </div>
+            <div class="legend"><span><i style="background:var(--cyan)"></i>Margem <%= brl(@detail[:margin]) %> · <%= percent_br(margin_w) %></span><span><i style="background:var(--orange)"></i>Custos <%= brl(@detail[:cost]) %> · <%= percent_br(100 - margin_w) %></span></div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <section class="card" aria-labelledby="origem-t">
+      <div class="card-head"><h3 id="origem-t">De onde vem cada número</h3></div>
+      <div class="table-wrap">
+        <table class="table cards">
+          <thead><tr><th>Componente</th><th>Origem dos dados</th><th class="num"><%= c.trade_name %></th></tr></thead>
+          <tbody>
+            <tr><td data-label="Componente" class="strong">Receita</td><td data-label="Origem dos dados"><span>Receitas do cliente por competência no período, recorrentes e avulsas, exceto canceladas — <%= link_to "ver em Receitas", revenues_path(periodo: @period, empresa: c.id) %></span></td><td data-label="<%= c.trade_name %>" class="num"><%= brl(@detail[:revenue]) %></td></tr>
+            <tr><td data-label="Componente" class="strong">Custos diretos</td><td data-label="Origem dos dados"><span><%= link_to "Serviços externos", external_services_path %> pagos pela DevBatista, <%= link_to "servidores", servers_path %>, <%= link_to "domínios", domains_path %> (anual ÷ 12) e <%= link_to "despesas", expenses_path(periodo: @period) %> com centro de custo no cliente; despesa ligada a um serviço externo não conta duas vezes</span></td><td data-label="<%= c.trade_name %>" class="num"><%= brl(@detail[:cost]) %></td></tr>
+            <tr><td data-label="Componente" class="strong">Margem antes da mão de obra</td><td data-label="Origem dos dados">Receita menos custos diretos</td><td data-label="<%= c.trade_name %>" class="num strong"><%= brl(@detail[:margin]) %></td></tr>
+            <tr><td data-label="Componente" class="muted">Custo de mão de obra</td><td data-label="Origem dos dados" class="muted">Horas registradas para o cliente × custo/hora de cada usuário</td><td data-label="<%= c.trade_name %>" class="num"><span class="badge b-mute">Depois do MVP</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="note">
+      <%= icon(:clock) %>
+      <span><b>Custo de mão de obra (horas × custo/hora) depois do MVP.</b> Em <%= @period_label.downcase %> foram <%= hours_br(@detail_hours) %> registradas para <%= c.trade_name %> em <%= link_to "Horas trabalhadas", time_entries_path %>. Quando o custo/hora de cada usuário for considerado, a tela passa a mostrar a margem real por cliente.</span>
+    </div>
+  </section>
+<% end %>

@@ -215,23 +215,23 @@ Primeiro módulo de negócio. Traz também o que os outros módulos vão usar: h
 
 ## Fase 7 · Gestão e dashboard
 
-- [ ] **RF 3 · Dashboard executivo** — [spec](specs/admin-devbatista-mvp/04-requisitos-funcionais/01-core.md) · [dashboard](design/dashboard/dashboard.html)
-  - [ ] 12 cartões do mês, cada um levando à listagem já filtrada
-  - [ ] Seletor de período (padrão: mês corrente)
-  - [ ] 6 gráficos dos últimos 6 meses
-  - [ ] Feed de atividades recentes
-  - [ ] Cartões e gráficos financeiros só para Administrador e Financeiro
-  - [ ] Cache de até 15 min nos indicadores
-- [ ] **RF 38 · Relatórios** — [relatórios](design/gestao/relatorios.html)
-  - [ ] 19 relatórios em 4 áreas, com filtro por período e exportação CSV
-  - [ ] Financeiros também filtram por cliente e serviço
-  - [ ] Respeitam o perfil
-- [ ] **RF 39 · Rentabilidade por cliente** — [rentabilidade](design/gestao/rentabilidade.html)
-  - [ ] Margem = receita mensal − custos diretos (serviços externos pagos pela DevBatista, servidores, domínios, despesas com centro de custo no cliente)
-  - [ ] Valor, percentual e lista dos custos que compõem o total
-- [ ] **RF 40 · Indicadores** — [indicadores](design/gestao/indicadores.html)
-  - [ ] Os 14 calculados, nenhum digitado
-- [ ] Decidir: período padrão e regra de cliente que volta para Churn e CAC
+- [x] **RF 3 · Dashboard executivo** — [spec](specs/admin-devbatista-mvp/04-requisitos-funcionais/01-core.md) · [dashboard](design/dashboard/dashboard.html)
+  - [x] 12 cartões do mês, cada um levando à listagem já filtrada
+  - [x] Seletor de período (padrão: mês corrente)
+  - [x] 6 gráficos dos últimos 6 meses
+  - [x] Feed de atividades recentes
+  - [x] Cartões e gráficos financeiros só para Administrador e Financeiro
+  - [x] Cache de até 15 min nos indicadores
+- [x] **RF 38 · Relatórios** — [relatórios](design/gestao/relatorios.html)
+  - [x] 19 relatórios em 4 áreas, com filtro por período e exportação CSV
+  - [x] Financeiros também filtram por cliente e serviço
+  - [x] Respeitam o perfil
+- [x] **RF 39 · Rentabilidade por cliente** — [rentabilidade](design/gestao/rentabilidade.html)
+  - [x] Margem = receita mensal − custos diretos (serviços externos pagos pela DevBatista, servidores, domínios, despesas com centro de custo no cliente)
+  - [x] Valor, percentual e lista dos custos que compõem o total
+- [x] **RF 40 · Indicadores** — [indicadores](design/gestao/indicadores.html)
+  - [x] Os 14 calculados, nenhum digitado
+- [x] Decidir: período padrão e regra de cliente que volta para Churn e CAC
 
 ## Fase 8 · API e produção
 

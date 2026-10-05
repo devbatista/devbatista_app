@@ -20,7 +20,7 @@ Foram encontradas dez lacunas ou contradições no documento original. As quatro
 - [x] **Operação: alertas e estimativas.** Premissas adotadas na fase 4 (confirmar): projeto e tarefa atrasados avisam no primeiro dia de atraso e repetem o aviso a cada 7 dias; a estimativa do projeto é a soma das estimativas das tarefas; quem lança horas no nível Próprio pode excluir o próprio lançamento (como no envio de documentos).
 - [x] **Tecnologia e Produtos.** Premissas adotadas na fase 6 (confirmar): assinatura inadimplente segue no MRR e nos clientes do produto até ser cancelada; o custo mensal do produto é registrado mês a mês; domínio que venceu sem renovação registrada também gera alerta crítico; serviço externo "por consumo" usa o valor da última fatura como custo mensal.
 - [ ] **Tentativas de login.** Quantas tentativas antes do bloqueio e por quanto tempo? Proposta: 5 tentativas, 15 minutos.
-- [ ] **Churn e CAC.** Precisam de período padrão e regra para cliente que volta.
+- [x] **Churn e CAC.** Decidido em 05/10/2026: período padrão é o mês corrente (o seletor também oferece mês anterior, trimestre e ano). Churn = clientes com MRR no dia anterior ao início que terminam o período sem MRR ÷ clientes com MRR no início (também em MRR). Cliente que volta depois de sair é **reativação**: a saída continua contando no churn do período em que ocorreu e a volta não entra em novos clientes nem no CAC. CAC = despesas das categorias Marketing e Comercial na competência ÷ novos clientes (cliente desde no período). O MRR de datas passadas usa o valor atual de cada serviço contratado; suspensos ficam fora.
 
 **Premissas adotadas**
 

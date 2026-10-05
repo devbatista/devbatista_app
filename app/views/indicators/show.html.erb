@@ -1,0 +1,129 @@
+<% page_title "Indicadores" %>
+<% nav_location :ges, "Indicadores" %>
+<% breadcrumb ["Gestão"], ["Indicadores"] %>
+<% d = @data %>
+<% prev = @previous_label %>
+<% kpi = ->(label, value, foot, definition, detail = nil) { render("kpi", label: label, value: value, foot: foot, definition: definition, detail: detail) } %>
+<% read_clients = current_user.can_read?("clientes") %>
+<% read_sales = current_user.can_read?("comercial") %>
+<% read_hours = current_user.can_read?("horas") %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Gestão · <%= @period_label %></span>
+    <h1>Indicadores</h1>
+    <p class="lead">A saúde do negócio em 14 números. Tendência comparada <%= prev == "período anterior" ? "ao período anterior" : "a #{prev}" %>.</p>
+  </div>
+  <%= form_with url: indicators_path, method: :get, class: "actions" do %>
+    <label class="sr-only" for="periodo">Período</label>
+    <%= select_tag :periodo, options_for_select(@periods, @period), class: "select", id: "periodo", onchange: "this.form.requestSubmit()" %>
+    <%= link_to "Ver relatórios", reports_path, class: "btn" %>
+  <% end %>
+</div>
+
+<div class="note">
+  <%= icon(:chart) %>
+  <span><b>Calculados pelo sistema, nenhum é digitado.</b> Cada indicador vem dos registros de serviços contratados, receitas, despesas, leads, propostas e horas. Atualizado em <%= l(d[:generated_at], format: "%d/%m/%Y às %H:%M") %> (cache de até 15 minutos).<%= " Só aparecem os indicadores das áreas que o seu perfil acessa." unless @financial %></span>
+</div>
+
+<% if @financial %>
+  <% mrr, mrr_prev = d[:mrr] %>
+  <% billed, billed_prev = d[:billed] %>
+  <% margin, margin_prev = d[:margin] %>
+  <% ticket, ticket_prev = d[:ticket] %>
+  <section class="stack" aria-label="Receita e resultado">
+    <span class="eyebrow">Receita e resultado</span>
+    <div class="grid-kpi g3">
+      <%= kpi.call("MRR", brl(mrr), safe_join([ variation_badge(mrr, mrr_prev), "#{prev}: #{brl(mrr_prev)}" ].compact), "Receita recorrente mensal: soma mensalizada dos serviços recorrentes ativos.") %>
+      <%= kpi.call("ARR", brl(mrr * 12), safe_join([ variation_badge(mrr, mrr_prev), "#{prev}: #{brl(mrr_prev * 12)}" ].compact), "Receita recorrente anual: MRR × 12.") %>
+      <%= kpi.call("Faturamento", brl(billed), safe_join([ variation_badge(billed, billed_prev), "#{prev}: #{brl(billed_prev)}" ].compact), "Total de receitas por competência no período.") %>
+      <%= kpi.call("Margem", percent_br(margin), safe_join([ points_badge(margin, margin_prev), "#{prev}: #{percent_br(margin_prev)}" ].compact), "Resultado dividido pelo faturamento.",
+                   safe_join([ "Resultado ÷ faturamento (#{brl(d[:result].first)} ÷ #{brl(billed)}). ", link_to("Por cliente", profitability_path(periodo: @period)), "." ])) %>
+      <%= kpi.call("Ticket médio", ticket ? brl(ticket) : "—", safe_join([ (variation_badge(ticket, ticket_prev) if ticket && ticket_prev), "#{prev}: #{ticket_prev ? brl(ticket_prev) : '—'}" ].compact), "Faturamento dividido pelo número de clientes ativos.",
+                   "Faturamento ÷ clientes ativos (#{brl(billed)} ÷ #{d[:clients].first}).") %>
+      <%= kpi.call("Custo de infraestrutura", brl(d[:infrastructure]), billed.positive? ? "#{percent_br(d[:infrastructure] * 100.0 / billed)} do faturamento" : "sem faturamento no período",
+                   "Soma de servidores, domínios e serviços externos pagos pela DevBatista.", safe_join([ "Servidores, domínios (anual ÷ 12) e serviços externos pagos pela DevBatista, ao custo mensal de hoje. ", link_to("Ver serviços externos", external_services_path), "." ])) %>
+    </div>
+  </section>
+<% end %>
+
+<% if read_clients || read_sales || read_hours %>
+  <section class="stack" aria-label="Clientes e comercial">
+    <span class="eyebrow">Clientes e comercial</span>
+    <div class="grid-kpi">
+      <% if read_clients %>
+        <% clients, clients_prev = d[:clients] %>
+        <% diff = clients - clients_prev %>
+        <%= kpi.call("Clientes ativos", clients, safe_join([ status_badge("#{'+' if diff.positive?}#{diff.negative? ? "−#{diff.abs}" : diff}", diff.negative? ? "crit" : "good"), "#{prev}: #{clients_prev}" ]),
+                     "Empresas com status Ativo e ao menos um serviço contratado vigente.", safe_join([ "Status Ativo e ao menos um serviço contratado vigente. ", link_to("Ver empresas", companies_path(status: "active")), "." ])) %>
+      <% end %>
+      <% if @financial %>
+        <% cac, cac_prev = d[:cac] %>
+        <%= kpi.call("CAC", cac ? brl(cac) : "—", safe_join([ (variation_badge(cac, cac_prev, inverse: true) if cac && cac_prev), "#{prev}: #{cac_prev ? brl(cac_prev) : '—'}" ].compact),
+                     "Despesas de Marketing e Comercial divididas pelo número de novos clientes no período.",
+                     "Marketing + Comercial (#{brl(d[:acquisition])}) ÷ novos clientes (#{d[:new_clients]}). Cliente que volta é reativação e não entra.") %>
+      <% end %>
+      <% if read_clients %>
+        <% churn, churn_prev = d[:churn] %>
+        <% lost_text = churn_prev[:lost].positive? ? "#{pluralize(churn_prev[:lost], 'cliente')}#{", #{brl(churn_prev[:lost_mrr])} de MRR" if @financial}" : "nenhum cliente perdido" %>
+        <%= kpi.call("Churn", percent_br(churn[:rate]), safe_join([ points_badge(churn[:rate], churn_prev[:rate], inverse: true), "#{prev}: #{lost_text}" ].compact),
+                     "Clientes (ou MRR) perdidos no período em relação à base do início do período.",
+                     "Perdidos ÷ base do início (#{churn[:lost]} ÷ #{churn[:base]})#{"; MRR perdido #{brl(churn[:lost_mrr])} (#{percent_br(churn[:mrr_rate])})" if @financial && churn[:base].positive?}#{"; #{pluralize(churn[:reactivated_ids].size, 'reativação', plural: 'reativações')}" if churn[:reactivated_ids].any?}.") %>
+      <% end %>
+      <% if read_sales %>
+        <%= kpi.call("Propostas abertas", "#{d[:proposals][:count]} · #{brl(d[:proposals][:cents])}", "posição de hoje", "Quantidade e valor das propostas Enviadas ou Visualizadas.",
+                     safe_join([ "Propostas com status Enviada ou Visualizada. ", link_to("Ver propostas", proposals_path), "." ])) %>
+      <% end %>
+      <% if read_hours %>
+        <% top = d[:hours_top] %>
+        <%= kpi.call("Horas por cliente", hours_br(d[:hours]), safe_join([ status_badge("até #{l(d[:until], format: '%d/%m')}", "mute"), (top ? "#{top.first} lidera: #{hours_br(top.last)}" : "nenhuma hora registrada") ]),
+                     "Total de horas registradas por cliente no período.", safe_join([ "Total de horas registradas por cliente no período. ", link_to("Ver horas", time_entries_path), "." ])) %>
+      <% end %>
+    </div>
+  </section>
+<% end %>
+
+<% if @financial || read_sales %>
+  <section class="stack" aria-label="Distribuições">
+    <span class="eyebrow">Distribuições</span>
+    <div class="grid-3">
+      <% if @financial %>
+        <% total = d[:by_company].sum(&:last) %>
+        <div class="card card-body stack">
+          <div class="section-title"><h2>Receita por cliente</h2><button class="def" type="button" title="Distribuição do faturamento entre os clientes." aria-label="Definição de Receita por cliente: distribuição do faturamento entre os clientes."><%= icon(:info, size: 16, stroke: 1.8) %></button></div>
+          <% if total.positive? %>
+            <%= ranked_hbars(d[:by_company], wide: true, value: ->(v) { percent_br(v * 100.0 / total) }) %>
+            <% top5 = d[:by_company].first(5).sum(&:last) * 100.0 / total %>
+            <span class="f caption"><% if top5 >= 60 && d[:by_company].size > 5 %><span class="badge b-warn">Concentração</span> <% end %><%= [ d[:by_company].size, 5 ].min %> maiores = <%= percent_br(top5) %> do faturamento</span>
+          <% else %>
+            <span class="caption">Nenhuma receita no período.</span>
+          <% end %>
+        </div>
+        <div class="card card-body stack">
+          <div class="section-title"><h2>Receita por serviço</h2><button class="def" type="button" title="Distribuição do faturamento entre os serviços do catálogo." aria-label="Definição de Receita por serviço: distribuição do faturamento entre os serviços do catálogo."><%= icon(:info, size: 16, stroke: 1.8) %></button></div>
+          <% if d[:by_service].any? %><%= ranked_hbars(d[:by_service], wide: true) %><% else %><span class="caption">Nenhuma receita no período.</span><% end %>
+          <span class="caption">R$ mil · serviços do catálogo; sem serviço, pela categoria</span>
+        </div>
+      <% end %>
+      <% if read_sales %>
+        <% conv, conv_prev = d[:conversion] %>
+        <div class="card card-body stack">
+          <div class="section-title"><h2>Taxa de conversão por origem</h2><button class="def" type="button" title="Negócios fechados divididos pelos leads recebidos no período; disponível por origem." aria-label="Definição de Taxa de conversão: negócios fechados divididos pelos leads recebidos no período; disponível por origem."><%= icon(:info, size: 16, stroke: 1.8) %></button></div>
+          <div class="row" style="align-items:baseline;flex-wrap:wrap"><span class="strong" style="font-size:26px;letter-spacing:-.02em"><%= percent_br(conv[:rate]) %></span><span class="caption"><%= conv[:won] %> <%= conv[:won] == 1 ? "fechado" : "fechados" %> ÷ <%= pluralize(conv[:leads], "lead") %> <%= points_badge(conv[:rate], conv_prev[:rate]) %></span></div>
+          <% if conv[:by_origin].any? %>
+            <% best = [ conv[:by_origin].map { |o| o[:won] * 100.0 / o[:leads] }.max, 1 ].max %>
+            <div class="hbars" role="img" aria-label="Conversão por origem: <%= conv[:by_origin].map { |o| "#{o[:label]} #{o[:won]} de #{o[:leads]}" }.join('; ') %>">
+              <% conv[:by_origin].each do |o| %>
+                <% rate = o[:won] * 100.0 / o[:leads] %>
+                <div class="hbar wide" title="<%= o[:label] %>: <%= o[:won] %> de <%= o[:leads] %> (<%= percent_br(rate) %>)"><span><%= o[:label] %></span><div class="track"><div class="fill<%= ' alt' if o[:won].zero? %>" style="width:<%= o[:won].zero? ? 2 : (rate * 100 / best).round %>%"></div></div><span class="val"><%= o[:won] %>/<%= o[:leads] %></span></div>
+              <% end %>
+            </div>
+          <% else %>
+            <span class="caption">Nenhum lead recebido no período.</span>
+          <% end %>
+          <span class="caption">fechados / leads recebidos no período</span>
+        </div>
+      <% end %>
+    </div>
+  </section>
+<% end %>
