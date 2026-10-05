@@ -1,0 +1,68 @@
+<% page_title "Fornecedores" %>
+<% nav_location :ges, "Fornecedores" %>
+<% breadcrumb ["Gestão"], ["Fornecedores"] %>
+<% k = @kpis %>
+<% can_finance = current_user.can_read?("financeiro") %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Gestão · <%= l(Date.current, format: :month_year).capitalize %></span>
+    <h1>Fornecedores</h1>
+    <p class="lead">Quem a DevBatista paga. Cada fornecedor liga despesas e contas a pagar ao custo de cada cliente.</p>
+  </div>
+  <% if policy(Supplier).create? %>
+    <div class="actions"><%= drawer_link_to new_supplier_path, class: "btn pri" do %><%= icon(:plus, size: 16, stroke: 2) %>Novo fornecedor<% end %></div>
+  <% end %>
+</div>
+
+<div class="grid-kpi g4">
+  <div class="card kpi"><span class="eyebrow">Fornecedores ativos</span><span class="v"><%= k[:active] %></span><span class="f">em <%= pluralize(k[:categories], "categoria") %> de despesa</span></div>
+  <%= link_to (can_finance ? expenses_path : suppliers_path), class: "card kpi" do %><span class="eyebrow">Gasto no mês</span><span class="v"><%= brl(k[:month]) %></span><span class="f"><%= pluralize(k[:month_count], "lançamento") %> em despesas</span><% end %>
+  <div class="card kpi"><span class="eyebrow">Cobrança em moeda estrangeira</span><span class="v"><%= k[:foreign] %></span><span class="f">fornecedores<%= " · #{@rate}" if @rate %></span></div>
+  <div class="card kpi soon-card"><span class="eyebrow">Serviços externos vinculados</span><span class="v">—</span><span class="f">chega com o módulo Tecnologia</span></div>
+</div>
+
+<%= form_with url: suppliers_path, method: :get, class: "toolbar" do %>
+  <%= status_filter :categoria, [ [ "todos", "Todas", @counts.values.sum ] ] + Setting[:expense_categories].map { |c| [ c, c, @counts[c].to_i ] }, label: "Filtrar por categoria" %>
+  <%= hidden_field_tag :categoria, params[:categoria], id: nil if params[:categoria].present? %>
+  <span class="spacer"></span>
+  <%= search_field placeholder: "Empresa, contato ou e-mail", label: "Buscar fornecedor" %>
+  <label class="sr-only" for="f-sit">Situação</label>
+  <%= select_tag :situacao, options_for_select([ [ "Inativos", "inativos" ], [ "Ativos e inativos", "todos" ] ], params[:situacao]), include_blank: "Ativos", class: "select", id: "f-sit", onchange: "this.form.requestSubmit()" %>
+  <%= render "shared/sort_select" %>
+<% end %>
+
+<section class="card" aria-label="Lista de fornecedores">
+  <% if @suppliers.any? %>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr><th>Empresa</th><th>Categoria</th><th>Contato</th><th>Site / painel</th><th>E-mail</th><th>Telefone</th><th class="num">Gasto no mês</th><th><span class="sr-only">Ações</span></th></tr></thead>
+        <tbody>
+          <% @suppliers.each do |s| %>
+            <tr class="<%= 'inactive' unless s.active? %>">
+              <td data-label="Empresa" class="strong"><%= s.name %><% unless s.active? %><span class="cell-sub">inativo</span><% end %></td>
+              <td data-label="Categoria"><%= status_badge(s.category, "mute") %></td>
+              <td data-label="Contato"><%= s.contact_name.presence || tag.span("—", class: "muted") %></td>
+              <td data-label="Site / painel"><%= s.website.present? ? link_to(s.website.sub(%r{\Ahttps?://}, ""), s.website_url, target: "_blank", rel: "noopener") : tag.span("—", class: "muted") %></td>
+              <td data-label="E-mail"><%= s.email.present? ? mail_to(s.email) : tag.span("—", class: "muted") %></td>
+              <td data-label="Telefone"><%= s.phone.present? ? tag.span(s.phone, class: "nowrap") : tag.span("—", class: "muted") %></td>
+              <td data-label="Gasto no mês" class="num nowrap"><%= brl(@spend[s.id].to_i) %><% if @foreign.include?(s.id) %><span class="cell-sub">em moeda estrangeira</span><% end %></td>
+              <td data-label="" class="right">
+                <span class="row-actions">
+                  <% if can_finance %><%= link_to "Ver despesas", payables_path(fornecedor: s.id), class: "link-btn" %><% end %>
+                  <% if policy(s).edit? %><%= drawer_link_to "Editar", edit_supplier_path(s), class: "link-btn" %><% end %>
+                </span>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+        <tfoot><tr><td data-label="">Total do mês</td><td data-label="" colspan="5"></td><td data-label="Gasto no mês" class="num nowrap"><%= brl(@spend.values.sum) %></td><td data-label=""></td></tr></tfoot>
+      </table>
+    </div>
+    <%= render "shared/pagination", pager: @pager %>
+  <% else %>
+    <%= render "shared/empty", title: "Nenhum fornecedor encontrado", text: "Cadastre quem a DevBatista paga, com a mesma categoria usada nas despesas." %>
+  <% end %>
+</section>
+
+<div class="note"><span><b>Fornecedor → despesas e contas a pagar → custo por cliente.</b> Quando a despesa tem centro de custo em um cliente, o valor entra no custo direto dele.</span></div>

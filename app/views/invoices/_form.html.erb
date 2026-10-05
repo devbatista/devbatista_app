@@ -1,0 +1,35 @@
+<% inv = invoice %>
+<% open_revenues = Receivable.not_cancelled.where(company_id: inv.company_id).where(invoice_id: [ nil, inv.id ]).order(competence: :desc, due_on: :desc).limit(24) if inv.company_id %>
+<%= render layout: "shared/drawer_form", locals: { title: inv.new_record? ? "Registrar nota fiscal" : "Editar #{inv.code}", cancel_path: invoices_path } do %>
+  <%= form_with model: inv, class: "form", data: { turbo_frame: "_top" } do |f| %>
+    <div class="drawer-body form">
+      <%= render "shared/form_errors", record: inv %>
+      <div class="callout"><span>Emita a nota no sistema da prefeitura e registre aqui o número e o arquivo. Emissão automática: V1.1.</span></div>
+      <span class="fieldset-title">Nota</span>
+      <div class="form-grid">
+        <div class="field full"><%= f.label :company_id do %>Cliente <span class="req">*</span><% end %><%= f.collection_select :company_id, Company.where.not(status: "inactive").or(Company.where(id: inv.company_id)).by_name, :id, :trade_name, { prompt: "Selecione a empresa tomadora" }, class: "select", required: true %></div>
+        <% if open_revenues %>
+          <div class="field full"><%= f.label :receivable_ids, "Receitas cobertas pela nota" %>
+            <%= f.select :receivable_ids, open_revenues.map { |r| [ "#{r.description} · #{brl(r.amount_cents)}", r.id ] }, {}, multiple: true, class: "select", style: "height:auto;min-height:96px" %>
+            <span class="hint">Uma nota pode cobrir várias receitas do mês (Ctrl/⌘ para marcar mais de uma)</span></div>
+        <% end %>
+        <div class="field full"><%= f.label :description, "Descrição" %><%= f.text_field :description, class: "input", placeholder: "Ex.: Consultoria, manutenção e hospedagem" %></div>
+        <div class="field"><%= f.label :number, "Número" %><%= f.text_field :number, class: "input mono", placeholder: "Ex.: 000422" %><span class="hint">Obrigatório quando Emitida</span></div>
+        <div class="field"><%= f.label :competence_month do %>Competência <span class="req">*</span><% end %><%= f.month_field :competence_month, class: "input", required: true %></div>
+        <div class="field"><%= f.label :amount do %>Valor (R$) <span class="req">*</span><% end %><%= f.number_field :amount, class: "input num", step: "0.01", min: 0, required: true %></div>
+        <div class="field"><%= f.label :issued_on, "Data de emissão" %><%= f.date_field :issued_on, class: "input" %><span class="hint">Obrigatória quando Emitida</span></div>
+        <div class="field full"><%= f.label :status do %>Status <span class="req">*</span><% end %><%= f.select :status, Invoice.options_for_status, {}, class: "select" %></div>
+      </div>
+      <span class="fieldset-title">Arquivo ou link</span>
+      <% if inv.files.attached? %><p class="caption" style="margin:0">Já anexados: <%= inv.files.map { |file| file.filename.to_s }.to_sentence %>. Novos arquivos entram junto.</p><% end %>
+      <div class="field"><%= f.label :files, "Arquivo da nota (PDF ou XML)" %><%= f.file_field :files, multiple: true, accept: ".pdf,.xml,application/pdf,application/xml,text/xml", class: "input" %><span class="hint">Até 10 MB por arquivo. Pode enviar o PDF e o XML juntos.</span></div>
+      <div class="field"><%= f.label :url, "Ou link da nota" %><%= f.url_field :url, class: "input", placeholder: "https://nfse.prefeitura…/consulta?codigo=…" %><span class="hint">Endereço de consulta no portal da prefeitura</span></div>
+      <div class="field"><%= f.label :notes, "Observações" %><%= f.text_area :notes, class: "textarea" %></div>
+    </div>
+    <div class="drawer-foot">
+      <% if inv.persisted? && policy(inv).destroy? %><%= link_to "Excluir", invoice_path(inv), class: "btn danger", style: "margin-right:auto", data: { turbo_method: :delete, turbo_confirm: "Excluir #{inv.code}?", turbo_frame: "_top" } %><% end %>
+      <%= link_to "Cancelar", invoices_path, class: "btn", data: { close: true, turbo_frame: "_top" } %>
+      <%= f.submit "Salvar nota", class: "btn pri" %>
+    </div>
+  <% end %>
+<% end %>

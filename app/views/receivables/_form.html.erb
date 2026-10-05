@@ -1,0 +1,35 @@
+<% r = receivable %>
+<% back = params[:voltar] == "receitas" ? revenues_path : receivables_path %>
+<% companies = Company.where.not(status: "inactive").or(Company.where(id: r.company_id)).includes(:contacts, :contracts).by_name %>
+<%= render layout: "shared/drawer_form", locals: { title: r.new_record? ? "Nova receita" : "Editar receita", cancel_path: back } do %>
+  <%= form_with model: r, class: "form", data: { turbo_frame: "_top" } do |f| %>
+    <%= hidden_field_tag :voltar, params[:voltar] if params[:voltar] %>
+    <div class="drawer-body form">
+      <%= render "shared/form_errors", record: r %>
+      <% if r.recurring? %><div class="callout"><span>Gerada pela recorrência do serviço contratado <b class="strong"><%= r.customer_service.service.name %></b>. Mudar o valor do serviço atualiza os títulos futuros não pagos.</span></div><% end %>
+      <div class="form-grid">
+        <div class="field full"><%= f.label :company_id do %>Cliente <span class="req">*</span><% end %><%= f.collection_select :company_id, companies, :id, :trade_name, { prompt: "Selecione a empresa pagadora" }, class: "select", required: true %></div>
+        <div class="field full"><%= f.label :description do %>Descrição <span class="req">*</span><% end %><%= f.text_field :description, class: "input", required: true, placeholder: "Ex.: Consultoria de TI — Outubro/2026" %></div>
+        <div class="field"><%= f.label :service_id, "Serviço do catálogo" %><%= f.collection_select :service_id, Service.by_name, :id, :name, { include_blank: "Nenhum" }, class: "select" %><span class="hint">Sugere a categoria</span></div>
+        <div class="field"><%= f.label :category, "Categoria" %><%= f.select :category, (Receivable.categories | [ r.category ].compact), { include_blank: "Pela do serviço" }, class: "select" %></div>
+        <div class="field"><%= f.label :amount do %>Valor (R$) <span class="req">*</span><% end %><%= f.number_field :amount, class: "input num", step: "0.01", min: 0, required: true, placeholder: "0,00" %></div>
+        <div class="field"><%= f.label :competence_month do %>Competência <span class="req">*</span><% end %><%= f.month_field :competence_month, class: "input", required: true %><span class="hint">Mês a que a receita se refere</span></div>
+        <div class="field"><%= f.label :due_on do %>Vencimento <span class="req">*</span><% end %><%= f.date_field :due_on, class: "input", required: true %><span class="hint">Vira Vencido no dia seguinte sem pagamento</span></div>
+        <div class="field"><%= f.label :paid_on, "Pagamento" %><%= f.date_field :paid_on, class: "input" %><span class="hint">Preencha quando o valor for recebido</span></div>
+        <div class="field"><%= f.label :contract_id, "Contrato" %><%= f.select :contract_id, grouped_options_for_select(companies.select { |c| c.contracts.any? }.map { |c| [ c.trade_name, c.contracts.map { |ct| [ ct.to_s, ct.id ] } ] }, r.contract_id), { include_blank: "Nenhum" }, class: "select" %></div>
+        <div class="field"><%= f.label :contact_id, "Cobrança para" %><%= f.select :contact_id, grouped_options_for_select(companies.select { |c| c.contacts.any? }.map { |c| [ c.trade_name, c.contacts.map { |ct| [ "#{ct.name}#{' (principal)' if ct.primary?}", ct.id ] } ] }, r.contact_id), { include_blank: "Contato principal do cliente" }, class: "select" %><span class="hint">O contato principal é sugerido por padrão</span></div>
+      </div>
+      <div class="field"><%= f.label :notes, "Observações" %><%= f.text_area :notes, class: "textarea", placeholder: "Parcela, condições, forma de pagamento" %></div>
+    </div>
+    <div class="drawer-foot">
+      <% if r.persisted? && r.open? && policy(r).update? %>
+        <%= link_to "Cancelar receita", cancel_receivable_path(r, voltar: params[:voltar]), class: "btn danger", style: "margin-right:auto", data: { turbo_method: :patch, turbo_confirm: "Cancelar “#{r.description}”? Sai do faturamento.", turbo_frame: "_top" } %>
+      <% end %>
+      <% if r.persisted? && !r.recurring? && policy(r).destroy? %>
+        <%= link_to "Excluir", receivable_path(r, voltar: params[:voltar]), class: "btn danger", data: { turbo_method: :delete, turbo_confirm: "Excluir “#{r.description}”?", turbo_frame: "_top" } %>
+      <% end %>
+      <%= link_to "Fechar", back, class: "btn", data: { close: true, turbo_frame: "_top" } %>
+      <%= f.submit r.new_record? ? "Salvar receita" : "Salvar alterações", class: "btn pri" %>
+    </div>
+  <% end %>
+<% end %>

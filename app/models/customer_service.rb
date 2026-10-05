@@ -16,6 +16,7 @@ class CustomerService < ApplicationRecord
   belongs_to :company
   belongs_to :service
   belongs_to :contract, optional: true
+  has_many :receivables, dependent: :restrict_with_error
 
   validates :price_cents, numericality: { greater_than: 0 }
   validates :start_date, presence: true
@@ -24,6 +25,8 @@ class CustomerService < ApplicationRecord
 
   before_save :compute_mrr
   before_save :set_ended_on
+  after_update :reprice_future_receivables, if: :saved_change_to_price_cents?
+  after_update :cancel_receivables_after_end, if: -> { saved_change_to_status? && ended? }
 
   scope :recurring, -> { where.not(recurrence: "one_off") }
 
@@ -71,6 +74,16 @@ class CustomerService < ApplicationRecord
 
   def set_ended_on
     self.ended_on ||= Date.current if ended?
+  end
+
+  # Mudar o valor altera só os títulos futuros ainda não pagos (RF 27).
+  def reprice_future_receivables
+    receivables.where(status: %w[forecast pending]).where(due_on: Date.current..).find_each { |r| r.update!(amount_cents: price_cents) }
+  end
+
+  # Encerrar o serviço cancela os títulos posteriores à data de encerramento (RF 27).
+  def cancel_receivables_after_end
+    receivables.open.where("due_on > ?", ended_on).find_each { |r| r.cancel!("Cancelado: serviço encerrado em #{I18n.l(ended_on)}.") }
   end
 
   def contract_from_same_company

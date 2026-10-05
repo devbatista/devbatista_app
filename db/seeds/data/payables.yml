@@ -1,0 +1,35 @@
+# Extraído de docs/design/financeiro/despesas.html (20 despesas de setembro), contas-pagar.html
+# (Figma cancelada) e recorrencias.html (regras de despesa recorrente).
+#
+# Observações:
+# - amount em R$; original em US$ nas despesas em dólar. Pagas: o valor em reais é o do
+#   design (câmbio de 5,62). Em aberto: o seed grava o "≈" do design; a rotina de
+#   recorrências recalcula pela PTAX do dia.
+# - recurring: cria a regra (RecurringExpense) a partir da despesa. recorrencias.html mostra
+#   14 regras ativas e só nomeia 11; aqui são 17, todas as despesas marcadas "Recorrente: Sim"
+#   em despesas.html. Início das regras: abril/2026, para o gráfico de 6 meses do dashboard.
+# - A rotina gera os meses de abril a agosto como pagos (histórico) e de outubro em diante
+#   como Previsto; os totais do design (R$ 22.100 em setembro) incluem despesas não listadas.
+# - DAS: o design mostra "competência Agosto/2026"; a regra usa a descrição sem o mês.
+
+- { supplier: Diego Rocha (PJ), category: Colaboradores, description: Desenvolvimento, amount: 5800, due_on: "2026-09-30", status: pending, cost_center: Operação, recurring: { due_day: 30 } }
+- { supplier: Elisa Prado (PJ), category: Colaboradores, description: Desenvolvimento, amount: 5700, due_on: "2026-09-30", status: pending, cost_center: Operação, recurring: { due_day: 30 } }
+- { supplier: Receita Federal, category: Impostos, description: DAS Simples Nacional, amount: 2480, due_on: "2026-09-20", paid_on: "2026-09-15", cost_center: Administrativo, recurring: { due_day: 20 } }
+- { supplier: AWS, category: Infraestrutura, description: EC2 + RDS — Portal ACME, currency: USD, original: 39.15, amount: 220.00, due_on: "2026-09-03", paid_on: "2026-09-03", company: Empresa ACME, recurring: { due_day: 3 } }
+- { supplier: AWS, category: Infraestrutura, description: EC2 + S3 — API Delta, currency: USD, original: 160.14, amount: 900.00, due_on: "2026-09-03", paid_on: "2026-09-03", company: Empresa Delta, recurring: { due_day: 3 } }
+- { supplier: Railway, category: Infraestrutura, description: Hospedagem — Sistema ERP, currency: USD, original: 20.00, amount: 112.40, due_on: "2026-09-18", status: pending, company: Empresa XYZ, recurring: { due_day: 18 } }
+- { supplier: Railway, category: Infraestrutura, description: Hospedagem — Portal ACME, currency: USD, original: 26.69, amount: 150.00, due_on: "2026-09-18", status: pending, company: Empresa ACME, recurring: { due_day: 18 } }
+- { supplier: Cloudflare, category: Infraestrutura, description: Plano Pro — DNS e CDN, currency: USD, original: 25.00, amount: 140.50, due_on: "2026-09-15", status: overdue, cost_center: Infraestrutura interna, recurring: { due_day: 15 } }
+- { supplier: Registro.br, category: Infraestrutura, description: Renovação anual — acme.com.br, amount: 40, due_on: "2026-09-24", status: pending, company: Empresa ACME, recurring: { due_day: 24, periodicity: annual, start_on: "2025-09-24" } }
+- { supplier: OpenAI, category: Software, description: API — assistente do Portal ACME, currency: USD, original: 21.35, amount: 120.00, due_on: "2026-09-10", paid_on: "2026-09-10", company: Empresa ACME, recurring: { due_day: 10 } }
+- { supplier: OpenAI, category: Software, description: API — uso interno e Ruby Rose, currency: USD, original: 45.00, amount: 252.90, due_on: "2026-09-23", status: pending, cost_center: Produtos próprios, recurring: { due_day: 23 } }
+- { supplier: Mailgun, category: Software, description: E-mail transacional — Portal ACME, currency: USD, original: 14.23, amount: 80.00, due_on: "2026-09-25", status: pending, company: Empresa ACME, recurring: { due_day: 25 } }
+- { supplier: Amazon SES, category: Software, description: E-mails do Sistema ERP, currency: USD, original: 6.00, amount: 33.72, due_on: "2026-09-05", paid_on: "2026-09-05", company: Empresa XYZ, recurring: { due_day: 5 } }
+- { supplier: Google Workspace, category: Software, description: 6 contas de e-mail corporativo, amount: 336, due_on: "2026-09-22", status: pending, cost_center: Administrativo, recurring: { due_day: 22 } }
+- { supplier: GitHub, category: Software, description: Plano Team — 6 usuários, currency: USD, original: 24.00, amount: 134.88, due_on: "2026-09-08", paid_on: "2026-09-08", cost_center: Operação, recurring: { due_day: 8 } }
+- { supplier: Meta Ads, category: Marketing, description: Campanha de captação — setembro, amount: 1200, due_on: "2026-09-05", paid_on: "2026-09-05", cost_center: Comercial e marketing }
+- { supplier: Silva & Associados, category: Contabilidade, description: Honorários contábeis, amount: 650, due_on: "2026-09-20", status: pending, cost_center: Administrativo, recurring: { due_day: 20 } }
+- { supplier: Lima Consultoria, category: Comercial, description: Comissão de indicação — Empresa Delta, amount: 300, due_on: "2026-09-12", paid_on: "2026-09-12", cost_center: Comercial e marketing }
+- { supplier: Coworking Central, category: Administrativo, description: Sala de reunião — 4 diárias, amount: 320, due_on: "2026-09-10", paid_on: "2026-09-10", cost_center: Administrativo }
+- { supplier: Banco Inter, category: Outros, description: Tarifas bancárias e boletos, amount: 100, due_on: "2026-09-30", status: pending, cost_center: Administrativo, recurring: { due_day: 30 } }
+- { supplier: Figma, category: Software, description: Licença Professional, currency: USD, original: 15.00, amount: 84.30, due_on: "2026-09-12", status: cancelled, cost_center: Operação, recurring: { due_day: 12, ended_on: "2026-09-11" } }

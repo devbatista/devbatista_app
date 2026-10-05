@@ -1,0 +1,28 @@
+<% s = supplier %>
+<%= render layout: "shared/drawer_form", locals: { title: s.new_record? ? "Novo fornecedor" : "Editar fornecedor", cancel_path: suppliers_path } do %>
+  <%= form_with model: s, class: "form", data: { turbo_frame: "_top" } do |f| %>
+    <div class="drawer-body form">
+      <%= render "shared/form_errors", record: s %>
+      <div class="form-grid">
+        <div class="field full"><%= f.label :name do %>Empresa <span class="req">*</span><% end %><%= f.text_field :name, class: "input", required: true, placeholder: "Ex.: DigitalOcean" %></div>
+        <div class="field full"><%= f.label :category do %>Categoria <span class="req">*</span><% end %><%= f.select :category, Setting[:expense_categories] | [ s.category ].compact, { prompt: "Selecione" }, class: "select", required: true %><span class="hint">Mesmas categorias usadas nas despesas</span></div>
+        <div class="field"><%= f.label :contact_name, "Contato" %><%= f.text_field :contact_name, class: "input", placeholder: "Pessoa de contato" %></div>
+        <div class="field"><%= f.label :phone, "Telefone" %><%= f.telephone_field :phone, class: "input", placeholder: "(11) 0000-0000" %></div>
+        <div class="field full"><%= f.label :website, "Site" %><%= f.text_field :website, class: "input", placeholder: "https://" %><span class="hint">Endereço do site ou do painel de administração</span></div>
+        <div class="field full"><%= f.label :email, "E-mail" %><%= f.email_field :email, class: "input", placeholder: "contato ou faturamento" %></div>
+        <div class="field full"><%= f.label :notes, "Observações" %><%= f.text_area :notes, class: "textarea", placeholder: "Condições comerciais, plano contratado, prazo de pagamento…" %><span class="hint">Não registre senhas, chaves ou tokens: use a referência ao cofre de senhas.</span></div>
+        <% if s.persisted? %><div class="field full"><label class="check"><%= f.check_box :active %> Fornecedor ativo</label></div><% end %>
+      </div>
+      <% if s.persisted? && @documents %>
+        <span class="fieldset-title">Documentos</span>
+        <% @documents.each do |doc| %><div class="row" style="justify-content:space-between"><%= link_to doc.title, document_path(doc), target: "_blank" %><span class="caption"><%= date_br(doc.created_at) %></span></div><% end %>
+        <% if policy(Document).create? %><%= link_to "Anexar documento", new_document_path(fornecedor: s.id), class: "link-btn", data: { turbo_frame: "drawer-frame" } %><% end %>
+      <% end %>
+    </div>
+    <div class="drawer-foot">
+      <% if s.persisted? && policy(s).destroy? %><%= link_to "Excluir", supplier_path(s), class: "btn danger", style: "margin-right:auto", data: { turbo_method: :delete, turbo_confirm: "Excluir #{s.name}?", turbo_frame: "_top" } %><% end %>
+      <%= link_to "Cancelar", suppliers_path, class: "btn", data: { close: true, turbo_frame: "_top" } %>
+      <%= f.submit s.new_record? ? "Salvar fornecedor" : "Salvar alterações", class: "btn pri" %>
+    </div>
+  <% end %>
+<% end %>

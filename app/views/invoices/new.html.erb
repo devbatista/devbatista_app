@@ -1,0 +1,4 @@
+<% page_title "Registrar nota fiscal" %>
+<% nav_location :fin, "Notas fiscais" %>
+<% breadcrumb ["Financeiro", finance_path], ["Notas fiscais", invoices_path], ["Registrar"] %>
+<div class="form-page"><%= render "form", invoice: @invoice %></div>

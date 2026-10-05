@@ -1,0 +1,26 @@
+<% r = @receivable %>
+<% back = params[:voltar] == "receitas" ? revenues_path : receivables_path %>
+<% page_title "Registrar pagamento" %>
+<% nav_location :fin, "Contas a receber" %>
+<% breadcrumb ["Financeiro", finance_path], ["Contas a receber", receivables_path], ["Registrar pagamento"] %>
+<div class="form-page">
+  <%= render layout: "shared/drawer_form", locals: { title: "Registrar pagamento", cancel_path: back } do %>
+    <%= form_with scope: :payment, url: payment_receivable_path(r), method: :patch, class: "form", data: { turbo_frame: "_top" } do |f| %>
+      <%= hidden_field_tag :voltar, params[:voltar] if params[:voltar] %>
+      <div class="drawer-body form">
+        <%= render "shared/form_errors", record: r %>
+        <div class="callout<%= ' crit' if r.overdue? %>"><span><%= r.company.trade_name %> · <%= r.description %><%= " · contrato #{r.contract.code}" if r.contract %> · <b class="strong"><%= brl(r.amount_cents) %></b> · vence <%= date_br(r.due_on) %><%= " · #{days_text(r.days_late)} de atraso" if r.overdue? %></span></div>
+        <% if r.contact %><p class="caption" style="margin:0">Cobrança para <b class="strong"><%= r.contact.name %></b><% if r.contact.email.present? %> · <%= mail_to r.contact.email %><% end %><%= " · #{r.contact.phone || r.contact.whatsapp}" if (r.contact.phone || r.contact.whatsapp).present? %></p><% end %>
+        <div class="form-grid">
+          <div class="field"><%= f.label :paid_on do %>Data do pagamento <span class="req">*</span><% end %><%= f.date_field :paid_on, value: Date.current, class: "input", required: true, max: Date.current %></div>
+          <div class="field"><%= f.label :amount do %>Valor recebido (R$) <span class="req">*</span><% end %><%= f.number_field :amount, value: format("%.2f", r.amount_cents / 100.0), class: "input num", step: "0.01", min: 0, required: true %></div>
+        </div>
+        <div class="field"><%= f.label :notes, "Observações" %><%= f.text_area :notes, class: "textarea", placeholder: "Forma de pagamento, juros, desconto…" %></div>
+      </div>
+      <div class="drawer-foot">
+        <%= link_to "Cancelar", back, class: "btn", data: { close: true, turbo_frame: "_top" } %>
+        <%= f.submit "Confirmar pagamento", class: "btn pri" %>
+      </div>
+    <% end %>
+  <% end %>
+</div>

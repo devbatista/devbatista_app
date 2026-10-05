@@ -34,11 +34,20 @@ RSpec.describe Company do
     expect(company.mrr_cents).to eq(330_000)
   end
 
-  it "calcula a próxima cobrança pelos serviços ativos" do
+  it "estima a próxima cobrança pelos serviços ativos quando ainda não há títulos" do
     company = create(:company)
     create(:customer_service, company: company, price_cents: 300_000, start_date: Date.new(2026, 3, 12), due_day: 10)
     create(:customer_service, company: company, price_cents: 50_000, start_date: Date.new(2026, 7, 1), due_day: 10)
-    expect(company.next_charge(Date.new(2026, 9, 17))).to eq(date: Date.new(2026, 10, 10), cents: 350_000)
+    expect(company.next_charge(Date.new(2026, 9, 17))).to eq(date: Date.new(2026, 10, 10), cents: 350_000, count: nil)
+  end
+
+  it "calcula a próxima cobrança pelos títulos a receber em aberto" do
+    company = create(:company)
+    create(:customer_service, company: company, price_cents: 300_000, start_date: Date.new(2026, 3, 12), due_day: 10)
+    create(:receivable, company: company, amount_cents: 120_000, due_on: Date.current + 5, competence: Date.current)
+    create(:receivable, company: company, amount_cents: 30_000, due_on: Date.current + 5, competence: Date.current)
+    create(:receivable, company: company, amount_cents: 99_000, due_on: Date.current + 2, competence: Date.current, paid_on: Date.current)
+    expect(company.next_charge).to eq(date: Date.current + 5, cents: 150_000, count: 2)
   end
 
   it "monta as iniciais como no design" do

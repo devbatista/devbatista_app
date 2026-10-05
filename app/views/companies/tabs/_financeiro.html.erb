@@ -1,0 +1,62 @@
+<% f = @finance %>
+<% charge = @company.next_charge %>
+<div class="grid-kpi g4">
+  <div class="card kpi"><span class="eyebrow">Próxima cobrança</span><span class="v"><%= charge ? brl(charge[:cents]) : "—" %></span><span class="f"><%= charge ? "#{date_br(charge[:date])}#{" · #{pluralize(charge[:count], 'título')}" if charge[:count]}" : "nenhum título em aberto" %></span></div>
+  <div class="card kpi"><span class="eyebrow">Em aberto no mês</span><span class="v"><%= brl(f[:open]) %></span><span class="f"><%= f[:open_next] ? "próximo vence #{date_br(f[:open_next])}" : "nada a receber" %></span></div>
+  <div class="card kpi<%= ' alert' if f[:overdue_count].positive? %>"><span class="eyebrow">Inadimplência</span><span class="v"<%= ' style="color:var(--good)"'.html_safe if f[:overdue].zero? %>><%= brl(f[:overdue]) %></span><span class="f"><% if f[:overdue_count].positive? %><span class="badge b-crit"><%= pluralize(f[:overdue_count], "título") %></span>vencido<% else %><span class="badge b-good">Zero</span>nenhum título vencido<% end %></span></div>
+  <div class="card kpi"><span class="eyebrow">Recebido em <%= Date.current.year %></span><span class="v"><%= brl(f[:paid_year]) %></span><span class="f"><%= f[:first_paid] ? "desde #{date_br(f[:first_paid])}" : "nenhum pagamento" %></span></div>
+</div>
+
+<div class="card">
+  <div class="card-head"><h2>Títulos a receber</h2>
+    <span class="row-actions"><%= link_to "Ver em Contas a receber", receivables_path(empresa: @company.id, periodo: "ano"), style: "font-size:13px;font-weight:600" %>
+    <% if policy(Receivable).create? %><%= drawer_link_to new_receivable_path(empresa: @company.id), class: "btn sm" do %><%= icon(:plus, size: 14, stroke: 2) %>Nova receita<% end %><% end %></span></div>
+  <% if @receivables.any? %>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr><th>Vencimento</th><th>Descrição</th><th>Competência</th><th>Contrato</th><th class="num">Valor</th><th>Pagamento</th><th>Status</th></tr></thead>
+        <tbody>
+          <% @receivables.first(12).each do |r| %>
+            <tr class="<%= 'late' if r.overdue? %>">
+              <td data-label="Vencimento" class="mono"><%= date_br(r.due_on) %></td>
+              <td data-label="Descrição" class="strong"><%= r.description %><% if r.origin_label && !r.recurring? %><span class="cell-sub"><%= r.origin_label %></span><% end %></td>
+              <td data-label="Competência"><%= l(r.competence, format: "%b/%Y").capitalize.delete(".") %></td>
+              <td data-label="Contrato" class="<%= 'muted' unless r.contract %>"><%= r.contract ? link_to(r.contract.code, contract_path(r.contract)) : "—" %></td>
+              <td data-label="Valor" class="num nowrap<%= ' strike' if r.cancelled? %>"><%= brl(r.amount_cents) %></td>
+              <td data-label="Pagamento" class="<%= r.paid_on ? 'mono' : 'muted' %>"><%= date_br(r.paid_on) %></td>
+              <td data-label="Status"><%= title_badge(r) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination"><span>Títulos recorrentes gerados automaticamente pelas recorrências</span><%= link_to "Recorrências →", recurrences_path, style: "font-weight:600" %></div>
+  <% else %>
+    <%= render "shared/empty", title: "Nenhum título a receber", text: "Os títulos recorrentes nascem dos serviços contratados ativos; avulsos e projetos são lançados em Receitas." %>
+  <% end %>
+</div>
+
+<div class="grid-2">
+  <div class="card">
+    <div class="card-head"><h2>Notas fiscais</h2><%= link_to "Notas fiscais", invoices_path(empresa: @company.id, periodo: "ano"), style: "font-size:13px;font-weight:600" %></div>
+    <% if @invoices.any? %>
+      <div class="table-wrap">
+        <table class="table cards">
+          <thead><tr><th>Número</th><th>Competência</th><th class="num">Valor</th><th>Status</th></tr></thead>
+          <tbody>
+            <% @invoices.each do |inv| %>
+              <tr><td data-label="Número" class="mono strong"><%= inv.number || "—" %></td><td data-label="Competência"><%= inv.competence.strftime("%m/%Y") %></td><td data-label="Valor" class="num nowrap"><%= brl(inv.amount_cents) %></td><td data-label="Status"><%= invoice_badge(inv) %></td></tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <div class="card-foot"><span>Nenhuma nota registrada.</span></div>
+    <% end %>
+  </div>
+  <div class="card">
+    <div class="card-head"><h2>Custo direto</h2><%= link_to "Despesas →", expenses_path(centro: "company:#{@company.id}"), style: "font-size:13px;font-weight:600" %></div>
+    <div class="kv"><span>Despesas com centro de custo no cliente (<%= l(Date.current, format: "%B") %>)</span><b><%= brl(f[:direct_cost_month]) %></b></div>
+    <div class="card-foot"><span>Servidores, domínios e serviços externos pagos pela DevBatista entram com o módulo Tecnologia; margem em Rentabilidade (fase 7).</span></div>
+  </div>
+</div>

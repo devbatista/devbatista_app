@@ -1,0 +1,98 @@
+<% page_title "Notas fiscais" %>
+<% nav_location :fin, "Notas fiscais" %>
+<% breadcrumb ["Financeiro", finance_path], ["Notas fiscais"] %>
+<% k = @kpis %>
+<% can_create = policy(Invoice).create? %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Financeiro · Competência <%= @period_label %></span>
+    <h1>Notas fiscais</h1>
+  </div>
+  <div class="actions">
+    <%= form_with url: invoices_path, method: :get do %>
+      <%= preserved_filters(:periodo) %>
+      <label class="sr-only" for="periodo">Competência</label>
+      <%= select_tag :periodo, options_for_select(@periods, @period), class: "select", id: "periodo", onchange: "this.form.requestSubmit()" %>
+    <% end %>
+    <% if can_create %><%= drawer_link_to new_invoice_path, class: "btn pri" do %><%= icon(:plus, size: 16, stroke: 2) %>Registrar nota fiscal<% end %><% end %>
+  </div>
+</div>
+
+<div class="grid-kpi g4">
+  <div class="card kpi"><span class="eyebrow">Faturamento a notar</span><span class="v"><%= brl(k[:to_invoice]) %></span><span class="f">competência · <%= pluralize(k[:to_invoice_count], "receita") %></span></div>
+  <div class="card kpi"><span class="eyebrow">Emitidas</span><span class="v"><%= brl(k[:issued]) %></span><span class="f"><span class="badge b-good"><%= pluralize(k[:issued_count], "nota") %></span><%= "#{(k[:issued] * 100.0 / k[:to_invoice]).round}% do faturamento" if k[:to_invoice].positive? %></span></div>
+  <div class="card kpi"<%= ' style="border-color:var(--warn-line)"'.html_safe if k[:pending_count].positive? %>><span class="eyebrow"<%= ' style="color:var(--warn)"'.html_safe if k[:pending_count].positive? %>>Pendentes de emissão</span><span class="v"><%= brl(k[:pending]) %></span><span class="f"><span class="badge b-warn"><%= pluralize(k[:pending_count], "nota") %></span></span></div>
+  <div class="card kpi"><span class="eyebrow">Canceladas</span><span class="v"><%= brl(k[:cancelled]) %></span><span class="f"><%= pluralize(k[:cancelled_count], "nota") %> · fora do faturamento</span></div>
+</div>
+
+<div class="callout"><span><b class="strong">A emissão automática chega na V1.1;</b> no MVP a nota é emitida no sistema da prefeitura e registrada aqui, com número, competência, valor e o PDF, XML ou link.</span></div>
+
+<% if @pending.any? %>
+  <section class="card" style="border-color:var(--warn-line)" aria-labelledby="pend-t">
+    <div class="card-head">
+      <div class="row wrap"><h2 id="pend-t">Receitas sem nota em <%= @period_label %></h2><span class="badge b-warn"><%= pluralize(@pending.size, "receita") %> · <%= brl(@pending.sum(&:amount_cents)) %></span></div>
+      <span class="caption">Emita antes do vencimento do título</span>
+    </div>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr><th>Cliente</th><th>Receita</th><th class="num">Valor</th><th>Vencimento do título</th><th><span class="sr-only">Ações</span></th></tr></thead>
+        <tbody>
+          <% @pending.each do |r| %>
+            <tr>
+              <td data-label="Cliente"><%= link_to r.company.trade_name, company_path(r.company), class: "strong" %></td>
+              <td data-label="Receita"><%= r.description %></td>
+              <td data-label="Valor" class="num nowrap"><%= brl(r.amount_cents) %></td>
+              <td data-label="Vencimento do título" class="mono"><%= date_br(r.due_on) %> <% if r.due_on >= Date.current && (r.due_on - Date.current) <= 3 %><span class="badge b-warn"><%= due_hint(r.due_on) %></span><% end %></td>
+              <td data-label="" class="right"><% if can_create %><%= drawer_link_to "Registrar nota", new_invoice_path(receita: r.id), class: "link-btn" %><% end %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+<% end %>
+
+<%= form_with url: invoices_path, method: :get, class: "toolbar" do %>
+  <%= status_filter :status, [ [ "todos", "Todas", @counts.values.sum ] ] + Invoice::STATUS_LABELS.map { |key, label| [ key, label, @counts[key].to_i ] } %>
+  <span class="spacer"></span>
+  <%= hidden_field_tag :periodo, @period, id: nil %>
+  <%= hidden_field_tag :status, params[:status], id: nil if params[:status].present? %>
+  <%= search_field placeholder: "Cliente ou número", label: "Buscar nota fiscal" %>
+  <label class="sr-only" for="f-cli">Cliente</label>
+  <%= select_tag :empresa, options_from_collection_for_select(@companies, :id, :trade_name, params[:empresa]), include_blank: "Todos os clientes", class: "select", id: "f-cli", onchange: "this.form.requestSubmit()" %>
+  <%= render "shared/sort_select" %>
+<% end %>
+
+<section class="card" aria-label="Notas fiscais">
+  <% if @invoices.any? %>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr><th>Cliente</th><th>Número</th><th>Competência</th><th class="num">Valor</th><th>Emissão</th><th>Arquivo</th><th>Status</th><th><span class="sr-only">Ações</span></th></tr></thead>
+        <tbody>
+          <% @invoices.each do |inv| %>
+            <tr>
+              <td data-label="Cliente"><%= link_to inv.company.trade_name, company_path(inv.company), class: "strong" %><span class="cell-sub"><%= inv.description.presence || inv.receivables.map(&:description).to_sentence.presence %></span></td>
+              <td data-label="Número" class="mono <%= inv.cancelled? ? 'muted' : 'strong' %>"><%= inv.number || "—" %></td>
+              <td data-label="Competência" class="mono"><%= inv.competence.strftime("%m/%Y") %></td>
+              <td data-label="Valor" class="num nowrap<%= ' strike' if inv.cancelled? %>"><%= brl(inv.amount_cents) %></td>
+              <td data-label="Emissão" class="<%= inv.issued_on ? 'mono' : 'muted' %>"><%= date_br(inv.issued_on) %></td>
+              <td data-label="Arquivo">
+                <span class="files">
+                  <% inv.files.each do |file| %><%= link_to file.filename.extension.upcase.presence || "Arquivo", file_invoice_path(inv, file_id: file.id), class: "link-btn", target: "_blank", "aria-label": "Abrir #{file.filename} da nota #{inv.number}" %><% end %>
+                  <% if inv.url.present? %><%= link_to "Link", inv.url, class: "link-btn", target: "_blank", rel: "noopener", "aria-label": "Abrir a nota #{inv.number} no portal da prefeitura" %><% end %>
+                  <% if inv.files.empty? && inv.url.blank? %><span class="muted">—</span><% end %>
+                </span>
+              </td>
+              <td data-label="Status"><%= invoice_badge(inv) %></td>
+              <td data-label="" class="right"><% if policy(inv).edit? %><%= drawer_link_to "Editar", edit_invoice_path(inv), class: "link-btn", "aria-label": "Editar nota #{inv.number}" %><% end %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <%= render "shared/pagination", pager: @pager %>
+  <% else %>
+    <%= render "shared/empty", title: "Nenhuma nota registrada na competência", text: "Registre o número, o valor e o PDF, XML ou link de cada nota emitida no portal da prefeitura.", icon_name: :file %>
+  <% end %>
+</section>

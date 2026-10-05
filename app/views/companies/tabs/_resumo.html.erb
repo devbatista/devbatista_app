@@ -59,6 +59,17 @@
       <% end %>
     <% end %>
 
+    <% if current_user.can_read?("financeiro") %>
+      <% charge = @company.next_charge %>
+      <div class="card">
+        <div class="card-head"><h2>Financeiro</h2><%= @finance[:overdue_count].positive? ? status_badge("#{@finance[:overdue_count]} vencido(s)", "crit") : status_badge("Em dia", "good") %></div>
+        <div class="kv"><span>Próxima cobrança</span><b><%= charge ? "#{brl(charge[:cents])} · #{date_br(charge[:date]).first(5)}" : "—" %></b></div>
+        <div class="kv"><span>Em aberto no mês</span><b><%= brl(@finance[:open]) %></b></div>
+        <div class="kv"><span>Vencido</span><b<%= ' style="color:var(--good)"'.html_safe if @finance[:overdue].zero? %>><%= brl(@finance[:overdue]) %></b></div>
+        <div class="kv"><span>Recebido em <%= Date.current.year %></span><b><%= brl(@finance[:paid_year]) %></b></div>
+      </div>
+    <% end %>
+
     <% if current_user.can_read?("projetos") || current_user.can_read?("suporte") %>
       <% main = @projects.find(&:active?) %>
       <% open_tickets = @tickets.select(&:open?) %>

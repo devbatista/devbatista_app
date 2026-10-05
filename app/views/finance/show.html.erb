@@ -1,0 +1,147 @@
+<% page_title "Dashboard financeiro" %>
+<% nav_location :fin, "Dashboard financeiro" %>
+<% breadcrumb ["Financeiro"], ["Dashboard financeiro"] %>
+<% k = @kpis %>
+<% pct = ->(part) { k[:billed].positive? ? (part * 100.0 / k[:billed]) : 0 } %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Financeiro · <%= @period_label %></span>
+    <h1>Dashboard financeiro</h1>
+    <p class="lead">Posição de hoje, <%= l(Date.current, format: "%A, %d/%m/%Y") %>. Valores por competência do período.</p>
+  </div>
+  <div class="actions">
+    <%= form_with url: finance_path, method: :get do %>
+      <label class="sr-only" for="periodo">Período</label>
+      <%= select_tag :periodo, options_for_select(@periods, @period), class: "select", id: "periodo", onchange: "this.form.requestSubmit()" %>
+    <% end %>
+  </div>
+</div>
+
+<section class="stack" aria-label="Indicadores do período">
+  <div class="grid-kpi g4">
+    <%= link_to revenues_path(periodo: @period), class: "card kpi" do %><span class="eyebrow">Faturamento</span><span class="v"><%= brl(k[:billed]) %></span><span class="f"><% if k[:growth] %><span class="badge <%= k[:growth].negative? ? 'b-crit' : 'b-good' %>"><%= k[:growth].positive? ? "+" : "" %><%= k[:growth] %>%</span><% end %>competência do período</span><% end %>
+    <%= link_to revenues_path(periodo: @period, status: "paid"), class: "card kpi" do %><span class="eyebrow">Recebido</span><span class="v"><%= brl(k[:paid]) %></span><span class="f">pagamentos confirmados · <%= pct.call(k[:paid]).round %>%</span><% end %>
+    <%= link_to receivables_path(periodo: @period), class: "card kpi" do %><span class="eyebrow">A receber</span><span class="v"><%= brl(k[:open]) %></span><span class="f">dentro do prazo · <%= pluralize(k[:open_count], "título") %></span><% end %>
+    <%= link_to receivables_path(status: "overdue"), class: "card kpi#{' alert' if k[:overdue_count].positive?}" do %><span class="eyebrow">Vencido</span><span class="v"><%= brl(k[:overdue]) %></span><span class="f"><% if k[:overdue_count].positive? %><span class="badge b-crit"><%= pluralize(k[:overdue_count], "título") %></span>em atraso<% else %>nenhum título em atraso<% end %></span><% end %>
+    <%= link_to expenses_path(periodo: @period), class: "card kpi" do %><span class="eyebrow">Despesas</span><span class="v"><%= brl(k[:expenses]) %></span><span class="f">pagas e previstas</span><% end %>
+    <div class="card kpi"><span class="eyebrow">Resultado</span><span class="v"<%= ' style="color:var(--crit)"'.html_safe if k[:result].negative? %>><%= brl(k[:result]) %></span><span class="f">faturamento − despesas<%= " · margem #{pct.call(k[:result]).round}%" if k[:billed].positive? %></span></div>
+    <%= link_to recurrences_path, class: "card kpi" do %><span class="eyebrow">MRR</span><span class="v"><%= brl(k[:mrr]) %></span><span class="f">receita recorrente mensal · ARR <%= brl(k[:mrr] * 12) %></span><% end %>
+  </div>
+</section>
+
+<section class="card card-body stack" aria-label="Composição do faturamento">
+  <div class="section-title"><h2>Composição do faturamento</h2><span class="caption">Faturamento = Recebido + A receber + Vencido</span></div>
+  <% if k[:billed].positive? %>
+    <div class="comp" role="img" aria-label="Faturamento de <%= brl(k[:billed]) %>: recebido <%= brl(k[:paid]) %>, a receber <%= brl(k[:open]) %>, vencido <%= brl(k[:overdue]) %>">
+      <% [ [ k[:paid], "var(--cyan)", "Recebido" ], [ k[:open], "var(--cyan-800)", "A receber" ], [ k[:overdue], "var(--crit-dot)", "Vencido" ] ].each do |value, color, label| %>
+        <% if value.positive? %><i style="width:<%= pct.call(value).round(1) %>%;background:<%= color %>" title="<%= label %>: <%= brl(value) %> (<%= pct.call(value).round %>%)"></i><% end %>
+      <% end %>
+    </div>
+  <% end %>
+  <div class="row wrap" style="justify-content:space-between">
+    <div class="legend">
+      <span><i style="background:var(--cyan)"></i>Recebido <%= brl(k[:paid]) %></span>
+      <span><i style="background:var(--cyan-800)"></i>A receber <%= brl(k[:open]) %></span>
+      <span><i style="background:var(--crit-dot)"></i>Vencido <%= brl(k[:overdue]) %></span>
+    </div>
+    <span class="strong num">= <%= brl(k[:paid] + k[:open] + k[:overdue]) %></span>
+  </div>
+</section>
+
+<div class="cols-2-1">
+  <section class="card card-body stack" aria-label="Receitas e despesas dos últimos seis meses">
+    <% max = [ @series.map { |s| [ s[:revenue], s[:expense] ].max }.max.to_i, 1 ].max %>
+    <% cur = @series.last %>
+    <div class="section-title"><h2>Receitas × despesas</h2><span class="unit">R$ MIL · <%= l(@months.first, format: "%b").upcase.delete(".") %>–<%= l(@months.last, format: "%b").upcase.delete(".") %></span></div>
+    <div class="bars" style="height:190px" role="img" aria-label="Receitas e despesas por competência. <%= @series.map { |s| "#{l(s[:month], format: '%B')}: receitas #{thousands(s[:revenue])} mil, despesas #{thousands(s[:expense])} mil" }.join('; ') %>">
+      <% @series.each do |s| %>
+        <div class="col" title="<%= l(s[:month], format: '%b/%Y').capitalize %>: receitas <%= brl(s[:revenue]) %> · despesas <%= brl(s[:expense]) %>">
+          <div class="pair"><div class="bar cur" style="height:<%= (s[:revenue] * 100.0 / max).round %>%"></div><div class="bar exp" style="height:<%= (s[:expense] * 100.0 / max).round %>%"></div></div>
+        </div>
+      <% end %>
+    </div>
+    <div class="axis"><% @series.each do |s| %><span><%= l(s[:month], format: "%b").capitalize.delete(".") %></span><% end %></div>
+    <div class="row wrap" style="justify-content:space-between">
+      <div class="legend"><span><i style="background:var(--cyan)"></i>Receitas</span><span><i style="background:var(--faint)"></i>Despesas</span></div>
+      <span class="caption"><%= l(cur[:month], format: "%B").capitalize %>: receitas <%= thousands(cur[:revenue]) %> · despesas <%= thousands(cur[:expense]) %> · resultado <%= thousands(cur[:revenue] - cur[:expense]) %></span>
+    </div>
+  </section>
+
+  <section class="card card-body stack" aria-label="Despesas por categoria">
+    <div class="section-title"><h2>Despesas por categoria</h2><span class="unit">R$ MIL · <%= @period_label.upcase %></span></div>
+    <% if @by_category.any? %>
+      <% top = @by_category.first.last %>
+      <div class="hbars">
+        <% @by_category.each_with_index do |(category, cents), i| %>
+          <div class="hbar"><span><%= category %></span><div class="track"><div class="fill<%= ' alt' if i >= 5 %>" style="width:<%= (cents * 100.0 / top).round %>%"></div></div><span class="val"><%= thousands(cents) %></span></div>
+        <% end %>
+      </div>
+      <%= link_to "Total #{brl(k[:expenses])} · ver despesas →", expenses_path(periodo: @period), class: "caption", style: "font-weight:600" %>
+    <% else %>
+      <span class="caption">Nenhuma despesa no período.</span>
+    <% end %>
+  </section>
+</div>
+
+<div class="grid-2">
+  <section class="card" aria-label="Próximos vencimentos a receber">
+    <div class="card-head"><h2>A receber nos próximos 7 dias</h2><span class="badge b-info"><%= brl(@receive_week.sum(&:amount_cents)) %></span></div>
+    <% if @receive_week.any? %>
+      <div class="table-wrap">
+        <table class="table cards">
+          <thead><tr><th>Vencimento</th><th>Cliente</th><th class="num">Valor</th><th>Status</th></tr></thead>
+          <tbody>
+            <% @receive_week.each do |r| %>
+              <tr><td data-label="Vencimento" class="mono"><%= date_br(r.due_on) %><span class="cell-sub"><%= due_hint(r.due_on) %></span></td><td data-label="Cliente"><%= link_to r.company.trade_name, company_path(r.company), class: "strong" %><span class="cell-sub"><%= r.service&.name || r.category %></span></td><td data-label="Valor" class="num nowrap"><%= brl(r.amount_cents) %></td><td data-label="Status"><%= title_badge(r) %></td></tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <div class="card-foot"><span>Nenhum título a receber nos próximos 7 dias.</span></div>
+    <% end %>
+    <%= link_to "Ver contas a receber →", receivables_path, class: "more" %>
+  </section>
+
+  <section class="card" aria-label="Próximos vencimentos a pagar">
+    <div class="card-head"><h2>A pagar nos próximos 7 dias</h2><span class="badge b-warn"><%= brl(@pay_week.sum(&:amount_cents)) %></span></div>
+    <% if @pay_week.any? %>
+      <div class="table-wrap">
+        <table class="table cards">
+          <thead><tr><th>Vencimento</th><th>Fornecedor</th><th>Descrição</th><th class="num">Valor</th></tr></thead>
+          <tbody>
+            <% @pay_week.each do |p| %>
+              <tr><td data-label="Vencimento" class="mono"><%= date_br(p.due_on) %></td><td data-label="Fornecedor" class="strong"><%= p.supplier.name %></td><td data-label="Descrição"><%= p.description %><%= " · #{p.company.trade_name}" if p.company %></td><td data-label="Valor" class="num nowrap"><%= payable_amount(p, rate: false) %></td></tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <div class="card-foot"><span>Nenhuma conta a pagar nos próximos 7 dias.</span></div>
+    <% end %>
+    <%= link_to "Ver contas a pagar →", payables_path, class: "more" %>
+  </section>
+</div>
+
+<section class="card" aria-label="Clientes inadimplentes">
+  <div class="card-head">
+    <div class="row"><h2>Inadimplentes</h2><% if @defaulters.any? %><span class="badge b-crit"><%= pluralize(@defaulters.size, "título") %> · <%= brl(@defaulters.sum(&:amount_cents)) %></span><% end %></div>
+    <%= link_to "Abrir em contas a receber", receivables_path(status: "overdue"), class: "btn sm" %>
+  </div>
+  <% if @defaulters.any? %>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr><th>Cliente</th><th>Serviço</th><th>Contrato</th><th>Vencimento</th><th class="num">Valor</th><th>Atraso</th><th>Status</th></tr></thead>
+        <tbody>
+          <% @defaulters.each do |r| %>
+            <tr class="late"><td data-label="Cliente"><%= link_to r.company.trade_name, company_path(r.company), class: "strong" %><span class="cell-sub"><%= r.service&.name || r.category %></span></td><td data-label="Contrato"><%= r.contract ? link_to(r.contract.code, contract_path(r.contract)) : "—" %></td><td data-label="Vencimento" class="mono"><%= date_br(r.due_on) %></td><td data-label="Valor" class="num nowrap"><%= brl(r.amount_cents) %></td><td data-label="Atraso" class="late-text"><%= days_text(r.days_late) %></td><td data-label="Status"><%= title_badge(r) %></td></tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <%= render "shared/empty", title: "Nenhum inadimplente", text: "Títulos a receber sem pagamento depois do vencimento aparecem aqui." %>
+  <% end %>
+  <div class="card-foot"><span>O status muda para Vencido no dia seguinte ao vencimento sem pagamento.</span></div>
+</section>

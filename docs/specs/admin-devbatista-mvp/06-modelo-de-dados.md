@@ -13,7 +13,7 @@ flowchart LR
   end
   subgraph CS["Contratos e serviços"]
     Contract
-    CustomerService --> RecurringCharge
+    CustomerService
   end
   subgraph OP["Operação"]
     Project --> Task
@@ -23,7 +23,8 @@ flowchart LR
   subgraph FI["Financeiro"]
     Receivable
     Payable
-    Invoice
+    RecurringExpense --> Payable
+    Invoice --> Receivable
   end
   subgraph TE["Tecnologia"]
     Application --> Database
@@ -47,17 +48,19 @@ flowchart LR
   Company --> TE
   Company --> DH
   Company --> PR
-  RecurringCharge --> Receivable
+  CustomerService --> Receivable
   CustomerService -. Service do catálogo .- Service
   classDef key fill:#E8F0F9,stroke:#1D5A9E,stroke-width:2px
   class Company key
 ```
 
-Fora do eixo da empresa: User, Role (perfil com a matriz de permissões), Notification, Service (catálogo), Supplier, Product e Setting (listas e prazos configuráveis).
+Fora do eixo da empresa: User, Role (perfil com a matriz de permissões), Notification, Service (catálogo), Supplier, Product, Setting (listas e prazos configuráveis), ExchangeRate (cotações PTAX por dia) e RecurrenceRun (execuções da rotina de recorrências).
 
 **Receita e despesa são uma entidade só cada.** Receivable é todo valor a receber: as telas Receitas (por competência) e Contas a receber (por vencimento) são duas visões dele. Payable é o mesmo para despesas e contas a pagar. Status de ambos: Previsto, Pendente, Pago, Vencido, Cancelado.
 
-As ligações que geram comportamento automático são três: CustomerService gera RecurringCharge e Receivable; Payable com centro de custo em uma Company entra no custo direto dela; ExternalService pago pela DevBatista também.
+**Recorrências (fase 5).** O próprio serviço contratado é a regra da receita recorrente (valor, periodicidade e dia de vencimento): não há entidade RecurringCharge separada. Do lado das despesas, a regra é RecurringExpense. Os títulos gerados guardam a origem (customer_service_id ou recurring_expense_id) e são únicos por competência.
+
+As ligações que geram comportamento automático são três: CustomerService gera Receivable; Payable com centro de custo em uma Company entra no custo direto dela; ExternalService pago pela DevBatista também.
 
 **Regras de integridade para o time de desenvolvimento**
 
@@ -68,7 +71,7 @@ As ligações que geram comportamento automático são três: CustomerService ge
 | Motivo obrigatório quando o status é Perdido | Lead, Opportunity |
 | Números sequenciais gerados pelo sistema | Contract, Ticket |
 | MRR calculado, nunca digitado (mensal, ÷ 3, ÷ 6, ÷ 12; avulso fora) | CustomerService |
-| Títulos gerados uma única vez por competência | RecurringCharge → Receivable |
+| Títulos gerados uma única vez por competência | CustomerService → Receivable, RecurringExpense → Payable |
 | Moeda original + valor em R$ na data do pagamento | Payable, ExternalService |
 | Nenhum campo de senha, chave ou token | Application, Server, Database, Integration, ExternalService |
 | Associação polimórfica (record_type + record_id) | Document, Activity, AuditLog |

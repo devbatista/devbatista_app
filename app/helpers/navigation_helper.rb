@@ -32,7 +32,9 @@ module NavigationHelper
     clock: "M12 21a9 9 0 100-18 9 9 0 000 18zM12 7v5l3 2",
     alert: "M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z",
     board: "M4 4h4v16H4zM10 4h4v10h-4zM16 4h4v13h-4z",
-    list: "M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"
+    list: "M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01",
+    cash: "M3 7h18v10H3zM12 15a3 3 0 100-6 3 3 0 000 6zM6 10v.01M18 14v.01",
+    play: "M7 4l12 8-12 8z"
   }.freeze
 
   # Grupos do menu. Cada item aponta para a rota (símbolo do helper de path) e a área da
@@ -52,10 +54,10 @@ module NavigationHelper
       [ "Suporte", :tickets_path, "suporte" ], [ "Horas trabalhadas", :time_entries_path, "horas" ]
     ] },
     { key: :fin, label: "Financeiro", items: [
-      [ "Dashboard financeiro", nil, "financeiro" ], [ "Receitas", nil, "financeiro" ],
-      [ "Despesas", nil, "financeiro" ], [ "Contas a receber", nil, "financeiro" ],
-      [ "Contas a pagar", nil, "financeiro" ], [ "Recorrências", nil, "financeiro" ],
-      [ "Notas fiscais", nil, "financeiro" ]
+      [ "Dashboard financeiro", :finance_path, "financeiro" ], [ "Receitas", :revenues_path, "financeiro" ],
+      [ "Despesas", :expenses_path, "financeiro" ], [ "Contas a receber", :receivables_path, "financeiro" ],
+      [ "Contas a pagar", :payables_path, "financeiro" ], [ "Recorrências", :recurrences_path, "financeiro" ],
+      [ "Notas fiscais", :invoices_path, "financeiro" ]
     ] },
     { key: :tec, label: "Tecnologia", items: [
       [ "Aplicações", nil, "tecnologia" ], [ "Servidores", nil, "tecnologia" ],
@@ -67,7 +69,7 @@ module NavigationHelper
       [ "Indicadores", nil, "produtos" ]
     ] },
     { key: :ges, label: "Gestão", items: [
-      [ "Fornecedores", nil, "fornecedores" ], [ "Documentos", :documents_path, "documentos" ],
+      [ "Fornecedores", :suppliers_path, "fornecedores" ], [ "Documentos", :documents_path, "documentos" ],
       [ "Relatórios", nil, "relatorios" ], [ "Indicadores", nil, "relatorios" ],
       [ "Rentabilidade", nil, "relatorios" ]
     ] },

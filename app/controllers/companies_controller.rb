@@ -35,6 +35,7 @@ class CompaniesController < ApplicationController
     @activities = @company.activities.includes(:user).recent.limit(50)
     @current_contract = @contracts.find { |c| c.active? || c.expiring? }
     load_operation
+    load_finance
   end
 
   def new
@@ -69,6 +70,26 @@ class CompaniesController < ApplicationController
     @project_estimates = Task.where(project_id: @projects.map(&:id)).group(:project_id).sum(:estimated_minutes)
     @tickets = current_user.can_read?("suporte") ? @company.tickets.includes(:user, :contact).order(Arel.sql("tickets.status IN ('resolved','closed')"), opened_at: :desc).to_a : []
     @month_minutes = @company.time_entries.where(worked_on: Date.current.all_month).sum(:minutes) if current_user.can_read?("horas")
+  end
+
+  # Aba Financeiro: títulos a receber, notas fiscais e custo direto (só Financeiro e Administrador).
+  def load_finance
+    return @receivables = [] unless current_user.can_read?("financeiro")
+
+    # Em aberto primeiro (vencidos e pendentes, depois previstos, por vencimento); depois os pagos mais recentes.
+    @receivables = @company.receivables.includes(:contract, :service)
+                           .order(Arel.sql("CASE WHEN receivables.status IN ('overdue','pending') THEN 0 WHEN receivables.status = 'forecast' THEN 1 ELSE 2 END"),
+                                  Arel.sql("CASE WHEN receivables.status IN ('overdue','pending','forecast') THEN receivables.due_on END"), due_on: :desc)
+                           .limit(40).to_a
+    @invoices = @company.invoices.order(competence: :desc).limit(6).to_a
+    @finance = {
+      open: @company.receivables.where(status: %w[forecast pending]).where(due_on: ..Date.current.end_of_month).sum(:amount_cents),
+      open_next: @company.receivables.where(status: %w[forecast pending]).minimum(:due_on),
+      overdue: @company.receivables.overdue.sum(:amount_cents), overdue_count: @company.receivables.overdue.count,
+      paid_year: @company.receivables.paid.where(paid_on: Date.current.all_year).sum(:amount_cents),
+      first_paid: @company.receivables.paid.minimum(:paid_on),
+      direct_cost_month: @company.direct_cost_cents(Date.current.all_month)
+    }
   end
 
   def set_company

@@ -4,7 +4,7 @@ Acompanha a construção da V1, fase por fase. Cada item é um requisito funcion
 
 Marque `[x]` só quando o item cumprir o [Pronto quando](#pronto-quando) abaixo.
 
-**Andamento:** fases 1 a 4 concluídas · próxima: fase 5 (Financeiro)
+**Andamento:** fases 1 a 5 concluídas · próxima: fase 6 (Tecnologia e Produtos)
 
 ## Pronto quando
 
@@ -59,7 +59,7 @@ Primeiro módulo de negócio. Traz também o que os outros módulos vão usar: h
   - [x] Campo `external_id` para o HubSpot
 - [x] **RF 13 · Contatos** — [contatos](design/clientes/contatos.html)
   - [x] Vários por empresa; só um principal (marcar outro desmarca o anterior)
-  - [ ] Principal sugerido por padrão em propostas ✓, chamados ✓ e cobranças (fase 5)
+  - [x] Principal sugerido por padrão em propostas, chamados e cobranças
   - [x] Campo `external_id` para o HubSpot
 - [x] **RF 15 · Catálogo de serviços** — [catálogo](design/administracao/catalogo-servicos.html)
   - [x] Categoria, tipo (Recorrente, Projeto, Avulso) e preço padrão
@@ -75,7 +75,7 @@ Primeiro módulo de negócio. Traz também o que os outros módulos vão usar: h
 - [x] **RF 37 · Documentos** — [spec](specs/admin-devbatista-mvp/04-requisitos-funcionais/06-gestao-e-administracao.md) · [documentos](design/gestao/documentos.html)
   - [x] Upload por Active Storage (S3 em produção)
   - [x] Vínculo polimórfico e obrigatório; nesta fase, cliente ou contrato
-  - [ ] Proposta ✓, projeto ✓; fornecedor (fase 5)
+  - [x] Proposta, projeto e fornecedor
   - [x] "Enviado por" e data automáticos
 - [x] **RF 5 · Notificações (base)** — [spec](specs/admin-devbatista-mvp/04-requisitos-funcionais/01-core.md) · [central](design/geral/notificacoes.html)
   - [x] Central com lida/não lida e link para o registro; sino da barra superior
@@ -150,41 +150,43 @@ Primeiro módulo de negócio. Traz também o que os outros módulos vão usar: h
 - [x] Visão 360º: cartões Projetos ativos e Chamados abertos
 - [x] Premissas adotadas (estimativa do projeto = soma das tarefas; lembrete a cada 7 dias de atraso; [confirmar](specs/admin-devbatista-mvp/08-duvidas-em-aberto-e-premissas.md))
 
-## Fase 5 · Financeiro
+## Fase 5 · Financeiro ✅
 
-- [ ] **RF 36 · Fornecedores** — [spec](specs/admin-devbatista-mvp/04-requisitos-funcionais/06-gestao-e-administracao.md) · [fornecedores](design/gestao/fornecedores.html)
-  - [ ] Mesmas categorias das despesas
-- [ ] **RF 23 · Receitas** e **RF 25 · Contas a receber** (um só model, `Receivable`) — [spec](specs/admin-devbatista-mvp/04-requisitos-funcionais/04-financeiro.md) · [receitas](design/financeiro/receitas.html) · [contas a receber](design/financeiro/contas-receber.html)
-  - [ ] Receitas lista por competência; Contas a receber, por vencimento
-  - [ ] Status Previsto, Pendente, Pago, Vencido, Cancelado
-  - [ ] Vira Vencido no dia seguinte ao vencimento sem pagamento; atraso em dias; alerta
-  - [ ] Filtro "Vencido" = inadimplentes
-  - [ ] Categoria sugerida pelo serviço do catálogo
-- [ ] **RF 24 · Despesas** e **RF 26 · Contas a pagar** (um só model, `Payable`) — [despesas](design/financeiro/despesas.html) · [contas a pagar](design/financeiro/contas-pagar.html)
-  - [ ] Fornecedor, categoria e centro de custo (área interna ou cliente)
-  - [ ] Despesa com cliente entra no custo direto dele
-  - [ ] Moeda estrangeira: valor original, moeda e valor em R$ na data do pagamento
-  - [ ] Ligação com fornecedor, serviço externo e cliente
-- [ ] **RF 27 · Recorrências** — [recorrências](design/financeiro/recorrencias.html)
-  - [ ] Job gera títulos dos próximos períodos a partir dos serviços contratados ativos, como Previsto
-  - [ ] Idempotente: rodar duas vezes no mesmo dia não duplica título
-  - [ ] Mudar o valor do serviço altera só títulos futuros não pagos
-  - [ ] Encerrar o serviço cancela os títulos posteriores
-  - [ ] Despesas recorrentes seguem a mesma regra
-- [ ] **RF 28 · Notas fiscais** — [notas fiscais](design/financeiro/notas-fiscais.html)
-  - [ ] Número, competência, valor e PDF, XML ou link
-  - [ ] Status Pendente de emissão, Emitida, Cancelada
-- [ ] **RF 22 · Dashboard financeiro** — [financeiro](design/financeiro/financeiro.html)
-  - [ ] 7 cartões do mês: Faturamento, Recebido, A receber, Vencido, Despesas, Resultado, MRR
-  - [ ] Teste de consistência: Faturamento = Recebido + A receber + Vencido
-- [ ] Visão 360º: aba Financeiro e cartão Próxima cobrança
-- [ ] Busca global: faturas
-- [ ] Contato principal sugerido nas cobranças
-- [ ] Documentos: vínculo com fornecedor
-- [ ] Notificações: pagamentos vencidos
-- [ ] Visão 360º: Próxima cobrança calculada pelos títulos (hoje vem dos serviços contratados)
-- [ ] Decidir: horizonte das recorrências (proposta: 3 meses)
-- [ ] Decidir: origem do câmbio (digitado ou API)
+- [x] **RF 36 · Fornecedores** — [spec](specs/admin-devbatista-mvp/04-requisitos-funcionais/06-gestao-e-administracao.md) · [fornecedores](design/gestao/fornecedores.html)
+  - [x] Mesmas categorias das despesas
+- [x] **RF 23 · Receitas** e **RF 25 · Contas a receber** (um só model, `Receivable`) — [spec](specs/admin-devbatista-mvp/04-requisitos-funcionais/04-financeiro.md) · [receitas](design/financeiro/receitas.html) · [contas a receber](design/financeiro/contas-receber.html)
+  - [x] Receitas lista por competência; Contas a receber, por vencimento
+  - [x] Status Previsto, Pendente, Pago, Vencido, Cancelado
+  - [x] Vira Vencido no dia seguinte ao vencimento sem pagamento; atraso em dias; alerta
+  - [x] Filtro "Vencido" = inadimplentes
+  - [x] Categoria sugerida pelo serviço do catálogo
+- [x] **RF 24 · Despesas** e **RF 26 · Contas a pagar** (um só model, `Payable`) — [despesas](design/financeiro/despesas.html) · [contas a pagar](design/financeiro/contas-pagar.html)
+  - [x] Fornecedor, categoria e centro de custo (área interna ou cliente)
+  - [x] Despesa com cliente entra no custo direto dele
+  - [x] Moeda estrangeira: valor original, moeda e valor em R$ na data do pagamento
+  - [x] Ligação com fornecedor e cliente
+  - [ ] Ligação com serviço externo (o model chega na fase 6)
+- [x] **RF 27 · Recorrências** — [recorrências](design/financeiro/recorrencias.html)
+  - [x] Job gera títulos dos próximos períodos a partir dos serviços contratados ativos, como Previsto (diário às 06:00 e "Executar rotina agora")
+  - [x] Idempotente: rodar duas vezes no mesmo dia não duplica título
+  - [x] Mudar o valor do serviço altera só títulos futuros não pagos
+  - [x] Encerrar o serviço cancela os títulos posteriores
+  - [x] Despesas recorrentes seguem a mesma regra
+- [x] **RF 28 · Notas fiscais** — [notas fiscais](design/financeiro/notas-fiscais.html)
+  - [x] Número, competência, valor e PDF, XML ou link
+  - [x] Status Pendente de emissão, Emitida, Cancelada
+- [x] **RF 22 · Dashboard financeiro** — [financeiro](design/financeiro/financeiro.html)
+  - [x] 7 cartões do mês: Faturamento, Recebido, A receber, Vencido, Despesas, Resultado, MRR
+  - [x] Teste de consistência: Faturamento = Recebido + A receber + Vencido
+- [x] Visão 360º: aba Financeiro e cartão Próxima cobrança
+- [x] Busca global: faturas
+- [x] Contato principal sugerido nas cobranças
+- [x] Documentos: vínculo com fornecedor
+- [x] Notificações: pagamentos vencidos (receber) e contas a pagar vencidas, para Financeiro e Administrador
+- [x] Visão 360º: Próxima cobrança calculada pelos títulos (sem títulos, estima pelos serviços contratados)
+- [x] Decidido: horizonte das recorrências de 3 meses além do mês corrente (editável em Configurações)
+- [x] Decidido: câmbio pela PTAX de venda do Banco Central (API Olinda), com cotações guardadas, última conhecida como fallback e correção manual no pagamento
+- [x] RF 42 · Configurações (parte 4): categorias de despesa, centros de custo internos e horizonte das recorrências
 
 ## Fase 6 · Tecnologia e Produtos
 
@@ -199,6 +201,7 @@ Primeiro módulo de negócio. Traz também o que os outros módulos vão usar: h
 - [ ] **RF 34 · Serviços externos** — [serviços externos](design/tecnologia/servicos-externos.html)
   - [ ] Custo, moeda, periodicidade e quem paga (DevBatista ou Cliente)
   - [ ] Só os pagos pela DevBatista entram no custo direto do cliente
+  - [ ] Contas a pagar ligadas ao serviço externo (pendente da fase 5)
 - [ ] Nenhum model de Tecnologia tem campo de senha, chave ou token; só referência ao cofre (teste que verifica as colunas)
 - [ ] **RF 35 · Produtos próprios** — [spec](specs/admin-devbatista-mvp/04-requisitos-funcionais/06-gestao-e-administracao.md) · [produtos](design/produtos/produtos.html) · [assinaturas](design/produtos/assinaturas.html) · [indicadores](design/produtos/produtos-indicadores.html)
   - [ ] Status, MRR, clientes e custo mensal

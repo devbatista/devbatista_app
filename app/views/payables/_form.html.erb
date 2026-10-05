@@ -1,0 +1,57 @@
+<% p = payable %>
+<% back = params[:voltar] == "despesas" ? expenses_path : payables_path %>
+<% rate = ExchangeRate.where(currency: p.foreign? ? p.currency : "USD").order(quoted_on: :desc).first %>
+<%= render layout: "shared/drawer_form", locals: { title: p.new_record? ? "Nova despesa" : "Editar despesa", cancel_path: back } do %>
+  <%= form_with model: p, class: "form", data: { turbo_frame: "_top" } do |f| %>
+    <%= hidden_field_tag :voltar, params[:voltar] if params[:voltar] %>
+    <div class="drawer-body form">
+      <%= render "shared/form_errors", record: p %>
+      <% if p.recurring? %><div class="callout"><span>Gerada pela despesa recorrente <b class="strong"><%= p.recurring_expense.description %></b>. Para mudar o valor dos próximos meses, <%= link_to "edite a recorrência", edit_recurring_expense_path(p.recurring_expense), data: { turbo_frame: "_top" } %>.</span></div><% end %>
+      <span class="fieldset-title">Identificação</span>
+      <div class="form-grid">
+        <div class="field full"><%= f.label :supplier_id do %>Fornecedor <span class="req">*</span><% end %><%= f.collection_select :supplier_id, Supplier.active.or(Supplier.where(id: p.supplier_id)).by_name, :id, :name, { prompt: "Selecione um fornecedor cadastrado" }, class: "select", required: true %><span class="hint">Não encontrou? <%= link_to "Cadastre em Fornecedores", new_supplier_path, data: { turbo_frame: "_top" } if policy(Supplier).create? %></span></div>
+        <div class="field"><%= f.label :category, "Categoria" %><%= f.select :category, (Setting[:expense_categories] | [ p.category ].compact), { include_blank: "A do fornecedor" }, class: "select" %></div>
+        <div class="field"><%= f.label :description do %>Descrição <span class="req">*</span><% end %><%= f.text_field :description, class: "input", required: true, placeholder: "Ex.: Hospedagem — Sistema ERP" %></div>
+      </div>
+      <span class="fieldset-title">Valor</span>
+      <div class="form-grid">
+        <div class="field"><%= f.label :currency do %>Moeda <span class="req">*</span><% end %><%= f.select :currency, ExchangeRate::CURRENCIES.map { |code, name| [ "#{code} — #{name}", code ] }, {}, class: "select" %></div>
+        <div class="field"><%= f.label :original_amount, "Valor original" %><%= f.number_field :original_amount, class: "input num", step: "0.01", min: 0, placeholder: "0,00" %><span class="hint">Só para moeda estrangeira, na moeda da fatura</span></div>
+        <div class="field full"><%= f.label :amount, "Valor em reais (R$)" %><%= f.number_field :amount, class: "input num", step: "0.01", min: 0, placeholder: "0,00" %>
+          <span class="hint">Em moeda estrangeira fica em branco: é estimado pela PTAX do dia<%= " (#{rate}, #{l(rate.quoted_on)})" if rate %> e o valor definitivo é gravado na data do pagamento.</span></div>
+      </div>
+      <span class="fieldset-title">Datas e recorrência</span>
+      <div class="form-grid">
+        <div class="field"><%= f.label :competence_month do %>Competência <span class="req">*</span><% end %><%= f.month_field :competence_month, class: "input", required: true %></div>
+        <div class="field"><%= f.label :due_on do %>Vencimento <span class="req">*</span><% end %><%= f.date_field :due_on, class: "input", required: true %></div>
+        <div class="field"><%= f.label :paid_on, "Pagamento" %><%= f.date_field :paid_on, class: "input" %><span class="hint">Use “Registrar pagamento” para converter o câmbio</span></div>
+        <% if p.new_record? %>
+          <fieldset class="field full" style="border:0;padding:0;margin:0">
+            <legend class="label" style="padding:0;margin-bottom:6px">Recorrente</legend>
+            <div class="row wrap" style="gap:20px">
+              <label class="check"><%= radio_button_tag :recorrente, "1", @recurring == "1" %> Sim</label>
+              <label class="check"><%= radio_button_tag :recorrente, "0", @recurring != "1" %> Não</label>
+              <label class="sr-only" for="periodicidade">Periodicidade</label>
+              <%= select_tag :periodicidade, options_for_select(RecurringExpense.options_for_periodicity, params[:periodicidade]), class: "select", id: "periodicidade", style: "width:auto" %>
+            </div>
+            <span class="hint">Recorrentes geram os próximos títulos em Contas a pagar pela rotina de Recorrências, no mesmo dia de vencimento.</span>
+          </fieldset>
+        <% end %>
+      </div>
+      <span class="fieldset-title">Centro de custo</span>
+      <div class="field"><%= f.label :cost_center_key do %>Centro de custo <span class="req">*</span><% end %><%= f.select :cost_center_key, grouped_options_for_select(Payable.cost_center_options(p.company_id), p.cost_center_key), { prompt: "Selecione área interna ou cliente" }, class: "select", required: true %></div>
+      <div class="callout"><span>Com um <b class="strong">cliente</b> como centro de custo, a despesa passa a compor o custo direto dele (rentabilidade do cliente).</span></div>
+      <div class="field"><%= f.label :notes, "Observações" %><%= f.text_area :notes, class: "textarea", placeholder: "Fatura, cartão usado, plano contratado" %></div>
+    </div>
+    <div class="drawer-foot">
+      <% if p.persisted? && p.open? && policy(p).update? %>
+        <%= link_to "Cancelar despesa", cancel_payable_path(p, voltar: params[:voltar]), class: "btn danger", style: "margin-right:auto", data: { turbo_method: :patch, turbo_confirm: "Cancelar “#{p.description}”?", turbo_frame: "_top" } %>
+      <% end %>
+      <% if p.persisted? && !p.recurring? && policy(p).destroy? %>
+        <%= link_to "Excluir", payable_path(p, voltar: params[:voltar]), class: "btn danger", data: { turbo_method: :delete, turbo_confirm: "Excluir “#{p.description}”?", turbo_frame: "_top" } %>
+      <% end %>
+      <%= link_to "Fechar", back, class: "btn", data: { close: true, turbo_frame: "_top" } %>
+      <%= f.submit p.new_record? ? "Salvar despesa" : "Salvar alterações", class: "btn pri" %>
+    </div>
+  <% end %>
+<% end %>

@@ -1,0 +1,122 @@
+<% revenues = @view == "receitas" %>
+<% title = revenues ? "Receitas" : "Contas a receber" %>
+<% page_title title %>
+<% nav_location :fin, title %>
+<% breadcrumb ["Financeiro", finance_path], [title] %>
+<% k = @kpis %>
+<% list_path = revenues ? revenues_path : receivables_path %>
+<% can_edit = policy(Receivable).update? %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Financeiro · <%= revenues ? "Competência" : "Vencimento em" %> <%= @period_label %></span>
+    <h1><%= title %></h1>
+  </div>
+  <div class="actions">
+    <%= form_with url: list_path, method: :get do %>
+      <%= preserved_filters(:periodo, :status) %>
+      <label class="sr-only" for="periodo"><%= revenues ? "Competência" : "Vencimento" %></label>
+      <%= select_tag :periodo, options_for_select(@periods, @period), class: "select", id: "periodo", onchange: "this.form.requestSubmit()" %>
+    <% end %>
+    <% if policy(Receivable).create? %><%= drawer_link_to new_receivable_path(voltar: (revenues ? "receitas" : nil)), class: "btn pri" do %><%= icon(:plus, size: 16, stroke: 2) %><%= revenues ? "Nova receita" : "Novo título" %><% end %><% end %>
+  </div>
+</div>
+
+<div class="grid-kpi g4">
+  <% if revenues %>
+    <div class="card kpi"><span class="eyebrow">Faturamento da competência</span><span class="v"><%= brl(k[:billed]) %></span><span class="f"><%= pluralize(k[:billed_count], "receita válida", plural: "receitas válidas") %></span></div>
+    <div class="card kpi"><span class="eyebrow">Recebido</span><span class="v"><%= brl(k[:paid]) %></span><span class="f"><% if k[:billed].positive? %><span class="badge b-good"><%= (k[:paid] * 100.0 / k[:billed]).round %>%</span><% end %>do faturamento</span></div>
+    <div class="card kpi<%= ' alert' if k[:overdue].positive? %>"><span class="eyebrow">Em aberto</span><span class="v"><%= brl(k[:open] + k[:overdue]) %></span><span class="f"><%= brl(k[:open]) %> no prazo · <%= brl(k[:overdue]) %> vencido</span></div>
+    <div class="card kpi"><span class="eyebrow">Recorrente</span><span class="v"><%= brl(k[:recurring]) %></span><span class="f"><%= k[:billed].positive? ? "#{number_with_precision(k[:recurring] * 100.0 / k[:billed], precision: 1, separator: ',', strip_insignificant_zeros: true)}% vem de serviços recorrentes" : "serviços contratados" %></span></div>
+  <% else %>
+    <div class="card kpi"><span class="eyebrow">Recebido</span><span class="v"><%= brl(k[:paid]) %></span><span class="f">pagamentos confirmados</span></div>
+    <div class="card kpi"><span class="eyebrow">A receber</span><span class="v"><%= brl(k[:open]) %></span><span class="f">dentro do prazo · <%= pluralize(k[:open_count], "título") %></span></div>
+    <%= link_to receivables_path(status: "overdue"), class: "card kpi#{' alert' if k[:overdue_all_count].positive?}" do %><span class="eyebrow">Vencido</span><span class="v"><%= brl(k[:overdue_all]) %></span><span class="f"><% if k[:overdue_all_count].positive? %><span class="badge b-crit"><%= pluralize(k[:overdue_all_count], "título") %></span>em atraso (todos os meses)<% else %>nenhum em atraso<% end %></span><% end %>
+    <div class="card kpi"><span class="eyebrow">Faturamento</span><span class="v"><%= brl(k[:billed]) %></span><span class="f">recebido + a receber + vencido no período</span></div>
+  <% end %>
+</div>
+
+<%= form_with url: list_path, method: :get, class: "toolbar" do %>
+  <% statuses = revenues ? Receivable::STATUS_LABELS : Receivable::STATUS_LABELS.except("forecast") %>
+  <%= status_filter :status, [ [ "todos", "Todos", nil ] ] + statuses.map { |key, label| [ key, label, @counts[key].to_i ] } %>
+  <span class="spacer"></span>
+  <%= hidden_field_tag :periodo, @period, id: nil %>
+  <%= hidden_field_tag :status, params[:status], id: nil if params[:status].present? %>
+  <%= search_field placeholder: "Cliente ou descrição", label: "Buscar receita" %>
+  <label class="sr-only" for="f-cli">Cliente</label>
+  <%= select_tag :empresa, options_from_collection_for_select(@companies, :id, :trade_name, params[:empresa]), include_blank: "Todos os clientes", class: "select", id: "f-cli", onchange: "this.form.requestSubmit()" %>
+  <% if revenues %>
+    <label class="sr-only" for="f-cat">Categoria</label>
+    <%= select_tag :categoria, options_for_select(Receivable.categories, params[:categoria]), include_blank: "Todas as categorias", class: "select", id: "f-cat", onchange: "this.form.requestSubmit()" %>
+  <% else %>
+    <label class="sr-only" for="f-svc">Serviço</label>
+    <%= select_tag :servico, options_from_collection_for_select(@services, :id, :name, params[:servico]), include_blank: "Todos os serviços", class: "select", id: "f-svc", onchange: "this.form.requestSubmit()" %>
+  <% end %>
+  <%= render "shared/sort_select" %>
+<% end %>
+
+<% if params[:status] == "overdue" %>
+  <div class="callout crit"><span><b class="strong">Inadimplentes:</b> títulos sem pagamento depois do vencimento, de qualquer mês. O status muda para Vencido no dia seguinte ao vencimento, e o financeiro é avisado.</span></div>
+<% end %>
+
+<section class="card" aria-label="<%= title %>">
+  <% if @receivables.any? %>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr>
+          <% if revenues %>
+            <th>Cliente</th><th>Descrição</th><th>Categoria</th><th class="num">Valor</th><th>Competência</th><th>Vencimento</th><th>Pagamento</th><th>Status</th>
+          <% else %>
+            <th>Vencimento</th><th>Cliente</th><th>Serviço</th><th>Contrato</th><th class="num">Valor</th><th>Atraso</th><th>Status</th>
+          <% end %>
+          <th><span class="sr-only">Ações</span></th>
+        </tr></thead>
+        <tbody>
+          <% @receivables.each do |r| %>
+            <tr class="<%= 'late' if r.overdue? %>">
+              <% if revenues %>
+                <td data-label="Cliente"><%= link_to r.company.trade_name, company_path(r.company), class: "strong" %></td>
+                <td data-label="Descrição"><%= r.description %><span class="cell-sub"><% if r.contract %>Contrato <%= link_to r.contract.code, contract_path(r.contract) %><%= " · " if r.origin_label %><% end %><%= r.origin_label %><%= " · #{r.notes.lines.last.strip}" if r.cancelled? && r.notes.present? %></span></td>
+                <td data-label="Categoria"><%= r.category %></td>
+                <td data-label="Valor" class="num nowrap<%= ' strike' if r.cancelled? %>"><%= brl(r.amount_cents) %></td>
+                <td data-label="Competência" class="mono"><%= r.competence.strftime("%m/%Y") %></td>
+                <td data-label="Vencimento" class="mono"><%= date_br(r.due_on) %></td>
+                <td data-label="Pagamento" class="<%= r.paid_on ? 'mono' : 'muted' %>"><%= date_br(r.paid_on) %></td>
+              <% else %>
+                <td data-label="Vencimento" class="mono"><%= date_br(r.due_on) %></td>
+                <td data-label="Cliente"><%= link_to r.company.trade_name, company_path(r.company), class: "strong" %><span class="cell-sub"><%= r.description %></span></td>
+                <td data-label="Serviço"><%= r.service&.name || r.category %></td>
+                <td data-label="Contrato" class="<%= 'muted' unless r.contract %>"><%= r.contract ? link_to(r.contract.code, contract_path(r.contract)) : "—" %></td>
+                <td data-label="Valor" class="num nowrap<%= ' strike' if r.cancelled? %>"><%= brl(r.amount_cents) %></td>
+                <td data-label="Atraso" class="<%= r.overdue? ? 'late-text' : 'muted' %>"><%= r.overdue? ? days_text(r.days_late) : "—" %></td>
+              <% end %>
+              <td data-label="Status"><%= title_badge(r) %></td>
+              <td data-label="" class="right">
+                <span class="row-actions">
+                  <% if can_edit && r.open? %>
+                    <%= drawer_link_to "Registrar pagamento", payment_receivable_path(r, voltar: (revenues ? "receitas" : nil)), class: "link-btn" %>
+                    <%= drawer_link_to "Editar", edit_receivable_path(r, voltar: (revenues ? "receitas" : nil)), class: "link-btn" %>
+                  <% elsif r.paid? %>
+                    <span class="muted">pago <%= r.paid_on.strftime("%d/%m") %></span>
+                  <% else %>
+                    <span class="muted">—</span>
+                  <% end %>
+                </span>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+        <tfoot>
+          <tr><td data-label="Total" colspan="<%= revenues ? 3 : 4 %>">Total filtrado <span class="cell-sub" style="font-weight:500"><%= Receivable::STATUS_LABELS.except("cancelled").filter_map { |key, label| "#{label} #{brl(@totals[key])}" if @totals[key] }.join(" · ").presence || "—" %> · canceladas fora do total</span></td><td data-label="Valor" class="num nowrap"><%= brl(@totals.values.sum) %></td><td data-label="" colspan="<%= revenues ? 5 : 3 %>"></td></tr>
+        </tfoot>
+      </table>
+    </div>
+    <%= render "shared/pagination", pager: @pager %>
+  <% else %>
+    <%= render "shared/empty", title: "Nenhum título no período", text: "Receitas recorrentes são geradas pela rotina de Recorrências a partir dos serviços contratados ativos. Lance avulsos e projetos em “#{revenues ? 'Nova receita' : 'Novo título'}”.", icon_name: :cash %>
+  <% end %>
+</section>
+
+<div class="note">
+  <span>Receitas recorrentes são geradas pela rotina de <%= link_to "Recorrências", recurrences_path %> a partir dos <%= link_to "serviços contratados", customer_services_path %> ativos. <b>Faturamento</b> considera a competência; receitas canceladas não entram no faturamento. Receitas lista por competência; Contas a receber, por vencimento.</span>
+</div>

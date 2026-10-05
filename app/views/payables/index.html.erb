@@ -1,0 +1,139 @@
+<% expenses = @view == "despesas" %>
+<% title = expenses ? "Despesas" : "Contas a pagar" %>
+<% page_title title %>
+<% nav_location :fin, title %>
+<% breadcrumb ["Financeiro", finance_path], [title] %>
+<% k = @kpis %>
+<% list_path = expenses ? expenses_path : payables_path %>
+<% voltar = expenses ? "despesas" : nil %>
+<% can_edit = policy(Payable).update? %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Financeiro · <%= expenses ? "Competência" : "Vencimento em" %> <%= @period_label %></span>
+    <h1><%= title %></h1>
+  </div>
+  <div class="actions">
+    <%= form_with url: list_path, method: :get do %>
+      <%= preserved_filters(:periodo, :status) %>
+      <label class="sr-only" for="periodo"><%= expenses ? "Competência" : "Vencimento" %></label>
+      <%= select_tag :periodo, options_for_select(@periods, @period), class: "select", id: "periodo", onchange: "this.form.requestSubmit()" %>
+    <% end %>
+    <% if policy(Payable).create? %><%= drawer_link_to new_payable_path(voltar: voltar), class: "btn pri" do %><%= icon(:plus, size: 16, stroke: 2) %><%= expenses ? "Nova despesa" : "Novo título" %><% end %><% end %>
+  </div>
+</div>
+
+<% if expenses %>
+  <div class="cols-2-1">
+    <div class="stack" style="min-width:0">
+      <div class="grid-kpi g5">
+        <div class="card kpi"><span class="eyebrow">Despesas do período</span><span class="v"><%= brl(k[:total]) %></span><span class="f">pagas e previstas · <%= pluralize(k[:count], "lançamento") %></span></div>
+        <div class="card kpi"><span class="eyebrow">Pagas</span><span class="v"><%= brl(k[:paid]) %></span><span class="f"><%= k[:total].positive? ? "#{(k[:paid] * 100.0 / k[:total]).round}% do total" : "—" %></span></div>
+        <div class="card kpi<%= ' alert' if k[:overdue].positive? %>"><span class="eyebrow">Em aberto</span><span class="v"><%= brl(k[:open] + k[:overdue]) %></span><span class="f"><% if k[:overdue].positive? %><span class="badge b-crit"><%= brl(k[:overdue]) %></span>vencido<% else %>nada vencido<% end %></span></div>
+        <div class="card kpi"><span class="eyebrow">Custo direto de clientes</span><span class="v"><%= brl(k[:direct]) %></span><span class="f">centro de custo em <%= pluralize(k[:direct_clients], "cliente") %></span></div>
+        <div class="card kpi"><span class="eyebrow">Em moeda estrangeira</span><span class="v"><%= brl(k[:foreign]) %></span><span class="f"><%= k[:foreign_original].map { |cur, cents| "#{money_in(cents, cur)}" }.join(" + ").presence || "nenhuma" %><%= " convertidos" if k[:foreign_original].any? %></span></div>
+      </div>
+      <div class="callout"><span>Despesas em moeda estrangeira guardam o <b class="strong">valor original</b>, a moeda e o <b class="strong">valor em reais na data do pagamento</b> (PTAX do Banco Central). Até o pagamento, o valor em reais é estimado pela cotação do dia (≈). Despesas com centro de custo em um cliente entram no custo direto dele.</span></div>
+    </div>
+    <section class="card card-body stack" aria-label="Despesas por categoria">
+      <div class="section-title"><h2>Por categoria</h2><span class="unit">R$ MIL · <%= @period_label.upcase %></span></div>
+      <% if @by_category.any? %>
+        <div class="hbars">
+          <% @by_category.each_with_index do |(category, cents), i| %>
+            <div class="hbar"><span><%= category %></span><div class="track"><div class="fill<%= ' alt' if i >= 5 %>" style="width:<%= (cents * 100.0 / @by_category.first.last).round %>%"></div></div><span class="val"><%= thousands(cents) %></span></div>
+          <% end %>
+        </div>
+      <% else %>
+        <span class="caption">Nenhuma despesa no período.</span>
+      <% end %>
+    </section>
+  </div>
+<% else %>
+  <div class="grid-kpi g4">
+    <div class="card kpi"><span class="eyebrow">Pago</span><span class="v"><%= brl(k[:paid]) %></span><span class="f">pagamentos confirmados</span></div>
+    <div class="card kpi"><span class="eyebrow">A pagar</span><span class="v"><%= brl(k[:open]) %></span><span class="f">dentro do prazo · <%= brl(k[:week]) %> em 7 dias</span></div>
+    <%= link_to payables_path(status: "overdue"), class: "card kpi#{' alert' if k[:overdue_all_count].positive?}" do %><span class="eyebrow">Vencido</span><span class="v"><%= brl(k[:overdue_all]) %></span><span class="f"><% if k[:overdue_all_count].positive? %><span class="badge b-crit"><%= pluralize(k[:overdue_all_count], "título") %></span>em atraso<% else %>nada em atraso<% end %></span><% end %>
+    <div class="card kpi"><span class="eyebrow">Despesas do período</span><span class="v"><%= brl(k[:total]) %></span><span class="f">pago + a pagar + vencido</span></div>
+  </div>
+<% end %>
+
+<%= form_with url: list_path, method: :get, class: "toolbar" do %>
+  <% if expenses %>
+    <%= status_filter :categoria, [ [ "todos", "Todas", @counts.values.sum ] ] + Setting[:expense_categories].map { |c| [ c, c, @counts[c].to_i ] }, label: "Filtrar por categoria" %>
+    <%= hidden_field_tag :categoria, params[:categoria], id: nil if params[:categoria].present? %>
+  <% else %>
+    <%= status_filter :status, [ [ "todos", "Todos", nil ] ] + Payable::STATUS_LABELS.except("forecast").map { |key, label| [ key, label, @counts[key].to_i ] } %>
+    <%= hidden_field_tag :status, params[:status], id: nil if params[:status].present? %>
+  <% end %>
+  <span class="spacer"></span>
+  <%= hidden_field_tag :periodo, @period, id: nil %>
+  <%= search_field placeholder: "Fornecedor ou descrição", label: "Buscar despesa" %>
+  <% unless expenses %>
+    <label class="sr-only" for="f-forn">Fornecedor</label>
+    <%= select_tag :fornecedor, options_from_collection_for_select(@suppliers, :id, :name, params[:fornecedor]), include_blank: "Todos os fornecedores", class: "select", id: "f-forn", onchange: "this.form.requestSubmit()" %>
+  <% end %>
+  <label class="sr-only" for="f-cc">Centro de custo</label>
+  <%= select_tag :centro, grouped_options_for_select([ [ "Geral", [ [ "Sem cliente (interno)", "interno" ] ] ] ] + Payable.cost_center_options, params[:centro]), include_blank: "Todos os centros de custo", class: "select", id: "f-cc", onchange: "this.form.requestSubmit()" %>
+  <% if expenses %>
+    <label class="sr-only" for="f-rec">Recorrência</label>
+    <%= select_tag :recorrencia, options_for_select([ [ "Somente recorrentes", "recorrentes" ], [ "Somente avulsas", "avulsas" ] ], params[:recorrencia]), include_blank: "Recorrentes e avulsas", class: "select", id: "f-rec", onchange: "this.form.requestSubmit()" %>
+  <% end %>
+  <%= render "shared/sort_select" %>
+<% end %>
+
+<section class="card" aria-label="<%= title %>">
+  <% if @payables.any? %>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr>
+          <% if expenses %>
+            <th>Fornecedor</th><th>Categoria</th><th>Descrição</th><th class="num">Valor</th><th>Vencimento</th><th>Pagamento</th><th>Recorrente</th><th>Centro de custo</th>
+          <% else %>
+            <th>Vencimento</th><th>Fornecedor</th><th>Descrição</th><th>Categoria</th><th>Cliente</th><th class="num">Valor</th><th>Atraso</th><th>Status</th>
+          <% end %>
+          <th><span class="sr-only">Ações</span></th>
+        </tr></thead>
+        <tbody>
+          <% @payables.each do |p| %>
+            <tr class="<%= 'late' if p.overdue? %>">
+              <% if expenses %>
+                <td data-label="Fornecedor" class="strong"><%= p.supplier.name %></td>
+                <td data-label="Categoria"><%= p.category %></td>
+                <td data-label="Descrição"><%= p.description %></td>
+                <td data-label="Valor" class="num nowrap<%= ' strike' if p.cancelled? %>"><%= payable_amount(p) %></td>
+                <td data-label="Vencimento" class="mono"><%= date_br(p.due_on) %></td>
+                <td data-label="Pagamento"><%= p.paid? ? tag.span(date_br(p.paid_on), class: "mono") : title_badge(p) %></td>
+                <td data-label="Recorrente"><%= p.recurring? ? "Sim#{" · #{p.recurring_expense.periodicity_label.downcase}" unless p.recurring_expense.monthly?}" : "Não" %></td>
+                <td data-label="Centro de custo"><%= p.company ? link_to(p.company.trade_name, company_path(p.company)) : p.cost_center %></td>
+              <% else %>
+                <td data-label="Vencimento" class="mono"><%= date_br(p.due_on) %></td>
+                <td data-label="Fornecedor"><%= link_to p.supplier.name, payables_path(fornecedor: p.supplier_id), class: "strong" %></td>
+                <td data-label="Descrição"><%= p.description %></td>
+                <td data-label="Categoria"><%= p.category %></td>
+                <td data-label="Cliente" class="<%= 'muted' unless p.company %>"><%= p.company ? link_to(p.company.trade_name, company_path(p.company)) : "Interno" %></td>
+                <td data-label="Valor" class="num nowrap<%= ' strike' if p.cancelled? %>"><%= payable_amount(p) %></td>
+                <td data-label="Atraso" class="<%= p.overdue? ? 'late-text' : 'muted' %>"><%= p.overdue? ? days_text(p.days_late) : "—" %></td>
+                <td data-label="Status"><%= title_badge(p) %></td>
+              <% end %>
+              <td data-label="" class="right">
+                <span class="row-actions">
+                  <% if can_edit && p.open? %>
+                    <%= drawer_link_to (p.overdue? ? "Pagar" : "Registrar pagamento"), payment_payable_path(p, voltar: voltar), class: "link-btn" %>
+                    <%= drawer_link_to "Editar", edit_payable_path(p, voltar: voltar), class: "link-btn" %>
+                  <% elsif p.paid? && !expenses %>
+                    <span class="muted"><%= p.paid_on.strftime("%d/%m") %></span>
+                  <% end %>
+                </span>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+        <tfoot><tr><td data-label="Total" colspan="<%= expenses ? 3 : 5 %>">Total filtrado <span class="cell-sub" style="font-weight:500">canceladas fora do total</span></td><td data-label="Valor" class="num nowrap"><%= brl(@total) %></td><td data-label="" colspan="<%= expenses ? 5 : 3 %>"></td></tr></tfoot>
+      </table>
+    </div>
+    <%= render "shared/pagination", pager: @pager %>
+    <div class="card-foot"><span>≈ valor em reais estimado pela PTAX do dia; o valor definitivo é gravado na data do pagamento.</span><%= link_to "Despesas recorrentes →", recurrences_path(aba: "despesas") %></div>
+  <% else %>
+    <%= render "shared/empty", title: "Nenhuma despesa no período", text: "Lance as despesas com fornecedor, categoria e centro de custo. As recorrentes geram os próximos títulos sozinhas.", icon_name: :cash %>
+  <% end %>
+</section>

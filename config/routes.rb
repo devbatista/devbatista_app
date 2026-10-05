@@ -58,6 +58,34 @@ Rails.application.routes.draw do
       resources :messages, only: :create, controller: "ticket_messages", path: "mensagens"
     end
 
+    # Financeiro
+    get "financeiro", to: "finance#show", as: :finance
+    get "receitas", to: "receivables#index", defaults: { visao: "receitas" }, as: :revenues
+    resources :receivables, path: "contas-a-receber", except: :show do
+      member do
+        get :payment, path: "pagamento", action: :new_payment
+        patch :payment, path: "pagamento", action: :pay
+        patch :cancel, path: "cancelar"
+      end
+    end
+    get "despesas", to: "payables#index", defaults: { visao: "despesas" }, as: :expenses
+    resources :payables, path: "contas-a-pagar", except: :show do
+      member do
+        get :payment, path: "pagamento", action: :new_payment
+        patch :payment, path: "pagamento", action: :pay
+        patch :cancel, path: "cancelar"
+      end
+    end
+    get "recorrencias", to: "recurrences#index", as: :recurrences
+    post "recorrencias/executar", to: "recurrences#run", as: :run_recurrences
+    resources :recurring_expenses, path: "despesas-recorrentes", only: %i[edit update] do
+      patch :finish, on: :member, path: "encerrar"
+    end
+    resources :invoices, path: "notas-fiscais", except: :show do
+      get :file, on: :member, path: "arquivo/:file_id"
+    end
+    resources :suppliers, path: "fornecedores", except: :show
+
     resources :notifications, path: "notificacoes", only: %i[index update] do
       patch :read_all, on: :collection, path: "marcar-todas"
       patch :preferences, on: :collection, path: "preferencias"

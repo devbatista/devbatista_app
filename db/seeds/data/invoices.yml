@@ -1,0 +1,8 @@
+# Extraído de docs/design/financeiro/notas-fiscais.html (6 notas registradas em setembro).
+# Os arquivos são PDFs (e XMLs) de exemplo; a 000421 só tem o link da prefeitura.
+- { number: "000418", company: Empresa ACME, description: "Consultoria, manutenção e hospedagem", amount: 3800, issued_on: "2026-09-08", status: issued, files: [pdf, xml] }
+- { number: "000421", company: Empresa ACME, description: Publicação de aplicativo, amount: 200, issued_on: "2026-09-15", status: issued, url: "https://nfse.prefeitura.sp.gov.br/consulta?codigo=000421" }
+- { number: "000414", company: Empresa XYZ, description: "Manutenção, suporte e hospedagem", amount: 2900, issued_on: "2026-09-01", status: issued, files: [pdf, xml] }
+- { number: "000411", company: Cliente C, description: ERP Cliente C — parcela 4 de 6, amount: 2400, issued_on: "2026-08-28", status: issued, files: [pdf] }
+- { number: "000416", company: Empresa Delta, description: Suporte, amount: 700, issued_on: "2026-09-05", status: issued, files: [pdf, xml] }
+- { number: "000420", company: Cliente E, description: Publicação de app — serviço cancelado, amount: 800, issued_on: "2026-09-10", status: cancelled, files: [pdf] }

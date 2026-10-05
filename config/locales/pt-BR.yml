@@ -64,6 +64,24 @@ pt-BR:
       ticket_message:
         one: Mensagem do chamado
         other: Mensagens do chamado
+      supplier:
+        one: Fornecedor
+        other: Fornecedores
+      receivable:
+        one: Receita
+        other: Receitas
+      payable:
+        one: Despesa
+        other: Despesas
+      recurring_expense:
+        one: Despesa recorrente
+        other: Despesas recorrentes
+      invoice:
+        one: Nota fiscal
+        other: Notas fiscais
+      exchange_rate:
+        one: Cotação
+        other: Cotações
     attributes:
       user:
         name: Nome
@@ -295,6 +313,94 @@ pt-BR:
         body: Mensagem
         channel: Canal
         contact: Contato
+      supplier:
+        name: Empresa
+        category: Categoria
+        contact_name: Contato
+        phone: Telefone
+        email: E-mail
+        website: Site
+        notes: Observações
+        active: Ativo
+      receivable:
+        description: Descrição
+        category: Categoria
+        amount: Valor
+        amount_cents: Valor
+        competence: Competência
+        competence_month: Competência
+        due_on: Vencimento
+        paid_on: Data do pagamento
+        status: Status
+        notes: Observações
+        company: Cliente
+        company_id: Cliente
+        contact: Cobrança para
+        contact_id: Cobrança para
+        service: Serviço
+        service_id: Serviço
+        contract: Contrato
+        contract_id: Contrato
+        customer_service: Serviço contratado
+        invoice: Nota fiscal
+        paid_amount: Valor recebido
+        paid_amount_cents: Valor recebido
+      payable:
+        description: Descrição
+        category: Categoria
+        amount: Valor
+        amount_cents: Valor
+        competence: Competência
+        competence_month: Competência
+        due_on: Vencimento
+        paid_on: Data do pagamento
+        status: Status
+        notes: Observações
+        supplier: Fornecedor
+        supplier_id: Fornecedor
+        company: Centro de custo (cliente)
+        company_id: Centro de custo (cliente)
+        cost_center: Centro de custo
+        cost_center_key: Centro de custo
+        currency: Moeda
+        original_amount: Valor original
+        original_amount_cents: Valor original
+        exchange_rate: Câmbio
+        amount: Valor em reais
+        amount_cents: Valor em reais
+        recurring_expense: Despesa recorrente
+      recurring_expense:
+        supplier: Fornecedor
+        supplier_id: Fornecedor
+        description: Descrição
+        category: Categoria
+        cost_center: Centro de custo
+        cost_center_key: Centro de custo
+        company: Centro de custo (cliente)
+        currency: Moeda
+        amount: Valor
+        amount_cents: Valor
+        periodicity: Periodicidade
+        due_day: Dia de vencimento
+        start_on: Início
+        status: Situação
+        ended_on: Encerrada em
+        notes: Observações
+      invoice:
+        company: Cliente
+        company_id: Cliente
+        number: Número
+        competence: Competência
+        competence_month: Competência
+        amount: Valor
+        amount_cents: Valor
+        issued_on: Data de emissão
+        status: Status
+        description: Descrição
+        url: Link
+        notes: Observações
+        files: Arquivos
+        receivables: Receitas
   date:
     formats:
       month_year: "%B de %Y"

@@ -17,7 +17,10 @@ class Setting < ApplicationRecord
     "contract_alert_days" => [ 60, 30, 15 ],
     "domain_alert_days" => [ 60, 30, 7 ],
     "proposal_alert_days" => 3,
-    "loss_reasons" => [ "Preço", "Prazo", "Sem retorno", "Optou por concorrente", "Sem orçamento", "Fora do perfil", "Outro" ]
+    "loss_reasons" => [ "Preço", "Prazo", "Sem retorno", "Optou por concorrente", "Sem orçamento", "Fora do perfil", "Outro" ],
+    "expense_categories" => [ "Infraestrutura", "Software", "Marketing", "Comercial", "Contabilidade", "Impostos", "Colaboradores", "Administrativo", "Outros" ],
+    "cost_centers" => [ "Administrativo", "Comercial e marketing", "Operação", "Infraestrutura interna", "Produtos próprios" ],
+    "recurrence_months" => 3
   }.freeze
 
   validates :key, presence: true, uniqueness: true, inclusion: { in: DEFAULTS.keys }

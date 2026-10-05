@@ -13,7 +13,7 @@
 
 <div data-tabs-scope>
   <div class="tabs" role="tablist" data-tabs>
-    <% [ [ "geral", "Geral" ], [ "alertas", "Alertas" ], [ "motivos", "Motivos de perda" ] ].each do |key, label| %>
+    <% [ [ "geral", "Geral" ], [ "alertas", "Alertas" ], [ "motivos", "Motivos de perda" ], [ "financeiro", "Financeiro" ] ].each do |key, label| %>
       <button class="tab<%= ' on' if @tab == key %>" type="button" role="tab" aria-selected="<%= @tab == key %>" data-tab="<%= key %>"><%= label %></button>
     <% end %>
     <%= link_to "Catálogo de serviços →", admin_services_path, class: "tab", style: "display:inline-flex;align-items:center" %>
@@ -77,6 +77,29 @@
         <span class="caption">Para remover um motivo, apague o texto e salve.</span>
       </div>
       <% if editable %><div class="drawer-foot"><button class="btn pri" type="submit">Salvar motivos</button></div><% end %>
+    <% end %>
+  </section>
+
+  <section data-panel="financeiro" <%= "hidden" unless @tab == "financeiro" %> style="margin-top:20px">
+    <%= form_with url: admin_settings_path, method: :patch, class: "card", data: { turbo: false } do %>
+      <%= hidden_field_tag :aba, "financeiro" %>
+      <div class="card-head"><div><h2>Financeiro</h2><span class="caption">Listas das despesas e horizonte da rotina de recorrências</span></div></div>
+      <div class="card-body form">
+        <span class="fieldset-title">Recorrências</span>
+        <div class="form-grid">
+          <div class="field"><label for="s-rm">Meses à frente gerados como Previsto</label><%= number_field_tag "settings[recurrence_months]", Setting[:recurrence_months], class: "input", min: 1, max: 12, id: "s-rm", disabled: !editable %><span class="hint">Além do mês corrente</span></div>
+        </div>
+        <span class="fieldset-title">Categorias de despesa · também usadas nos fornecedores</span>
+        <% (Setting[:expense_categories] + [ "" ]).each_with_index do |category, i| %>
+          <div class="field"><label for="s-ec<%= i %>"><%= category.present? ? "Categoria #{i + 1}" : "Nova categoria" %></label><%= text_field_tag "settings[expense_categories][]", category, class: "input", id: "s-ec#{i}", placeholder: "Deixe em branco para não incluir", disabled: !editable %></div>
+        <% end %>
+        <span class="fieldset-title">Centros de custo internos · clientes entram sozinhos</span>
+        <% (Setting[:cost_centers] + [ "" ]).each_with_index do |area, i| %>
+          <div class="field"><label for="s-cc<%= i %>"><%= area.present? ? "Área #{i + 1}" : "Nova área" %></label><%= text_field_tag "settings[cost_centers][]", area, class: "input", id: "s-cc#{i}", placeholder: "Deixe em branco para não incluir", disabled: !editable %></div>
+        <% end %>
+        <span class="caption">Renomear uma categoria não altera as despesas já lançadas.</span>
+      </div>
+      <% if editable %><div class="drawer-foot"><button class="btn pri" type="submit">Salvar</button></div><% end %>
     <% end %>
   </section>
 </div>

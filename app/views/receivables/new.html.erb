@@ -1,0 +1,4 @@
+<% page_title "Nova receita" %>
+<% nav_location :fin, params[:voltar] == "receitas" ? "Receitas" : "Contas a receber" %>
+<% breadcrumb ["Financeiro", finance_path], ["Contas a receber", receivables_path], ["Nova receita"] %>
+<div class="form-page"><%= render "form", receivable: @receivable %></div>

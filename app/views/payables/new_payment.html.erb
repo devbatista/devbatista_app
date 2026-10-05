@@ -1,0 +1,32 @@
+<% p = @payable %>
+<% back = params[:voltar] == "despesas" ? expenses_path : payables_path %>
+<% page_title "Registrar pagamento" %>
+<% nav_location :fin, "Contas a pagar" %>
+<% breadcrumb ["Financeiro", finance_path], ["Contas a pagar", payables_path], ["Registrar pagamento"] %>
+<div class="form-page">
+  <%= render layout: "shared/drawer_form", locals: { title: "Registrar pagamento", cancel_path: back } do %>
+    <%= form_with scope: :payment, url: payment_payable_path(p), method: :patch, class: "form", data: { turbo_frame: "_top" } do |f| %>
+      <%= hidden_field_tag :voltar, params[:voltar] if params[:voltar] %>
+      <div class="drawer-body form">
+        <%= render "shared/form_errors", record: p %>
+        <div class="callout<%= ' crit' if p.overdue? %>"><span><%= p.supplier.name %> · <%= p.description %><%= " · #{p.company.trade_name}" if p.company %> · venc. <%= date_br(p.due_on) %> · <b class="strong"><%= p.foreign? ? money_in(p.original_amount_cents, p.currency) : brl(p.amount_cents) %></b></span></div>
+        <div class="form-grid">
+          <div class="field"><%= f.label :paid_on do %>Data do pagamento <span class="req">*</span><% end %><%= f.date_field :paid_on, value: Date.current, class: "input", required: true, max: Date.current %></div>
+          <% if p.foreign? %>
+            <div class="field"><%= f.label :original_amount do %>Valor pago (<%= p.currency_symbol %>) <span class="req">*</span><% end %><%= f.number_field :original_amount, value: format("%.2f", p.original_amount_cents / 100.0), class: "input num", step: "0.01", min: 0, required: true %></div>
+            <div class="field"><%= f.label :rate, "Câmbio do dia (R$)" %><%= f.text_field :rate, class: "input num", inputmode: "decimal", placeholder: @rate ? format("%.4f", @rate.rate).tr(".", ",") : "PTAX da data" %><span class="hint">Em branco usa a PTAX do Banco Central na data do pagamento<%= " (hoje: #{@rate})" if @rate %></span></div>
+            <div class="field"><%= f.label :amount, "Valor em reais (R$)" %><%= f.number_field :amount, class: "input num", step: "0.01", min: 0, placeholder: "calculado pelo câmbio" %><span class="hint">Preencha só se a fatura veio com outro valor (ex.: IOF do cartão)</span></div>
+          <% else %>
+            <div class="field"><%= f.label :amount do %>Valor pago (R$) <span class="req">*</span><% end %><%= f.number_field :amount, value: format("%.2f", p.amount_cents / 100.0), class: "input num", step: "0.01", min: 0, required: true %></div>
+          <% end %>
+        </div>
+        <% if p.foreign? %><span class="caption">O valor em reais na data do pagamento passa a ser o valor definitivo da despesa<%= " e do custo direto de #{p.company.trade_name}" if p.company %>.</span><% end %>
+        <div class="field"><%= f.label :notes, "Observações" %><%= f.text_area :notes, class: "textarea", placeholder: "Cartão usado, IOF, número da fatura…" %></div>
+      </div>
+      <div class="drawer-foot">
+        <%= link_to "Cancelar", back, class: "btn", data: { close: true, turbo_frame: "_top" } %>
+        <%= f.submit "Confirmar pagamento", class: "btn pri" %>
+      </div>
+    <% end %>
+  <% end %>
+</div>

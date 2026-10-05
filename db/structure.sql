@@ -440,6 +440,40 @@ ALTER SEQUENCE public.documents_id_seq OWNED BY public.documents.id;
 
 
 --
+-- Name: exchange_rates; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.exchange_rates (
+    id bigint NOT NULL,
+    currency character varying NOT NULL,
+    quoted_on date NOT NULL,
+    rate numeric(12,6) NOT NULL,
+    source character varying DEFAULT 'ptax'::character varying NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: exchange_rates_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.exchange_rates_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: exchange_rates_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.exchange_rates_id_seq OWNED BY public.exchange_rates.id;
+
+
+--
 -- Name: interactions; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -473,6 +507,45 @@ CREATE SEQUENCE public.interactions_id_seq
 --
 
 ALTER SEQUENCE public.interactions_id_seq OWNED BY public.interactions.id;
+
+
+--
+-- Name: invoices; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.invoices (
+    id bigint NOT NULL,
+    company_id bigint NOT NULL,
+    number character varying,
+    competence date NOT NULL,
+    amount_cents integer NOT NULL,
+    issued_on date,
+    status character varying DEFAULT 'pending'::character varying NOT NULL,
+    description character varying,
+    url character varying,
+    notes text,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: invoices_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.invoices_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: invoices_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.invoices_id_seq OWNED BY public.invoices.id;
 
 
 --
@@ -612,6 +685,53 @@ ALTER SEQUENCE public.opportunities_id_seq OWNED BY public.opportunities.id;
 
 
 --
+-- Name: payables; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.payables (
+    id bigint NOT NULL,
+    supplier_id bigint NOT NULL,
+    recurring_expense_id bigint,
+    company_id bigint,
+    cost_center character varying,
+    description character varying NOT NULL,
+    category character varying NOT NULL,
+    currency character varying DEFAULT 'BRL'::character varying NOT NULL,
+    original_amount_cents integer,
+    exchange_rate numeric(12,6),
+    amount_cents integer NOT NULL,
+    competence date NOT NULL,
+    due_on date NOT NULL,
+    paid_on date,
+    status character varying DEFAULT 'pending'::character varying NOT NULL,
+    notes text,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL,
+    CONSTRAINT payables_amount_positive CHECK ((amount_cents >= 0)),
+    CONSTRAINT payables_cost_center_present CHECK (((company_id IS NOT NULL) OR (cost_center IS NOT NULL)))
+);
+
+
+--
+-- Name: payables_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.payables_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: payables_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.payables_id_seq OWNED BY public.payables.id;
+
+
+--
 -- Name: projects; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -745,6 +865,135 @@ ALTER SEQUENCE public.proposals_id_seq OWNED BY public.proposals.id;
 
 
 --
+-- Name: receivables; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.receivables (
+    id bigint NOT NULL,
+    company_id bigint NOT NULL,
+    contact_id bigint,
+    customer_service_id bigint,
+    service_id bigint,
+    contract_id bigint,
+    invoice_id bigint,
+    description character varying NOT NULL,
+    category character varying NOT NULL,
+    amount_cents integer NOT NULL,
+    competence date NOT NULL,
+    due_on date NOT NULL,
+    paid_on date,
+    paid_amount_cents integer,
+    status character varying DEFAULT 'pending'::character varying NOT NULL,
+    notes text,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL,
+    CONSTRAINT receivables_amount_positive CHECK ((amount_cents >= 0))
+);
+
+
+--
+-- Name: receivables_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.receivables_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: receivables_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.receivables_id_seq OWNED BY public.receivables.id;
+
+
+--
+-- Name: recurrence_runs; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.recurrence_runs (
+    id bigint NOT NULL,
+    user_id bigint,
+    run_on date NOT NULL,
+    started_at timestamp(6) without time zone NOT NULL,
+    finished_at timestamp(6) without time zone,
+    generated_count integer DEFAULT 0 NOT NULL,
+    overdue_count integer DEFAULT 0 NOT NULL,
+    cancelled_count integer DEFAULT 0 NOT NULL,
+    horizon_on date,
+    warnings text,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: recurrence_runs_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.recurrence_runs_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: recurrence_runs_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.recurrence_runs_id_seq OWNED BY public.recurrence_runs.id;
+
+
+--
+-- Name: recurring_expenses; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.recurring_expenses (
+    id bigint NOT NULL,
+    supplier_id bigint NOT NULL,
+    description character varying NOT NULL,
+    category character varying NOT NULL,
+    company_id bigint,
+    cost_center character varying,
+    currency character varying DEFAULT 'BRL'::character varying NOT NULL,
+    amount_cents integer NOT NULL,
+    periodicity character varying DEFAULT 'monthly'::character varying NOT NULL,
+    due_day integer NOT NULL,
+    start_on date NOT NULL,
+    status character varying DEFAULT 'active'::character varying NOT NULL,
+    ended_on date,
+    notes text,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL,
+    CONSTRAINT recurring_expenses_cost_center_present CHECK (((company_id IS NOT NULL) OR (cost_center IS NOT NULL)))
+);
+
+
+--
+-- Name: recurring_expenses_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.recurring_expenses_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: recurring_expenses_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.recurring_expenses_id_seq OWNED BY public.recurring_expenses.id;
+
+
+--
 -- Name: roles; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -852,6 +1101,44 @@ CREATE SEQUENCE public.settings_id_seq
 --
 
 ALTER SEQUENCE public.settings_id_seq OWNED BY public.settings.id;
+
+
+--
+-- Name: suppliers; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.suppliers (
+    id bigint NOT NULL,
+    name character varying NOT NULL,
+    category character varying NOT NULL,
+    contact_name character varying,
+    phone character varying,
+    email character varying,
+    website character varying,
+    notes text,
+    active boolean DEFAULT true NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: suppliers_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.suppliers_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: suppliers_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.suppliers_id_seq OWNED BY public.suppliers.id;
 
 
 --
@@ -1138,10 +1425,24 @@ ALTER TABLE ONLY public.documents ALTER COLUMN id SET DEFAULT nextval('public.do
 
 
 --
+-- Name: exchange_rates id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.exchange_rates ALTER COLUMN id SET DEFAULT nextval('public.exchange_rates_id_seq'::regclass);
+
+
+--
 -- Name: interactions id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.interactions ALTER COLUMN id SET DEFAULT nextval('public.interactions_id_seq'::regclass);
+
+
+--
+-- Name: invoices id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.invoices ALTER COLUMN id SET DEFAULT nextval('public.invoices_id_seq'::regclass);
 
 
 --
@@ -1166,6 +1467,13 @@ ALTER TABLE ONLY public.opportunities ALTER COLUMN id SET DEFAULT nextval('publi
 
 
 --
+-- Name: payables id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.payables ALTER COLUMN id SET DEFAULT nextval('public.payables_id_seq'::regclass);
+
+
+--
 -- Name: projects id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -1187,6 +1495,27 @@ ALTER TABLE ONLY public.proposals ALTER COLUMN id SET DEFAULT nextval('public.pr
 
 
 --
+-- Name: receivables id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.receivables ALTER COLUMN id SET DEFAULT nextval('public.receivables_id_seq'::regclass);
+
+
+--
+-- Name: recurrence_runs id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.recurrence_runs ALTER COLUMN id SET DEFAULT nextval('public.recurrence_runs_id_seq'::regclass);
+
+
+--
+-- Name: recurring_expenses id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.recurring_expenses ALTER COLUMN id SET DEFAULT nextval('public.recurring_expenses_id_seq'::regclass);
+
+
+--
 -- Name: roles id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -1205,6 +1534,13 @@ ALTER TABLE ONLY public.services ALTER COLUMN id SET DEFAULT nextval('public.ser
 --
 
 ALTER TABLE ONLY public.settings ALTER COLUMN id SET DEFAULT nextval('public.settings_id_seq'::regclass);
+
+
+--
+-- Name: suppliers id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.suppliers ALTER COLUMN id SET DEFAULT nextval('public.suppliers_id_seq'::regclass);
 
 
 --
@@ -1331,11 +1667,27 @@ ALTER TABLE ONLY public.documents
 
 
 --
+-- Name: exchange_rates exchange_rates_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.exchange_rates
+    ADD CONSTRAINT exchange_rates_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: interactions interactions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.interactions
     ADD CONSTRAINT interactions_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: invoices invoices_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.invoices
+    ADD CONSTRAINT invoices_pkey PRIMARY KEY (id);
 
 
 --
@@ -1363,6 +1715,14 @@ ALTER TABLE ONLY public.opportunities
 
 
 --
+-- Name: payables payables_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.payables
+    ADD CONSTRAINT payables_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: projects projects_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1384,6 +1744,30 @@ ALTER TABLE ONLY public.proposal_items
 
 ALTER TABLE ONLY public.proposals
     ADD CONSTRAINT proposals_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: receivables receivables_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.receivables
+    ADD CONSTRAINT receivables_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: recurrence_runs recurrence_runs_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.recurrence_runs
+    ADD CONSTRAINT recurrence_runs_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: recurring_expenses recurring_expenses_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.recurring_expenses
+    ADD CONSTRAINT recurring_expenses_pkey PRIMARY KEY (id);
 
 
 --
@@ -1416,6 +1800,14 @@ ALTER TABLE ONLY public.services
 
 ALTER TABLE ONLY public.settings
     ADD CONSTRAINT settings_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: suppliers suppliers_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.suppliers
+    ADD CONSTRAINT suppliers_pkey PRIMARY KEY (id);
 
 
 --
@@ -1669,6 +2061,13 @@ CREATE INDEX index_documents_on_uploaded_by_id ON public.documents USING btree (
 
 
 --
+-- Name: index_exchange_rates_on_currency_and_quoted_on; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_exchange_rates_on_currency_and_quoted_on ON public.exchange_rates USING btree (currency, quoted_on);
+
+
+--
 -- Name: index_interactions_on_subject_type_and_subject_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1680,6 +2079,27 @@ CREATE INDEX index_interactions_on_subject_type_and_subject_id ON public.interac
 --
 
 CREATE INDEX index_interactions_on_user_id ON public.interactions USING btree (user_id);
+
+
+--
+-- Name: index_invoices_on_company_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_invoices_on_company_id ON public.invoices USING btree (company_id);
+
+
+--
+-- Name: index_invoices_on_competence; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_invoices_on_competence ON public.invoices USING btree (competence);
+
+
+--
+-- Name: index_invoices_on_number; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_invoices_on_number ON public.invoices USING btree (number) WHERE (number IS NOT NULL);
 
 
 --
@@ -1785,6 +2205,55 @@ CREATE INDEX index_opportunities_on_stage ON public.opportunities USING btree (s
 --
 
 CREATE INDEX index_opportunities_on_user_id ON public.opportunities USING btree (user_id);
+
+
+--
+-- Name: index_payables_on_company_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_payables_on_company_id ON public.payables USING btree (company_id);
+
+
+--
+-- Name: index_payables_on_competence; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_payables_on_competence ON public.payables USING btree (competence);
+
+
+--
+-- Name: index_payables_on_due_on; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_payables_on_due_on ON public.payables USING btree (due_on);
+
+
+--
+-- Name: index_payables_on_recurring_expense_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_payables_on_recurring_expense_id ON public.payables USING btree (recurring_expense_id);
+
+
+--
+-- Name: index_payables_on_status; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_payables_on_status ON public.payables USING btree (status);
+
+
+--
+-- Name: index_payables_on_supplier_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_payables_on_supplier_id ON public.payables USING btree (supplier_id);
+
+
+--
+-- Name: index_payables_once_per_competence; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_payables_once_per_competence ON public.payables USING btree (recurring_expense_id, competence) WHERE (recurring_expense_id IS NOT NULL);
 
 
 --
@@ -1900,6 +2369,97 @@ CREATE UNIQUE INDEX index_proposals_on_year_and_number ON public.proposals USING
 
 
 --
+-- Name: index_receivables_on_company_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_receivables_on_company_id ON public.receivables USING btree (company_id);
+
+
+--
+-- Name: index_receivables_on_competence; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_receivables_on_competence ON public.receivables USING btree (competence);
+
+
+--
+-- Name: index_receivables_on_contact_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_receivables_on_contact_id ON public.receivables USING btree (contact_id);
+
+
+--
+-- Name: index_receivables_on_contract_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_receivables_on_contract_id ON public.receivables USING btree (contract_id);
+
+
+--
+-- Name: index_receivables_on_customer_service_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_receivables_on_customer_service_id ON public.receivables USING btree (customer_service_id);
+
+
+--
+-- Name: index_receivables_on_due_on; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_receivables_on_due_on ON public.receivables USING btree (due_on);
+
+
+--
+-- Name: index_receivables_on_invoice_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_receivables_on_invoice_id ON public.receivables USING btree (invoice_id);
+
+
+--
+-- Name: index_receivables_on_service_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_receivables_on_service_id ON public.receivables USING btree (service_id);
+
+
+--
+-- Name: index_receivables_on_status; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_receivables_on_status ON public.receivables USING btree (status);
+
+
+--
+-- Name: index_receivables_once_per_competence; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_receivables_once_per_competence ON public.receivables USING btree (customer_service_id, competence) WHERE (customer_service_id IS NOT NULL);
+
+
+--
+-- Name: index_recurrence_runs_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_recurrence_runs_on_user_id ON public.recurrence_runs USING btree (user_id);
+
+
+--
+-- Name: index_recurring_expenses_on_company_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_recurring_expenses_on_company_id ON public.recurring_expenses USING btree (company_id);
+
+
+--
+-- Name: index_recurring_expenses_on_supplier_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_recurring_expenses_on_supplier_id ON public.recurring_expenses USING btree (supplier_id);
+
+
+--
 -- Name: index_roles_on_key; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1918,6 +2478,13 @@ CREATE UNIQUE INDEX index_services_on_name ON public.services USING btree (name)
 --
 
 CREATE UNIQUE INDEX index_settings_on_key ON public.settings USING btree (key);
+
+
+--
+-- Name: index_suppliers_on_name; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_suppliers_on_name ON public.suppliers USING btree (name);
 
 
 --
@@ -2106,6 +2673,14 @@ ALTER TABLE ONLY public.tasks
 
 
 --
+-- Name: recurrence_runs fk_rails_1843863e6d; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.recurrence_runs
+    ADD CONSTRAINT fk_rails_1843863e6d FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
 -- Name: leads fk_rails_1d08b36969; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2127,6 +2702,14 @@ ALTER TABLE ONLY public.audit_logs
 
 ALTER TABLE ONLY public.opportunities
     ADD CONSTRAINT fk_rails_2903255e8d FOREIGN KEY (service_id) REFERENCES public.services(id);
+
+
+--
+-- Name: receivables fk_rails_327cd0b1c1; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.receivables
+    ADD CONSTRAINT fk_rails_327cd0b1c1 FOREIGN KEY (service_id) REFERENCES public.services(id);
 
 
 --
@@ -2154,6 +2737,22 @@ ALTER TABLE ONLY public.customer_services
 
 
 --
+-- Name: recurring_expenses fk_rails_3bde5d372c; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.recurring_expenses
+    ADD CONSTRAINT fk_rails_3bde5d372c FOREIGN KEY (supplier_id) REFERENCES public.suppliers(id);
+
+
+--
+-- Name: payables fk_rails_3f4c87199d; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.payables
+    ADD CONSTRAINT fk_rails_3f4c87199d FOREIGN KEY (recurring_expense_id) REFERENCES public.recurring_expenses(id);
+
+
+--
 -- Name: proposals fk_rails_4197667de7; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2167,6 +2766,14 @@ ALTER TABLE ONLY public.proposals
 
 ALTER TABLE ONLY public.contacts
     ADD CONSTRAINT fk_rails_42b4583938 FOREIGN KEY (company_id) REFERENCES public.companies(id);
+
+
+--
+-- Name: invoices fk_rails_433d4c368d; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.invoices
+    ADD CONSTRAINT fk_rails_433d4c368d FOREIGN KEY (company_id) REFERENCES public.companies(id);
 
 
 --
@@ -2199,6 +2806,14 @@ ALTER TABLE ONLY public.tickets
 
 ALTER TABLE ONLY public.time_entries
     ADD CONSTRAINT fk_rails_55dd5dcf98 FOREIGN KEY (task_id) REFERENCES public.tasks(id);
+
+
+--
+-- Name: receivables fk_rails_5c4527148d; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.receivables
+    ADD CONSTRAINT fk_rails_5c4527148d FOREIGN KEY (invoice_id) REFERENCES public.invoices(id);
 
 
 --
@@ -2274,6 +2889,14 @@ ALTER TABLE ONLY public.opportunities
 
 
 --
+-- Name: payables fk_rails_7d5ae8e8e1; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.payables
+    ADD CONSTRAINT fk_rails_7d5ae8e8e1 FOREIGN KEY (supplier_id) REFERENCES public.suppliers(id);
+
+
+--
 -- Name: activities fk_rails_7e11bb717f; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2330,6 +2953,22 @@ ALTER TABLE ONLY public.proposals
 
 
 --
+-- Name: receivables fk_rails_a9b96afbf2; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.receivables
+    ADD CONSTRAINT fk_rails_a9b96afbf2 FOREIGN KEY (customer_service_id) REFERENCES public.customer_services(id);
+
+
+--
+-- Name: receivables fk_rails_ac4affce01; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.receivables
+    ADD CONSTRAINT fk_rails_ac4affce01 FOREIGN KEY (contract_id) REFERENCES public.contracts(id);
+
+
+--
 -- Name: proposal_items fk_rails_aca8d0afd8; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2354,6 +2993,14 @@ ALTER TABLE ONLY public.time_entries
 
 
 --
+-- Name: payables fk_rails_b754b99d46; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.payables
+    ADD CONSTRAINT fk_rails_b754b99d46 FOREIGN KEY (company_id) REFERENCES public.companies(id);
+
+
+--
 -- Name: projects fk_rails_b872a6760a; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2367,6 +3014,14 @@ ALTER TABLE ONLY public.projects
 
 ALTER TABLE ONLY public.documents
     ADD CONSTRAINT fk_rails_bb94f775d4 FOREIGN KEY (uploaded_by_id) REFERENCES public.users(id);
+
+
+--
+-- Name: receivables fk_rails_bbd22dd23b; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.receivables
+    ADD CONSTRAINT fk_rails_bbd22dd23b FOREIGN KEY (company_id) REFERENCES public.companies(id);
 
 
 --
@@ -2399,6 +3054,14 @@ ALTER TABLE ONLY public.customer_services
 
 ALTER TABLE ONLY public.customer_services
     ADD CONSTRAINT fk_rails_d1d6dcd85b FOREIGN KEY (company_id) REFERENCES public.companies(id);
+
+
+--
+-- Name: receivables fk_rails_e179c5abc7; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.receivables
+    ADD CONSTRAINT fk_rails_e179c5abc7 FOREIGN KEY (contact_id) REFERENCES public.contacts(id);
 
 
 --
@@ -2442,6 +3105,14 @@ ALTER TABLE ONLY public.proposals
 
 
 --
+-- Name: recurring_expenses fk_rails_f6e42da676; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.recurring_expenses
+    ADD CONSTRAINT fk_rails_f6e42da676 FOREIGN KEY (company_id) REFERENCES public.companies(id);
+
+
+--
 -- Name: time_entries fk_rails_fea7a886c0; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2464,6 +3135,13 @@ ALTER TABLE ONLY public.leads
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261006120006'),
+('20261006120005'),
+('20261006120004'),
+('20261006120003'),
+('20261006120002'),
+('20261006120001'),
+('20261006120000'),
 ('20261005120004'),
 ('20261005120003'),
 ('20261005120002'),

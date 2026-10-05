@@ -12,6 +12,10 @@ class Notification < ApplicationRecord
                      trigger: -> { "Prazo ultrapassado e tarefa não concluída" } },
     "project_late" => { label: "Projetos atrasados", roles: :owner, area: "projetos", audience: "responsável e administradores",
                         trigger: -> { "Previsão ultrapassada e projeto não concluído" } },
+    "receivable_overdue" => { label: "Pagamentos vencidos", roles: %w[admin financeiro], area: "financeiro",
+                              trigger: -> { "Dia seguinte ao vencimento de um título a receber sem pagamento" } },
+    "payable_overdue" => { label: "Contas a pagar vencidas", roles: %w[admin financeiro], area: "financeiro",
+                           trigger: -> { "Dia seguinte ao vencimento de uma conta a pagar sem pagamento" } },
     "ticket_critical" => { label: "Chamados críticos", roles: %w[admin suporte desenvolvedor], area: "suporte",
                            trigger: -> { "Abertura ou mudança para prioridade Crítica (na hora)" } }
   }.freeze

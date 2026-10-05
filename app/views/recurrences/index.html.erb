@@ -1,0 +1,143 @@
+<% page_title "Recorrências" %>
+<% nav_location :fin, "Recorrências" %>
+<% breadcrumb ["Financeiro", finance_path], ["Recorrências"] %>
+<% last = @runs.first %>
+<% horizon = l(@horizon, format: "%B/%Y").capitalize %>
+<% months = Setting[:recurrence_months] %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Financeiro · Previsões automáticas</span>
+    <h1>Recorrências</h1>
+    <p class="lead">Regras a partir dos serviços contratados ativos e das despesas recorrentes. Os títulos dos próximos <%= months %> meses nascem como Previsto.</p>
+  </div>
+  <div class="actions">
+    <%= link_to "Serviços contratados", customer_services_path, class: "btn" if policy(CustomerService).index? %>
+    <% if policy(:recurrence).create? %>
+      <%= button_to run_recurrences_path(aba: @tab), class: "btn pri", form: { data: { turbo_confirm: "Executar a rotina agora? Gera os títulos que faltam até #{horizon}, marca vencidos e cancela previsões de serviços encerrados. Nada é duplicado." } } do %><%= icon(:play, size: 16, stroke: 1.8) %>Executar rotina agora<% end %>
+    <% end %>
+  </div>
+</div>
+
+<div class="grid-kpi g4">
+  <div class="card kpi"><span class="eyebrow">Regras de receita ativas</span><span class="v"><%= @kpis[:revenue_rules] %></span><span class="f">MRR <%= brl(@kpis[:mrr]) %></span></div>
+  <div class="card kpi"><span class="eyebrow">Previsto a receber</span><span class="v"><%= brl(@kpis[:forecast]) %></span><span class="f"><%= l(Date.current.next_month, format: "%B").capitalize %> a <%= horizon %></span></div>
+  <div class="card kpi"><span class="eyebrow">Regras de despesa ativas</span><span class="v"><%= @kpis[:expense_rules] %></span><span class="f">≈ <%= brl(@kpis[:expense_month]) %> por mês</span></div>
+  <div class="card kpi"><span class="eyebrow">Última execução</span><span class="v"><%= last ? l(last.started_at, format: "%H:%M") : "—" %></span>
+    <span class="f"><% if last %><span class="badge <%= last.warning_list.any? ? 'b-warn' : 'b-good' %> dot-l"><%= last.warning_list.any? ? "Com aviso" : "Concluída" %></span><%= last.run_on == Date.current ? "hoje" : date_br(last.run_on) %><% else %>a rotina ainda não rodou<% end %></span></div>
+</div>
+
+<div class="cols-2-1">
+  <div class="callout">
+    <div class="stack" style="gap:6px">
+      <b class="strong">Como as regras funcionam</b>
+      <span>• A rotina respeita <b class="strong">valor, periodicidade e dia de vencimento</b> do serviço contratado; serviços avulsos não geram recorrência.</span>
+      <span>• Cada título é gerado <b class="strong">uma única vez por competência</b>: rodar duas vezes não duplica.</span>
+      <span>• Alterar o valor do serviço contratado atualiza <b class="strong">apenas os títulos futuros ainda não pagos</b>.</span>
+      <span>• Encerrar um serviço contratado <b class="strong">cancela os títulos posteriores</b> à data de encerramento.</span>
+      <span>• <b class="strong">Despesas recorrentes</b> seguem a mesma lógica em <%= link_to "Contas a pagar", payables_path %>; as em dólar são estimadas pela PTAX do dia.</span>
+      <span>• O horizonte (<%= months %> meses) fica em Administração → Configurações.</span>
+    </div>
+  </div>
+
+  <section class="card" aria-labelledby="rotina-t">
+    <div class="card-head"><h2 id="rotina-t">Rotina diária · 06:00</h2><% if last %><span class="badge <%= last.warning_list.any? ? 'b-warn' : 'b-good' %> dot-l"><%= last.warning_list.any? ? "Com aviso" : "Concluída" %></span><% end %></div>
+    <% if last %>
+      <div class="kv"><span>Última execução</span><b><%= datetime_br(last.started_at) %><%= " · #{last.user.first_name}" if last.user %></b></div>
+      <div class="kv"><span>Duração</span><b><%= last.duration_seconds ? "#{last.duration_seconds} s" : "—" %></b></div>
+      <div class="kv"><span>Títulos gerados</span><b><%= last.generated_count %></b></div>
+      <div class="kv"><span>Marcados como vencidos</span><b><%= last.overdue_count %></b></div>
+      <div class="kv"><span>Horizonte coberto</span><b>até <%= l(last.horizon_on, format: "%B/%Y").capitalize %></b></div>
+      <% last.warning_list.each do |w| %><div class="card-body caption" style="border-top:1px solid var(--rule);color:var(--warn)"><%= w %></div><% end %>
+      <% if @runs.size > 1 %>
+        <div class="card-head" style="border-top:1px solid var(--rule);padding-bottom:6px"><h3>Execuções anteriores</h3></div>
+        <% @runs.drop(1).each do |run| %>
+          <div class="tl"><i class="<%= run.warning_list.any? ? 'warn' : (run.overdue_count.positive? ? 'crit' : nil) %>"></i><div><%= l(run.started_at, format: "%d/%m %H:%M") %> · <%= pluralize(run.generated_count, "título gerado", plural: "títulos gerados") %><small><%= [ ("#{run.overdue_count} vencido(s)" if run.overdue_count.positive?), ("#{run.cancelled_count} cancelado(s)" if run.cancelled_count.positive?), run.warning_list.first, run.user ? "executada por #{run.user.first_name}" : "rotina automática" ].compact.join(" · ") %></small></div></div>
+        <% end %>
+      <% end %>
+    <% else %>
+      <div class="card-foot"><span>A rotina roda todo dia às 06:00. Use “Executar rotina agora” para gerar os títulos já.</span></div>
+    <% end %>
+  </section>
+</div>
+
+<section class="card" data-tabs-scope aria-label="Regras de recorrência">
+  <div class="tabs" role="tablist" data-tabs style="padding:0 12px">
+    <button class="tab<%= ' on' if @tab == 'receitas' %>" type="button" role="tab" aria-selected="<%= @tab == 'receitas' %>" data-tab="receitas">Receitas recorrentes <span class="c"><%= @services.size %></span></button>
+    <button class="tab<%= ' on' if @tab == 'despesas' %>" type="button" role="tab" aria-selected="<%= @tab == 'despesas' %>" data-tab="despesas">Despesas recorrentes <span class="c"><%= @expenses.size %></span></button>
+  </div>
+
+  <div data-panel="receitas" <%= "hidden" unless @tab == "receitas" %>>
+    <%= form_with url: recurrences_path, method: :get, class: "toolbar", style: "padding:16px 20px" do %>
+      <%= hidden_field_tag :aba, "receitas", id: nil %>
+      <%= search_field placeholder: "Cliente", label: "Buscar regra de receita" %>
+      <label class="sr-only" for="f-per">Periodicidade</label>
+      <%= select_tag :periodicidade, options_for_select(CustomerService.options_for_recurrence.reject { |_, v| v == "one_off" }, params[:periodicidade]), include_blank: "Todas as periodicidades", class: "select", id: "f-per", onchange: "this.form.requestSubmit()" %>
+      <label class="sr-only" for="f-st">Situação</label>
+      <%= select_tag :situacao, options_for_select(CustomerService.options_for_status, params[:situacao]), include_blank: "Ativas e encerradas", class: "select", id: "f-st", onchange: "this.form.requestSubmit()" %>
+    <% end %>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr><th>Cliente</th><th>Serviço</th><th>Contrato</th><th class="num">Valor</th><th>Periodicidade</th><th>Vencimento</th><th>Próximos títulos</th><th>Situação</th></tr></thead>
+        <tbody>
+          <% @services.each do |cs| %>
+            <% upcoming = @next_receivables[cs.id] || [] %>
+            <tr>
+              <td data-label="Cliente"><%= link_to cs.company.trade_name, company_path(cs.company), class: "strong" %></td>
+              <td data-label="Serviço"><%= cs.service.name %></td>
+              <td data-label="Contrato" class="<%= 'muted' unless cs.contract %>"><%= cs.contract ? link_to(cs.contract.code, contract_path(cs.contract)) : "—" %></td>
+              <td data-label="Valor" class="num nowrap<%= ' muted' unless cs.active? %>"><%= brl(cs.price_cents) %><% unless cs.monthly? %><span class="cell-sub"><%= brl(cs.mrr_cents) %>/mês no MRR</span><% end %></td>
+              <td data-label="Periodicidade"><%= cs.recurrence_label %></td>
+              <td data-label="Vencimento">Dia <%= cs.due_day || cs.start_date.day %></td>
+              <td data-label="Próximos títulos" class="<%= cs.active? ? 'mono' : 'muted' %>">
+                <% if cs.active? %><%= upcoming.map { |r| r.due_on.strftime("%d/%m") }.join(" · ").presence || ((due = cs.next_due_date) && due > @horizon ? "próximo em #{date_br(due)}" : "na próxima execução") %>
+                <% elsif @cancelled_receivables[cs.id] %><%= pluralize(@cancelled_receivables[cs.id], "previsão cancelada", plural: "previsões canceladas") %><span class="cell-sub"><%= cs.ended_on ? "encerrado em #{date_br(cs.ended_on)}" : "suspenso" %></span>
+                <% else %>—<% end %>
+              </td>
+              <td data-label="Situação"><%= status_badge({ "active" => "Ativa", "suspended" => "Suspensa", "ended" => "Encerrada" }[cs.status], { "active" => "good", "suspended" => "warn", "ended" => "mute" }[cs.status]) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination"><span>Editar valor ou encerrar em <%= link_to "Serviços contratados", customer_services_path %></span></div>
+  </div>
+
+  <div data-panel="despesas" <%= "hidden" unless @tab == "despesas" %>>
+    <%= form_with url: recurrences_path, method: :get, class: "toolbar", style: "padding:16px 20px" do %>
+      <%= hidden_field_tag :aba, "despesas", id: nil %>
+      <%= search_field placeholder: "Fornecedor ou descrição", label: "Buscar regra de despesa" %>
+      <label class="sr-only" for="f-dcat">Categoria</label>
+      <%= select_tag :categoria, options_for_select(Setting[:expense_categories], params[:categoria]), include_blank: "Todas as categorias", class: "select", id: "f-dcat", onchange: "this.form.requestSubmit()" %>
+      <span class="spacer"></span>
+      <% if policy(Payable).create? %><%= drawer_link_to "Nova despesa recorrente", new_payable_path, class: "btn sm" %><% end %>
+    <% end %>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr><th>Fornecedor</th><th>Descrição</th><th>Categoria</th><th class="num">Valor</th><th>Periodicidade</th><th>Vencimento</th><th>Centro de custo</th><th>Próximos títulos</th><th>Situação</th><th><span class="sr-only">Ações</span></th></tr></thead>
+        <tbody>
+          <% @expenses.each do |e| %>
+            <% upcoming = @next_payables[e.id] || [] %>
+            <tr>
+              <td data-label="Fornecedor" class="strong"><%= e.supplier.name %></td>
+              <td data-label="Descrição"><%= e.description %></td>
+              <td data-label="Categoria"><%= e.category %></td>
+              <td data-label="Valor" class="num nowrap<%= ' muted' if e.ended? %>"><%= money_in(e.amount_cents, e.currency) %><% if e.foreign? && (rate = ExchangeRate.rate_for(e.currency)) %><span class="cell-sub">≈ <%= brl((e.amount_cents * rate).round) %></span><% end %></td>
+              <td data-label="Periodicidade"><%= e.periodicity_label %></td>
+              <td data-label="Vencimento"><%= e.annual? ? e.start_on.strftime("%d/%m") : "Dia #{e.due_day}" %></td>
+              <td data-label="Centro de custo"><%= e.company ? link_to(e.company.trade_name, company_path(e.company)) : e.cost_center %></td>
+              <td data-label="Próximos títulos" class="<%= e.active? ? 'mono' : 'muted' %>">
+                <% if e.active? %><%= upcoming.map { |p| p.due_on.strftime(e.annual? ? "%d/%m/%Y" : "%d/%m") }.join(" · ").presence || "na próxima execução" %>
+                <% else %><%= pluralize(@cancelled_payables[e.id].to_i, "previsão cancelada", plural: "previsões canceladas") %><span class="cell-sub">encerrada em <%= date_br(e.ended_on) %></span><% end %>
+              </td>
+              <td data-label="Situação"><%= status_badge(e.status_label, e.active? ? "good" : "mute") %></td>
+              <td data-label="" class="right"><% if e.active? && policy(e).update? %><%= drawer_link_to "Editar", edit_recurring_expense_path(e), class: "link-btn" %><% end %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <% if @expenses.empty? %><%= render "shared/empty", title: "Nenhuma despesa recorrente", text: "Marque “Recorrente” ao lançar uma despesa para gerar os próximos títulos." %><% end %>
+    <div class="pagination"><span>Valores em moeda estrangeira convertidos pela PTAX na data do pagamento</span></div>
+  </div>
+</section>

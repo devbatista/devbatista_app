@@ -50,7 +50,8 @@ class DocumentsController < ApplicationController
   end
 
   def find_link
-    if params[:projeto].present? then Project.find(params[:projeto])
+    if params[:fornecedor].present? then Supplier.find(params[:fornecedor])
+    elsif params[:projeto].present? then Project.find(params[:projeto])
     elsif params[:proposta].present? then Proposal.find(params[:proposta])
     elsif params[:contrato].present? then Contract.find(params[:contrato])
     elsif params[:empresa].present? then Company.find(params[:empresa])
@@ -62,6 +63,7 @@ class DocumentsController < ApplicationController
     when Proposal then proposal_path(@document.documentable)
     when Contract then contract_path(@document.documentable)
     when Project then project_path(@document.documentable, aba: "documentos")
+    when Supplier then edit_supplier_path(@document.documentable)
     when Company then params[:voltar] == "empresa" ? company_path(@document.documentable, aba: "documentos") : documents_path
     else documents_path
     end

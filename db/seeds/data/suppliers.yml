@@ -1,0 +1,20 @@
+# Extraído de docs/design/gestao/fornecedores.html (18 fornecedores). O e-mail e o telefone
+# são os do design. Figma segue cadastrado (assinatura cancelada em setembro).
+- { name: Diego Rocha (PJ), category: Colaboradores, contact_name: Diego Rocha, email: diego.rocha@devbatista.com.br, phone: "(11) 98761-2033" }
+- { name: Elisa Prado (PJ), category: Colaboradores, contact_name: Elisa Prado, email: elisa.prado@devbatista.com.br, phone: "(11) 99420-1187" }
+- { name: AWS, category: Infraestrutura, contact_name: Suporte Business, website: console.aws.amazon.com, email: aws-billing@devbatista.com.br }
+- { name: Receita Federal, category: Impostos, website: gov.br/receitafederal }
+- { name: Meta Ads, category: Marketing, contact_name: Gerenciador de anúncios, website: business.facebook.com, email: marketing@devbatista.com.br }
+- { name: OpenAI, category: Software, contact_name: Suporte via painel, website: platform.openai.com, email: infra@devbatista.com.br }
+- { name: GitHub, category: Software, contact_name: Suporte via painel, website: github.com, email: infra@devbatista.com.br }
+- { name: Railway, category: Infraestrutura, contact_name: Suporte via painel, website: railway.app, email: infra@devbatista.com.br }
+- { name: Silva & Associados, category: Contabilidade, contact_name: Marcos Silva, website: silvaassociados.com.br, email: marcos@silvaassociados.com.br, phone: "(11) 3456-7821" }
+- { name: Google Workspace, category: Software, contact_name: Suporte Google, website: admin.google.com, email: financeiro@devbatista.com.br }
+- { name: Coworking Central, category: Administrativo, contact_name: Renata Alves, website: coworkingcentral.com.br, email: financeiro@coworkingcentral.com.br, phone: "(11) 99812-4410" }
+- { name: Lima Consultoria, category: Comercial, contact_name: Paulo Lima, email: paulo@limaconsultoria.com.br, phone: "(11) 97733-5120" }
+- { name: Cloudflare, category: Infraestrutura, contact_name: Suporte via painel, website: dash.cloudflare.com, email: infra@devbatista.com.br }
+- { name: Banco Inter, category: Outros, contact_name: Gerente PJ, website: inter.co, email: pj@devbatista.com.br, phone: "(31) 3003-4070" }
+- { name: Mailgun, category: Software, contact_name: Suporte via painel, website: app.mailgun.com, email: infra@devbatista.com.br }
+- { name: Registro.br, category: Infraestrutura, contact_name: Atendimento NIC.br, website: registro.br, email: hostmaster@registro.br, phone: "(11) 5509-3500" }
+- { name: Amazon SES, category: Software, contact_name: Suporte Business, website: console.aws.amazon.com/ses, email: aws-billing@devbatista.com.br }
+- { name: Figma, category: Software, contact_name: Suporte via painel, website: figma.com, email: design@devbatista.com.br }

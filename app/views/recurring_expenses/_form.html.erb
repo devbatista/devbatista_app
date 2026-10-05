@@ -1,0 +1,26 @@
+<% e = rule %>
+<% back = recurrences_path(aba: "despesas") %>
+<%= render layout: "shared/drawer_form", locals: { title: "Despesa recorrente", cancel_path: back } do %>
+  <%= form_with model: e, class: "form", data: { turbo_frame: "_top" } do |f| %>
+    <div class="drawer-body form">
+      <%= render "shared/form_errors", record: e %>
+      <div class="callout"><span>Mudar o valor altera só os títulos futuros ainda não pagos. Encerrar cancela os títulos posteriores à data de encerramento.</span></div>
+      <div class="form-grid">
+        <div class="field full"><%= f.label :supplier_id do %>Fornecedor <span class="req">*</span><% end %><%= f.collection_select :supplier_id, Supplier.active.or(Supplier.where(id: e.supplier_id)).by_name, :id, :name, {}, class: "select" %></div>
+        <div class="field"><%= f.label :description do %>Descrição <span class="req">*</span><% end %><%= f.text_field :description, class: "input", required: true %></div>
+        <div class="field"><%= f.label :category do %>Categoria <span class="req">*</span><% end %><%= f.select :category, Setting[:expense_categories] | [ e.category ], {}, class: "select" %></div>
+        <div class="field"><%= f.label :currency do %>Moeda <span class="req">*</span><% end %><%= f.select :currency, ExchangeRate::CURRENCIES.map { |code, name| [ "#{code} — #{name}", code ] }, {}, class: "select" %></div>
+        <div class="field"><%= f.label :amount do %>Valor na moeda <span class="req">*</span><% end %><%= f.number_field :amount, class: "input num", step: "0.01", min: 0, required: true %></div>
+        <div class="field"><%= f.label :periodicity do %>Periodicidade <span class="req">*</span><% end %><%= f.select :periodicity, RecurringExpense.options_for_periodicity, {}, class: "select" %></div>
+        <div class="field"><%= f.label :due_day do %>Dia de vencimento <span class="req">*</span><% end %><%= f.number_field :due_day, class: "input", min: 1, max: 31, required: true %></div>
+        <div class="field full"><%= f.label :cost_center_key do %>Centro de custo <span class="req">*</span><% end %><%= f.select :cost_center_key, grouped_options_for_select(RecurringExpense.cost_center_options(e.company_id), e.cost_center_key), {}, class: "select" %></div>
+      </div>
+      <div class="field"><%= f.label :notes, "Observações" %><%= f.text_area :notes, class: "textarea" %></div>
+    </div>
+    <div class="drawer-foot">
+      <%= link_to "Encerrar recorrência", finish_recurring_expense_path(e), class: "btn danger", style: "margin-right:auto", data: { turbo_method: :patch, turbo_confirm: "Encerrar “#{e.description}” hoje? Os títulos a partir de amanhã são cancelados.", turbo_frame: "_top" } %>
+      <%= link_to "Fechar", back, class: "btn", data: { close: true, turbo_frame: "_top" } %>
+      <%= f.submit "Salvar alterações", class: "btn pri" %>
+    </div>
+  <% end %>
+<% end %>
