@@ -144,3 +144,46 @@ tr[data-href] { cursor: pointer; }
 /* Editor de itens da proposta */
 .items .select, .items .input { width: 100%; }
 .items td { vertical-align: top; }
+
+/* Operação: projetos */
+.prog-cell { display: flex; align-items: center; gap: 10px; min-width: 140px; }
+.prog-cell .progress { flex: 1; }
+.prog-cell b { font-size: 12px; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; width: 34px; text-align: right; }
+.big-prog { display: flex; align-items: baseline; gap: 10px; }
+.big-prog .v { font-size: 34px; font-weight: 700; color: var(--white); letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.progress.lg { height: 12px; }
+.progress.off { opacity: .5; }
+.progress.off > i { background: var(--faint); }
+.mini-board { grid-auto-columns: minmax(200px, 1fr); }
+.mini-board .lane { min-height: 0; }
+.badges { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+.late-text { color: var(--crit); font-weight: 600; }
+@media (max-width: 960px) { .prog-cell { min-width: 0; width: 60%; } }
+
+/* Operação: tarefas */
+.kcard { color: inherit; }
+.kcard.late { border-color: var(--crit-line); background: linear-gradient(var(--crit-bg), var(--crit-bg)), var(--surface-2); }
+.kcard .proj { font-size: 12px; font-weight: 600; color: var(--cyan); }
+.kcard .hrs { display: flex; flex-direction: column; gap: 4px; }
+.kcard .hrs .meta { display: flex; justify-content: space-between; gap: 8px; }
+.over { color: var(--crit); font-weight: 600; }
+.lane .more { border: 0; padding: 6px 4px; font-size: 13px; }
+
+/* Operação: horas */
+.hbars.wide .hbar { grid-template-columns: 120px minmax(0, 1fr) 64px; }
+.hbar .who, .hbar a { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Chamados */
+.msg.note .bubble { background: transparent; border-style: dashed; border-color: var(--border-strong); }
+.msg .bubble p { margin: 0 0 8px; }
+.msg .bubble p:last-child { margin-bottom: 0; }
+.msg .who .badge { margin-left: 6px; vertical-align: 1px; }
+.reply-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.seg label { height: 32px; padding: 0 12px; border-radius: 6px; font-size: 13px; color: var(--muted); font-weight: 500; display: inline-flex; align-items: center; cursor: pointer; }
+.seg label:hover { color: var(--white); }
+.seg label:has(input:checked) { background: var(--cyan); color: var(--bg); font-weight: 600; }
+.seg label input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.seg label:has(input:focus-visible) { outline: 2px solid var(--cyan); outline-offset: 2px; }
+.steps .cell-sub { font-weight: 500; }
+.msg .who { display: block; white-space: normal; }
+.kcard .meta { white-space: nowrap; }

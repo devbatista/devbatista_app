@@ -28,7 +28,11 @@ module NavigationHelper
     check: "M5 12l5 5L20 7",
     send: "M4 12l16-8-6 16-2-7z",
     x: "M6 6l12 12M18 6L6 18",
-    swap: "M7 7h11l-3-3M17 17H6l3 3"
+    swap: "M7 7h11l-3-3M17 17H6l3 3",
+    clock: "M12 21a9 9 0 100-18 9 9 0 000 18zM12 7v5l3 2",
+    alert: "M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z",
+    board: "M4 4h4v16H4zM10 4h4v10h-4zM16 4h4v13h-4z",
+    list: "M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"
   }.freeze
 
   # Grupos do menu. Cada item aponta para a rota (símbolo do helper de path) e a área da
@@ -44,8 +48,8 @@ module NavigationHelper
       [ "Contratos", :contracts_path, "contratos" ], [ "Serviços contratados", :customer_services_path, "contratos" ]
     ] },
     { key: :op, label: "Operação", items: [
-      [ "Projetos", nil, "projetos" ], [ "Tarefas", nil, "projetos" ],
-      [ "Suporte", nil, "suporte" ], [ "Horas trabalhadas", nil, "horas" ]
+      [ "Projetos", :projects_path, "projetos" ], [ "Tarefas", :tasks_path, "projetos" ],
+      [ "Suporte", :tickets_path, "suporte" ], [ "Horas trabalhadas", :time_entries_path, "horas" ]
     ] },
     { key: :fin, label: "Financeiro", items: [
       [ "Dashboard financeiro", nil, "financeiro" ], [ "Receitas", nil, "financeiro" ],

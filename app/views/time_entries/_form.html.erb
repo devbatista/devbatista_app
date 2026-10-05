@@ -1,0 +1,47 @@
+<% e = time_entry %>
+<% back = case params[:voltar]
+          when "projeto" then e.project ? project_path(e.project, aba: "horas") : time_entries_path
+          when "chamado" then e.ticket ? ticket_path(e.ticket) : time_entries_path
+          when "tarefas" then tasks_path
+          else time_entries_path end %>
+<%# Vindo de um projeto, tarefa ou chamado, o cliente já está definido; a lista de tarefas fica só a do projeto. %>
+<% fixed = e.new_record? && (e.project || e.ticket) %>
+<%= render layout: "shared/drawer_form", locals: { title: e.new_record? ? "Registrar horas" : "Editar lançamento", cancel_path: back } do %>
+  <%= form_with model: e, class: "form", data: { turbo_frame: "_top" } do |f| %>
+    <%= hidden_field_tag :voltar, params[:voltar] if params[:voltar] %>
+    <div class="drawer-body form">
+      <%= render "shared/form_errors", record: e %>
+      <% if fixed %>
+        <%= f.hidden_field :company_id %><%= f.hidden_field :ticket_id %>
+        <div class="callout"><span><%= e.company.trade_name %><%= " · #{e.project.name}" if e.project %><%= " · chamado #{e.ticket.code} — #{e.ticket.subject}" if e.ticket %></span></div>
+      <% end %>
+      <div class="form-grid">
+        <% if policy(TimeEntry).assign_user? %>
+          <div class="field full"><%= f.label :user_id do %>Usuário <span class="req">*</span><% end %><%= f.collection_select :user_id, User.active.or(User.where(id: e.user_id)).by_name, :id, :name, {}, class: "select" %><span class="hint">Preenchido com você; só administradores lançam para outra pessoa</span></div>
+        <% end %>
+        <% if fixed %>
+          <% if e.project %>
+            <%= f.hidden_field :project_id %>
+            <div class="field full"><%= f.label :task_id, "Tarefa" %><%= f.collection_select :task_id, e.project.tasks.by_due, :id, :title, { include_blank: "Nenhuma (horas do projeto)" }, class: "select" %></div>
+          <% else %>
+            <div class="field full"><%= f.label :project_id, "Projeto" %><%= f.collection_select :project_id, e.company.projects.where(status: Project::ACTIVE_STATUSES).by_name, :id, :name, { include_blank: "Nenhum" }, class: "select" %></div>
+          <% end %>
+        <% else %>
+          <% companies = Company.where.not(status: "inactive").or(Company.where(id: e.company_id)).by_name %>
+          <% projects = Project.where(status: Project::ACTIVE_STATUSES).or(Project.where(id: e.project_id)).includes(:company).by_name.group_by(&:company) %>
+          <% tasks = Task.where(project_id: projects.values.flatten.map(&:id)).by_due.group_by(&:project_id) %>
+          <div class="field full"><%= f.label :company_id do %>Cliente <span class="req">*</span><% end %><%= f.collection_select :company_id, companies, :id, :trade_name, { prompt: "Selecione" }, class: "select", required: true %></div>
+          <div class="field"><%= f.label :project_id, "Projeto" %><%= f.select :project_id, grouped_options_for_select(projects.sort_by { |c, _| c.trade_name }.map { |c, list| [ c.trade_name, list.map { |p| [ p.name, p.id ] } ] }, e.project_id), { include_blank: "Nenhum (opcional)" }, class: "select" %><span class="hint">Precisa ser do cliente escolhido</span></div>
+          <div class="field"><%= f.label :task_id, "Tarefa" %><%= f.select :task_id, grouped_options_for_select(projects.values.flatten.select { |p| tasks[p.id] }.map { |p| [ p.name, tasks[p.id].map { |t| [ t.title, t.id ] } ] }, e.task_id), { include_blank: "Nenhuma (opcional)" }, class: "select" %><span class="hint">Escolher a tarefa já define o projeto</span></div>
+        <% end %>
+        <div class="field"><%= f.label :worked_on do %>Data <span class="req">*</span><% end %><%= f.date_field :worked_on, class: "input", required: true, max: Date.current %></div>
+        <div class="field"><%= f.label :duration do %>Duração (hh:mm) <span class="req">*</span><% end %><%= f.text_field :duration, class: "input num", inputmode: "numeric", placeholder: "02:30", required: true, pattern: "[0-9]{1,2}:[0-5][0-9]|[0-9]+([.,][0-9]+)?|[0-9]{1,2}h([0-5][0-9])?" %></div>
+        <div class="field full"><%= f.label :description, "Descrição" %><%= f.text_area :description, class: "textarea", placeholder: "Resumo do que foi feito" %></div>
+      </div>
+    </div>
+    <div class="drawer-foot">
+      <%= link_to "Cancelar", back, class: "btn", data: { close: true, turbo_frame: "_top" } %>
+      <%= f.submit e.new_record? ? "Registrar" : "Salvar alterações", class: "btn pri" %>
+    </div>
+  <% end %>
+<% end %>

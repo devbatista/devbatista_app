@@ -1,0 +1,40 @@
+<% open = @tickets.select(&:open?) %>
+<% critical = open.count(&:critical?) %>
+<% resolved_month = @tickets.select { |t| t.resolved_at && t.resolved_at.to_date.in?(Date.current.all_month) } %>
+<% resolved_90 = @tickets.select { |t| t.resolved_at && t.resolved_at >= 90.days.ago } %>
+<div class="grid-kpi g4">
+  <div class="card kpi<%= ' alert' if critical.positive? %>"><span class="eyebrow">Abertos</span><span class="v"><%= open.size %></span><span class="f"><%= critical.positive? ? pluralize(critical, "crítico", plural: "críticos") : "nenhum crítico" %></span></div>
+  <div class="card kpi"><span class="eyebrow">Resolvidos em <%= l(Date.current, format: "%B") %></span><span class="v"><%= resolved_month.size %></span><span class="f"><%= resolved_month.first(3).map(&:code).join(" · ").presence || "—" %></span></div>
+  <div class="card kpi"><span class="eyebrow">Tempo médio de resolução</span><span class="v"><%= resolved_90.any? ? duration_text(resolved_90.sum(&:resolution_minutes) / resolved_90.size) : "—" %></span><span class="f">últimos 90 dias</span></div>
+  <div class="card kpi"><span class="eyebrow">Total em <%= Date.current.year %></span><span class="v"><%= @tickets.count { |t| t.opened_at.year == Date.current.year } %></span><span class="f"><%= @tickets.any? ? "desde #{date_br(@tickets.map(&:opened_at).min)}" : "nenhum chamado" %></span></div>
+</div>
+<div class="card">
+  <div class="card-head">
+    <h2>Chamados</h2>
+    <% if policy(Ticket).create? %><%= drawer_link_to new_ticket_path(empresa: @company.id), class: "btn sm" do %><%= icon(:plus, size: 14, stroke: 2) %>Novo chamado<% end %><% end %>
+  </div>
+  <% if @tickets.any? %>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr><th>Nº</th><th>Título</th><th>Categoria</th><th>Prioridade</th><th>Responsável</th><th>Abertura</th><th>Conclusão</th><th>Status</th></tr></thead>
+        <tbody>
+          <% @tickets.first(20).each do |ticket| %>
+            <tr data-href="<%= ticket_path(ticket) %>" class="<%= 'late' if ticket.critical? && ticket.open? %>">
+              <td data-label="Nº"><%= link_to ticket.code, ticket_path(ticket), class: "strong" %></td>
+              <td data-label="Título" class="strong"><%= ticket.subject %><% if ticket.contact %><span class="cell-sub">Contato: <%= ticket.contact.name %></span><% end %></td>
+              <td data-label="Categoria"><%= ticket.category_label %></td>
+              <td data-label="Prioridade"><%= priority_badge(ticket) %></td>
+              <td data-label="Responsável"><%= ticket.user&.name || "—" %></td>
+              <td data-label="Abertura" class="mono"><%= date_br(ticket.opened_at) %></td>
+              <td data-label="Conclusão" class="<%= ticket.resolved_at ? 'mono' : 'muted' %>"><%= date_br(ticket.resolved_at) %></td>
+              <td data-label="Status"><%= ticket_badge(ticket) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination"><span>Mostrando <%= [ @tickets.size, 20 ].min %> de <%= pluralize(@tickets.size, "chamado") %></span><%= link_to "Ver todos em Suporte →", tickets_path(empresa: @company.id), style: "font-weight:600" %></div>
+  <% else %>
+    <%= render "shared/empty", title: "Nenhum chamado", text: "Chamados abertos pela equipe para este cliente aparecem aqui." %>
+  <% end %>
+</div>

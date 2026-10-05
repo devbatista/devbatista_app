@@ -1,0 +1,28 @@
+<% back = project.persisted? ? project_path(project) : (params[:voltar] == "empresa" && project.company ? company_path(project.company, aba: "projetos") : projects_path) %>
+<%= render layout: "shared/drawer_form", locals: { title: project.new_record? ? "Novo projeto" : "Editar projeto", cancel_path: back } do %>
+  <%= form_with model: project, class: "form", data: { turbo_frame: "_top" } do |f| %>
+    <div class="drawer-body form">
+      <%= render "shared/form_errors", record: project %>
+      <div class="form-grid">
+        <div class="field full"><%= f.label :company_id do %>Cliente <span class="req">*</span><% end %><%= f.collection_select :company_id, Company.where.not(status: "inactive").or(Company.where(id: project.company_id)).by_name, :id, :trade_name, { prompt: "Selecione" }, class: "select", required: true %></div>
+        <div class="field full"><%= f.label :name do %>Nome <span class="req">*</span><% end %><%= f.text_field :name, class: "input", required: true, placeholder: "Ex.: Portal ACME — Fase 3" %></div>
+        <div class="field full"><%= f.label :description, "Descrição" %><%= f.text_area :description, class: "textarea", placeholder: "Objetivo e escopo resumido" %></div>
+        <div class="field"><%= f.label :user_id do %>Responsável <span class="req">*</span><% end %><%= f.collection_select :user_id, User.active.or(User.where(id: project.user_id)).by_name, :id, :name, { prompt: "Selecione" }, class: "select", required: true %></div>
+        <div class="field"><%= f.label :status do %>Status <span class="req">*</span><% end %><%= f.select :status, Project.options_for_status, {}, class: "select" %></div>
+        <div class="field"><%= f.label :start_date, "Data inicial" %><%= f.date_field :start_date, class: "input" %></div>
+        <div class="field"><%= f.label :due_date do %>Previsão <span class="req">*</span><% end %><%= f.date_field :due_date, class: "input", required: true %><span class="hint">Passou da previsão sem concluir → atrasado</span></div>
+        <div class="field"><%= f.label :budget, "Orçamento (R$)" %><%= f.number_field :budget, class: "input num", step: "0.01", min: 0, placeholder: "0,00" %><span class="hint">Valor orçado ou vendido</span></div>
+        <div class="field"><%= f.label :progress, "Progresso (%)" %><%= f.number_field :progress, class: "input num", min: 0, max: 100 %><span class="hint">Usado só no modo manual</span></div>
+        <div class="field full"><label class="check"><%= f.check_box :progress_from_tasks %> Calcular o progresso pelas tarefas concluídas</label><span class="hint">Desmarque para informar o percentual manualmente.</span></div>
+        <% if project.company %>
+          <div class="field"><%= f.label :contract_id, "Contrato" %><%= f.select :contract_id, project.company.contracts.order(number: :desc).map { |c| [ c.to_s, c.id ] }, { include_blank: "Sem contrato" }, class: "select" %></div>
+          <div class="field"><%= f.label :proposal_id, "Proposta" %><%= f.select :proposal_id, project.company.proposals.where(status: %w[sent viewed approved]).order(year: :desc, number: :desc).map { |p| [ "#{p.code} · #{p.status_label}", p.id ] }, { include_blank: "Sem proposta" }, class: "select" %></div>
+        <% end %>
+      </div>
+    </div>
+    <div class="drawer-foot">
+      <%= link_to "Cancelar", back, class: "btn", data: { close: true, turbo_frame: "_top" } %>
+      <%= f.submit project.new_record? ? "Salvar projeto" : "Salvar alterações", class: "btn pri" %>
+    </div>
+  <% end %>
+<% end %>

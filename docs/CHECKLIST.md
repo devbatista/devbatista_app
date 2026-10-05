@@ -4,7 +4,7 @@ Acompanha a construção da V1, fase por fase. Cada item é um requisito funcion
 
 Marque `[x]` só quando o item cumprir o [Pronto quando](#pronto-quando) abaixo.
 
-**Andamento:** fases 1 a 3 concluídas · próxima: fase 4 (Operação)
+**Andamento:** fases 1 a 4 concluídas · próxima: fase 5 (Financeiro)
 
 ## Pronto quando
 
@@ -59,7 +59,7 @@ Primeiro módulo de negócio. Traz também o que os outros módulos vão usar: h
   - [x] Campo `external_id` para o HubSpot
 - [x] **RF 13 · Contatos** — [contatos](design/clientes/contatos.html)
   - [x] Vários por empresa; só um principal (marcar outro desmarca o anterior)
-  - [ ] Principal sugerido por padrão em propostas ✓, chamados e cobranças (fases 4 e 5)
+  - [ ] Principal sugerido por padrão em propostas ✓, chamados ✓ e cobranças (fase 5)
   - [x] Campo `external_id` para o HubSpot
 - [x] **RF 15 · Catálogo de serviços** — [catálogo](design/administracao/catalogo-servicos.html)
   - [x] Categoria, tipo (Recorrente, Projeto, Avulso) e preço padrão
@@ -75,7 +75,7 @@ Primeiro módulo de negócio. Traz também o que os outros módulos vão usar: h
 - [x] **RF 37 · Documentos** — [spec](specs/admin-devbatista-mvp/04-requisitos-funcionais/06-gestao-e-administracao.md) · [documentos](design/gestao/documentos.html)
   - [x] Upload por Active Storage (S3 em produção)
   - [x] Vínculo polimórfico e obrigatório; nesta fase, cliente ou contrato
-  - [ ] Proposta ✓; projeto e fornecedor (fases 4 e 5)
+  - [ ] Proposta ✓, projeto ✓; fornecedor (fase 5)
   - [x] "Enviado por" e data automáticos
 - [x] **RF 5 · Notificações (base)** — [spec](specs/admin-devbatista-mvp/04-requisitos-funcionais/01-core.md) · [central](design/geral/notificacoes.html)
   - [x] Central com lida/não lida e link para o registro; sino da barra superior
@@ -124,30 +124,31 @@ Primeiro módulo de negócio. Traz também o que os outros módulos vão usar: h
 - [x] Probabilidade sugerida pela etapa e editável (premissa adotada; [confirmar](specs/admin-devbatista-mvp/08-duvidas-em-aberto-e-premissas.md))
 - [x] Proposta Visualizada por marcação manual (premissa adotada; confirmar)
 
-## Fase 4 · Operação
+## Fase 4 · Operação ✅
 
-- [ ] **RF 18 · Projetos** — [spec](specs/admin-devbatista-mvp/04-requisitos-funcionais/03-clientes-e-operacao.md) · [projetos](design/operacao/projetos.html) · [projeto](design/operacao/projeto.html)
-  - [ ] Atrasado = previsão ultrapassada e status diferente de Concluído ou Cancelado; destaque e alerta
-  - [ ] Progresso manual ou calculado pelas tarefas concluídas
-- [ ] **RF 19 · Tarefas** — [tarefas](design/operacao/tarefas.html)
-  - [ ] Lista e quadro; status Backlog, A fazer, Em andamento, Em revisão, Concluída
-  - [ ] Prioridade Baixa, Normal, Alta, Urgente
-  - [ ] Estimativa × horas registradas
-- [ ] **RF 20 · Horas trabalhadas** — [horas](design/operacao/horas.html)
-  - [ ] Cliente e duração obrigatórios; projeto e tarefa opcionais
-  - [ ] Perfil "Próprio" só edita os próprios lançamentos
-- [ ] **RF 21 · Chamados** — [chamados](design/operacao/chamados.html) · [chamado](design/operacao/chamado.html)
-  - [ ] Número sequencial e data de abertura automáticos; data de conclusão ao Resolver
-  - [ ] Fluxo Aberto → Em análise → Em atendimento → Aguardando cliente → Resolvido → Fechado
-  - [ ] Categorias: erro, dúvida, melhoria, infraestrutura, acesso
-  - [ ] Histórico de mensagens (TicketMessage)
-  - [ ] Prioridade Crítica notifica na hora, sem esperar a rotina diária
-- [ ] Visão 360º: abas Projetos e Chamados
-- [ ] Busca global: projetos e chamados
-- [ ] Contato principal sugerido ao abrir chamado
-- [ ] Documentos: vínculo com projeto
-- [ ] Notificações: tarefas e projetos atrasados, chamado crítico
-- [ ] Visão 360º: cartões Projetos ativos e Chamados abertos
+- [x] **RF 18 · Projetos** — [spec](specs/admin-devbatista-mvp/04-requisitos-funcionais/03-clientes-e-operacao.md) · [projetos](design/operacao/projetos.html) · [projeto](design/operacao/projeto.html)
+  - [x] Atrasado = previsão ultrapassada e status diferente de Concluído ou Cancelado; destaque e alerta
+  - [x] Progresso manual ou calculado pelas tarefas concluídas
+- [x] **RF 19 · Tarefas** — [tarefas](design/operacao/tarefas.html)
+  - [x] Lista e quadro; status Backlog, A fazer, Em andamento, Em revisão, Concluída
+  - [x] Prioridade Baixa, Normal, Alta, Urgente
+  - [x] Estimativa × horas registradas
+- [x] **RF 20 · Horas trabalhadas** — [horas](design/operacao/horas.html)
+  - [x] Cliente e duração obrigatórios; projeto e tarefa opcionais
+  - [x] Perfil "Próprio" só edita os próprios lançamentos
+- [x] **RF 21 · Chamados** — [chamados](design/operacao/chamados.html) · [chamado](design/operacao/chamado.html)
+  - [x] Número sequencial e data de abertura automáticos; data de conclusão ao Resolver
+  - [x] Fluxo Aberto → Em análise → Em atendimento → Aguardando cliente → Resolvido → Fechado
+  - [x] Categorias: erro, dúvida, melhoria, infraestrutura, acesso
+  - [x] Histórico de mensagens (TicketMessage)
+  - [x] Prioridade Crítica notifica na hora, sem esperar a rotina diária
+- [x] Visão 360º: abas Projetos e Chamados
+- [x] Busca global: projetos e chamados
+- [x] Contato principal sugerido ao abrir chamado
+- [x] Documentos: vínculo com projeto
+- [x] Notificações: tarefas e projetos atrasados (aviso no 1º dia e a cada 7), chamado crítico na hora
+- [x] Visão 360º: cartões Projetos ativos e Chamados abertos
+- [x] Premissas adotadas (estimativa do projeto = soma das tarefas; lembrete a cada 7 dias de atraso; [confirmar](specs/admin-devbatista-mvp/08-duvidas-em-aberto-e-premissas.md))
 
 ## Fase 5 · Financeiro
 

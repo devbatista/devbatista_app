@@ -4,7 +4,7 @@ class Document < ApplicationRecord
   include Auditable
   include LabeledEnums
 
-  LINKABLE_TYPES = %w[Company Contract Proposal].freeze # Projeto e fornecedor entram nas próximas fases
+  LINKABLE_TYPES = %w[Company Contract Proposal Project].freeze # Fornecedor entra na fase 5
   MAX_SIZE = 25.megabytes
 
   audited area: "documentos"

@@ -27,6 +27,7 @@ end
 unless Rails.env.production?
   load Rails.root.join("db/seeds/clientes.rb")
   load Rails.root.join("db/seeds/comercial.rb")
+  load Rails.root.join("db/seeds/operacao.rb")
 end
 
 puts "Perfis: #{Role.count} · Usuários: #{User.count}"
@@ -34,4 +35,6 @@ puts "Empresas: #{Company.count} · Contatos: #{Contact.count} · Contratos: #{C
      "Serviços contratados: #{CustomerService.count} · MRR: R$ #{CustomerService.active.sum(:mrr_cents) / 100}" unless Rails.env.production?
 puts "Leads: #{Lead.count} · Oportunidades: #{Opportunity.count} · Propostas: #{Proposal.count} · " \
      "Ponderada em aberto: R$ #{Opportunity.open.sum(&:weighted_cents) / 100}" unless Rails.env.production?
+puts "Projetos: #{Project.count} (atrasados: #{Project.late.count}) · Tarefas: #{Task.count} · Horas: #{TimeEntry.sum(:minutes) / 60}h em " \
+     "#{TimeEntry.count} lançamentos · Chamados: #{Ticket.count} (#{Ticket.open.count} abertos)" unless Rails.env.production?
 puts "Senha dos usuários de exemplo: #{password}" unless Rails.env.production?

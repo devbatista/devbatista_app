@@ -7,7 +7,13 @@ class Notification < ApplicationRecord
     "contract_expiring" => { label: "Contratos vencendo", roles: %w[admin comercial], area: "contratos",
                              trigger: -> { "#{Setting[:contract_alert_days].to_sentence} dias antes do término" } },
     "proposal_expiring" => { label: "Propostas expirando", roles: :owner, area: "comercial",
-                             trigger: -> { "#{Setting[:proposal_alert_days]} dias antes do fim da validade" } }
+                             trigger: -> { "#{Setting[:proposal_alert_days]} dias antes do fim da validade" } },
+    "task_late" => { label: "Tarefas atrasadas", roles: :owner, area: "projetos",
+                     trigger: -> { "Prazo ultrapassado e tarefa não concluída" } },
+    "project_late" => { label: "Projetos atrasados", roles: :owner, area: "projetos", audience: "responsável e administradores",
+                        trigger: -> { "Previsão ultrapassada e projeto não concluído" } },
+    "ticket_critical" => { label: "Chamados críticos", roles: %w[admin suporte desenvolvedor], area: "suporte",
+                           trigger: -> { "Abertura ou mudança para prioridade Crítica (na hora)" } }
   }.freeze
 
   labeled_enum :level, { info: "Informativo", warn: "Atenção", crit: "Crítico" }, prefix: true

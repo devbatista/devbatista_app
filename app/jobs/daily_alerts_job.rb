@@ -5,5 +5,6 @@ class DailyAlertsJob < ApplicationJob
   def perform
     ContractAlertsJob.perform_now
     ProposalAlertsJob.perform_now
+    OperationAlertsJob.perform_now
   end
 end

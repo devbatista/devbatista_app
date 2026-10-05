@@ -1,0 +1,4 @@
+<% page_title "Novo chamado" %>
+<% nav_location :op, "Suporte" %>
+<% breadcrumb ["Operação"], ["Suporte", tickets_path], ["Novo chamado"] %>
+<div class="form-page"><%= render "form", ticket: @ticket %></div>

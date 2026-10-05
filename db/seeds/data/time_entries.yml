@@ -1,0 +1,23 @@
+# Extraído de docs/design/operacao/horas.html (lista: 12 lançamentos de setembro) e
+# operacao/projeto.html (aba Horas do Portal ACME — Fase 2: lançamento de 11/09).
+#
+# Observações:
+# - duration em hh:mm. task e ticket são opcionais; ticket é o número do chamado.
+# - O restante das horas de cada tarefa (tasks.yml, "logged") e de cada projeto
+#   (projects.yml, "hours") é completado pelo seed com lançamentos de até 6 h em dias úteis.
+# - Os totais de setembro por cliente e por pessoa de horas.html (262h40, 148 lançamentos)
+#   não são reproduzidos: o design não lista os lançamentos que os formam.
+
+- { date: "2026-09-17", user: elisa.prado@devbatista.com.br, company: Cliente C, project: ERP Cliente C, task: Fechamento de estoque, duration: "04:00", description: Ajuste no cálculo do custo médio no fechamento }
+- { date: "2026-09-17", user: diego.rocha@devbatista.com.br, company: Empresa ACME, project: Portal ACME — Fase 2, task: Módulo de relatórios, duration: "03:30", description: Filtros por período e agrupamento por filial }
+- { date: "2026-09-17", user: diego.rocha@devbatista.com.br, company: Empresa Delta, ticket: 2394, duration: "01:40", description: "Diagnóstico e correção da API Delta — chamado #2394" }
+- { date: "2026-09-17", user: carla.mendes@devbatista.com.br, company: Empresa Delta, ticket: 2394, duration: "01:15", description: "Atendimento do chamado crítico #2394" }
+- { date: "2026-09-16", user: diego.rocha@devbatista.com.br, company: Empresa ACME, project: Portal ACME — Fase 2, task: Módulo de relatórios, duration: "06:00", description: Consultas agregadas e paginação dos relatórios }
+- { date: "2026-09-16", user: elisa.prado@devbatista.com.br, company: Cliente A, project: Painel de indicadores, task: Gráficos de vendas, duration: "03:00", description: Gráfico de vendas por região e período }
+- { date: "2026-09-16", user: rafael@devbatista.com.br, company: Empresa ACME, duration: "04:00", description: "Consultoria de TI: planejamento de infraestrutura para 2027 (contrato #104)" }
+- { date: "2026-09-16", user: carla.mendes@devbatista.com.br, company: Empresa XYZ, ticket: 2392, duration: "00:45", description: "Criação de usuário para o financeiro — chamado #2392" }
+- { date: "2026-09-15", user: diego.rocha@devbatista.com.br, company: Empresa ACME, project: Portal ACME — Fase 2, task: Permissões por usuário do cliente, duration: "04:00", description: Modelagem de papéis e políticas de acesso }
+- { date: "2026-09-15", user: elisa.prado@devbatista.com.br, company: Empresa ACME, project: Portal ACME — Fase 2, task: Área do cliente — login, duration: "02:00", description: Revisão de código e testes do fluxo de login }
+- { date: "2026-09-15", user: diego.rocha@devbatista.com.br, company: Empresa XYZ, duration: "03:00", description: "Manutenção mensal do Sistema ERP: atualização de dependências e conferência de backups" }
+- { date: "2026-09-14", user: rafael@devbatista.com.br, company: Empresa ACME, project: Portal ACME — Fase 2, duration: "01:30", description: Reunião de acompanhamento com a ACME }
+- { date: "2026-09-11", user: diego.rocha@devbatista.com.br, company: Empresa ACME, project: Portal ACME — Fase 2, task: Envio de e-mails transacionais, duration: "06:00", description: Templates e disparo via Mailgun }

@@ -5,12 +5,12 @@
   <div class="titles">
     <span class="section-label">Busca global</span>
     <h1><%= @query.present? ? "Resultados para “#{@query}”" : "Buscar" %></h1>
-    <p class="lead">Clientes, contatos, contratos, propostas e leads. Os resultados respeitam as permissões do seu perfil.</p>
+    <p class="lead">Clientes, contatos, contratos, projetos, chamados, propostas e leads. Os resultados respeitam as permissões do seu perfil.</p>
   </div>
 </div>
 
 <%= form_with url: search_path, method: :get, class: "toolbar" do %>
-  <label class="search-field" style="flex:1;max-width:520px"><span class="sr-only">Termo de busca</span><%= icon(:search, size: 16, stroke: 1.8) %><%= search_field_tag :q, @query, class: "input", placeholder: "Nome, CNPJ, e-mail ou número do contrato", autofocus: true, style: "width:100%" %></label>
+  <label class="search-field" style="flex:1;max-width:520px"><span class="sr-only">Termo de busca</span><%= icon(:search, size: 16, stroke: 1.8) %><%= search_field_tag :q, @query, class: "input", placeholder: "Nome, CNPJ, e-mail, número do contrato ou do chamado", autofocus: true, style: "width:100%" %></label>
   <button class="btn" type="submit">Buscar</button>
 <% end %>
 
@@ -25,6 +25,6 @@
       </section>
     <% end %>
   <% else %>
-    <section class="card"><%= render "shared/empty", title: "Nada encontrado", text: "Tente outro termo: nome fantasia, razão social, CNPJ, nome ou e-mail do contato, número do contrato.", icon_name: :search %></section>
+    <section class="card"><%= render "shared/empty", title: "Nada encontrado", text: "Tente outro termo: nome fantasia, razão social, CNPJ, nome ou e-mail do contato, número do contrato ou do chamado, nome do projeto.", icon_name: :search %></section>
   <% end %>
 <% end %>

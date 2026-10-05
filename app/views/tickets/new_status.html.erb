@@ -1,0 +1,18 @@
+<% page_title "Mudar status do chamado #{@ticket.code}" %>
+<% nav_location :op, "Suporte" %>
+<% breadcrumb ["Operação"], ["Suporte", tickets_path], [@ticket.code, ticket_path(@ticket)], ["Mudar status"] %>
+<div class="form-page">
+  <%= render layout: "shared/drawer_form", locals: { title: "Mudar status do chamado #{@ticket.code}", cancel_path: ticket_path(@ticket) } do %>
+    <%= form_with scope: :status_change, url: status_ticket_path(@ticket), method: :patch, class: "form", data: { turbo_frame: "_top" } do |f| %>
+      <div class="drawer-body form">
+        <div class="callout"><span><%= @ticket.company.trade_name %> · <%= @ticket.subject %> · hoje <b class="strong"><%= @ticket.status_label %></b></span></div>
+        <div class="field"><%= f.label :status do %>Novo status <span class="req">*</span><% end %><%= f.select :status, Ticket.options_for_status, { selected: @status_change[:status] }, class: "select", required: true %><span class="hint">Ao marcar como Resolvido, a data e a hora de conclusão são registradas automaticamente. Voltar para um status em aberto apaga a conclusão.</span></div>
+        <div class="field"><%= f.label :message, "Mensagem ao cliente" %><%= f.text_area :message, class: "textarea", placeholder: "Resumo da solução aplicada (fica no histórico do atendimento)" %></div>
+      </div>
+      <div class="drawer-foot">
+        <%= link_to "Cancelar", ticket_path(@ticket), class: "btn", data: { close: true, turbo_frame: "_top" } %>
+        <%= f.submit "Salvar status", class: "btn pri" %>
+      </div>
+    <% end %>
+  <% end %>
+</div>

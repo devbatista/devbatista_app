@@ -1,0 +1,79 @@
+<% page_title "Projetos" %>
+<% nav_location :op, "Projetos" %>
+<% breadcrumb ["Operação"], ["Projetos"] %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Operação · <%= l(Date.current, format: :month_year).capitalize %></span>
+    <h1>Projetos</h1>
+  </div>
+  <div class="actions">
+    <%= link_to "Ver quadro de tarefas", tasks_path, class: "btn" if policy(Task).index? %>
+    <% if policy(Project).create? %><%= drawer_link_to new_project_path, class: "btn pri" do %><%= icon(:plus, size: 16, stroke: 2) %>Novo projeto<% end %><% end %>
+  </div>
+</div>
+
+<div class="grid-kpi g4">
+  <div class="card kpi"><span class="eyebrow">Projetos ativos</span><span class="v"><%= @kpis[:active] %></span><span class="f">planejamento, andamento, pausados e aguardando</span></div>
+  <%= link_to projects_path(atrasados: "1"), class: "card kpi#{' alert' if @late.any?}" do %>
+    <span class="eyebrow">Atrasados</span><span class="v"><%= @late.size %></span>
+    <span class="f"><% if (first = @late.first) %><span class="badge b-crit"><%= first.name %></span>previsão <%= date_br(first.due_date).first(5) %><% else %>nenhum projeto passou da previsão<% end %></span>
+  <% end %>
+  <div class="card kpi"><span class="eyebrow">Orçamento em carteira</span><span class="v"><%= brl(@kpis[:budget]) %></span><span class="f">soma dos projetos ativos</span></div>
+  <div class="card kpi"><span class="eyebrow">Horas em projetos</span><span class="v"><%= hours_br(@kpis[:hours_month]) %></span><span class="f">registradas em <%= l(Date.current, format: "%B") %><%= " · #{pluralize(@kpis[:projects_month], 'projeto')}" if @kpis[:projects_month].positive? %></span></div>
+</div>
+
+<% @late.first(2).each do |project| %>
+  <div class="callout crit" role="status">
+    <%= icon(:alert, size: 20, stroke: 1.8, style: "color:var(--crit);flex:none;margin-top:1px") %>
+    <span><b class="strong"><%= project.name %></b> passou da previsão de <%= date_br(project.due_date) %> há <%= pluralize(project.days_late, "dia") %> e segue <%= project.status_label %> (<%= project.progress %>%). <%= project.user.name %> e os administradores são avisados pela rotina diária. <%= link_to "Abrir projeto", project %></span>
+  </div>
+<% end %>
+
+<%= form_with url: projects_path, method: :get, class: "toolbar" do %>
+  <%= status_filter :status, [ [ "todos", "Todos", @counts.values.sum ] ] + Project::STATUS_LABELS.map { |k, v| [ k, v, @counts[k].to_i ] } %>
+  <span class="spacer"></span>
+  <%= hidden_field_tag :status, params[:status], id: nil if params[:status].present? %>
+  <%= search_field placeholder: "Projeto ou cliente", label: "Buscar projeto" %>
+  <label class="sr-only" for="f-empresa">Cliente</label>
+  <%= select_tag :empresa, options_from_collection_for_select(@companies, :id, :trade_name, params[:empresa]), include_blank: "Todos os clientes", class: "select", id: "f-empresa", onchange: "this.form.requestSubmit()" %>
+  <label class="sr-only" for="f-resp">Responsável</label>
+  <%= select_tag :responsavel, options_from_collection_for_select(@users, :id, :name, params[:responsavel]), include_blank: "Todos os responsáveis", class: "select", id: "f-resp", onchange: "this.form.requestSubmit()" %>
+  <label class="check"><%= check_box_tag :atrasados, "1", params[:atrasados] == "1", id: "f-atrasados", onchange: "this.form.requestSubmit()" %> Só atrasados</label>
+  <%= render "shared/sort_select" %>
+<% end %>
+
+<section class="card" aria-label="Lista de projetos">
+  <% if @projects.any? %>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr><th>Projeto</th><th>Responsável</th><th>Início</th><th>Previsão</th><th class="num">Orçamento</th><th class="num">Horas</th><th>Progresso</th><th>Status</th></tr></thead>
+        <tbody>
+          <% @projects.each do |project| %>
+            <% late = project.late? %>
+            <% estimate = @estimates[project.id].to_i %>
+            <tr data-href="<%= project_path(project) %>" class="<%= 'late' if late %>">
+              <td data-label="Projeto"><%= link_to project.name, project, class: "strong" %>
+                <span class="cell-sub"><%= link_to project.company.trade_name, company_path(project.company) %><%=
+                  if project.done? && project.closed_on then " · entregue em #{date_br(project.closed_on)}"
+                  elsif project.cancelled? && project.closed_on then " · cancelado em #{date_br(project.closed_on)}"
+                  elsif project.contract then " · contrato #{project.contract.code}"
+                  end %></span></td>
+              <td data-label="Responsável"><span class="who"><span class="avatar sm soft"><%= project.user.initials %></span><%= project.user.name %></span></td>
+              <td data-label="Início" class="mono"><%= date_br(project.start_date) %></td>
+              <td data-label="Previsão" class="mono<%= ' late-text' if late %><%= ' muted' if project.cancelled? %>"><%= date_br(project.due_date) %><% if late %><span class="cell-sub late-text"><%= pluralize(project.days_late, "dia") %> de atraso</span><% end %></td>
+              <td data-label="Orçamento" class="num nowrap<%= ' muted' if project.cancelled? %>" <%= 'style="text-decoration:line-through"'.html_safe if project.cancelled? %>><%= brl(project.budget_cents) %></td>
+              <td data-label="Horas" class="num"><%= hours_br(@hours[project.id].to_i) %><% if estimate.positive? %><span class="cell-sub">de <%= hours_br(estimate) %> estimadas</span><% end %></td>
+              <td data-label="Progresso"><div class="prog-cell"><%= progress_bar(project.progress, label: "Progresso #{project.progress}%", tone: (late ? "crit" : (project.paused? ? "warn" : (project.cancelled? ? "off" : nil)))) %><b><%= project.progress %>%</b></div></td>
+              <td data-label="Status"><span class="badges"><%= project_badge(project) %><% if late %><span class="badge b-crit dot-l">Atrasado</span><% end %></span></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <%= render "shared/pagination", pager: @pager %>
+    <div class="card-foot"><span>Atrasado = previsão ultrapassada e status diferente de Concluído ou Cancelado</span></div>
+  <% else %>
+    <%= render "shared/empty", title: "Nenhum projeto encontrado", text: "Cadastre o projeto com cliente, responsável, previsão e orçamento. O progresso pode ser calculado pelas tarefas." %>
+  <% end %>
+</section>

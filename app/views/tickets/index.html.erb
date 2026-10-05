@@ -1,0 +1,74 @@
+<% page_title "Suporte" %>
+<% nav_location :op, "Suporte" %>
+<% breadcrumb ["Operação"], ["Suporte"] %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Operação · Chamados</span>
+    <h1>Suporte</h1>
+    <p class="lead">No MVP só a equipe abre chamados. Prioridade Crítica notifica Suporte, Desenvolvimento e Administração na hora.</p>
+  </div>
+  <% if policy(Ticket).create? %>
+    <div class="actions"><%= drawer_link_to new_ticket_path, class: "btn pri" do %><%= icon(:plus, size: 16, stroke: 2) %>Novo chamado<% end %></div>
+  <% end %>
+</div>
+
+<div class="grid-kpi g4">
+  <%= link_to tickets_path, class: "card kpi" do %><span class="eyebrow">Chamados abertos</span><span class="v"><%= @kpis[:open] %></span><span class="f">aberto, em análise, em atendimento ou aguardando</span><% end %>
+  <%= link_to tickets_path(prioridade: "critical"), class: "card kpi#{' alert' if @critical.any?}" do %>
+    <span class="eyebrow">Críticos</span><span class="v"><%= @critical.size %></span>
+    <span class="f"><% if (c = @critical.first) %><span class="badge b-crit"><%= c.code %></span><%= c.company.trade_name %> · <%= c.status_label.downcase %><% else %>nenhum crítico em aberto<% end %></span>
+  <% end %>
+  <%= link_to tickets_path(status: "waiting_client"), class: "card kpi" do %><span class="eyebrow">Aguardando cliente</span><span class="v"><%= @waiting.size %></span><span class="f"><%= @waiting.first(2).map { |t| "#{t.code} #{t.company.trade_name}" }.join(" · ").presence || "nenhum" %></span><% end %>
+  <div class="card kpi"><span class="eyebrow">Tempo médio de resolução</span><span class="v"><%= @kpis[:avg_resolution] ? duration_text(@kpis[:avg_resolution]) : "—" %></span><span class="f"><%= pluralize(@kpis[:resolved_count], "resolvido", plural: "resolvidos") %> nos últimos 30 dias</span></div>
+</div>
+
+<% @critical.each do |ticket| %>
+  <%= link_to ticket_path(ticket), class: "callout crit", style: "color:inherit" do %>
+    <%= icon(:alert, size: 20, stroke: 1.8, style: "color:var(--crit);flex:none;margin-top:1px") %>
+    <span><b class="strong">Chamado crítico <%= ticket.code %> — <%= ticket.subject %>.</b> <%= ticket.company.trade_name %> · <%= ticket.status_label.downcase %><%= " com #{ticket.user.name}" if ticket.user %> · aberto em <%= datetime_br(ticket.opened_at) %>. <span style="color:var(--cyan);font-weight:600">Abrir chamado →</span></span>
+  <% end %>
+<% end %>
+
+<%= form_with url: tickets_path, method: :get, class: "toolbar" do %>
+  <%= status_filter :status, [ [ "todos", "Todos", @counts.values.sum ] ] + Ticket::STATUS_LABELS.map { |k, v| [ k, v, @counts[k].to_i ] } %>
+  <span class="spacer"></span>
+  <%= hidden_field_tag :status, params[:status], id: nil if params[:status].present? %>
+  <%= search_field placeholder: "Número ou assunto", label: "Buscar chamado" %>
+  <label class="sr-only" for="f-prio">Prioridade</label>
+  <%= select_tag :prioridade, options_for_select(Ticket.options_for_priority, params[:prioridade]), include_blank: "Todas as prioridades", class: "select", id: "f-prio", onchange: "this.form.requestSubmit()" %>
+  <label class="sr-only" for="f-cat">Categoria</label>
+  <%= select_tag :categoria, options_for_select(Ticket.options_for_category, params[:categoria]), include_blank: "Todas as categorias", class: "select", id: "f-cat", onchange: "this.form.requestSubmit()" %>
+  <label class="sr-only" for="f-resp">Responsável</label>
+  <%= select_tag :responsavel, options_from_collection_for_select(@users, :id, :name, params[:responsavel]), include_blank: "Todos os responsáveis", class: "select", id: "f-resp", onchange: "this.form.requestSubmit()" %>
+  <%= render "shared/sort_select" %>
+<% end %>
+
+<section class="card" aria-label="Lista de chamados">
+  <% if @tickets.any? %>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr><th>Nº</th><th>Assunto</th><th>Cliente</th><th>Categoria</th><th>Prioridade</th><th>Responsável</th><th>Abertura</th><th>Status</th></tr></thead>
+        <tbody>
+          <% @tickets.each do |ticket| %>
+            <% hot = ticket.critical? && ticket.open? %>
+            <tr data-href="<%= ticket_path(ticket) %>" class="<%= 'late' if hot %>">
+              <td data-label="Nº" class="mono"><%= link_to ticket.code, ticket, class: ("strong" if hot) %></td>
+              <td data-label="Assunto"><%= link_to ticket.subject, ticket, class: "strong", style: "color:var(--text)" %>
+                <% if ticket.resolved_at && ticket.status_resolved? %><span class="cell-sub">Resolvido em <%= datetime_br(ticket.resolved_at) %></span><% elsif ticket.contact %><span class="cell-sub">Contato: <%= ticket.contact.name %></span><% end %></td>
+              <td data-label="Cliente"><%= link_to ticket.company.trade_name, company_path(ticket.company) %></td>
+              <td data-label="Categoria"><%= ticket.category_label %></td>
+              <td data-label="Prioridade"><%= priority_badge(ticket) %></td>
+              <td data-label="Responsável"><%= ticket.user&.name || "—" %></td>
+              <td data-label="Abertura" class="mono nowrap"><%= datetime_br(ticket.opened_at) %></td>
+              <td data-label="Status"><%= ticket_badge(ticket) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <%= render "shared/pagination", pager: @pager %>
+  <% else %>
+    <%= render "shared/empty", title: "Nenhum chamado encontrado", text: "Abra o chamado com cliente, assunto, categoria e prioridade. O número e a data de abertura são registrados automaticamente." %>
+  <% end %>
+</section>

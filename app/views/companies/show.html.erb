@@ -3,6 +3,8 @@
 <% breadcrumb ["Clientes"], ["Empresas", companies_path], [@company.trade_name] %>
 <% can_contracts = current_user.can_read?("contratos") %>
 <% can_documents = policy(Document).index? %>
+<% can_projects = current_user.can_read?("projetos") %>
+<% can_tickets = current_user.can_read?("suporte") %>
 <% recurring = @services.select(&:counts_for_mrr?) %>
 <% charge = can_contracts ? @company.next_charge : nil %>
 
@@ -24,13 +26,20 @@
 
 <div class="grid-kpi g4">
   <div class="card kpi"><span class="eyebrow">MRR</span><span class="v"><%= can_contracts ? brl(@company.mrr_cents) : "—" %></span><span class="f"><%= pluralize(recurring.size, "serviço recorrente", plural: "serviços recorrentes") if can_contracts %></span></div>
-  <div class="card kpi soon-card"><span class="eyebrow">Projetos ativos</span><span class="v">—</span><span class="f">chega com o módulo Operação</span></div>
-  <div class="card kpi soon-card"><span class="eyebrow">Chamados abertos</span><span class="v">—</span><span class="f">chega com o módulo Suporte</span></div>
+  <% active_projects = @projects.select(&:active?) %>
+  <% open_tickets = @tickets.select(&:open?) %>
+  <% critical = open_tickets.count(&:critical?) %>
+  <div class="card kpi<%= ' alert' if active_projects.any?(&:late?) %>"><span class="eyebrow">Projetos ativos</span><span class="v"><%= can_projects ? active_projects.size : "—" %></span>
+    <span class="f"><% if (main = active_projects.first) %><span class="badge <%= main.late? ? 'b-crit' : 'b-info' %>"><%= main.progress %>%</span><%= main.late? ? "atrasado" : main.status_label.downcase %><% elsif can_projects %>nenhum em andamento<% end %></span></div>
+  <div class="card kpi<%= ' alert' if critical.positive? %>"><span class="eyebrow">Chamados abertos</span><span class="v"><%= can_tickets ? open_tickets.size : "—" %></span>
+    <span class="f"><% if can_tickets %><span class="badge <%= critical.positive? ? 'b-crit' : 'b-good' %>"><%= critical %></span><%= critical.positive? ? pluralize(critical, "crítico", plural: "críticos") : "nenhum crítico" %><% end %></span></div>
   <div class="card kpi"><span class="eyebrow">Próxima cobrança</span><span class="v"><%= charge ? brl(charge[:cents]) : "—" %></span><span class="f"><%= charge ? "vencimento #{date_br(charge[:date])}" : "sem serviço recorrente ativo" %></span></div>
 </div>
 
 <% tabs = [ [ "resumo", "Resumo", nil ] ]
    tabs += [ [ "servicos", "Serviços", @services.size ], [ "contratos", "Contratos", @contracts.size ] ] if can_contracts
+   tabs << [ "projetos", "Projetos", @projects.size ] if can_projects
+   tabs << [ "chamados", "Chamados", @tickets.count(&:open?) ] if can_tickets
    tabs << [ "documentos", "Documentos", @documents.size ] if can_documents
    tabs << [ "atividades", "Atividades", nil ]
    current_tab = tabs.map(&:first).include?(@tab) ? @tab : "resumo" %>

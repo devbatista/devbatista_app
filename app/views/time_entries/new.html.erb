@@ -1,0 +1,4 @@
+<% page_title "Registrar horas" %>
+<% nav_location :op, "Horas trabalhadas" %>
+<% breadcrumb ["Operação"], ["Horas trabalhadas", time_entries_path], ["Registrar horas"] %>
+<div class="form-page"><%= render "form", time_entry: @time_entry %></div>

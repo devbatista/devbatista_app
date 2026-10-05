@@ -15,7 +15,7 @@ module Search
     def groups
       return [] if @term.size < 2
 
-      [ companies, contacts, contracts, proposals, leads ].compact.reject { |g| g.items.empty? }
+      [ companies, contacts, contracts, projects, tickets, proposals, leads ].compact.reject { |g| g.items.empty? }
     end
 
     private
@@ -46,6 +46,24 @@ module Search
         Item.new(title: c.to_s, subtitle: "#{c.company.trade_name} · #{c.status_label}", path: contract_path(c))
       end
       Group.new(label: "Contratos", area: "contratos", items: items)
+    end
+
+    def projects
+      return unless @user.can_read?("projetos")
+
+      items = Project.search(@term).includes(:company).order(Arel.sql("projects.status IN ('done','cancelled')"), :due_date).limit(LIMIT).map do |p|
+        Item.new(title: p.name, subtitle: "#{p.company.trade_name} · #{p.status_label}#{' · atrasado' if p.late?} · #{p.progress}%", path: project_path(p))
+      end
+      Group.new(label: "Projetos", area: "projetos", items: items)
+    end
+
+    def tickets
+      return unless @user.can_read?("suporte")
+
+      items = Ticket.search(@term).includes(:company).order(opened_at: :desc).limit(LIMIT).map do |t|
+        Item.new(title: "#{t.code} — #{t.subject}", subtitle: "#{t.company.trade_name} · #{t.status_label} · #{t.priority_label}", path: ticket_path(t))
+      end
+      Group.new(label: "Chamados", area: "suporte", items: items)
     end
 
     def proposals

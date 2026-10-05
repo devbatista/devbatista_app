@@ -612,6 +612,50 @@ ALTER SEQUENCE public.opportunities_id_seq OWNED BY public.opportunities.id;
 
 
 --
+-- Name: projects; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.projects (
+    id bigint NOT NULL,
+    company_id bigint NOT NULL,
+    name character varying NOT NULL,
+    description text,
+    user_id bigint NOT NULL,
+    status character varying DEFAULT 'planning'::character varying NOT NULL,
+    start_date date,
+    due_date date NOT NULL,
+    closed_on date,
+    budget_cents integer DEFAULT 0 NOT NULL,
+    progress integer DEFAULT 0 NOT NULL,
+    progress_from_tasks boolean DEFAULT true NOT NULL,
+    contract_id bigint,
+    proposal_id bigint,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL,
+    CONSTRAINT projects_progress_range CHECK (((progress >= 0) AND (progress <= 100)))
+);
+
+
+--
+-- Name: projects_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.projects_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: projects_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.projects_id_seq OWNED BY public.projects.id;
+
+
+--
 -- Name: proposal_items; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -811,6 +855,173 @@ ALTER SEQUENCE public.settings_id_seq OWNED BY public.settings.id;
 
 
 --
+-- Name: tasks; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.tasks (
+    id bigint NOT NULL,
+    project_id bigint NOT NULL,
+    title character varying NOT NULL,
+    description text,
+    user_id bigint,
+    status character varying DEFAULT 'backlog'::character varying NOT NULL,
+    priority character varying DEFAULT 'normal'::character varying NOT NULL,
+    due_on date,
+    estimated_minutes integer,
+    completed_on date,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: tasks_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.tasks_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: tasks_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.tasks_id_seq OWNED BY public.tasks.id;
+
+
+--
+-- Name: ticket_messages; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.ticket_messages (
+    id bigint NOT NULL,
+    ticket_id bigint NOT NULL,
+    user_id bigint NOT NULL,
+    kind character varying DEFAULT 'reply'::character varying NOT NULL,
+    contact_id bigint,
+    channel character varying,
+    body text NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: ticket_messages_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.ticket_messages_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: ticket_messages_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.ticket_messages_id_seq OWNED BY public.ticket_messages.id;
+
+
+--
+-- Name: ticket_numbers; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.ticket_numbers
+    START WITH 1000
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: tickets; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.tickets (
+    id bigint NOT NULL,
+    number integer DEFAULT nextval('public.ticket_numbers'::regclass) NOT NULL,
+    company_id bigint NOT NULL,
+    contact_id bigint,
+    subject character varying NOT NULL,
+    description text NOT NULL,
+    category character varying NOT NULL,
+    priority character varying DEFAULT 'normal'::character varying NOT NULL,
+    status character varying DEFAULT 'open'::character varying NOT NULL,
+    user_id bigint,
+    opened_at timestamp(6) without time zone NOT NULL,
+    resolved_at timestamp(6) without time zone,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: tickets_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.tickets_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: tickets_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.tickets_id_seq OWNED BY public.tickets.id;
+
+
+--
+-- Name: time_entries; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.time_entries (
+    id bigint NOT NULL,
+    user_id bigint NOT NULL,
+    company_id bigint NOT NULL,
+    project_id bigint,
+    task_id bigint,
+    ticket_id bigint,
+    worked_on date NOT NULL,
+    minutes integer NOT NULL,
+    description text,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL,
+    CONSTRAINT time_entries_minutes_positive CHECK ((minutes > 0))
+);
+
+
+--
+-- Name: time_entries_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.time_entries_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: time_entries_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.time_entries_id_seq OWNED BY public.time_entries.id;
+
+
+--
 -- Name: users; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -955,6 +1166,13 @@ ALTER TABLE ONLY public.opportunities ALTER COLUMN id SET DEFAULT nextval('publi
 
 
 --
+-- Name: projects id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.projects ALTER COLUMN id SET DEFAULT nextval('public.projects_id_seq'::regclass);
+
+
+--
 -- Name: proposal_items id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -987,6 +1205,34 @@ ALTER TABLE ONLY public.services ALTER COLUMN id SET DEFAULT nextval('public.ser
 --
 
 ALTER TABLE ONLY public.settings ALTER COLUMN id SET DEFAULT nextval('public.settings_id_seq'::regclass);
+
+
+--
+-- Name: tasks id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.tasks ALTER COLUMN id SET DEFAULT nextval('public.tasks_id_seq'::regclass);
+
+
+--
+-- Name: ticket_messages id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.ticket_messages ALTER COLUMN id SET DEFAULT nextval('public.ticket_messages_id_seq'::regclass);
+
+
+--
+-- Name: tickets id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.tickets ALTER COLUMN id SET DEFAULT nextval('public.tickets_id_seq'::regclass);
+
+
+--
+-- Name: time_entries id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.time_entries ALTER COLUMN id SET DEFAULT nextval('public.time_entries_id_seq'::regclass);
 
 
 --
@@ -1117,6 +1363,14 @@ ALTER TABLE ONLY public.opportunities
 
 
 --
+-- Name: projects projects_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.projects
+    ADD CONSTRAINT projects_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: proposal_items proposal_items_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1162,6 +1416,38 @@ ALTER TABLE ONLY public.services
 
 ALTER TABLE ONLY public.settings
     ADD CONSTRAINT settings_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: tasks tasks_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.tasks
+    ADD CONSTRAINT tasks_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: ticket_messages ticket_messages_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.ticket_messages
+    ADD CONSTRAINT ticket_messages_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: tickets tickets_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.tickets
+    ADD CONSTRAINT tickets_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: time_entries time_entries_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.time_entries
+    ADD CONSTRAINT time_entries_pkey PRIMARY KEY (id);
 
 
 --
@@ -1502,6 +1788,48 @@ CREATE INDEX index_opportunities_on_user_id ON public.opportunities USING btree 
 
 
 --
+-- Name: index_projects_on_company_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_projects_on_company_id ON public.projects USING btree (company_id);
+
+
+--
+-- Name: index_projects_on_contract_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_projects_on_contract_id ON public.projects USING btree (contract_id);
+
+
+--
+-- Name: index_projects_on_due_date; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_projects_on_due_date ON public.projects USING btree (due_date);
+
+
+--
+-- Name: index_projects_on_proposal_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_projects_on_proposal_id ON public.projects USING btree (proposal_id);
+
+
+--
+-- Name: index_projects_on_status; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_projects_on_status ON public.projects USING btree (status);
+
+
+--
+-- Name: index_projects_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_projects_on_user_id ON public.projects USING btree (user_id);
+
+
+--
 -- Name: index_proposal_items_on_proposal_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1593,6 +1921,139 @@ CREATE UNIQUE INDEX index_settings_on_key ON public.settings USING btree (key);
 
 
 --
+-- Name: index_tasks_on_due_on; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_tasks_on_due_on ON public.tasks USING btree (due_on);
+
+
+--
+-- Name: index_tasks_on_project_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_tasks_on_project_id ON public.tasks USING btree (project_id);
+
+
+--
+-- Name: index_tasks_on_status; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_tasks_on_status ON public.tasks USING btree (status);
+
+
+--
+-- Name: index_tasks_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_tasks_on_user_id ON public.tasks USING btree (user_id);
+
+
+--
+-- Name: index_ticket_messages_on_contact_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_ticket_messages_on_contact_id ON public.ticket_messages USING btree (contact_id);
+
+
+--
+-- Name: index_ticket_messages_on_ticket_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_ticket_messages_on_ticket_id ON public.ticket_messages USING btree (ticket_id);
+
+
+--
+-- Name: index_ticket_messages_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_ticket_messages_on_user_id ON public.ticket_messages USING btree (user_id);
+
+
+--
+-- Name: index_tickets_on_company_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_tickets_on_company_id ON public.tickets USING btree (company_id);
+
+
+--
+-- Name: index_tickets_on_contact_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_tickets_on_contact_id ON public.tickets USING btree (contact_id);
+
+
+--
+-- Name: index_tickets_on_number; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_tickets_on_number ON public.tickets USING btree (number);
+
+
+--
+-- Name: index_tickets_on_priority; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_tickets_on_priority ON public.tickets USING btree (priority);
+
+
+--
+-- Name: index_tickets_on_status; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_tickets_on_status ON public.tickets USING btree (status);
+
+
+--
+-- Name: index_tickets_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_tickets_on_user_id ON public.tickets USING btree (user_id);
+
+
+--
+-- Name: index_time_entries_on_company_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_time_entries_on_company_id ON public.time_entries USING btree (company_id);
+
+
+--
+-- Name: index_time_entries_on_project_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_time_entries_on_project_id ON public.time_entries USING btree (project_id);
+
+
+--
+-- Name: index_time_entries_on_task_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_time_entries_on_task_id ON public.time_entries USING btree (task_id);
+
+
+--
+-- Name: index_time_entries_on_ticket_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_time_entries_on_ticket_id ON public.time_entries USING btree (ticket_id);
+
+
+--
+-- Name: index_time_entries_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_time_entries_on_user_id ON public.time_entries USING btree (user_id);
+
+
+--
+-- Name: index_time_entries_on_worked_on; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_time_entries_on_worked_on ON public.time_entries USING btree (worked_on);
+
+
+--
 -- Name: index_users_on_email; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1621,11 +2082,27 @@ CREATE TRIGGER audit_logs_no_update_delete BEFORE DELETE OR UPDATE ON public.aud
 
 
 --
+-- Name: projects fk_rails_003ff37a1f; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.projects
+    ADD CONSTRAINT fk_rails_003ff37a1f FOREIGN KEY (contract_id) REFERENCES public.contracts(id);
+
+
+--
 -- Name: proposals fk_rails_0224a90884; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.proposals
     ADD CONSTRAINT fk_rails_0224a90884 FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
+-- Name: tasks fk_rails_02e851e3b7; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.tasks
+    ADD CONSTRAINT fk_rails_02e851e3b7 FOREIGN KEY (project_id) REFERENCES public.projects(id);
 
 
 --
@@ -1661,6 +2138,14 @@ ALTER TABLE ONLY public.activities
 
 
 --
+-- Name: ticket_messages fk_rails_398b98fd8f; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.ticket_messages
+    ADD CONSTRAINT fk_rails_398b98fd8f FOREIGN KEY (ticket_id) REFERENCES public.tickets(id);
+
+
+--
 -- Name: customer_services fk_rails_3b1d3cceca; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1682,6 +2167,46 @@ ALTER TABLE ONLY public.proposals
 
 ALTER TABLE ONLY public.contacts
     ADD CONSTRAINT fk_rails_42b4583938 FOREIGN KEY (company_id) REFERENCES public.companies(id);
+
+
+--
+-- Name: projects fk_rails_44a549d7b3; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.projects
+    ADD CONSTRAINT fk_rails_44a549d7b3 FOREIGN KEY (company_id) REFERENCES public.companies(id);
+
+
+--
+-- Name: tasks fk_rails_4d2a9e4d7e; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.tasks
+    ADD CONSTRAINT fk_rails_4d2a9e4d7e FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
+-- Name: tickets fk_rails_538a036fb9; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.tickets
+    ADD CONSTRAINT fk_rails_538a036fb9 FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
+-- Name: time_entries fk_rails_55dd5dcf98; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.time_entries
+    ADD CONSTRAINT fk_rails_55dd5dcf98 FOREIGN KEY (task_id) REFERENCES public.tasks(id);
+
+
+--
+-- Name: time_entries fk_rails_60aaef3a15; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.time_entries
+    ADD CONSTRAINT fk_rails_60aaef3a15 FOREIGN KEY (company_id) REFERENCES public.companies(id);
 
 
 --
@@ -1725,6 +2250,14 @@ ALTER TABLE ONLY public.interactions
 
 
 --
+-- Name: ticket_messages fk_rails_6d16e692c1; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.ticket_messages
+    ADD CONSTRAINT fk_rails_6d16e692c1 FOREIGN KEY (contact_id) REFERENCES public.contacts(id);
+
+
+--
 -- Name: opportunities fk_rails_6eedd6d9fe; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1754,6 +2287,14 @@ ALTER TABLE ONLY public.activities
 
 ALTER TABLE ONLY public.documents
     ADD CONSTRAINT fk_rails_83141d4c8c FOREIGN KEY (company_id) REFERENCES public.companies(id);
+
+
+--
+-- Name: projects fk_rails_88157d0fea; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.projects
+    ADD CONSTRAINT fk_rails_88157d0fea FOREIGN KEY (proposal_id) REFERENCES public.proposals(id);
 
 
 --
@@ -1805,11 +2346,35 @@ ALTER TABLE ONLY public.notifications
 
 
 --
+-- Name: time_entries fk_rails_b471d1824b; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.time_entries
+    ADD CONSTRAINT fk_rails_b471d1824b FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
+-- Name: projects fk_rails_b872a6760a; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.projects
+    ADD CONSTRAINT fk_rails_b872a6760a FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
 -- Name: documents fk_rails_bb94f775d4; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.documents
     ADD CONSTRAINT fk_rails_bb94f775d4 FOREIGN KEY (uploaded_by_id) REFERENCES public.users(id);
+
+
+--
+-- Name: tickets fk_rails_bfd1018be0; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.tickets
+    ADD CONSTRAINT fk_rails_bfd1018be0 FOREIGN KEY (company_id) REFERENCES public.companies(id);
 
 
 --
@@ -1837,6 +2402,22 @@ ALTER TABLE ONLY public.customer_services
 
 
 --
+-- Name: ticket_messages fk_rails_e3ac3f9f84; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.ticket_messages
+    ADD CONSTRAINT fk_rails_e3ac3f9f84 FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
+-- Name: tickets fk_rails_e692bb4a5b; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.tickets
+    ADD CONSTRAINT fk_rails_e692bb4a5b FOREIGN KEY (contact_id) REFERENCES public.contacts(id);
+
+
+--
 -- Name: proposal_items fk_rails_f0ef1ccf9b; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1845,11 +2426,27 @@ ALTER TABLE ONLY public.proposal_items
 
 
 --
+-- Name: time_entries fk_rails_f493b0c8e1; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.time_entries
+    ADD CONSTRAINT fk_rails_f493b0c8e1 FOREIGN KEY (project_id) REFERENCES public.projects(id);
+
+
+--
 -- Name: proposals fk_rails_f643061ad3; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.proposals
     ADD CONSTRAINT fk_rails_f643061ad3 FOREIGN KEY (opportunity_id) REFERENCES public.opportunities(id);
+
+
+--
+-- Name: time_entries fk_rails_fea7a886c0; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.time_entries
+    ADD CONSTRAINT fk_rails_fea7a886c0 FOREIGN KEY (ticket_id) REFERENCES public.tickets(id);
 
 
 --
@@ -1867,6 +2464,11 @@ ALTER TABLE ONLY public.leads
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261005120004'),
+('20261005120003'),
+('20261005120002'),
+('20261005120001'),
+('20261005120000'),
 ('20261002120004'),
 ('20261002120003'),
 ('20261002120002'),

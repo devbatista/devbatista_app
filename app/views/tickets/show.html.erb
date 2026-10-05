@@ -1,0 +1,125 @@
+<% t = @ticket %>
+<% page_title "#{t.code} #{t.subject}" %>
+<% nav_location :op, "Suporte" %>
+<% breadcrumb ["Operação"], ["Suporte", tickets_path], [t.code] %>
+<% can_update = policy(t).update? %>
+<% current_index = Ticket::FLOW.index(t.status) %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Chamado <%= t.code %> · <%= link_to t.company.trade_name, company_path(t.company), style: "color:inherit" %></span>
+    <h1><%= t.subject %></h1>
+    <div class="row wrap" style="gap:8px">
+      <%= priority_badge(t) %><%= ticket_badge(t) %>
+      <span class="caption">Aberto em <%= datetime_br(t.opened_at) %> · <%= t.user ? "responsável #{t.user.name}" : "sem responsável" %></span>
+    </div>
+  </div>
+  <div class="actions">
+    <% if policy(TimeEntry).create? %><%= drawer_link_to new_time_entry_path(chamado: t.id, voltar: "chamado"), class: "btn" do %><%= icon(:clock, size: 16, stroke: 1.8) %>Registrar horas<% end %><% end %>
+    <% if can_update %>
+      <%= drawer_link_to edit_ticket_path(t), class: "btn" do %><%= icon(:edit, size: 16, stroke: 1.8) %>Editar<% end %>
+      <%= drawer_link_to "Mudar status", status_ticket_path(t), class: "btn" %>
+      <% if t.open? %>
+        <%= drawer_link_to status_ticket_path(t, to: "resolved"), class: "btn pri" do %><%= icon(:check, size: 16, stroke: 2) %>Marcar como resolvido<% end %>
+      <% elsif t.status_resolved? %>
+        <%= button_to "Fechar chamado", status_ticket_path(t), method: :patch, params: { status_change: { status: "closed" } }, class: "btn pri" %>
+      <% end %>
+    <% end %>
+  </div>
+</div>
+
+<% if t.critical? && t.open? %>
+  <div class="callout crit" role="status"><%= icon(:alert, size: 20, stroke: 1.8, style: "color:var(--crit);flex:none;margin-top:1px") %><span><b class="strong">Prioridade Crítica.</b> Suporte, Desenvolvimento e Administração foram notificados na abertura (ou na mudança para Crítica).</span></div>
+<% end %>
+
+<section class="card" aria-label="Fluxo de atendimento">
+  <ol class="steps" style="list-style:none;margin:0;padding:0">
+    <% Ticket::FLOW.each_with_index do |status, i| %>
+      <% klass = i < current_index ? "done" : (i == current_index ? "cur" : nil) %>
+      <% time = @step_times[status] %>
+      <li class="step <%= klass %>" <%= 'aria-current="step"'.html_safe if i == current_index %>><%= format("%02d", i + 1) %> · <%= Ticket::STATUS_LABELS[status] %><span class="cell-sub"><%= time && i <= current_index ? (time.to_date == Date.current ? l(time, format: "%H:%M") : l(time, format: "%d/%m %H:%M")) : "—" %></span></li>
+    <% end %>
+  </ol>
+</section>
+
+<div class="cols-2-1">
+  <div class="stack">
+    <section class="card" id="historico" aria-label="Histórico do atendimento">
+      <div class="card-head"><h2>Histórico do atendimento</h2><span class="caption"><%= pluralize(@messages.size + 1, "mensagem", plural: "mensagens") %></span></div>
+      <div class="card-body thread" style="padding-top:0">
+        <div class="msg client">
+          <span class="avatar sm soft" style="width:36px;height:36px;font-size:13px"><%= t.contact&.initials || t.company.initials %></span>
+          <div><div class="who"><b><%= t.contact&.name || t.company.trade_name %></b> · <%= t.company.trade_name %> · <%= datetime_br(t.opened_at) %> · abertura do chamado</div>
+          <div class="bubble"><%= simple_format(t.description) %></div></div>
+        </div>
+        <% @messages.each do |m| %>
+          <div class="msg <%= m.kind if m.client? || m.note? %>">
+            <span class="avatar sm<%= ' soft' if m.client? %>" style="width:36px;height:36px;font-size:13px"><%= m.client? ? (m.contact&.initials || "CL") : m.user.initials %></span>
+            <div><div class="who"><b><%= m.author_name %></b><%= " · #{t.company.trade_name}" if m.client? %> · <%= datetime_br(m.created_at) %><%= " · via #{m.channel.downcase}" if m.channel.present? %><%= ", registrado por #{m.user.first_name}" if m.client? %><% if m.note? %><span class="badge b-mute">Nota interna</span><% end %></div>
+            <div class="bubble"><%= simple_format(m.body) %></div></div>
+          </div>
+        <% end %>
+      </div>
+    </section>
+
+    <% if can_update %>
+      <section class="card" aria-label="Responder">
+        <%= form_with model: TicketMessage.new(kind: "reply"), url: ticket_messages_path(t), class: "card-body form" do |f| %>
+          <div class="row wrap" style="justify-content:space-between">
+            <h2>Responder</h2>
+            <div class="seg" role="radiogroup" aria-label="Tipo de mensagem">
+              <% TicketMessage::KIND_LABELS.each do |kind, label| %>
+                <label><%= f.radio_button :kind, kind %><%= label %></label>
+              <% end %>
+            </div>
+          </div>
+          <div class="field"><%= f.label :body, "Mensagem", class: "sr-only" %><%= f.text_area :body, class: "textarea", style: "min-height:120px", required: true, placeholder: "Escreva a atualização#{" para #{t.contact.name}" if t.contact}… Nota interna fica visível só para a equipe." %></div>
+          <div class="reply-actions">
+            <label class="sr-only" for="m-channel">Canal</label>
+            <%= f.select :channel, TicketMessage::CHANNELS, { include_blank: "Canal (opcional)" }, class: "select", id: "m-channel", style: "height:32px;font-size:13px" %>
+            <span class="spacer"></span>
+            <label class="sr-only" for="m-status">Status após enviar</label>
+            <%= select_tag :status_after, options_for_select([ [ "Manter #{t.status_label}", "" ] ] + (Ticket::FLOW - [ t.status ]).map { |s| [ "Mudar para #{Ticket::STATUS_LABELS[s]}", s ] }), class: "select", id: "m-status", style: "height:32px;font-size:13px" %>
+            <%= f.submit "Enviar", class: "btn pri sm" %>
+          </div>
+        <% end %>
+      </section>
+    <% end %>
+  </div>
+
+  <div class="stack">
+    <section class="card" aria-label="Dados do chamado">
+      <div class="card-head"><h2>Dados do chamado</h2></div>
+      <div class="kv"><span>Número</span><b><%= t.code %></b></div>
+      <div class="kv"><span>Cliente</span><%= link_to t.company.trade_name, company_path(t.company), style: "font-weight:600" %></div>
+      <div class="kv"><span>Contato</span><% if t.contact %><span class="right"><b><%= t.contact.name %></b><span class="cell-sub"><%= [ t.contact.position, t.contact.email ].compact_blank.join(" · ") %></span></span><% else %><b>—</b><% end %></div>
+      <div class="kv"><span>Categoria</span><b><%= t.category_label %></b></div>
+      <div class="kv"><span>Prioridade</span><%= priority_badge(t) %></div>
+      <div class="kv"><span>Responsável</span><% if t.user %><span class="row" style="gap:8px"><span class="avatar sm soft"><%= t.user.initials %></span><b><%= t.user.name %></b></span><% else %><b>—</b><% end %></div>
+      <% if @contract %><div class="kv"><span>Contrato</span><%= link_to @contract.to_s, contract_path(@contract), style: "font-weight:600" %></div><% end %>
+      <div class="kv"><span>Abertura</span><b><%= datetime_br(t.opened_at) %></b></div>
+      <div class="kv"><span>Conclusão</span><% if t.resolved_at %><span class="right"><b><%= datetime_br(t.resolved_at) %></b><span class="cell-sub">em <%= duration_text(t.resolution_minutes) %></span></span><% else %><span class="muted">registrada ao resolver</span><% end %></div>
+    </section>
+
+    <section class="card" aria-label="Horas registradas no chamado">
+      <div class="card-head"><h2>Horas registradas</h2><% if policy(TimeEntry).create? %><%= drawer_link_to "+ Registrar", new_time_entry_path(chamado: t.id, voltar: "chamado"), class: "link-btn" %><% end %></div>
+      <% @hours.each do |user, minutes| %>
+        <div class="kv"><span><%= user.name %></span><b><%= hours_br(minutes) %></b></div>
+      <% end %>
+      <% if @hours.any? %>
+        <div class="kv"><span class="strong">Total</span><b><%= hours_br(@hours.values.sum) %></b></div>
+      <% else %>
+        <div class="card-foot"><span>Nenhuma hora lançada neste chamado.</span></div>
+      <% end %>
+    </section>
+
+    <% if @related.any? %>
+      <section class="card" aria-label="Outros chamados do cliente">
+        <div class="card-head"><h2>Outros chamados abertos</h2></div>
+        <% @related.each do |other| %>
+          <div class="tl"><i class="<%= 'crit' if other.critical? %>"></i><div><%= link_to "#{other.code} — #{other.subject}", ticket_path(other) %><small><%= other.status_label %> · <%= other.user&.name || "sem responsável" %></small></div></div>
+        <% end %>
+      </section>
+    <% end %>
+  </div>
+</div>

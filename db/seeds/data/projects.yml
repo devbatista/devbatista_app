@@ -1,0 +1,145 @@
+# Extraído de docs/design/operacao/projetos.html (lista: 8 projetos) e operacao/projeto.html
+# (detalhe do "Portal ACME — Fase 2"). Conferido com operacao/tarefas.html, operacao/horas.html,
+# clientes/empresa.html e geral/notificacoes.html.
+#
+# Observações:
+# - progress_from_tasks: só o Portal ACME — Fase 2 mostra "Calculado pelas tarefas" (13 de 21
+#   concluídas = 62%). Os demais usam o percentual do design, informado à mão.
+# - hours: total de horas da coluna "Horas" do design. O seed completa com lançamentos o que
+#   as tarefas e os lançamentos de time_entries.yml não cobrem (ver db/seeds/operacao.rb).
+# - A estimativa do projeto é a soma das estimativas das tarefas. Bate com o design no Portal
+#   ACME (160 h), no ERP Cliente C (280 h) e no Painel de indicadores (64 h). Nos demais o
+#   design só mostra o total, sem tarefas que o expliquem: a estimativa fica menor que a do
+#   design (Automação de NF Delta: 10 h em vez de 56 h) ou vazia.
+# - clientes/empresa.html mostra outra versão do Portal ACME — Fase 2 (início 01/07, previsão
+#   30/11, R$ 36.000, 186 h). Vale a de projetos.html e projeto.html.
+# - Portal ACME — Fase 2: "vendido na proposta aprovada", mas essa proposta não está em
+#   proposals.yml (ver observação lá): proposal fica null.
+# - Descrições dos projetos (exceto Portal ACME) e de Site/Chatbot/App Orion são resumos
+#   escritos para o seed a partir das linhas da lista.
+
+- name: ERP Cliente C
+  company: Cliente C
+  user: elisa.prado@devbatista.com.br
+  status: in_progress
+  start_date: "2026-06-02"
+  due_date: "2026-09-10"
+  budget: 36000
+  progress: 81
+  progress_from_tasks: false
+  contract: 92
+  proposal: null
+  hours: 248
+  description: ERP sob medida para o Cliente C — cadastros, compras, vendas, faturamento e fechamento de estoque.
+
+- name: Portal ACME — Fase 2
+  company: Empresa ACME
+  user: diego.rocha@devbatista.com.br
+  status: in_progress
+  start_date: "2026-08-03"
+  due_date: "2026-10-30"
+  budget: 24000
+  progress: 62
+  progress_from_tasks: true
+  contract: null
+  proposal: null
+  hours: 96
+  description: >-
+    Continuação do Portal ACME entregue na Fase 1 (junho/2026). Escopo: nova área do cliente com
+    login próprio, módulo de relatórios gerenciais com exportação e integração de pedidos com o
+    ERP da ACME. Publicação no ambiente de produção atual (Railway).
+
+- name: Painel de indicadores
+  company: Cliente A
+  user: elisa.prado@devbatista.com.br
+  status: in_progress
+  start_date: "2026-08-17"
+  due_date: "2026-10-16"
+  budget: 9600
+  progress: 45
+  progress_from_tasks: false
+  contract: null
+  proposal: null
+  hours: 38
+  description: Painel gerencial com indicadores de vendas, faturamento e estoque a partir da base do ERP do Cliente A.
+
+- name: Portal de Pedidos
+  company: Empresa XYZ
+  user: diego.rocha@devbatista.com.br
+  status: waiting_client
+  start_date: null
+  due_date: "2026-12-15"
+  budget: 18500
+  progress: 0
+  progress_from_tasks: false
+  contract: null
+  proposal: 2026-31
+  hours: 6
+  hours_description: Levantamento de requisitos do portal com a equipe comercial da XYZ
+  description: Portal web de pedidos para os revendedores da Empresa XYZ. Aguardando a aprovação da proposta #P-2026-031.
+
+- name: Automação de NF Delta
+  company: Empresa Delta
+  user: elisa.prado@devbatista.com.br
+  status: planning
+  start_date: "2026-10-01"
+  due_date: "2026-11-30"
+  budget: 8400
+  progress: 5
+  progress_from_tasks: false
+  contract: 111
+  proposal: null
+  hours: 4
+  hours_until: "2026-10-01"
+  hours_description: Reunião de kickoff e levantamento das regras fiscais com a Delta
+  description: Emissão automática de notas fiscais a partir dos pedidos da Empresa Delta.
+
+- name: App Orion
+  company: Empresa Orion
+  user: diego.rocha@devbatista.com.br
+  status: paused
+  start_date: "2026-05-04"
+  due_date: "2026-11-30"
+  budget: 22000
+  progress: 40
+  progress_from_tasks: false
+  contract: null
+  proposal: null
+  hours: 132
+  hours_until: "2026-08-27"
+  hours_description: Desenvolvimento do aplicativo Orion
+  description: Aplicativo mobile da Empresa Orion. Pausado a pedido do cliente em 28/08/2026.
+
+- name: Site institucional Cliente D
+  company: Cliente D
+  user: diego.rocha@devbatista.com.br
+  status: done
+  start_date: "2026-07-06"
+  due_date: "2026-08-31"
+  closed_on: "2026-08-28"
+  budget: 6800
+  progress: 100
+  progress_from_tasks: false
+  contract: null
+  proposal: null
+  hours: 52
+  hours_until: "2026-08-27"
+  hours_description: Desenvolvimento do site institucional
+  description: Novo site institucional do Cliente D, com páginas de serviços e formulário de contato. Entregue em 28/08/2026.
+
+- name: Chatbot de atendimento
+  company: Cliente B
+  user: elisa.prado@devbatista.com.br
+  status: cancelled
+  start_date: "2026-07-01"
+  due_date: "2026-09-30"
+  closed_on: "2026-07-21"
+  budget: 12000
+  progress: 15
+  progress_from_tasks: false
+  contract: null
+  proposal: null
+  hours: 10
+  hours_until: "2026-07-20"
+  hours_description: Protótipo do fluxo de atendimento
+  description: Chatbot de atendimento no WhatsApp para o Cliente B. Cancelado em 21/07/2026.

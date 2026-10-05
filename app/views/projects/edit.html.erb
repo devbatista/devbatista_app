@@ -1,0 +1,4 @@
+<% page_title "Editar projeto" %>
+<% nav_location :op, "Projetos" %>
+<% breadcrumb ["Operação"], ["Projetos", projects_path], [@project.name, project_path(@project)], ["Editar"] %>
+<div class="form-page"><%= render "form", project: @project %></div>

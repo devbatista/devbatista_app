@@ -1,0 +1,52 @@
+<% current = @projects.select(&:active?) %>
+<% current.each do |project| %>
+  <% logged = @project_hours[project.id].to_i %>
+  <% estimate = @project_estimates[project.id].to_i %>
+  <div class="card">
+    <div class="card-head">
+      <div><h2><%= link_to project.name, project_path(project), style: "color:inherit" %></h2><% if project.description.present? %><span class="caption"><%= truncate(project.description, length: 110) %></span><% end %></div>
+      <span class="badges"><%= project_badge(project) %><% if project.late? %><span class="badge b-crit dot-l">Atrasado</span><% end %></span>
+    </div>
+    <div class="card-body stack" style="padding-top:0">
+      <div class="row" style="justify-content:space-between;font-size:13px"><span class="muted"><%= project.progress_from_tasks? ? "Progresso calculado pelas tarefas concluídas" : "Progresso informado manualmente" %></span><span class="strong num"><%= project.progress %>%</span></div>
+      <%= progress_bar(project.progress, label: "Progresso do projeto", tone: ("crit" if project.late?)) %>
+    </div>
+    <dl class="dl" style="border-top:1px solid var(--rule)">
+      <div><dt>Responsável</dt><dd><%= project.user.name %></dd></div>
+      <div><dt>Início</dt><dd class="mono"><%= date_br(project.start_date) %></dd></div>
+      <div><dt>Previsão de entrega</dt><dd class="mono"><%= date_br(project.due_date) %></dd></div>
+      <div><dt>Orçamento</dt><dd><%= brl(project.budget_cents) %></dd></div>
+      <div><dt>Horas registradas</dt><dd><%= hours_br(logged) %><%= " de #{hours_br(estimate)} estimadas" if estimate.positive? %></dd></div>
+      <div><dt>Situação do prazo</dt><dd><%= project.late? ? status_badge("#{pluralize(project.days_late, 'dia')} de atraso", "crit") : status_badge("No prazo", "good") %></dd></div>
+    </dl>
+    <%= link_to "Abrir projeto →", project_path(project), class: "more" %>
+  </div>
+<% end %>
+
+<div class="card">
+  <div class="card-head">
+    <h2>Histórico de projetos</h2>
+    <% if policy(Project).create? %><%= drawer_link_to new_project_path(empresa: @company.id), class: "btn sm" do %><%= icon(:plus, size: 14, stroke: 2) %>Novo projeto<% end %><% end %>
+  </div>
+  <% if @projects.any? %>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr><th>Projeto</th><th>Responsável</th><th>Período</th><th class="num">Horas</th><th class="num">Orçamento</th><th>Status</th></tr></thead>
+        <tbody>
+          <% @projects.each do |project| %>
+            <tr data-href="<%= project_path(project) %>" class="<%= 'late' if project.late? %>">
+              <td data-label="Projeto"><%= link_to project.name, project_path(project), class: "strong" %></td>
+              <td data-label="Responsável"><%= project.user.name %></td>
+              <td data-label="Período" class="mono nowrap"><%= project.start_date ? date_br(project.start_date).first(5) : "—" %> – <%= date_br(project.closed_on || project.due_date) %></td>
+              <td data-label="Horas" class="num"><%= hours_br(@project_hours[project.id].to_i) %></td>
+              <td data-label="Orçamento" class="num nowrap"><%= brl(project.budget_cents) %></td>
+              <td data-label="Status"><span class="badges"><%= project_badge(project) %><% if project.late? %><span class="badge b-crit dot-l">Atrasado</span><% end %></span></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <%= render "shared/empty", title: "Nenhum projeto", text: "Projetos do cliente, com previsão, orçamento e progresso, aparecem aqui." %>
+  <% end %>
+</div>

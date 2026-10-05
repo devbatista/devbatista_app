@@ -44,6 +44,20 @@ Rails.application.routes.draw do
     end
     get "pipeline", to: "pipeline#show", as: :pipeline
 
+    # Operação
+    resources :projects, path: "projetos"
+    resources :tasks, path: "tarefas", except: :show do
+      patch :move, on: :member, path: "status"
+    end
+    resources :time_entries, path: "horas", except: :show
+    resources :tickets, path: "chamados", except: :destroy do
+      member do
+        get :status, path: "status", action: :new_status
+        patch :status, path: "status", action: :change_status
+      end
+      resources :messages, only: :create, controller: "ticket_messages", path: "mensagens"
+    end
+
     resources :notifications, path: "notificacoes", only: %i[index update] do
       patch :read_all, on: :collection, path: "marcar-todas"
       patch :preferences, on: :collection, path: "preferencias"

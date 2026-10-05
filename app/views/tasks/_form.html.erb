@@ -1,0 +1,34 @@
+<% back = params[:voltar] == "projeto" && task.project ? project_path(task.project, aba: "tarefas") : tasks_path(modo: params[:modo].presence_in(%w[lista])) %>
+<% projects = Project.where(status: Project::ACTIVE_STATUSES).or(Project.where(id: task.project_id)).includes(:company).by_name %>
+<%= render layout: "shared/drawer_form", locals: { title: task.new_record? ? "Nova tarefa" : "Editar tarefa", cancel_path: back } do %>
+  <%= form_with model: task, class: "form", data: { turbo_frame: "_top" } do |f| %>
+    <%= hidden_field_tag :voltar, params[:voltar] if params[:voltar] %>
+    <%= hidden_field_tag :modo, params[:modo] if params[:modo] %>
+    <div class="drawer-body form">
+      <%= render "shared/form_errors", record: task %>
+      <% if task.persisted? %>
+        <div class="callout<%= ' crit' if task.late? %>"><span><b class="strong"><%= task.project.name %></b> · <%= task.project.company.trade_name %> · registradas × estimativa: <%= logged_vs_estimate(task, @logged.to_i) %><%= " · atrasada #{pluralize(task.days_late, 'dia')}" if task.late? %><%= " · concluída em #{date_br(task.completed_on)}" if task.done? %></span></div>
+      <% end %>
+      <div class="form-grid">
+        <div class="field full"><%= f.label :title do %>Título <span class="req">*</span><% end %><%= f.text_field :title, class: "input", required: true, placeholder: "Ex.: Exportar relatório em PDF" %></div>
+        <div class="field full"><%= f.label :description, "Descrição" %><%= f.text_area :description, class: "textarea", placeholder: "Detalhamento e critérios de aceite" %></div>
+        <div class="field full"><%= f.label :project_id do %>Projeto <span class="req">*</span><% end %><%= f.select :project_id, projects.map { |p| [ "#{p.name} · #{p.company.trade_name}", p.id ] }, { prompt: "Selecione" }, class: "select", required: true %></div>
+        <div class="field"><%= f.label :user_id, "Responsável" %><%= f.collection_select :user_id, User.active.or(User.where(id: task.user_id)).by_name, :id, :name, { include_blank: "Sem responsável" }, class: "select" %></div>
+        <div class="field"><%= f.label :priority do %>Prioridade <span class="req">*</span><% end %><%= f.select :priority, Task.options_for_priority, {}, class: "select" %></div>
+        <div class="field"><%= f.label :due_on, "Prazo" %><%= f.date_field :due_on, class: "input" %></div>
+        <div class="field"><%= f.label :status do %>Status <span class="req">*</span><% end %><%= f.select :status, Task.options_for_status, {}, class: "select" %></div>
+        <div class="field"><%= f.label :estimated_hours, "Estimativa de horas" %><%= f.number_field :estimated_hours, class: "input num", min: 0, step: 0.5, placeholder: "Ex.: 8" %><span class="hint">Comparada às horas registradas</span></div>
+      </div>
+      <% if task.persisted? && policy(TimeEntry).create? %>
+        <p class="caption" style="margin:0"><%= link_to "Registrar horas nesta tarefa →", new_time_entry_path(tarefa: task.id, voltar: "tarefas"), data: { turbo_frame: "drawer-frame" } %></p>
+      <% end %>
+    </div>
+    <div class="drawer-foot">
+      <% if task.persisted? && policy(task).destroy? %>
+        <%= link_to "Excluir", task_path(task, voltar: params[:voltar]), class: "btn danger", style: "margin-right:auto", data: { turbo_method: :delete, turbo_confirm: "Excluir a tarefa “#{task.title}”? As horas lançadas nela continuam no projeto.", turbo_frame: "_top" } %>
+      <% end %>
+      <%= link_to "Cancelar", back, class: "btn", data: { close: true, turbo_frame: "_top" } %>
+      <% if policy(task).update? %><%= f.submit task.new_record? ? "Criar tarefa" : "Salvar alterações", class: "btn pri" %><% end %>
+    </div>
+  <% end %>
+<% end %>

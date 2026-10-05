@@ -1,0 +1,109 @@
+<% page_title "Tarefas" %>
+<% nav_location :op, "Tarefas" %>
+<% breadcrumb ["Operação"], ["Tarefas"] %>
+<% content_for :wide, true if @mode == "quadro" %>
+<% can_move = policy(Task).update? %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Operação · <%= @project ? link_to(@project.name, project_path(@project), style: "color:inherit") : "todos os projetos" %></span>
+    <h1>Tarefas</h1>
+  </div>
+  <% if policy(Task).create? %>
+    <div class="actions"><%= drawer_link_to new_task_path(projeto: @project&.id), class: "btn pri" do %><%= icon(:plus, size: 16, stroke: 2) %>Nova tarefa<% end %></div>
+  <% end %>
+</div>
+
+<%= form_with url: tasks_path, method: :get, class: "toolbar" do %>
+  <nav class="seg" aria-label="Modo de exibição">
+    <% [ [ "quadro", "Quadro", :board ], [ "lista", "Lista", :list ] ].each do |mode, label, ic| %>
+      <%= link_to url_for(request.query_parameters.except("page", "status", "ordem").merge("modo" => (mode == "quadro" ? nil : mode)).compact), class: ("on" if @mode == mode), "aria-current": (@mode == mode ? "true" : nil) do %><%= icon(ic, size: 15, stroke: 1.8) %><%= label %><% end %>
+    <% end %>
+  </nav>
+  <span class="spacer"></span>
+  <%= hidden_field_tag :modo, "lista", id: nil if @mode == "lista" %>
+  <%= hidden_field_tag :status, params[:status], id: nil if @mode == "lista" && params[:status].present? %>
+  <%= search_field placeholder: "Título da tarefa", label: "Buscar tarefa" %>
+  <label class="sr-only" for="f-proj">Projeto</label>
+  <%= select_tag :projeto, options_for_select(@projects.map { |p| [ "#{p.name} · #{p.company.trade_name}", p.id ] }, params[:projeto]), include_blank: "Todos os projetos", class: "select", id: "f-proj", onchange: "this.form.requestSubmit()" %>
+  <label class="sr-only" for="f-resp">Responsável</label>
+  <%= select_tag :responsavel, options_from_collection_for_select(@users, :id, :name, params[:responsavel]), include_blank: "Todos os responsáveis", class: "select", id: "f-resp", onchange: "this.form.requestSubmit()" %>
+  <label class="sr-only" for="f-prio">Prioridade</label>
+  <%= select_tag :prioridade, options_for_select(Task.options_for_priority, params[:prioridade]), include_blank: "Todas as prioridades", class: "select", id: "f-prio", onchange: "this.form.requestSubmit()" %>
+  <label class="check"><%= check_box_tag :atrasadas, "1", params[:atrasadas] == "1", id: "f-atrasadas", onchange: "this.form.requestSubmit()" %> Só atrasadas</label>
+  <% if @mode == "lista" %><%= render "shared/sort_select" %><% end %>
+<% end %>
+
+<% if @mode == "quadro" %>
+  <section aria-label="Quadro de tarefas">
+    <div class="board" data-board>
+      <% @lanes.each do |lane| %>
+        <% est = lane[:tasks].sum { |t| t.estimated_minutes.to_i } %>
+        <% reg = lane[:tasks].sum { |t| @logged[t.id].to_i } %>
+        <section class="lane" data-lane="<%= lane[:key] %>" data-lane-kind="task" aria-label="<%= lane[:label] %>">
+          <div class="lane-head"><b><%= lane[:label] %></b><span class="badge <%= { 'in_progress' => 'b-info', 'done' => 'b-good' }.fetch(lane[:key], 'b-mute') %>"><%= lane[:tasks].size %></span></div>
+          <div class="lane-sum"><%= lane[:key] == "done" ? "últimos #{TasksController::DONE_DAYS} dias" : "est. #{hours_br(est)}" %><%= " · reg. #{hours_br(reg)}" if reg.positive? %></div>
+          <% lane[:tasks].each do |task| %>
+            <% logged = @logged[task.id].to_i %>
+            <% late = task.late? %>
+            <%= link_to (can_move ? edit_task_path(task) : project_path(task.project, aba: "tarefas")), class: "kcard#{' late' if late}", draggable: can_move,
+                        data: (can_move ? { card_kind: "task", move_url: move_task_path(task, format: :json), turbo_frame: "drawer-frame", open: "drawer" } : {}) do %>
+              <% if late %><span class="r"><span class="badge b-crit dot-l">Atrasada <%= pluralize(task.days_late, "dia") %></span><%= priority_badge(task) %></span><% end %>
+              <span class="n"><%= task.title %></span>
+              <span class="proj"><%= task.project.name %></span>
+              <% if task.done? %>
+                <span class="r"><span class="badge b-good">Concluída <%= date_br(task.completed_on).first(5) %></span><span class="meta"><%= logged_vs_estimate(task, logged) %></span></span>
+              <% else %>
+                <% unless late %><span class="r"><%= priority_badge(task) %><span class="meta"><%= task.due_on ? "prazo #{date_br(task.due_on).first(5)}" : "sem prazo" %></span></span><% end %>
+                <span class="r">
+                  <% if late %><span class="meta late-text">prazo <%= date_br(task.due_on).first(5) %></span><% end %>
+                  <span class="row" style="gap:6px"><% if task.user %><span class="avatar sm soft" title="<%= task.user.name %>"><%= task.user.initials %></span><% unless late %><span class="meta"><%= task.user.first_name %></span><% end %><% else %><span class="meta">Sem responsável</span><% end %></span>
+                  <% unless task.in_progress? %><span class="meta"><%= logged_vs_estimate(task, logged) %></span><% end %>
+                </span>
+                <% if task.in_progress? %>
+                  <span class="hrs"><%= progress_bar(task.estimated_minutes.to_i.positive? ? (logged * 100.0 / task.estimated_minutes).round : 0, label: "Horas registradas × estimativa", tone: (task.over_estimate?(logged) ? "crit" : nil)) %><span class="meta"><span>registradas × est.</span><%= logged_vs_estimate(task, logged) %></span></span>
+                <% end %>
+              <% end %>
+            <% end %>
+          <% end %>
+          <% if lane[:key] == "done" && @done_total > lane[:tasks].size %>
+            <%= link_to "Ver todas as #{@done_total} concluídas →", tasks_path(request.query_parameters.merge("modo" => "lista", "status" => "done")), class: "more" %>
+          <% end %>
+        </section>
+      <% end %>
+    </div>
+    <p class="caption" style="margin:8px 0 0"><%= "Arraste os cartões entre as colunas para mudar o status. " if can_move %>Horas registradas acima da estimativa aparecem em vermelho.</p>
+  </section>
+<% else %>
+  <section class="stack" aria-label="Lista de tarefas">
+    <div class="toolbar">
+      <%= status_filter :status, [ [ "todos", "Todas", @counts.values.sum ] ] + Task::STATUS_LABELS.map { |k, v| [ k, v, @counts[k].to_i ] } %>
+    </div>
+    <div class="card">
+      <% if @tasks.any? %>
+        <div class="table-wrap">
+          <table class="table cards">
+            <thead><tr><th>Tarefa</th><th>Responsável</th><th>Prioridade</th><th>Prazo</th><th class="num">Registradas × estimativa</th><th>Status</th></tr></thead>
+            <tbody>
+              <% @tasks.each do |task| %>
+                <% late = task.late? %>
+                <tr class="<%= 'late' if late %>">
+                  <td data-label="Tarefa"><%= can_move ? drawer_link_to(task.title, edit_task_path(task, modo: "lista"), class: "strong") : tag.span(task.title, class: "strong") %><span class="cell-sub"><%= link_to task.project.name, project_path(task.project) %> · <%= task.project.company.trade_name %></span></td>
+                  <td data-label="Responsável"><%= task.user&.name || "—" %></td>
+                  <td data-label="Prioridade"><%= priority_badge(task) %></td>
+                  <td data-label="Prazo" class="mono<%= ' late-text' if late %>"><%= date_br(task.due_on) %><% if late %><span class="cell-sub late-text"><%= pluralize(task.days_late, "dia") %> de atraso</span><% end %></td>
+                  <td data-label="Horas" class="num"><%= logged_vs_estimate(task, @logged[task.id].to_i) %></td>
+                  <td data-label="Status"><%= task_badge(task) %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+        <%= render "shared/pagination", pager: @pager %>
+        <div class="card-foot"><span>Tarefa atrasada = prazo ultrapassado e não concluída</span></div>
+      <% else %>
+        <%= render "shared/empty", title: "Nenhuma tarefa encontrada", text: "Crie tarefas nos projetos para acompanhar prazo, prioridade e horas." %>
+      <% end %>
+    </div>
+  </section>
+<% end %>

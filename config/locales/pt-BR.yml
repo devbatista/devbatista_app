@@ -49,6 +49,21 @@ pt-BR:
       interaction:
         one: Interação
         other: Interações
+      project:
+        one: Projeto
+        other: Projetos
+      task:
+        one: Tarefa
+        other: Tarefas
+      time_entry:
+        one: Lançamento de horas
+        other: Lançamentos de horas
+      ticket:
+        one: Chamado
+        other: Chamados
+      ticket_message:
+        one: Mensagem do chamado
+        other: Mensagens do chamado
     attributes:
       user:
         name: Nome
@@ -210,6 +225,76 @@ pt-BR:
         kind: Tipo
         occurred_on: Data
         notes: Registro
+      project:
+        company: Cliente
+        company_id: Cliente
+        name: Nome
+        description: Descrição
+        user: Responsável
+        user_id: Responsável
+        status: Status
+        start_date: Data inicial
+        due_date: Previsão
+        closed_on: Data de conclusão
+        budget: Orçamento
+        budget_cents: Orçamento
+        progress: Progresso
+        progress_from_tasks: Progresso pelas tarefas
+        contract: Contrato
+        contract_id: Contrato
+        proposal: Proposta
+        proposal_id: Proposta
+        tasks: Tarefas
+        time_entries: Horas lançadas
+        documents: Documentos
+      task:
+        project: Projeto
+        project_id: Projeto
+        title: Título
+        description: Descrição
+        user: Responsável
+        user_id: Responsável
+        status: Status
+        priority: Prioridade
+        due_on: Prazo
+        estimated_minutes: Estimativa
+        estimated_hours: Estimativa de horas
+        completed_on: Concluída em
+      time_entry:
+        user: Usuário
+        user_id: Usuário
+        company: Cliente
+        company_id: Cliente
+        project: Projeto
+        project_id: Projeto
+        task: Tarefa
+        task_id: Tarefa
+        ticket: Chamado
+        ticket_id: Chamado
+        worked_on: Data
+        minutes: Duração
+        duration: Duração
+        description: Descrição
+      ticket:
+        number: Número
+        company: Cliente
+        company_id: Cliente
+        contact: Contato
+        contact_id: Contato
+        subject: Assunto
+        description: Descrição
+        category: Categoria
+        priority: Prioridade
+        status: Status
+        user: Responsável
+        user_id: Responsável
+        opened_at: Abertura
+        resolved_at: Conclusão
+      ticket_message:
+        kind: Tipo
+        body: Mensagem
+        channel: Canal
+        contact: Contato
   date:
     formats:
       month_year: "%B de %Y"

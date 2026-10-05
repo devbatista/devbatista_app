@@ -1,0 +1,27 @@
+<% back = ticket.persisted? ? ticket_path(ticket) : (params[:voltar] == "empresa" && ticket.company ? company_path(ticket.company, aba: "chamados") : tickets_path) %>
+<% companies = Company.where.not(status: "inactive").or(Company.where(id: ticket.company_id)).includes(:contacts).by_name %>
+<%= render layout: "shared/drawer_form", locals: { title: ticket.new_record? ? "Novo chamado" : "Editar chamado #{ticket.code}", cancel_path: back } do %>
+  <%= form_with model: ticket, class: "form", data: { turbo_frame: "_top" } do |f| %>
+    <div class="drawer-body form">
+      <%= render "shared/form_errors", record: ticket %>
+      <% if ticket.new_record? %>
+        <div class="callout"><span>O número e a data de abertura são registrados automaticamente. O chamado nasce com status <b class="strong">Aberto</b>.</span></div>
+      <% end %>
+      <div class="form-grid">
+        <div class="field"><%= f.label :company_id do %>Cliente <span class="req">*</span><% end %><%= f.collection_select :company_id, companies, :id, :trade_name, { prompt: "Selecione" }, class: "select", required: true %></div>
+        <div class="field"><%= f.label :contact_id, "Contato" %>
+          <%= f.select :contact_id, grouped_options_for_select(companies.select { |c| c.contacts.any? }.map { |c| [ c.trade_name, c.contacts.map { |ct| [ "#{ct.name}#{' (principal)' if ct.primary?}", ct.id ] } ] }, ticket.contact_id), { include_blank: "Contato principal do cliente" }, class: "select" %>
+          <span class="hint">O contato principal é sugerido por padrão</span></div>
+        <div class="field full"><%= f.label :subject do %>Assunto <span class="req">*</span><% end %><%= f.text_field :subject, class: "input", required: true, placeholder: "Resumo do chamado" %></div>
+        <div class="field full"><%= f.label :description do %>Descrição <span class="req">*</span><% end %><%= f.text_area :description, class: "textarea", required: true, placeholder: "Detalhamento do problema ou pedido: o que aconteceu, quando, quem foi afetado" %></div>
+        <div class="field"><%= f.label :priority do %>Prioridade <span class="req">*</span><% end %><%= f.select :priority, Ticket.options_for_priority, {}, class: "select" %><span class="hint">Crítica notifica a equipe na hora</span></div>
+        <div class="field"><%= f.label :category do %>Categoria <span class="req">*</span><% end %><%= f.select :category, Ticket.options_for_category, { prompt: "Selecione" }, class: "select", required: true %></div>
+        <div class="field full"><%= f.label :user_id, "Responsável" %><%= f.collection_select :user_id, User.active.or(User.where(id: ticket.user_id)).by_name, :id, :name, { include_blank: "Sem responsável" }, class: "select" %></div>
+      </div>
+    </div>
+    <div class="drawer-foot">
+      <%= link_to "Cancelar", back, class: "btn", data: { close: true, turbo_frame: "_top" } %>
+      <%= f.submit ticket.new_record? ? "Abrir chamado" : "Salvar alterações", class: "btn pri" %>
+    </div>
+  <% end %>
+<% end %>

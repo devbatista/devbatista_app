@@ -1,0 +1,4 @@
+<% page_title "Nova tarefa" %>
+<% nav_location :op, "Tarefas" %>
+<% breadcrumb ["Operação"], ["Tarefas", tasks_path], ["Nova tarefa"] %>
+<div class="form-page"><%= render "form", task: @task %></div>

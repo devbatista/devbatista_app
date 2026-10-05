@@ -59,6 +59,26 @@
       <% end %>
     <% end %>
 
+    <% if current_user.can_read?("projetos") || current_user.can_read?("suporte") %>
+      <% main = @projects.find(&:active?) %>
+      <% open_tickets = @tickets.select(&:open?) %>
+      <div class="card">
+        <div class="card-head"><h2>Operação</h2><%= link_to "Projetos →", projects_path(empresa: @company.id), style: "font-size:13px;font-weight:600" if current_user.can_read?("projetos") %></div>
+        <% if main %>
+          <div class="card-body stack" style="padding-top:0;gap:10px">
+            <div class="row" style="justify-content:space-between"><%= link_to main.name, project_path(main), class: "strong" %><span class="strong num"><%= main.progress %>%</span></div>
+            <%= progress_bar(main.progress, label: "Progresso do projeto", tone: ("crit" if main.late?)) %>
+            <span class="caption"><%= main.user.name %> · previsão <%= date_br(main.due_date) %><%= " · atrasado" if main.late? %> · <%= hours_br(@project_hours[main.id].to_i) %><%= " de #{hours_br(@project_estimates[main.id])}" if @project_estimates[main.id].to_i.positive? %></span>
+          </div>
+        <% end %>
+        <% if current_user.can_read?("suporte") %>
+          <% critical = open_tickets.count(&:critical?) %>
+          <div class="kv"><span>Chamados abertos</span><b><%= open_tickets.size %> · <%= critical.positive? ? pluralize(critical, "crítico", plural: "críticos") : "nenhum crítico" %></b></div>
+        <% end %>
+        <% if @month_minutes %><div class="kv"><span>Horas no mês</span><b><%= hours_br(@month_minutes) %></b></div><% end %>
+      </div>
+    <% end %>
+
     <div class="card">
       <div class="card-head"><h2>Atividades recentes</h2><span class="caption">Linha do tempo completa na aba Atividades</span></div>
       <% if @activities.any? %>

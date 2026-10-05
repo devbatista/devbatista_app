@@ -34,6 +34,7 @@ class CompaniesController < ApplicationController
     @documents = policy(Document).index? ? @company.documents.includes(:uploaded_by, file_attachment: :blob).recent : Document.none
     @activities = @company.activities.includes(:user).recent.limit(50)
     @current_contract = @contracts.find { |c| c.active? || c.expiring? }
+    load_operation
   end
 
   def new
@@ -60,6 +61,15 @@ class CompaniesController < ApplicationController
   end
 
   private
+
+  # Projetos, chamados e horas da Visão 360º, só para quem pode ver cada área.
+  def load_operation
+    @projects = current_user.can_read?("projetos") ? @company.projects.includes(:user).order(Arel.sql("projects.status IN ('done','cancelled')"), start_date: :desc).to_a : []
+    @project_hours = TimeEntry.where(project_id: @projects.map(&:id)).group(:project_id).sum(:minutes)
+    @project_estimates = Task.where(project_id: @projects.map(&:id)).group(:project_id).sum(:estimated_minutes)
+    @tickets = current_user.can_read?("suporte") ? @company.tickets.includes(:user, :contact).order(Arel.sql("tickets.status IN ('resolved','closed')"), opened_at: :desc).to_a : []
+    @month_minutes = @company.time_entries.where(worked_on: Date.current.all_month).sum(:minutes) if current_user.can_read?("horas")
+  end
 
   def set_company
     @company = authorize Company.find(params[:id])

@@ -1,0 +1,62 @@
+# Extraído de docs/design/operacao/tarefas.html (quadro e lista: 16 tarefas) e
+# operacao/projeto.html (quadro resumido do Portal ACME — Fase 2).
+#
+# Observações:
+# - estimate e logged em horas. logged é o "registradas" do cartão: o seed lança as horas de
+#   time_entries.yml e completa o restante com lançamentos do responsável antes do prazo.
+# - Portal ACME — Fase 2: o design mostra 21 tarefas (13 concluídas, "est. 72h · reg. 57h"),
+#   mas só nomeia 2 concluídas. As outras 11 foram escritas para o seed (marcadas com
+#   "resumida: true"), somando 56 h de estimativa e 39 h registradas. Com a reunião de 1h30
+#   sem tarefa (time_entries.yml), o projeto fecha nas 96 h do design; a coluna Concluída
+#   fica com 55h30 registradas em vez de 57 h.
+# - ERP Cliente C e Painel de indicadores: as tarefas concluídas antes de setembro também
+#   foram escritas para o seed (resumida: true), para a estimativa e as horas do projeto
+#   baterem com projetos.html (280 h / 248 h e 64 h / 38 h).
+# - Prazos de "Mapear layout de NF-e" (30/09) e do início do projeto (01/10) são os do design.
+# - completed_on das concluídas = data do badge "Concluída dd/mm".
+
+# ---------- Portal ACME — Fase 2 ----------
+- { project: Portal ACME — Fase 2, title: Exportar relatório em Excel, status: backlog, priority: normal, user: diego.rocha@devbatista.com.br, due_on: "2026-10-16", estimate: 8, logged: 0 }
+- { project: Portal ACME — Fase 2, title: Histórico de pedidos no portal, status: backlog, priority: low, user: diego.rocha@devbatista.com.br, due_on: "2026-10-20", estimate: 6, logged: 0 }
+- { project: Portal ACME — Fase 2, title: Integração com ERP — pedidos, status: todo, priority: high, user: diego.rocha@devbatista.com.br, due_on: "2026-09-25", estimate: 16, logged: 0 }
+- { project: Portal ACME — Fase 2, title: Recuperação de senha do cliente, status: todo, priority: normal, user: diego.rocha@devbatista.com.br, due_on: "2026-09-29", estimate: 6, logged: 0 }
+- { project: Portal ACME — Fase 2, title: Módulo de relatórios, status: in_progress, priority: high, user: diego.rocha@devbatista.com.br, due_on: "2026-09-22", estimate: 24, logged: 18 }
+- { project: Portal ACME — Fase 2, title: Permissões por usuário do cliente, status: in_progress, priority: normal, user: diego.rocha@devbatista.com.br, due_on: "2026-09-24", estimate: 10, logged: 4 }
+- { project: Portal ACME — Fase 2, title: Área do cliente — login, status: review, priority: normal, user: diego.rocha@devbatista.com.br, due_on: "2026-09-18", estimate: 12, logged: 11 }
+- { project: Portal ACME — Fase 2, title: Envio de e-mails transacionais, status: review, priority: normal, user: diego.rocha@devbatista.com.br, due_on: "2026-09-19", estimate: 6, logged: 6 }
+- { project: Portal ACME — Fase 2, title: Modelagem do banco de relatórios, status: done, priority: normal, user: diego.rocha@devbatista.com.br, due_on: "2026-09-15", completed_on: "2026-09-15", estimate: 8, logged: 9 }
+- { project: Portal ACME — Fase 2, title: Layout da área do cliente, status: done, priority: normal, user: diego.rocha@devbatista.com.br, due_on: "2026-09-05", completed_on: "2026-09-04", estimate: 8, logged: 7.5 }
+- { project: Portal ACME — Fase 2, title: Kickoff e levantamento da Fase 2, status: done, priority: normal, user: diego.rocha@devbatista.com.br, due_on: "2026-08-05", completed_on: "2026-08-05", estimate: 4, logged: 4, resumida: true }
+- { project: Portal ACME — Fase 2, title: Arquitetura da área do cliente, status: done, priority: normal, user: diego.rocha@devbatista.com.br, due_on: "2026-08-10", completed_on: "2026-08-10", estimate: 6, logged: 5, resumida: true }
+- { project: Portal ACME — Fase 2, title: Cadastro de usuários do cliente, status: done, priority: normal, user: diego.rocha@devbatista.com.br, due_on: "2026-08-14", completed_on: "2026-08-14", estimate: 6, logged: 4, resumida: true }
+- { project: Portal ACME — Fase 2, title: Autenticação com e-mail e senha, status: done, priority: high, user: diego.rocha@devbatista.com.br, due_on: "2026-08-19", completed_on: "2026-08-19", estimate: 6, logged: 4.5, resumida: true }
+- { project: Portal ACME — Fase 2, title: Painel inicial do cliente, status: done, priority: normal, user: diego.rocha@devbatista.com.br, due_on: "2026-08-21", completed_on: "2026-08-21", estimate: 5, logged: 3.5, resumida: true }
+- { project: Portal ACME — Fase 2, title: Listagem de pedidos, status: done, priority: normal, user: diego.rocha@devbatista.com.br, due_on: "2026-08-26", completed_on: "2026-08-26", estimate: 6, logged: 4, resumida: true }
+- { project: Portal ACME — Fase 2, title: Detalhe do pedido, status: done, priority: normal, user: diego.rocha@devbatista.com.br, due_on: "2026-08-28", completed_on: "2026-08-28", estimate: 4, logged: 3, resumida: true }
+- { project: Portal ACME — Fase 2, title: Filtros da listagem de pedidos, status: done, priority: low, user: diego.rocha@devbatista.com.br, due_on: "2026-09-01", completed_on: "2026-09-01", estimate: 4, logged: 2.5, resumida: true }
+- { project: Portal ACME — Fase 2, title: Modelos de e-mail, status: done, priority: low, user: diego.rocha@devbatista.com.br, due_on: "2026-09-03", completed_on: "2026-09-03", estimate: 5, logged: 3.5, resumida: true }
+- { project: Portal ACME — Fase 2, title: Ambiente de homologação, status: done, priority: normal, user: diego.rocha@devbatista.com.br, due_on: "2026-09-08", completed_on: "2026-09-08", estimate: 4, logged: 3, resumida: true }
+- { project: Portal ACME — Fase 2, title: Testes automatizados da área do cliente, status: done, priority: normal, user: diego.rocha@devbatista.com.br, due_on: "2026-09-12", completed_on: "2026-09-11", estimate: 6, logged: 2, resumida: true }
+
+# ---------- ERP Cliente C ----------
+- { project: ERP Cliente C, title: Fechamento de estoque, status: in_progress, priority: urgent, user: elisa.prado@devbatista.com.br, due_on: "2026-09-11", estimate: 20, logged: 26 }
+- { project: ERP Cliente C, title: Importação de produtos, status: review, priority: high, user: elisa.prado@devbatista.com.br, due_on: "2026-09-21", estimate: 14, logged: 15.5 }
+- { project: ERP Cliente C, title: Cadastro de clientes, status: done, priority: high, user: elisa.prado@devbatista.com.br, due_on: "2026-09-10", completed_on: "2026-09-10", estimate: 18, logged: 21 }
+- { project: ERP Cliente C, title: Levantamento de processos, status: done, priority: normal, user: elisa.prado@devbatista.com.br, due_on: "2026-06-12", completed_on: "2026-06-12", estimate: 24, logged: 22, resumida: true }
+- { project: ERP Cliente C, title: Modelagem do banco de dados, status: done, priority: normal, user: elisa.prado@devbatista.com.br, due_on: "2026-06-26", completed_on: "2026-06-26", estimate: 32, logged: 28, resumida: true }
+- { project: ERP Cliente C, title: Cadastro de produtos e estoque, status: done, priority: high, user: elisa.prado@devbatista.com.br, due_on: "2026-07-17", completed_on: "2026-07-17", estimate: 40, logged: 34, resumida: true }
+- { project: ERP Cliente C, title: Módulo de compras, status: done, priority: high, user: elisa.prado@devbatista.com.br, due_on: "2026-08-07", completed_on: "2026-08-07", estimate: 48, logged: 39, resumida: true }
+- { project: ERP Cliente C, title: Módulo de vendas e faturamento, status: done, priority: high, user: elisa.prado@devbatista.com.br, due_on: "2026-08-28", completed_on: "2026-08-28", estimate: 56, logged: 45.5, resumida: true }
+- { project: ERP Cliente C, title: Integração fiscal, status: done, priority: normal, user: elisa.prado@devbatista.com.br, due_on: "2026-09-04", completed_on: "2026-09-04", estimate: 28, logged: 17, resumida: true }
+
+# ---------- Painel de indicadores ----------
+- { project: Painel de indicadores, title: Gráficos de vendas, status: in_progress, priority: normal, user: elisa.prado@devbatista.com.br, due_on: "2026-09-30", estimate: 10, logged: 7 }
+- { project: Painel de indicadores, title: Levantamento dos indicadores, status: done, priority: normal, user: elisa.prado@devbatista.com.br, due_on: "2026-08-21", completed_on: "2026-08-21", estimate: 8, logged: 6, resumida: true }
+- { project: Painel de indicadores, title: Modelagem das consultas, status: done, priority: normal, user: elisa.prado@devbatista.com.br, due_on: "2026-09-02", completed_on: "2026-09-02", estimate: 12, logged: 8, resumida: true }
+- { project: Painel de indicadores, title: Conexão com a base do ERP, status: done, priority: high, user: elisa.prado@devbatista.com.br, due_on: "2026-09-09", completed_on: "2026-09-09", estimate: 10, logged: 7, resumida: true }
+- { project: Painel de indicadores, title: Layout do painel, status: done, priority: normal, user: elisa.prado@devbatista.com.br, due_on: "2026-09-11", completed_on: "2026-09-11", estimate: 8, logged: 4, resumida: true }
+- { project: Painel de indicadores, title: Gráficos de faturamento, status: done, priority: normal, user: elisa.prado@devbatista.com.br, due_on: "2026-09-14", completed_on: "2026-09-14", estimate: 16, logged: 6, resumida: true }
+
+# ---------- Automação de NF Delta ----------
+- { project: Automação de NF Delta, title: Tela de parâmetros fiscais, status: backlog, priority: low, user: elisa.prado@devbatista.com.br, due_on: "2026-10-15", estimate: 6, logged: 0 }
+- { project: Automação de NF Delta, title: Mapear layout de NF-e, status: todo, priority: normal, user: elisa.prado@devbatista.com.br, due_on: "2026-09-30", estimate: 4, logged: 0 }

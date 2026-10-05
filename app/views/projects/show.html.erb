@@ -1,0 +1,191 @@
+<% page_title @project.name %>
+<% nav_location :op, "Projetos" %>
+<% breadcrumb ["Operação"], ["Projetos", projects_path], [@project.name] %>
+<% p = @project %>
+<% late = p.late? %>
+<% done_tasks = @tasks.count(&:done?) %>
+<% open_tasks = @tasks.reject(&:done?) %>
+<% can_hours = policy(TimeEntry).create? %>
+<% can_tasks = policy(Task).create? %>
+<% can_edit_tasks = policy(Task).update? %>
+
+<div class="page-head">
+  <div class="head360">
+    <span class="co-avatar" aria-hidden="true"><%= p.name.split.values_at(0, 1).compact.map { |w| w[0] }.join.upcase %></span>
+    <div class="titles">
+      <span class="section-label">Projeto · <%= link_to p.company.trade_name, company_path(p.company), style: "color:inherit" %></span>
+      <h1><%= p.name %></h1>
+      <div class="row wrap" style="gap:8px">
+        <%= project_badge(p) %><% if late %><span class="badge b-crit dot-l">Atrasado</span><% end %>
+        <span class="caption">Responsável: <%= p.user.name %> · <%= date_br(p.start_date) %> → <%= date_br(p.due_date) %><%=
+          if late then " · #{pluralize(p.days_late, 'dia')} de atraso"
+          elsif !p.closed? then " · #{pluralize(p.days_left, 'dia restante', plural: 'dias restantes')}"
+          end %></span>
+      </div>
+    </div>
+  </div>
+  <div class="actions">
+    <% if policy(p).destroy? %><%= button_to "Excluir", project_path(p), method: :delete, class: "btn danger", form: { data: { turbo_confirm: "Excluir o projeto #{p.name} e as tarefas dele? Projetos com horas lançadas não podem ser excluídos." } } %><% end %>
+    <% if policy(p).edit? %><%= drawer_link_to edit_project_path(p), class: "btn" do %><%= icon(:edit, size: 16, stroke: 1.8) %>Editar<% end %><% end %>
+    <% if can_hours %><%= drawer_link_to new_time_entry_path(projeto: p.id, voltar: "projeto"), class: "btn" do %><%= icon(:clock, size: 16, stroke: 1.8) %>Registrar horas<% end %><% end %>
+    <% if can_tasks %><%= drawer_link_to new_task_path(projeto: p.id, voltar: "projeto"), class: "btn pri" do %><%= icon(:plus, size: 16, stroke: 2) %>Nova tarefa<% end %><% end %>
+  </div>
+</div>
+
+<% if late %>
+  <div class="callout crit" role="status"><%= icon(:alert, size: 20, stroke: 1.8, style: "color:var(--crit);flex:none;margin-top:1px") %><span><b class="strong">Atrasado:</b> a previsão era <%= date_br(p.due_date) %> e o projeto segue <%= p.status_label %>. Ajuste a previsão ou conclua o projeto; enquanto isso, o responsável e os administradores recebem o alerta.</span></div>
+<% end %>
+
+<div class="grid-kpi g4">
+  <div class="card kpi">
+    <span class="eyebrow">Progresso</span>
+    <div class="big-prog"><span class="v"><%= p.progress %>%</span><span class="caption"><%= p.progress_from_tasks? ? "#{done_tasks} de #{pluralize(@tasks.size, 'tarefa concluída', plural: 'tarefas concluídas')}" : "informado manualmente" %></span></div>
+    <%= progress_bar(p.progress, label: "Progresso #{p.progress}%", tone: (late ? "crit" : nil), size: "lg") %>
+  </div>
+  <div class="card kpi"><span class="eyebrow">Orçamento</span><span class="v"><%= brl(p.budget_cents) %></span><span class="f"><% if p.proposal && current_user.can_read?("comercial") %>proposta <%= link_to p.proposal.code, proposal_path(p.proposal) %> · <%= p.proposal.status_label.downcase %><% else %>valor orçado ou vendido<% end %></span></div>
+  <div class="card kpi"><span class="eyebrow">Horas registradas</span><span class="v"><%= hours_br(@logged) %></span><span class="f"><%= @estimated.positive? ? "de #{hours_br(@estimated)} estimadas · #{(@logged * 100.0 / @estimated).round}%" : "sem estimativa nas tarefas" %></span></div>
+  <div class="card kpi<%= ' alert' if late %>"><span class="eyebrow">Previsão</span><span class="v"><%= date_br(p.due_date) %></span>
+    <span class="f"><% if p.closed? %><%= p.done? ? "entregue em" : "cancelado em" %> <%= date_br(p.closed_on) %><% elsif late %><span class="badge b-crit">Atrasado</span><%= pluralize(p.days_late, "dia") %><% else %><span class="badge b-good">No prazo</span><%= pluralize(p.days_left, "dia restante", plural: "dias restantes") %><% end %></span></div>
+</div>
+
+<% tabs = [ [ "visao", "Visão geral", nil ], [ "tarefas", "Tarefas", @tasks.size ], [ "horas", "Horas", hours_br(@logged) ] ]
+   tabs << [ "documentos", "Documentos", @documents.size ] if policy(Document).index?
+   tabs << [ "atividades", "Atividades", nil ]
+   current_tab = tabs.map(&:first).include?(params[:aba]) ? params[:aba] : "visao" %>
+<div data-tabs-scope>
+  <div class="tabs" role="tablist" aria-label="Seções do projeto" data-tabs>
+    <% tabs.each do |key, label, count| %>
+      <button class="tab<%= ' on' if key == current_tab %>" type="button" role="tab" aria-selected="<%= key == current_tab %>" data-tab="<%= key %>"><%= label %><% if count %><span class="c"><%= count %></span><% end %></button>
+    <% end %>
+  </div>
+
+  <section data-panel="visao" role="tabpanel" <%= "hidden" unless current_tab == "visao" %> class="cols-2-1" style="margin-top:20px">
+    <div class="stack">
+      <div class="card">
+        <div class="card-head"><h2>Sobre o projeto</h2></div>
+        <% if p.description.present? %><div class="card-body" style="padding-top:0"><%= simple_format(p.description, { style: "margin:0;color:var(--text-2)" }) %></div><% end %>
+        <dl class="dl" style="border-top:1px solid var(--rule)">
+          <div><dt>Cliente</dt><dd><%= link_to p.company.trade_name, company_path(p.company) %></dd></div>
+          <div><dt>Responsável</dt><dd><%= p.user.name %></dd></div>
+          <div><dt>Data inicial</dt><dd class="mono"><%= date_br(p.start_date) %></dd></div>
+          <div><dt>Previsão</dt><dd class="mono"><%= date_br(p.due_date) %></dd></div>
+          <div><dt>Contrato</dt><dd><%= p.contract ? (current_user.can_read?("contratos") ? link_to(p.contract.to_s, contract_path(p.contract)) : p.contract.to_s) : "—" %></dd></div>
+          <div><dt>Progresso</dt><dd><%= p.progress_from_tasks? ? "Calculado pelas tarefas" : "Informado manualmente" %></dd></div>
+        </dl>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h2>Orçamento × horas registradas</h2><span class="unit">ATÉ <%= date_br(Date.current).first(5) %></span></div>
+        <% consumed = @estimated.positive? ? (@logged * 100.0 / @estimated).round : nil %>
+        <div class="card-body stack" style="padding-top:0">
+          <div class="hbars">
+            <div class="hbar" style="grid-template-columns:150px minmax(0,1fr) 56px"><span>Progresso entregue</span><div class="track"><div class="fill" style="width:<%= p.progress %>%"></div></div><span class="val"><%= p.progress %>%</span></div>
+            <div class="hbar" style="grid-template-columns:150px minmax(0,1fr) 56px"><span>Horas consumidas</span><div class="track"><div class="fill alt" style="width:<%= consumed.to_i.clamp(0, 100) %>%"></div></div><span class="val"><%= consumed ? "#{consumed}%" : "—" %></span></div>
+          </div>
+          <% if consumed %>
+            <% open_estimate = open_tasks.sum { |t| [ t.estimated_minutes.to_i - @logged_by_task[t.id].to_i, 0 ].max } %>
+            <div class="callout<%= ' warn' if consumed > p.progress + 10 %>"><span><b class="strong"><%= hours_br(@logged) %> de <%= hours_br(@estimated) %></b> usadas para <%= p.progress %>% do escopo.
+              <% if @estimated > @logged %>Saldo de <b class="strong"><%= hours_br(@estimated - @logged) %></b> para <%= pluralize(open_tasks.size, "tarefa aberta", plural: "tarefas abertas") %>, que ainda somam <%= hours_br(open_estimate) %> de estimativa a executar.<% else %>As horas registradas já passaram da estimativa das tarefas.<% end %></span></div>
+          <% end %>
+        </div>
+        <div class="kv"><span>Orçamento vendido</span><b><%= brl(p.budget_cents) %></b></div>
+        <% if @estimated.positive? && p.budget_cents.positive? %>
+          <% per_hour = (p.budget_cents * 60.0 / @estimated).round %>
+          <div class="kv"><span>Valor por hora estimada</span><b><%= brl(per_hour) %>/h</b></div>
+          <div class="kv"><span>Equivalente consumido (<%= hours_br(@logged) %>)</span><b><%= brl((per_hour * @logged / 60.0).round) %></b></div>
+        <% end %>
+        <div class="kv"><span>Horas em <%= l(Date.current, format: "%B") %></span><b><%= hours_br(@month_minutes) %></b></div>
+      </div>
+    </div>
+
+    <div class="stack">
+      <div class="card">
+        <div class="card-head"><h2>Tarefas por status</h2><%= link_to "Quadro →", tasks_path(projeto: p.id), style: "font-size:13px;font-weight:600" %></div>
+        <% Task::STATUS_LABELS.each do |key, label| %>
+          <div class="kv"><span><%= label %></span><b><%= @tasks.count { |t| t.status == key } %></b></div>
+        <% end %>
+        <% late_tasks = @tasks.count(&:late?) %>
+        <div class="kv"><span>Atrasadas</span><b><span class="badge <%= late_tasks.positive? ? 'b-crit' : 'b-good' %>"><%= late_tasks %></span></b></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h2>Horas por pessoa</h2></div>
+        <div class="card-body" style="padding-top:0">
+          <% if @hours_by_user.any? %>
+            <div class="hbars"><%= hour_bars(@hours_by_user.map { |u, m| [ u.name, m ] }) %></div>
+          <% else %>
+            <span class="caption">Nenhuma hora registrada ainda.</span>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section data-panel="tarefas" role="tabpanel" <%= "hidden" unless current_tab == "tarefas" %> class="stack" style="margin-top:20px">
+    <div class="section-title"><span class="eyebrow">Quadro resumido · estimativa × horas registradas</span><%= link_to "Abrir quadro completo →", tasks_path(projeto: p.id), style: "font-size:13px;font-weight:600" %></div>
+    <div class="board mini-board">
+      <% Task::STATUS_LABELS.each do |key, label| %>
+        <% lane = @tasks.select { |t| t.status == key } %>
+        <% lane = lane.sort_by { |t| -(t.completed_on || Date.current).jd } if key == "done" %>
+        <% est = lane.sum { |t| t.estimated_minutes.to_i } %>
+        <% reg = lane.sum { |t| @logged_by_task[t.id].to_i } %>
+        <div class="lane">
+          <div class="lane-head"><b><%= label %></b><span class="badge <%= { 'in_progress' => 'b-info', 'done' => 'b-good' }.fetch(key, 'b-mute') %>"><%= lane.size %></span></div>
+          <div class="lane-sum">est. <%= hours_br(est) %><%= " · reg. #{hours_br(reg)}" if reg.positive? %></div>
+          <% shown = key == "done" ? lane.first(2) : lane %>
+          <% shown.each do |task| %>
+            <% logged = @logged_by_task[task.id].to_i %>
+            <%= link_to (can_edit_tasks ? edit_task_path(task, voltar: "projeto") : tasks_path(projeto: p.id)), class: "kcard#{' late' if task.late?}", data: (can_edit_tasks ? { turbo_frame: "drawer-frame", open: "drawer" } : {}) do %>
+              <span class="n"><%= task.title %></span>
+              <span class="r"><%= task.done? ? status_badge("Concluída", "good") : priority_badge(task) %><span class="meta"><%= "#{date_br(task.due_on).first(5)} · " if task.due_on && !task.done? %><%= logged.positive? || task.done? ? logged_vs_estimate(task, logged) : "est. #{task.estimated_minutes ? hours_br(task.estimated_minutes) : '—'}" %></span></span>
+              <% if task.in_progress? && task.estimated_minutes.to_i.positive? %><%= progress_bar((logged * 100.0 / task.estimated_minutes).round, label: "Horas registradas × estimativa", tone: (task.over_estimate?(logged) ? "crit" : nil)) %><% end %>
+            <% end %>
+          <% end %>
+          <% if key == "done" && lane.size > 2 %><%= link_to "+ #{lane.size - 2} concluídas", tasks_path(projeto: p.id, modo: "lista", status: "done"), class: "more" %><% end %>
+          <% if lane.empty? && can_tasks && key != "done" %><%= drawer_link_to "+ Nova tarefa", new_task_path(projeto: p.id, status: key, voltar: "projeto"), class: "more" %><% end %>
+        </div>
+      <% end %>
+    </div>
+  </section>
+
+  <section data-panel="horas" role="tabpanel" <%= "hidden" unless current_tab == "horas" %> class="card" aria-label="Horas do projeto" style="margin-top:20px">
+    <div class="card-head"><h2>Horas registradas</h2><% if can_hours %><%= drawer_link_to new_time_entry_path(projeto: p.id, voltar: "projeto"), class: "btn sm" do %><%= icon(:clock, size: 14, stroke: 2) %>Registrar horas<% end %><% end %></div>
+    <% if @entries.any? %>
+      <div class="table-wrap">
+        <table class="table cards">
+          <thead><tr><th>Data</th><th>Usuário</th><th>Tarefa</th><th class="num">Duração</th><th>Descrição</th></tr></thead>
+          <tbody>
+            <% @entries.each do |entry| %>
+              <tr>
+                <td data-label="Data" class="mono"><%= date_br(entry.worked_on) %></td>
+                <td data-label="Usuário"><%= entry.user.name %></td>
+                <td data-label="Tarefa" class="<%= 'muted' unless entry.task %>"><%= entry.task&.title || (entry.ticket ? link_to("Chamado #{entry.ticket.code}", ticket_path(entry.ticket)) : "—") %></td>
+                <td data-label="Duração" class="num"><%= hours_br(entry.minutes, pad: true) %></td>
+                <td data-label="Descrição"><%= entry.description.presence || "—" %></td>
+              </tr>
+            <% end %>
+          </tbody>
+          <tfoot><tr><td data-label="">Total do projeto</td><td data-label=""></td><td data-label=""></td><td data-label="Total" class="num"><%= hours_br(@logged, pad: true) %></td><td data-label="" class="muted" style="font-weight:500"><%= hours_br(@month_minutes) %> em <%= l(Date.current, format: "%B") %></td></tr></tfoot>
+        </table>
+      </div>
+      <%= link_to "Ver todos os lançamentos →", time_entries_path(projeto: p.id, periodo: "trimestre"), class: "more" if policy(TimeEntry).index? %>
+    <% else %>
+      <%= render "shared/empty", title: "Nenhuma hora registrada", text: "Horas lançadas no projeto ou nas tarefas dele aparecem aqui." %>
+    <% end %>
+  </section>
+
+  <% if policy(Document).index? %>
+    <section data-panel="documentos" role="tabpanel" <%= "hidden" unless current_tab == "documentos" %> class="card" aria-label="Documentos do projeto" style="margin-top:20px">
+      <div class="card-head"><h2>Documentos</h2><% if policy(Document).create? %><%= drawer_link_to new_document_path(projeto: p.id), class: "btn sm" do %><%= icon(:upload, size: 14, stroke: 2) %>Enviar documento<% end %><% end %></div>
+      <%= render "documents/table", documents: @documents, show_company: false %>
+    </section>
+  <% end %>
+
+  <section data-panel="atividades" role="tabpanel" <%= "hidden" unless current_tab == "atividades" %> class="card" aria-label="Atividades do projeto" style="margin-top:20px">
+    <div class="card-head"><h2>Atividades</h2><%= link_to "Ver na auditoria", admin_audit_logs_path, style: "font-size:13px;font-weight:600" if policy(AuditLog).index? %></div>
+    <% if @activities.any? %>
+      <%= render partial: "companies/activity", collection: @activities %>
+    <% else %>
+      <%= render "shared/empty", title: "Nada registrado ainda" %>
+    <% end %>
+  </section>
+</div>
