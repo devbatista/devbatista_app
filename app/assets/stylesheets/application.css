@@ -187,6 +187,11 @@ tr[data-href] { cursor: pointer; }
 .steps .cell-sub { font-weight: 500; }
 .msg .who { display: block; white-space: normal; }
 .kcard .meta { white-space: nowrap; }
+/* Rodapé dos cards do pipeline: o contato encolhe com reticências, a data fica sempre visível. */
+.kcard .n, .kcard .s { overflow-wrap: anywhere; }
+.kcard .kfoot { display: flex; gap: 4px; min-width: 0; }
+.kcard .kfoot .kf-who { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.kcard .kfoot .kf-when { flex-shrink: 0; }
 
 /* Financeiro */
 .bars .pair { display: flex; align-items: flex-end; justify-content: center; gap: 4px; width: 100%; height: 100%; }

@@ -42,13 +42,15 @@
           <%= link_to lead_path(card), class: "kcard", draggable: can_move, data: { card_kind: "lead", move_url: move_lead_path(card, format: :json), convert_url: new_lead_conversion_path(card), lose_url: lose_lead_path(card, voltar: "pipeline") } do %>
             <span class="n"><%= card.display_name %></span><span class="s"><%= card.service&.name || "Serviço a definir" %></span>
             <span class="r"><span class="badge b-mute"><%= card.origin_label %></span><span class="avatar sm soft" title="<%= card.user.name %>"><%= card.user.initials %></span></span>
-            <span class="meta"><%= card.name %> · entrada <%= card.entered_on == Date.current ? "hoje" : date_br(card.entered_on).first(5) %></span>
+            <%# O contato só aparece quando difere do título (lead sem empresa usa o próprio nome no título). %>
+            <% contact = card.name unless card.name == card.display_name %>
+            <span class="meta kfoot"><% if contact %><span class="kf-who" title="<%= contact %>"><%= contact %></span><% end %><span class="kf-when"><%= "· " if contact %>entrada <%= card.entered_on == Date.current ? "hoje" : date_br(card.entered_on).first(5) %></span></span>
           <% end %>
         <% else %>
           <%= link_to edit_opportunity_path(card, voltar: "pipeline"), class: "kcard", draggable: can_move && card.open?, data: { card_kind: "opportunity", move_url: move_opportunity_path(card, format: :json), lose_url: lose_opportunity_path(card, voltar: "pipeline"), turbo_frame: "drawer-frame", open: "drawer" } do %>
             <span class="n"><%= card.title %></span><span class="s"><%= card.company.trade_name %><%= " · #{card.service.name}" if card.service %></span>
             <span class="r"><span class="val"><%= brl(card.estimated_value_cents) %></span><span class="badge <%= card.stage_won? ? 'b-good' : 'b-info' %>"><%= card.probability %>%</span></span>
-            <span class="meta"><%= card.stage_won? ? "fechado em #{date_br(card.closed_on)}" : "previsão #{date_br(card.expected_close_on)}" %> · <%= card.user.first_name %></span>
+            <span class="meta kfoot"><span class="kf-when"><%= card.stage_won? ? "fechado em #{date_br(card.closed_on)}" : "previsão #{date_br(card.expected_close_on)}" %></span><span class="kf-who">· <%= card.user.first_name %></span></span>
           <% end %>
         <% end %>
       <% end %>
