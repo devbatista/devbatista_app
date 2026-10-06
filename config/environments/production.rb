@@ -59,6 +59,8 @@ Rails.application.configure do
 
   # Set host to be used by links generated in mailer templates.
   config.action_mailer.default_url_options = { host: ENV.fetch("APP_HOST", "admin.devbatista.com"), protocol: "https" }
+  # Imagens dos e-mails (logo) com URL absoluta.
+  config.action_mailer.asset_host = "https://#{ENV.fetch("APP_HOST", "admin.devbatista.com")}"
 
   # Entrega via Amazon SES (interface SMTP). Aceita as credenciais SMTP geradas no console do SES
   # (`credentials` em `aws.ses` ou SES_SMTP_*) ou a chave IAM com permissão ses:SendRawEmail

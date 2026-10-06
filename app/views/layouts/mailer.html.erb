@@ -1,13 +1,58 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <%# O e-mail já é escuro: evita que o cliente inverta as cores no modo escuro. %>
+    <meta name="color-scheme" content="dark">
+    <meta name="supported-color-schemes" content="dark">
+    <title><%= message.subject %></title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-      /* Email styles need to be inline */
+      a { color: #22d3ee; }
+      @media (max-width: 600px) { .mail-card { padding: 24px 20px !important; } }
     </style>
   </head>
 
-  <body>
-    <%= yield %>
+  <body style="margin:0;padding:0;background:#0b1120;-webkit-text-size-adjust:100%">
+    <% if content_for?(:preheader) %>
+      <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent"><%= yield :preheader %></div>
+    <% end %>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#0b1120" style="background:#0b1120">
+      <tr>
+        <td align="center" style="padding:32px 16px">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px">
+            <tr>
+              <td style="padding:0 4px 20px">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                  <tr>
+                    <td>
+                      <%= link_to root_url, style: "text-decoration:none" do %>
+                        <%= image_tag image_url("logo-devbatista-branco.png"), alt: "DevBatista", width: 140, height: 32,
+                              style: "display:block;border:0;width:140px;height:auto;font-family:#{MailerHelper::FONT};font-size:18px;font-weight:700;color:#ffffff" %>
+                      <% end %>
+                    </td>
+                    <td align="right">
+                      <span style="display:inline-block;padding:3px 10px;border-radius:999px;border:1px solid rgba(22,78,99,.6);background:rgba(34,211,238,.1);font-family:<%= MailerHelper::FONT %>;font-size:12px;font-weight:600;color:#67e8f9">Admin</span>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td class="mail-card" bgcolor="#0f172a" style="background:#0f172a;border:1px solid #1e293b;border-radius:16px;padding:32px">
+                <%= yield %>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:20px 4px 0;font-family:<%= MailerHelper::FONT %>;font-size:12px;line-height:1.6;color:#64748b">
+                E-mail automático do <%= link_to "Admin DevBatista", root_url, style: "color:#94a3b8" %>. Não responda.<br>
+                © <%= Date.current.year %> <%= Setting[:company_legal_name] %>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
   </body>
 </html>

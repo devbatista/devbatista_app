@@ -546,5 +546,8 @@ pt-BR:
     formats:
       month_year: "%B de %Y"
   devise:
+    mailer:
+      reset_password_instructions:
+        subject: "[Admin DevBatista] Defina sua senha de acesso"
     failure:
       deactivated: "Seu usuário foi desativado. Fale com um administrador."

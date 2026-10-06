@@ -1,7 +1,10 @@
-Olá, <%= @notification.user.first_name %>.
+<%= @notification.kind_label.upcase %><%= " · #{@notification.level_label}" unless @notification.level_info? %>
 
 <%= @notification.title %>
 
+Olá, <%= @notification.user.first_name %>. Este alerta acabou de entrar na sua central de notificações.
+
 Abrir no sistema: <%= @url %>
 
-Você recebe este e-mail porque o alerta "<%= @notification.kind_label %>" está ativo nas suas preferências de notificação.
+Você recebe este e-mail porque o alerta "<%= @notification.kind_label %>" está ativo nas suas preferências.
+Alterar preferências: <%= notifications_url %>

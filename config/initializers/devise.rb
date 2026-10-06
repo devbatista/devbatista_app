@@ -30,7 +30,9 @@ Devise.setup do |config|
   # config.mailer = 'Devise::Mailer'
 
   # Configure the parent class responsible to send e-mails.
-  # config.parent_mailer = 'ActionMailer::Base'
+  # Os e-mails do Devise usam o layout, os helpers e o remetente (Setting) do ApplicationMailer,
+  # que tem prioridade sobre o mailer_sender acima.
+  config.parent_mailer = "ApplicationMailer"
 
   # ==> ORM configuration
   # Load and configure the ORM. Supports :active_record (default) and

@@ -42,6 +42,7 @@ Rails.application.configure do
   config.action_mailer.delivery_method = :letter_opener_web
   config.action_mailer.perform_deliveries = true
   config.action_mailer.default_url_options = { host: ENV.fetch("APP_HOST", "localhost"), port: ENV.fetch("APP_PORT", "3000").to_i }
+  config.action_mailer.asset_host = "http://#{ENV.fetch("APP_HOST", "localhost")}:#{ENV.fetch("APP_PORT", "3000")}"
 
   # Print deprecation notices to the Rails logger.
   config.active_support.deprecation = :log

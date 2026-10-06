@@ -1,4 +1,10 @@
-<p>Olá, <%= @notification.user.first_name %>.</p>
-<p><strong><%= @notification.title %></strong></p>
-<p><%= link_to "Abrir no sistema", @url %></p>
-<p style="color:#64748b;font-size:12px">Você recebe este e-mail porque o alerta “<%= @notification.kind_label %>” está ativo nas suas preferências de notificação.</p>
+<% content_for :preheader, @notification.title %>
+<%= mail_label @notification.kind_label %>
+<%= mail_title @notification.title %>
+<%= mail_badge @notification.level_label, @notification.level unless @notification.level_info? %>
+<%= mail_text "Olá, #{@notification.user.first_name}. Este alerta acabou de entrar na sua central de notificações." %>
+<%= mail_button "Abrir no sistema", @url %>
+<%= mail_note do %>
+  Você recebe este e-mail porque o alerta “<%= @notification.kind_label %>” está ativo nas suas preferências.
+  <%= link_to "Alterar preferências", notifications_url, style: "color:#22d3ee" %>
+<% end %>
