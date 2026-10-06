@@ -24,10 +24,10 @@ RSpec.describe "Busca, notificações e configurações" do
 
   describe "Notificações" do
     it "marca como lida e abre o registro" do
-      notification = Notification.create!(user: admin, kind: "contract_expiring", title: "Contrato vence", area: "contratos", path: "/contratos")
+      notification = Notification.create!(user: admin, kind: "contract_expiring", title: "Contrato vence", area: "contratos", path: "/contracts")
       sign_in admin
       patch notification_path(notification)
-      expect(response).to redirect_to("/contratos")
+      expect(response).to redirect_to("/contracts")
       expect(notification.reload.read?).to be(true)
     end
 

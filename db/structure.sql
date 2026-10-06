@@ -3950,6 +3950,7 @@ ALTER TABLE ONLY public.leads
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261006151158'),
 ('20261006130008'),
 ('20261006130007'),
 ('20261006130006'),

@@ -9,7 +9,7 @@ RSpec.describe "E-mails" do
   describe NotificationMailer do
     let(:notification) do
       Notification.create!(user: user, kind: "receivable_overdue", level: "crit", area: "financeiro",
-                           title: "Título da Acme vencido", path: "/contas-a-receber")
+                           title: "Título da Acme vencido", path: "/receivables")
     end
     let(:mail) { described_class.alert(notification) }
 
@@ -17,7 +17,7 @@ RSpec.describe "E-mails" do
       expect(mail.from).to eq([ "nao-responda@devbatista.com" ])
       expect(mail.subject).to eq("[Admin DevBatista] Título da Acme vencido")
       expect(html(mail)).to include("Pagamentos vencidos", "Crítico", "Abrir no sistema", "E-mail automático do")
-      expect(text(mail)).to include("Título da Acme vencido", "http://example.com/contas-a-receber", "Não responda.")
+      expect(text(mail)).to include("Título da Acme vencido", "http://example.com/receivables", "Não responda.")
     end
   end
 
