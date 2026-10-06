@@ -8,7 +8,8 @@ class AuditLog < ApplicationRecord
     "status_change" => "Mudança de status",
     "login" => "Login",
     "login_failed" => "Falha de login",
-    "logout" => "Logout"
+    "logout" => "Logout",
+    "password_change" => "Troca de senha"
   }.freeze
 
   belongs_to :user, optional: true

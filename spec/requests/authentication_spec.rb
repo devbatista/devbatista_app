@@ -37,4 +37,49 @@ RSpec.describe "Autenticação" do
     sign_in user
     expect { delete destroy_user_session_path }.to change { AuditLog.where(action: "logout").count }.by(1)
   end
+
+  describe "troca da própria senha" do
+    let(:user) { create(:user, :suporte, email: "ana@devbatista.com", password: "senha-segura-123") }
+
+    def change_password(current:, password:, confirmation: password)
+      patch account_password_path, params: { user: { current_password: current, password: password, password_confirmation: confirmation } }
+    end
+
+    before { sign_in user }
+
+    it "abre a tela para qualquer perfil" do
+      get edit_account_password_path
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "troca a senha, mantém o usuário logado e registra na auditoria" do
+      expect {
+        change_password(current: "senha-segura-123", password: "nova-senha-forte-1")
+      }.to change { AuditLog.where(action: "password_change", user: user).count }.by(1)
+
+      expect(response).to redirect_to(root_path)
+      expect(user.reload.valid_password?("nova-senha-forte-1")).to be(true)
+      get root_path
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "recusa quando a senha atual está errada" do
+      change_password(current: "errada", password: "nova-senha-forte-1")
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(user.reload.valid_password?("senha-segura-123")).to be(true)
+    end
+
+    it "recusa quando a confirmação não confere" do
+      change_password(current: "senha-segura-123", password: "nova-senha-forte-1", confirmation: "outra-coisa-1")
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(user.reload.valid_password?("senha-segura-123")).to be(true)
+    end
+
+    it "recusa nova senha em branco" do
+      expect {
+        change_password(current: "senha-segura-123", password: "")
+      }.not_to change { AuditLog.where(action: "password_change").count }
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+  end
 end

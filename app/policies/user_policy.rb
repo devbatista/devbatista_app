@@ -9,4 +9,9 @@ class UserPolicy < ApplicationPolicy
   def deactivate?
     user.can_manage?(area) && record != user
   end
+
+  # Qualquer perfil troca a própria senha, e só a própria.
+  def change_password?
+    record == user
+  end
 end

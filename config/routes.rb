@@ -115,6 +115,10 @@ Rails.application.routes.draw do
     end
     get "busca", to: "search#index", as: :search
 
+    # Troca da própria senha, aberta a todo usuário logado.
+    get "minha-senha", to: "account_passwords#edit", as: :edit_account_password
+    patch "minha-senha", to: "account_passwords#update", as: :account_password
+
     namespace :admin, path: "administracao" do
       resources :users, path: "usuarios", except: %i[show destroy] do
         patch :toggle_active, on: :member, path: "ativacao"

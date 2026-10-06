@@ -536,6 +536,12 @@ pt-BR:
         notes: Observações
         files: Arquivos
         receivables: Receitas
+    errors:
+      models:
+        user:
+          attributes:
+            current_password:
+              invalid: não confere
   date:
     formats:
       month_year: "%B de %Y"

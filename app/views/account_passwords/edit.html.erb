@@ -1,0 +1,42 @@
+<% page_title "Alterar senha" %>
+<% breadcrumb ["Minha conta"], ["Alterar senha"] %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Minha conta</span>
+    <h1>Alterar senha</h1>
+  </div>
+</div>
+
+<div style="max-width:560px">
+  <%= form_with model: @user, scope: :user, url: account_password_path, method: :patch, class: "card form", data: { turbo: false } do |f| %>
+    <div class="card-body form">
+      <% if @user.errors.any? %>
+        <div class="callout crit" role="alert"><span><%= @user.errors.full_messages.to_sentence %></span></div>
+      <% end %>
+      <div class="field">
+        <%= f.label :current_password do %>Senha atual <span class="req">*</span><% end %>
+        <div class="pw">
+          <%= f.password_field :current_password, class: "input", autofocus: true, autocomplete: "current-password", required: true %>
+          <button class="icon-btn ghost" type="button" aria-label="Mostrar senha" aria-pressed="false" data-password-toggle><%= icon(:eye, size: 18, stroke: 1.8) %></button>
+        </div>
+      </div>
+      <div class="field">
+        <%= f.label :password do %>Nova senha <span class="req">*</span><% end %>
+        <div class="pw">
+          <%= f.password_field :password, class: "input", autocomplete: "new-password", required: true, minlength: Devise.password_length.min %>
+          <button class="icon-btn ghost" type="button" aria-label="Mostrar senha" aria-pressed="false" data-password-toggle><%= icon(:eye, size: 18, stroke: 1.8) %></button>
+        </div>
+        <span class="hint">Pelo menos <%= Devise.password_length.min %> caracteres.</span>
+      </div>
+      <div class="field">
+        <%= f.label :password_confirmation do %>Confirme a nova senha <span class="req">*</span><% end %>
+        <%= f.password_field :password_confirmation, class: "input", autocomplete: "new-password", required: true %>
+      </div>
+    </div>
+    <div class="drawer-foot">
+      <%= link_to "Cancelar", root_path, class: "btn" %>
+      <%= f.submit "Salvar nova senha", class: "btn pri" %>
+    </div>
+  <% end %>
+</div>
