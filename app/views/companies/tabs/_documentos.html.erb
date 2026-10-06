@@ -1,7 +1,0 @@
-<div class="card">
-  <div class="card-head">
-    <h2>Documentos vinculados</h2>
-    <% if policy(Document).create? %><%= drawer_link_to new_document_path(empresa: @company.id, voltar: "empresa"), class: "btn sm" do %><%= icon(:upload, size: 14, stroke: 2) %>Enviar arquivo<% end %><% end %>
-  </div>
-  <%= render "documents/table", documents: @documents, show_company: false %>
-</div>

@@ -1,0 +1,63 @@
+<%= form_with model: proposal, class: "form", data: { turbo: false } do |f| %>
+  <%= render "shared/form_errors", record: proposal %>
+  <div class="cols-2-1">
+    <div class="stack">
+      <section class="card" data-items>
+        <div class="card-head"><h2>Serviços da proposta</h2><%= link_to "Catálogo de serviços", admin_services_path, style: "font-size:13px;font-weight:600" if policy(Service).index? %></div>
+        <div class="table-wrap">
+          <table class="table cards items">
+            <thead><tr><th style="width:24%">Serviço</th><th style="width:36%">Descrição</th><th style="width:15%">Recorrência</th><th class="num" style="width:18%">Valor (R$)</th><th><span class="sr-only">Remover</span></th></tr></thead>
+            <tbody data-items-list>
+              <%= f.fields_for :items do |item| %>
+                <%= render "commercial/proposals/item_fields", f: item %>
+              <% end %>
+            </tbody>
+            <tfoot>
+              <tr>
+                <td data-label=""><button class="link-btn" type="button" data-add-item>+ Adicionar serviço do catálogo</button></td>
+                <td data-label="" colspan="2" class="right muted">Total (soma dos itens)</td>
+                <td data-label="Total" class="num"><output data-items-total aria-live="polite"><%= brl(proposal.items.reject(&:marked_for_destruction?).sum { |i| i.price_cents.to_i }) %></output></td>
+                <td data-label=""></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+        <template data-item-template>
+          <%= f.fields_for :items, ProposalItem.new, child_index: "NEW_ITEM" do |item| %>
+            <%= render "commercial/proposals/item_fields", f: item %>
+          <% end %>
+        </template>
+        <div class="card-foot"><span>O preço de cada item vem do preço padrão do catálogo e pode ser alterado. Itens recorrentes viram serviços contratados com MRR quando a proposta é aprovada.</span></div>
+      </section>
+
+      <section class="card">
+        <div class="card-head"><h2>Descrição e escopo</h2></div>
+        <div class="card-body form" style="padding-top:0"><%= f.label :description, "Descrição", class: "sr-only" %><%= f.text_area :description, class: "textarea", style: "min-height:180px", placeholder: "Contexto, escopo e o que fica de fora" %></div>
+      </section>
+    </div>
+
+    <div class="stack">
+      <section class="card">
+        <div class="card-head"><h2>Dados da proposta</h2></div>
+        <div class="card-body form" style="padding-top:0">
+          <div class="field"><%= f.label :title do %>Título <span class="req">*</span><% end %><%= f.text_field :title, class: "input", required: true, placeholder: "Ex.: Portal de Pedidos" %></div>
+          <div class="field"><%= f.label :company_id, "Cliente" %><%= f.collection_select :company_id, Company.by_name, :id, :trade_name, { include_blank: proposal.lead ? "— (proposta para o lead)" : "Selecione" }, class: "select" %><span class="hint">O contato principal da empresa é sugerido como destinatário</span></div>
+          <% if proposal.lead %><%= f.hidden_field :lead_id %><p class="caption" style="margin:0">Lead: <%= link_to proposal.lead.to_s, lead_path(proposal.lead) %></p><% end %>
+          <%= f.hidden_field :opportunity_id %>
+          <% if proposal.company %>
+            <div class="field"><%= f.label :contact_id, "Destinatário" %><%= f.collection_select :contact_id, proposal.company.contacts, :id, :name, { include_blank: "Contato principal" }, class: "select" %></div>
+          <% end %>
+          <div class="field"><%= f.label :user_id do %>Responsável <span class="req">*</span><% end %><%= f.collection_select :user_id, User.active.by_name, :id, :name, {}, class: "select" %></div>
+          <div class="field"><%= f.label :valid_until do %>Validade <span class="req">*</span><% end %><%= f.date_field :valid_until, class: "input", required: true %></div>
+          <div class="field"><%= f.label :payment_terms, "Forma de pagamento" %><%= f.text_field :payment_terms, class: "input", placeholder: "Ex.: 40% na aprovação, 60% na entrega" %></div>
+          <div class="field"><%= f.label :delivery_terms, "Prazo" %><%= f.text_field :delivery_terms, class: "input", placeholder: "Ex.: 10 semanas após a aprovação" %></div>
+          <div class="field"><%= f.label :notes, "Observações" %><%= f.text_area :notes, class: "textarea", placeholder: "Condições adicionais" %></div>
+        </div>
+        <div class="drawer-foot">
+          <%= link_to "Cancelar", (proposal.persisted? ? proposal_path(proposal) : proposals_path), class: "btn" %>
+          <%= f.submit proposal.new_record? ? "Salvar rascunho" : "Salvar alterações", class: "btn pri" %>
+        </div>
+      </section>
+    </div>
+  </div>
+<% end %>

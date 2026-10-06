@@ -5,109 +5,120 @@ Rails.application.routes.draw do
 
   root "dashboard#show"
 
-  # URLs em inglês e em kebab-case: /customer-services/new, /companies/1/edit.
-  # Os parâmetros de query continuam em português (?empresa=, ?periodo=).
-  resources :companies, except: :destroy
-  resources :contacts, except: :show do
-    patch :make_primary, on: :member, path: "primary"
-  end
-  resources :contracts, except: :destroy
-  resources :customer_services, path: "customer-services", except: %i[show destroy]
-  resources :documents, only: %i[index new create show destroy]
+  # URLs em inglês e em kebab-case, agrupadas como o menu: /commercial/leads, /operations/time-entries.
+  # Cada grupo é um módulo de controllers (Commercial::LeadsController), mas os helpers não levam
+  # o prefixo (leads_path, form_with model: @lead). Os parâmetros de query continuam em português.
 
-  # Comercial
-  resources :leads do
-    member do
-      patch :move, path: "stage"
-      get :lose, action: :new_loss
-      patch :lose
+  scope module: :commercial, path: "commercial" do
+    resources :leads do
+      member do
+        patch :move, path: "stage"
+        get :lose, action: :new_loss
+        patch :lose
+      end
+      resource :conversion, only: %i[new create], controller: "lead_conversions"
+      resources :interactions, only: :create
     end
-    resource :conversion, only: %i[new create], controller: "lead_conversions"
-    resources :interactions, only: :create
-  end
-  resources :opportunities, except: :show do
-    member do
-      patch :move, path: "stage"
-      get :lose, action: :new_loss
-      patch :lose
+    resources :opportunities, except: :show do
+      member do
+        patch :move, path: "stage"
+        get :lose, action: :new_loss
+        patch :lose
+      end
+      resources :interactions, only: :create
     end
-    resources :interactions, only: :create
-  end
-  resources :proposals do
-    member do
-      patch :mark, path: "status"
-      get :approve, action: :new_approval
-      post :approve
-      get :reject, action: :new_rejection
-      patch :reject
+    resources :proposals do
+      member do
+        patch :mark, path: "status"
+        get :approve, action: :new_approval
+        post :approve
+        get :reject, action: :new_rejection
+        patch :reject
+      end
     end
-  end
-  get "pipeline", to: "pipeline#show", as: :pipeline
-
-  # Operação
-  resources :projects
-  resources :tasks, except: :show do
-    patch :move, on: :member, path: "status"
-  end
-  resources :time_entries, path: "time-entries", except: :show
-  resources :tickets, except: :destroy do
-    member do
-      get :status, action: :new_status
-      patch :status, action: :change_status
-    end
-    resources :messages, only: :create, controller: "ticket_messages"
+    get "pipeline", to: "pipeline#show", as: :pipeline
   end
 
-  # Financeiro
-  get "finance", to: "finance#show", as: :finance
-  get "revenues", to: "receivables#index", defaults: { visao: "receitas" }, as: :revenues
-  resources :receivables, except: :show do
-    member do
-      get :payment, action: :new_payment
-      patch :payment, action: :pay
-      patch :cancel
+  scope module: :customers, path: "customers" do
+    resources :companies, except: :destroy
+    resources :contacts, except: :show do
+      patch :make_primary, on: :member, path: "primary"
+    end
+    resources :contracts, except: :destroy
+    resources :customer_services, path: "customer-services", except: %i[show destroy]
+  end
+
+  scope module: :operations, path: "operations" do
+    resources :projects
+    resources :tasks, except: :show do
+      patch :move, on: :member, path: "status"
+    end
+    resources :tickets, except: :destroy do
+      member do
+        get :status, action: :new_status
+        patch :status, action: :change_status
+      end
+      resources :messages, only: :create, controller: "ticket_messages"
+    end
+    resources :time_entries, path: "time-entries", except: :show
+  end
+
+  get "finance", to: "finance/dashboard#show", as: :finance
+  scope module: :finance, path: "finance" do
+    get "revenues", to: "receivables#index", defaults: { visao: "receitas" }, as: :revenues
+    get "expenses", to: "payables#index", defaults: { visao: "despesas" }, as: :expenses
+    resources :receivables, except: :show do
+      member do
+        get :payment, action: :new_payment
+        patch :payment, action: :pay
+        patch :cancel
+      end
+    end
+    resources :payables, except: :show do
+      member do
+        get :payment, action: :new_payment
+        patch :payment, action: :pay
+        patch :cancel
+      end
+    end
+    get "recurrences", to: "recurrences#index", as: :recurrences
+    post "recurrences/run", to: "recurrences#run", as: :run_recurrences
+    resources :recurring_expenses, path: "recurring-expenses", only: %i[edit update] do
+      patch :finish, on: :member
+    end
+    resources :invoices, except: :show do
+      get :file, on: :member, path: "file/:file_id"
     end
   end
-  get "expenses", to: "payables#index", defaults: { visao: "despesas" }, as: :expenses
-  resources :payables, except: :show do
-    member do
-      get :payment, action: :new_payment
-      patch :payment, action: :pay
-      patch :cancel
+
+  scope module: :technology, path: "technology" do
+    resources :apps
+    resources :servers, except: :show
+    resources :domains, except: :show do
+      member do
+        get :renewal, action: :new_renewal
+        patch :renewal, action: :renew
+      end
     end
+    resources :databases, except: :show
+    resources :integrations, except: :show
+    resources :external_services, path: "external-services", except: :show
   end
-  get "recurrences", to: "recurrences#index", as: :recurrences
-  post "recurrences/run", to: "recurrences#run", as: :run_recurrences
-  resources :recurring_expenses, path: "recurring-expenses", only: %i[edit update] do
-    patch :finish, on: :member
-  end
-  resources :invoices, except: :show do
-    get :file, on: :member, path: "file/:file_id"
-  end
-  resources :suppliers, except: :show
 
-  # Tecnologia
-  resources :apps
-  resources :servers, except: :show
-  resources :domains, except: :show do
-    member do
-      get :renewal, action: :new_renewal
-      patch :renewal, action: :renew
-    end
+  # Os produtos ficam na raiz do grupo (/products, /products/1/edit).
+  scope module: :products, path: "products" do
+    get "indicators", to: "products#indicators", as: :product_indicators
+    resources :subscriptions, except: :show
+    resources :products, path: "", except: :show
   end
-  resources :databases, except: :show
-  resources :integrations, except: :show
-  resources :external_services, path: "external-services", except: :show
 
-  # Produtos
-  get "products/indicators", to: "products#indicators", as: :product_indicators
-  resources :products, except: :show
-  resources :subscriptions, except: :show
-
-  # Gestão
-  get "indicators", to: "indicators#show", as: :indicators
-  get "profitability", to: "profitability#show", as: :profitability
-  resources :reports, only: %i[index show]
+  scope module: :management, path: "management" do
+    resources :suppliers, except: :show
+    resources :documents, only: %i[index new create show destroy]
+    resources :reports, only: %i[index show]
+    get "indicators", to: "indicators#show", as: :indicators
+    get "profitability", to: "profitability#show", as: :profitability
+  end
 
   resources :notifications, only: %i[index update] do
     patch :read_all, on: :collection, path: "read-all"

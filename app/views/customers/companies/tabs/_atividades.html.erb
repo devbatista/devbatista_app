@@ -1,0 +1,8 @@
+<div class="card">
+  <div class="card-head"><h2>Linha do tempo</h2><span class="caption">Últimos <%= @activities.size %> eventos</span></div>
+  <% if @activities.any? %>
+    <%= render partial: "customers/companies/activity", collection: @activities %>
+  <% else %>
+    <%= render "shared/empty", title: "Nada registrado ainda" %>
+  <% end %>
+</div>
