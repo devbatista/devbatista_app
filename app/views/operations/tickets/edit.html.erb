@@ -1,4 +1,3 @@
-<% page_title "Editar chamado #{@ticket.code}" %>
 <% nav_location :op, "Suporte" %>
 <% breadcrumb ["Operação"], ["Suporte", tickets_path], [@ticket.code, ticket_path(@ticket)], ["Editar"] %>
 <div class="form-page"><%= render "form", ticket: @ticket %></div>

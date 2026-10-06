@@ -1,6 +1,5 @@
 <% expenses = @view == "despesas" %>
 <% title = expenses ? "Despesas" : "Contas a pagar" %>
-<% page_title title %>
 <% nav_location :fin, title %>
 <% breadcrumb ["Financeiro", finance_path], [title] %>
 <% k = @kpis %>

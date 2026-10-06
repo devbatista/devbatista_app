@@ -1,4 +1,3 @@
-<% page_title "Permissões" %>
 <% nav_location :adm, "Permissões" %>
 <% breadcrumb ["Administração"], ["Permissões"] %>
 <% editable = @roles.any? { |role| policy(role).update? } %>

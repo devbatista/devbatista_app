@@ -2,7 +2,6 @@
 <% record = @record %>
 <% path = record.is_a?(Lead) ? lose_lead_path(record) : lose_opportunity_path(record) %>
 <% back = params[:voltar] == "pipeline" ? pipeline_path : (record.is_a?(Lead) ? lead_path(record) : opportunities_path) %>
-<% page_title "Marcar como perdido" %>
 <% breadcrumb ["Comercial"], [record.is_a?(Lead) ? "Leads" : "Oportunidades", record.is_a?(Lead) ? leads_path : opportunities_path], ["Marcar como perdido"] %>
 <div class="form-page">
   <%= render layout: "shared/drawer_form", locals: { title: "Marcar como perdido", cancel_path: back } do %>

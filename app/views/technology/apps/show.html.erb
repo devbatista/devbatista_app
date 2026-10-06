@@ -1,5 +1,4 @@
 <% a = @app %>
-<% page_title a.name %>
 <% nav_location :tec, "Aplicações" %>
 <% breadcrumb ["Tecnologia"], ["Aplicações", apps_path], [a.name] %>
 <% can_edit = policy(a).update? %>

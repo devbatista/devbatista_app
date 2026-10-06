@@ -1,5 +1,4 @@
 <% t = @ticket %>
-<% page_title "#{t.code} #{t.subject}" %>
 <% nav_location :op, "Suporte" %>
 <% breadcrumb ["Operação"], ["Suporte", tickets_path], [t.code] %>
 <% can_update = policy(t).update? %>

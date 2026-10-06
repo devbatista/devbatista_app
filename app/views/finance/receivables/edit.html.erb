@@ -1,4 +1,3 @@
-<% page_title "Editar receita" %>
 <% nav_location :fin, params[:voltar] == "receitas" ? "Receitas" : "Contas a receber" %>
 <% breadcrumb ["Financeiro", finance_path], ["Contas a receber", receivables_path], ["Editar"] %>
 <div class="form-page"><%= render "form", receivable: @receivable %></div>

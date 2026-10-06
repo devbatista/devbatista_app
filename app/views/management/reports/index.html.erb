@@ -1,4 +1,3 @@
-<% page_title(@report ? "#{@report.title} · Relatórios" : "Relatórios") %>
 <% nav_location :ges, "Relatórios" %>
 <% breadcrumb(*[ ["Gestão"], ["Relatórios", (reports_path if @report)], ([ @report.title ] if @report) ].compact) %>
 <% groups = @reports.group_by(&:group) %>

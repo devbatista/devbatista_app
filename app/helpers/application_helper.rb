@@ -19,8 +19,4 @@ module ApplicationHelper
   def status_badge(label, tone)
     tag.span(label, class: "badge b-#{tone}")
   end
-
-  def page_title(title)
-    content_for(:title, title)
-  end
 end

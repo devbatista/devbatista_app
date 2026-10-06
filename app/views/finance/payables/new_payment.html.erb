@@ -1,6 +1,5 @@
 <% p = @payable %>
 <% back = params[:voltar] == "despesas" ? expenses_path : payables_path %>
-<% page_title "Registrar pagamento" %>
 <% nav_location :fin, "Contas a pagar" %>
 <% breadcrumb ["Financeiro", finance_path], ["Contas a pagar", payables_path], ["Registrar pagamento"] %>
 <div class="form-page">
