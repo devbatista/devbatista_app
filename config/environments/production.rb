@@ -76,7 +76,8 @@ Rails.application.configure do
   config.action_mailer.raise_delivery_errors = true
   config.action_mailer.smtp_settings = {
     address: "email-smtp.#{ses_region}.amazonaws.com",
-    port: 587,
+    # 2587 em vez de 587: o Railway bloqueia as portas SMTP padrão; o SES aceita STARTTLS nas duas.
+    port: ENV.fetch("SES_SMTP_PORT", 2587).to_i,
     user_name: ses[:smtp_username] || ENV["SES_SMTP_USERNAME"] || ENV["SES_ACCESS_KEY_ID"],
     password: ses[:smtp_password] || ENV["SES_SMTP_PASSWORD"] ||
       (ses_smtp_password.call(ENV["SES_SECRET_ACCESS_KEY"]) if ENV["SES_SECRET_ACCESS_KEY"].present?),
