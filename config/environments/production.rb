@@ -60,18 +60,26 @@ Rails.application.configure do
   # Set host to be used by links generated in mailer templates.
   config.action_mailer.default_url_options = { host: ENV.fetch("APP_HOST", "admin.devbatista.com"), protocol: "https" }
 
-  # Entrega via Amazon SES (interface SMTP). As credenciais SMTP são geradas no console do SES
-  # (não são as chaves IAM) e ficam em `credentials` sob `aws.ses` ou nas variáveis SES_SMTP_*.
+  # Entrega via Amazon SES (interface SMTP). Aceita as credenciais SMTP geradas no console do SES
+  # (`credentials` em `aws.ses` ou SES_SMTP_*) ou a chave IAM com permissão ses:SendRawEmail
+  # (SES_ACCESS_KEY_ID e SES_SECRET_ACCESS_KEY): o usuário SMTP é o ID da chave e a senha é
+  # derivada da chave secreta pelo algoritmo publicado pela AWS.
   # Erros de entrega levantam exceção para o Sidekiq tentar de novo.
   ses = Rails.application.credentials.dig(:aws, :ses) || {}
   ses_region = ses[:region] || ENV.fetch("SES_REGION", ENV.fetch("AWS_REGION", "sa-east-1"))
+  ses_smtp_password = lambda do |secret|
+    signature = [ "11111111", ses_region, "ses", "aws4_request", "SendRawEmail" ]
+      .inject("AWS4#{secret}") { |key, data| OpenSSL::HMAC.digest("SHA256", key, data) }
+    Base64.strict_encode64("\x04".b + signature)
+  end
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.raise_delivery_errors = true
   config.action_mailer.smtp_settings = {
     address: "email-smtp.#{ses_region}.amazonaws.com",
     port: 587,
-    user_name: ses[:smtp_username] || ENV["SES_SMTP_USERNAME"],
-    password: ses[:smtp_password] || ENV["SES_SMTP_PASSWORD"],
+    user_name: ses[:smtp_username] || ENV["SES_SMTP_USERNAME"] || ENV["SES_ACCESS_KEY_ID"],
+    password: ses[:smtp_password] || ENV["SES_SMTP_PASSWORD"] ||
+      (ses_smtp_password.call(ENV["SES_SECRET_ACCESS_KEY"]) if ENV["SES_SECRET_ACCESS_KEY"].present?),
     authentication: :login,
     enable_starttls_auto: true
   }
