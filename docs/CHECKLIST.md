@@ -236,11 +236,11 @@ Primeiro módulo de negócio. Traz também o que os outros módulos vão usar: h
 ## Fase 8 · API e produção
 
 - [ ] **API `/api/v1`** em JSON para o app mobile da V2: Dashboard, Visão 360º, Chamados, Tarefas, Horas e Notificações, com a mesma autorização das telas
-- [ ] Hospedagem escolhida e `config/deploy.yml` (Kamal) configurado
+- [x] Hospedagem no Railway
 - [ ] Bucket S3 e credenciais SMTP do SES
-- [ ] Domínio com HTTPS e HSTS
+- [x] Domínio com HTTPS e HSTS
 - [ ] Backup diário do banco, com retenção definida e teste de restauração
 - [ ] Logs de acesso e erro sem dados sensíveis
 - [ ] CI no GitHub (testes, rubocop e brakeman a cada push)
 - [ ] Meta de desempenho validada: listagens e Visão 360º abaixo de 1 s com 5 anos de dados
-- [ ] Primeiro administrador criado em produção (`SEED_PASSWORD`)
+- [x] Primeiro administrador criado em produção (`SEED_PASSWORD`)
