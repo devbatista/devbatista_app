@@ -1,6 +1,5 @@
 <% nav_location :op, "Tarefas" %>
 <% breadcrumb ["Operação"], ["Tarefas"] %>
-<% content_for :wide, true if @mode == "quadro" %>
 <% can_move = policy(Task).update? %>
 
 <div class="page-head">

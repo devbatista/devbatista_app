@@ -9,7 +9,7 @@
       <%= render "layouts/sidebar" %>
       <div class="main">
         <%= render "layouts/topbar" %>
-        <main class="content<%= ' wide' if content_for?(:wide) %>" id="conteudo">
+        <main class="content" id="conteudo">
           <%= render "layouts/flash" %>
           <%= yield %>
         </main>

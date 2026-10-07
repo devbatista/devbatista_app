@@ -71,8 +71,7 @@ img { max-width: 100%; }
 /* ---------- Layout ---------- */
 .app { display: grid; grid-template-columns: var(--side-w) minmax(0, 1fr); min-height: 100vh; }
 .main { min-width: 0; display: flex; flex-direction: column; }
-.content { width: 100%; max-width: 1400px; padding: 28px 32px 64px; display: flex; flex-direction: column; gap: 24px; }
-.content.wide { max-width: none; }
+.content { width: 100%; padding: 28px 32px 64px; display: flex; flex-direction: column; gap: 24px; }
 
 /* ---------- Sidebar ---------- */
 .side {

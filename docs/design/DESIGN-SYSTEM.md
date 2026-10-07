@@ -124,7 +124,7 @@ Toda tela autenticada tem a mesma estrutura. O menu lateral e a barra superior s
 - `data-item`: rótulo do item ativo, exatamente como aparece no menu.
 - `data-crumb`: trilha de navegação em JSON, `[["Rótulo","link"], ["Página atual"]]`.
 
-`.content` tem largura máxima de 1400 px, margem de 28 × 32 px e espaço de 24 px entre blocos. Use `.content.wide` para telas que precisam de toda a largura, como o pipeline.
+`.content` ocupa toda a largura ao lado do menu, com margem de 28 × 32 px e espaço de 24 px entre blocos.
 
 ### Grades
 
