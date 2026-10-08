@@ -190,7 +190,8 @@ Devise.setup do |config|
   # ==> Configuration for :timeoutable
   # The time you want to timeout the user session without activity. After this
   # time the user will be asked for credentials again. Default is 30 minutes.
-  # Sessão expira após 30 minutos sem uso.
+  # Sessão expira após 30 minutos sem uso. O valor efetivo vem de User#timeout_in,
+  # editável em Configurações → Geral.
   config.timeout_in = 30.minutes
 
   # ==> Configuration for :lockable

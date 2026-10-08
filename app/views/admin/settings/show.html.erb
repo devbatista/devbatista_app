@@ -21,7 +21,7 @@
   <section data-panel="geral" <%= "hidden" unless @tab == "geral" %> style="margin-top:20px">
     <%= form_with url: admin_settings_path, method: :patch, class: "card", data: { turbo: false } do %>
       <%= hidden_field_tag :aba, "geral" %>
-      <div class="card-head"><h2>Empresa e e-mail</h2></div>
+      <div class="card-head"><h2>Empresa, e-mail e sessão</h2></div>
       <div class="card-body form">
         <div class="form-grid">
           <div class="field"><label for="s-name">Nome da empresa</label><%= text_field_tag "settings[company_name]", Setting[:company_name], class: "input", id: "s-name", disabled: !editable %></div>
@@ -29,6 +29,7 @@
           <div class="field"><label for="s-sender">E-mail remetente das notificações</label><%= email_field_tag "settings[mailer_sender]", Setting[:mailer_sender], class: "input", id: "s-sender", disabled: !editable %><span class="hint">Precisa estar verificado no Amazon SES</span></div>
           <div class="field"><label for="s-site">Site</label><%= text_field_tag "settings[company_site]", Setting[:company_site], class: "input", id: "s-site", disabled: !editable %></div>
           <div class="field"><label for="s-time">Horário da rotina diária</label><%= text_field_tag "settings[daily_run_time]", Setting[:daily_run_time], class: "input", id: "s-time", disabled: true %><span class="hint">Definido em config/schedule.yml (fuso de Brasília)</span></div>
+          <div class="field"><label for="s-timeout">Sessão expira após (minutos sem uso)</label><%= number_field_tag "settings[session_timeout_minutes]", Setting[:session_timeout_minutes], class: "input", min: User::SESSION_TIMEOUT_RANGE.min, max: User::SESSION_TIMEOUT_RANGE.max, id: "s-timeout", disabled: !editable %><span class="hint">De <%= User::SESSION_TIMEOUT_RANGE.min %> a <%= User::SESSION_TIMEOUT_RANGE.max %> minutos (12 horas); vale para todos os usuários</span></div>
         </div>
         <label class="check"><%= hidden_field_tag "settings[email_enabled]", "0", id: nil %><%= check_box_tag "settings[email_enabled]", "1", Setting[:email_enabled], disabled: !editable %> Permitir envio de alertas por e-mail</label>
         <p class="caption" style="margin:0">Fuso horário America/Sao_Paulo, moeda R$ e datas dd/mm/aaaa são fixos no MVP.</p>

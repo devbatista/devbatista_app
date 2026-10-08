@@ -14,6 +14,7 @@ class Setting < ApplicationRecord
     "mailer_sender" => "nao-responda@devbatista.com",
     "email_enabled" => true,
     "daily_run_time" => "07:00",
+    "session_timeout_minutes" => 30,
     "contract_alert_days" => [ 60, 30, 15 ],
     "domain_alert_days" => [ 60, 30, 7 ],
     "proposal_alert_days" => 3,

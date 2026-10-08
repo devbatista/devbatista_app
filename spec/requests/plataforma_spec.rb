@@ -52,6 +52,28 @@ RSpec.describe "Busca, notificações e configurações" do
       expect(Setting[:contract_alert_days]).to eq([ 90, 30, 15 ])
     end
 
+    it "expira a sessão pelo tempo sem uso configurado" do
+      sign_in admin
+      patch admin_settings_path, params: { aba: "geral", settings: { session_timeout_minutes: "60" } }
+      expect(Setting[:session_timeout_minutes]).to eq(60)
+
+      travel 45.minutes
+      get root_path
+      expect(response).to have_http_status(:ok)
+
+      travel 61.minutes
+      get root_path
+      follow_redirect!
+      expect(response).to redirect_to(new_user_session_path)
+    end
+
+    it "mantém o tempo de sessão dentro do limite" do
+      Setting[:session_timeout_minutes] = 1
+      expect(admin.timeout_in).to eq(5.minutes)
+      Setting[:session_timeout_minutes] = 10_000
+      expect(admin.timeout_in).to eq(12.hours)
+    end
+
     it "responde 403 para quem não administra" do
       sign_in create(:user, :financeiro)
       patch admin_settings_path, params: { settings: { proposal_alert_days: "5" } }
