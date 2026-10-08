@@ -19,7 +19,7 @@
         <div class="field full"><%= f.label :title, "Título" %><%= f.text_field :title, class: "input", placeholder: "Usa o nome do arquivo se ficar em branco" %></div>
         <div class="field"><%= f.label :kind do %>Tipo <span class="req">*</span><% end %><%= f.select :kind, Document.options_for_kind, {}, class: "select" %></div>
         <div class="field">
-          <%= f.label :documentable_id do %>Vínculo <span class="req">*</span><% end %>
+          <%= f.label :documentable_id, "Vínculo" %>
           <% if document.documentable %>
             <%= f.hidden_field :documentable_type %><%= f.hidden_field :documentable_id %>
             <input class="input" value="<%= case document.documentable
@@ -30,7 +30,7 @@
                                               else document.documentable.to_s end %>" disabled>
           <% else %>
             <%= f.hidden_field :documentable_type, value: "Company" %>
-            <%= f.collection_select :documentable_id, Company.by_name, :id, :trade_name, { include_blank: "Selecione o cliente" }, class: "select", required: true %>
+            <%= f.collection_select :documentable_id, Company.by_name, :id, :trade_name, { include_blank: "Sem vínculo (documento interno)" }, class: "select" %>
           <% end %>
         </div>
       </div>

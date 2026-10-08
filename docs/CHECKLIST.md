@@ -74,7 +74,7 @@ Primeiro módulo de negócio. Traz também o que os outros módulos vão usar: h
   - [x] Arquivo assinado guardado em Documentos
 - [x] **RF 37 · Documentos** — [spec](specs/admin-devbatista-mvp/04-requisitos-funcionais/06-gestao-e-administracao.md) · [documentos](design/gestao/documentos.html)
   - [x] Upload por Active Storage (S3 em produção)
-  - [x] Vínculo polimórfico e obrigatório; nesta fase, cliente ou contrato
+  - [x] Vínculo polimórfico e opcional (documento interno fica sem vínculo); nesta fase, cliente ou contrato
   - [x] Proposta, projeto e fornecedor
   - [x] "Enviado por" e data automáticos
 - [x] **RF 5 · Notificações (base)** — [spec](specs/admin-devbatista-mvp/04-requisitos-funcionais/01-core.md) · [central](design/geral/notificacoes.html)

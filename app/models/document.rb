@@ -1,5 +1,6 @@
-# Arquivo do sistema, ligado a cliente, contrato, projeto, proposta ou fornecedor (RF 37).
-# Upload pelo Active Storage (S3 em produção). "Enviado por" e data são automáticos.
+# Arquivo do sistema, ligado a cliente, contrato, projeto, proposta ou fornecedor (RF 37),
+# ou sem vínculo (documento interno). Upload pelo Active Storage (S3 em produção).
+# "Enviado por" e data são automáticos.
 class Document < ApplicationRecord
   include Auditable
   include LabeledEnums
@@ -11,13 +12,14 @@ class Document < ApplicationRecord
   labeled_enum :kind, contract: "Contrato", proposal: "Proposta", invoice: "Nota", briefing: "Briefing",
                       technical: "Documento técnico", other: "Outro"
 
-  belongs_to :documentable, polymorphic: true
+  belongs_to :documentable, polymorphic: true, optional: true
   belongs_to :company, optional: true
   belongs_to :uploaded_by, class_name: "User"
   has_one_attached :file
 
   validates :title, presence: true
-  validates :documentable_type, inclusion: { in: LINKABLE_TYPES }
+  validates :documentable_type, inclusion: { in: LINKABLE_TYPES }, allow_nil: true
+  validates :documentable, presence: true, if: :documentable_type?
   validate :file_attached
 
   before_validation :set_company_from_link

@@ -94,6 +94,20 @@ RSpec.describe "Clientes" do
       expect(document.title).to eq("icon.png")
     end
 
+    it "envia documento interno, sem vínculo, e o encontra pelo filtro Sem cliente" do
+      sign_in admin
+      post documents_path, params: { document: { kind: "other", documentable_type: "Company", documentable_id: "",
+                                                 file: fixture_file_upload(Rails.root.join("public/icon.png"), "image/png") } }
+      document = Document.last
+      expect(response).to redirect_to(documents_path)
+      expect(document.documentable).to be_nil
+      expect(document.documentable_type).to be_nil
+      expect(document.company).to be_nil
+
+      get documents_path(empresa: "nenhum")
+      expect(response.body).to include("icon.png", "Sem vínculo")
+    end
+
     it "não aceita vínculo com tipo desconhecido" do
       sign_in admin
       post documents_path, params: { document: { kind: "other", documentable_type: "User", documentable_id: admin.id,

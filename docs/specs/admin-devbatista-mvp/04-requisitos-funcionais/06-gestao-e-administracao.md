@@ -5,7 +5,7 @@
 35. **Produtos próprios.** Como administrador, quero acompanhar CatalystOps, PrescSign e outros produtos com status, MRR, clientes e custo mensal.
     - Submenu com Produtos próprios, Assinaturas (registro manual no MVP) e Indicadores por produto.
 36. **Fornecedores.** Como financeiro, quero cadastrar fornecedores com as mesmas categorias das despesas.
-37. **Documentos.** Como qualquer perfil com edição, quero anexar arquivos e ligá-los a cliente, projeto, contrato, proposta ou fornecedor.
+37. **Documentos.** Como qualquer perfil com edição, quero anexar arquivos e ligá-los a cliente, projeto, contrato, proposta ou fornecedor, ou guardá-los sem vínculo (documento interno).
     - Upload por Active Storage em S3; "enviado por" e data automáticos.
 38. **Relatórios.** Como gestor, quero 19 relatórios básicos em 4 áreas (Financeiro, Comercial, Clientes, Operação).
     - Todos com filtro por período e exportação CSV; os financeiros também filtram por cliente e serviço.

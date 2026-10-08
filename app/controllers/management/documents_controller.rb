@@ -5,7 +5,7 @@ module Management
       scope = policy_scope(Document).includes(:company, :uploaded_by, :documentable, file_attachment: :blob)
       @counts = scope.group(:kind).count
       scope = scope.where(kind: params[:tipo]) if Document.kinds.key?(params[:tipo])
-      scope = scope.where(company_id: params[:empresa]) if params[:empresa].present?
+      scope = scope.where(company_id: params[:empresa] == "nenhum" ? nil : params[:empresa]) if params[:empresa].present?
       scope = scope.where("unaccent(documents.title) ILIKE unaccent(?)", "%#{Document.sanitize_sql_like(params[:q].strip)}%") if params[:q].present?
       @documents, @pager = paginate(scope.recent)
       @companies = Company.by_name.select(:id, :trade_name)
@@ -21,7 +21,10 @@ module Management
       @document = Document.new(document_params)
       @document.uploaded_by = current_user
       authorize @document
-      if @document.save
+      if unknown_link?
+        @document.errors.add(:base, "Vínculo não aceito")
+        render :new, status: :unprocessable_entity
+      elsif @document.save
         redirect_to return_path, notice: "Documento enviado."
       else
         render :new, status: :unprocessable_entity
@@ -42,12 +45,18 @@ module Management
 
     private
 
-    # Só aceita vínculo com os tipos permitidos; qualquer outro é descartado antes de carregar.
+    # Só aceita vínculo com os tipos permitidos; qualquer outro é descartado antes de carregar
+    # (e recusado em unknown_link?). Sem registro escolhido, o documento fica sem vínculo.
     def document_params
       permitted = params.expect(document: %i[title kind documentable_type documentable_id notes file])
-      return permitted if permitted[:documentable_type].in?(Document::LINKABLE_TYPES)
+      return permitted if permitted[:documentable_type].in?(Document::LINKABLE_TYPES) && permitted[:documentable_id].present?
 
       permitted.except(:documentable_type, :documentable_id)
+    end
+
+    def unknown_link?
+      type = params.dig(:document, :documentable_type)
+      type.present? && !type.in?(Document::LINKABLE_TYPES)
     end
 
     def find_link

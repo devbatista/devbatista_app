@@ -14,7 +14,7 @@
                                            when Project then link_to("Projeto #{doc.documentable.name}", project_path(doc.documentable))
                                            when Supplier then "Fornecedor #{doc.documentable.name}"
                                            when Company then "Cliente"
-                                           else "—" end %></td>
+                                           else tag.span("Sem vínculo", class: "muted") end %></td>
             <% if show_company %><td data-label="Cliente"><%= doc.company ? link_to(doc.company.trade_name, company_path(doc.company)) : "—" %></td><% end %>
             <td data-label="Enviado por"><%= doc.uploaded_by.name %><span class="cell-sub"><%= date_br(doc.created_at) %></span></td>
             <td data-label="" class="right">
