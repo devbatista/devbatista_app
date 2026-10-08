@@ -237,7 +237,12 @@ Primeiro módulo de negócio. Traz também o que os outros módulos vão usar: h
 
 - [ ] **API `/api/v1`** em JSON para o app mobile da V2: Dashboard, Visão 360º, Chamados, Tarefas, Horas e Notificações, com a mesma autorização das telas
 - [x] Hospedagem no Railway
-- [ ] Bucket S3 e credenciais SMTP do SES
+- [ ] **Arquivos no S3**
+  - [ ] Bucket `devbatista-admin-production` em `sa-east-1`, com acesso público bloqueado
+  - [ ] Usuário IAM só para o app, com permissão de listar, ler, gravar e apagar nesse bucket
+  - [ ] `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION` e `AWS_BUCKET` no `devbatista_app` e no `sidekiq` (Railway)
+  - [ ] Teste de upload e download de um documento em produção
+- [x] **E-mail pelo SES**: credenciais no `devbatista_app` e no `sidekiq`
 - [x] Domínio com HTTPS e HSTS
 - [ ] Backup diário do banco, com retenção definida e teste de restauração
 - [ ] Logs de acesso e erro sem dados sensíveis
