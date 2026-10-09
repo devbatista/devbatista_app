@@ -18,5 +18,7 @@
     - O total é a soma dos itens; o preço de cada item vem do preço padrão e pode ser alterado.
     - Status: Rascunho, Enviada, Visualizada, Aprovada, Recusada, Expirada.
     - Proposta Enviada ou Visualizada vira Expirada ao fim da validade; o responsável é avisado 3 dias antes.
+    - O sistema gera o PDF da proposta e envia por e-mail ao cliente, com o PDF anexado e a resposta indo para o responsável. O envio passa Rascunho a Enviada, guarda o PDF enviado em Documentos e registra a interação; dá para reenviar enquanto a proposta estiver Enviada ou Visualizada.
+    - O e-mail traz o link "Ver proposta", sem login; a primeira abertura pelo cliente passa Enviada a Visualizada. Proposta mandada por fora do sistema continua com as marcações manuais.
 11. **Fechar negócio.** Como comercial, quero gerar contrato e serviços contratados a partir de uma proposta aprovada.
     - Cliente, serviços, valores e prazos vêm da proposta; a empresa passa a Ativo.

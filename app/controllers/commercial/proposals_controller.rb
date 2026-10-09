@@ -1,6 +1,6 @@
 module Commercial
   class ProposalsController < ApplicationController
-    before_action :set_proposal, only: %i[show edit update destroy mark new_approval approve new_rejection reject]
+    before_action :set_proposal, only: %i[show edit update destroy mark new_approval approve new_rejection reject pdf new_delivery deliver]
 
     def index
       authorize Proposal
@@ -86,6 +86,26 @@ module Commercial
       end
     end
 
+    # PDF gerado na hora, para conferir antes de enviar (o enviado fica em Documentos).
+    def pdf
+      pdf = ProposalPdf.new(@proposal)
+      send_data pdf.render, type: "application/pdf", disposition: params[:baixar] ? "attachment" : "inline", filename: pdf.filename
+    end
+
+    def new_delivery
+      @delivery = ProposalDelivery.new(proposal: @proposal, user: current_user)
+    end
+
+    def deliver
+      @delivery = ProposalDelivery.new(proposal: @proposal, user: current_user,
+                                       **params.expect(delivery: %i[to cc subject message copy_me]).to_h.symbolize_keys)
+      if @delivery.save
+        redirect_to @proposal, notice: "Proposta enviada para #{@delivery.recipients.to_sentence}. O PDF enviado ficou em Documentos."
+      else
+        render :new_delivery, status: :unprocessable_entity
+      end
+    end
+
     def new_approval
       @approval = ProposalApproval.new(proposal: @proposal)
     end
@@ -117,7 +137,7 @@ module Commercial
 
     def set_proposal
       @proposal = Proposal.find(params[:id])
-      authorize @proposal, %w[show].include?(action_name) ? :show? : (action_name == "destroy" ? :destroy? : :update?)
+      authorize @proposal, %w[show pdf].include?(action_name) ? :show? : (action_name == "destroy" ? :destroy? : :update?)
     end
 
     def proposal_params

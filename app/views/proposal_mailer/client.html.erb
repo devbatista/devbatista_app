@@ -1,0 +1,12 @@
+<% content_for :preheader, "Proposta #{@proposal.code} — #{@proposal.title}" %>
+<%= mail_label "Proposta #{@proposal.code}" %>
+<%= mail_title @proposal.title %>
+<% @message.to_s.split(/\n{2,}/).each do |paragraph| %>
+  <%= mail_text safe_join(paragraph.strip.split("\n"), tag.br) %>
+<% end %>
+<%= mail_button "Ver proposta", @view_url %>
+<%= mail_note do %>
+  Valor total: <b style="color:#ffffff"><%= brl(@proposal.total_cents) %></b> · válida até <%= date_br(@proposal.valid_until) %>.
+  O PDF também está anexado a este e-mail.
+<% end %>
+<%= mail_link_fallback @view_url %>

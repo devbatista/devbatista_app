@@ -1,0 +1,4 @@
+<%= yield %>
+
+--
+<%= [ Setting[:company_legal_name], Setting[:company_site] ].compact_blank.join(" · ") %>

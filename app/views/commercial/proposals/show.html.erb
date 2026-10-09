@@ -15,27 +15,28 @@
       <span class="caption">Responsável: <%= p.user.name %></span>
     </div>
   </div>
-  <% if can_update %>
-    <div class="actions">
-      <% if p.draft? %>
-        <%= link_to "Excluir rascunho", proposal_path(p), class: "btn danger", data: { turbo_method: :delete, turbo_confirm: "Excluir o rascunho #{p.code}?" } if policy(p).destroy? %>
-        <%= link_to edit_proposal_path(p), class: "btn" do %><%= icon(:edit, size: 16, stroke: 1.8) %>Editar<% end %>
-        <%= button_to mark_proposal_path(p, to: "sent"), method: :patch, class: "btn pri", form: { data: { turbo_confirm: "Registrar o envio da proposta para #{p.contact&.name || p.recipient_name}?" } } do %><%= icon(:send, size: 16, stroke: 1.8) %>Marcar como enviada<% end %>
-      <% elsif open_sent %>
-        <%= drawer_link_to "Recusar", reject_proposal_path(p), class: "btn danger" %>
-        <%= link_to edit_proposal_path(p), class: "btn" do %><%= icon(:edit, size: 16, stroke: 1.8) %>Editar<% end %>
-        <% if p.sent? %><%= button_to "Cliente visualizou", mark_proposal_path(p, to: "viewed"), method: :patch, class: "btn" %><% end %>
-        <%= drawer_link_to approve_proposal_path(p), class: "btn pri" do %><%= icon(:check, size: 16, stroke: 2) %>Marcar como aprovada<% end %>
-      <% end %>
-    </div>
-  <% end %>
+  <div class="actions">
+    <%= link_to pdf_proposal_path(p), class: "btn", target: "_blank" do %><%= icon(:file, size: 16, stroke: 1.8) %>PDF<% end %>
+    <% if can_update && p.draft? %>
+      <%= link_to "Excluir rascunho", proposal_path(p), class: "btn danger", data: { turbo_method: :delete, turbo_confirm: "Excluir o rascunho #{p.code}?" } if policy(p).destroy? %>
+      <%= link_to edit_proposal_path(p), class: "btn" do %><%= icon(:edit, size: 16, stroke: 1.8) %>Editar<% end %>
+      <%= button_to "Marcar como enviada", mark_proposal_path(p, to: "sent"), method: :patch, class: "btn", form: { data: { turbo_confirm: "Registrar que a proposta foi enviada por fora do sistema (WhatsApp, por exemplo) para #{p.contact&.name || p.recipient_name}?" } } %>
+      <%= drawer_link_to deliver_proposal_path(p), class: "btn pri" do %><%= icon(:send, size: 16, stroke: 1.8) %>Enviar por e-mail<% end %>
+    <% elsif can_update && open_sent %>
+      <%= drawer_link_to "Recusar", reject_proposal_path(p), class: "btn danger" %>
+      <%= link_to edit_proposal_path(p), class: "btn" do %><%= icon(:edit, size: 16, stroke: 1.8) %>Editar<% end %>
+      <%= drawer_link_to deliver_proposal_path(p), class: "btn" do %><%= icon(:send, size: 16, stroke: 1.8) %>Reenviar<% end %>
+      <% if p.sent? %><%= button_to "Cliente visualizou", mark_proposal_path(p, to: "viewed"), method: :patch, class: "btn" %><% end %>
+      <%= drawer_link_to approve_proposal_path(p), class: "btn pri" do %><%= icon(:check, size: 16, stroke: 2) %>Marcar como aprovada<% end %>
+    <% end %>
+  </div>
 </div>
 
 <% if p.draft? %>
-  <div class="callout"><span>Rascunho. Revise os itens e as condições e marque como enviada quando mandar ao cliente (e-mail ou WhatsApp). A partir do envio, a validade passa a contar.</span></div>
+  <div class="callout"><span>Rascunho. Revise os itens e as condições, confira o PDF e envie por e-mail pelo sistema; se mandar por fora (WhatsApp), marque como enviada. A partir do envio, a validade passa a contar.</span></div>
 <% elsif open_sent %>
   <div class="callout<%= ' warn' if left <= Setting[:proposal_alert_days].to_i %>"><span>Enviada em <%= datetime_br(p.sent_at) %><%= " para #{p.contact.name}#{" (#{p.contact.email})" if p.contact.email.present?}" if p.contact %>.
-    <%= p.viewed? ? "Visualizada em #{datetime_br(p.viewed_at)}." : "Ainda não visualizada." %>
+    <%= p.viewed? ? "Visualizada em #{datetime_br(p.viewed_at)}." : (p.sent_document ? "Ainda não visualizada: passa a Visualizada quando o cliente abrir o link do e-mail." : "Ainda não visualizada.") %>
     <%= p.user.first_name %> é avisado(a) <%= Setting[:proposal_alert_days] %> dias antes do fim da validade; sem resposta, passa a Expirada em <%= date_br(p.valid_until + 1) %>.</span></div>
 <% elsif p.approved? %>
   <div class="callout"><span><b class="strong">Aprovada</b> em <%= date_br(p.decided_on) %>.<% if p.contract %> Gerou o contrato <%= link_to p.contract.to_s, contract_path(p.contract), class: "strong" %> e os serviços contratados.<% end %></span></div>
@@ -105,7 +106,7 @@
         <% @documents.each do |doc| %>
           <div class="file-row"><span class="file-ic"><%= icon(:file, size: 18, stroke: 1.8) %></span><div><%= link_to doc.title, document_path(doc), target: "_blank", class: "strong" %><span class="cell-sub"><%= date_br(doc.created_at) %> · <%= doc.uploaded_by.first_name %></span></div><%= link_to "Abrir", document_path(doc), target: "_blank", class: "link-btn" %></div>
         <% end %>
-        <% if @documents.empty? %><div class="card-foot"><span>Anexe o PDF enviado ao cliente para manter o histórico.</span></div><% end %>
+        <% if @documents.empty? %><div class="card-foot"><span>O PDF enviado por e-mail fica guardado aqui. Se mandar por fora, anexe o arquivo para manter o histórico.</span></div><% end %>
       </section>
     <% end %>
   </div>

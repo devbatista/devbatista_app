@@ -14,7 +14,7 @@ Foram encontradas dez lacunas ou contradições no documento original. As quatro
 **Detalhar durante o desenvolvimento**
 
 - [x] **Horizonte das recorrências.** Decidido em 05/10/2026: a rotina gera o mês corrente e os 3 meses seguintes como Previsto (ajustável em Configurações → Financeiro).
-- [x] **Proposta Visualizada.** Premissa adotada na fase 3 (confirmar): marcação manual pelo botão "Cliente visualizou".
+- [x] **Proposta Visualizada.** Premissa adotada na fase 3 (confirmar): marcação manual pelo botão "Cliente visualizou". Desde 08/10/2026, proposta enviada pelo sistema passa a Visualizada sozinha quando o cliente abre o link do e-mail; a marcação manual fica para envios por fora.
 - [x] **Câmbio.** Decidido em 05/10/2026: PTAX de venda do Banco Central (API Olinda). Até o pagamento o valor em reais é estimado pela cotação do dia; no pagamento vale a PTAX da data, que pode ser corrigida (câmbio ou valor em reais da fatura). Sem cotação disponível, usa a última conhecida e a rotina registra o aviso.
 - [x] **Probabilidade da oportunidade.** Premissa adotada na fase 3 (confirmar): sugerida pela etapa (Reunião 25%, Proposta 50%, Negociação 75%, Fechado 100%) e editável; ao mudar de etapa volta para a sugerida, a menos que seja alterada junto.
 - [x] **Operação: alertas e estimativas.** Premissas adotadas na fase 4 (confirmar): projeto e tarefa atrasados avisam no primeiro dia de atraso e repetem o aviso a cada 7 dias; a estimativa do projeto é a soma das estimativas das tarefas; quem lança horas no nível Próprio pode excluir o próprio lançamento (como no envio de documentos).

@@ -1,0 +1,29 @@
+<% nav_location :com, "Propostas" %>
+<% breadcrumb ["Comercial"], ["Propostas", proposals_path], [@proposal.code, proposal_path(@proposal)], ["Enviar por e-mail"] %>
+<% d = @delivery %>
+<div class="form-page">
+  <%= render layout: "shared/drawer_form", locals: { title: "Enviar proposta por e-mail", cancel_path: proposal_path(@proposal) } do %>
+    <%= form_with model: d, scope: :delivery, url: deliver_proposal_path(@proposal), method: :post, class: "form", data: { turbo_frame: "_top" } do |f| %>
+      <div class="drawer-body form">
+        <% if d.errors.any? %><div class="callout crit" role="alert"><span><%= d.errors.full_messages.to_sentence %></span></div><% end %>
+        <div class="callout"><span>Vai o PDF de <%= @proposal.code %> (<%= brl(@proposal.total_cents) %>) anexado, com o botão “Ver proposta”.
+          <%= @proposal.draft? ? "A proposta passa a Enviada" : "É um reenvio: o status não muda" %>, o PDF enviado fica em Documentos e,
+          quando o cliente abrir o link, ela passa a Visualizada. <%= link_to "Conferir o PDF", pdf_proposal_path(@proposal), target: "_blank", class: "strong" %></span></div>
+        <div class="field">
+          <%= f.label :to do %>Para <span class="req">*</span><% end %>
+          <%= f.text_field :to, class: "input", required: true, placeholder: "email@cliente.com.br", autocomplete: "off" %>
+          <span class="hint">Vários e-mails separados por vírgula<%= ". Sem e-mail no contato da proposta: preencha aqui" if @proposal.recipient_email.blank? %></span>
+        </div>
+        <div class="field"><%= f.label :cc, "Cópia" %><%= f.text_field :cc, class: "input", placeholder: "Opcional", autocomplete: "off" %></div>
+        <div class="field"><%= f.label :subject do %>Assunto <span class="req">*</span><% end %><%= f.text_field :subject, class: "input", required: true %></div>
+        <div class="field"><%= f.label :message do %>Mensagem <span class="req">*</span><% end %><%= f.text_area :message, class: "textarea", required: true, style: "min-height:220px" %></div>
+        <label class="check"><%= f.check_box :copy_me %> Enviar uma cópia para mim (<%= current_user.email %>)</label>
+        <p class="caption" style="margin:0">Sai de <%= Setting[:mailer_sender] %>; a resposta do cliente vai para <%= current_user.email %>.</p>
+      </div>
+      <div class="drawer-foot">
+        <%= link_to "Cancelar", proposal_path(@proposal), class: "btn", data: { close: true, turbo_frame: "_top" } %>
+        <%= f.submit "Enviar proposta", class: "btn pri" %>
+      </div>
+    <% end %>
+  <% end %>
+</div>

@@ -249,3 +249,31 @@ Primeiro módulo de negócio. Traz também o que os outros módulos vão usar: h
 - [ ] CI no GitHub (testes, rubocop e brakeman a cada push)
 - [ ] Meta de desempenho validada: listagens e Visão 360º abaixo de 1 s com 5 anos de dados
 - [x] Primeiro administrador criado em produção (`SEED_PASSWORD`)
+
+## Extra · Proposta em PDF e envio por e-mail
+
+Evolução do **RF 10 · Propostas**: o sistema gera o documento que vai para o cliente, envia por e-mail e registra quando ele abre. Ver [proposta](design/comercial/proposta.html).
+
+- [x] **PDF da proposta** (Prawn, sem Chrome na imagem)
+  - [x] Cabeçalho com logo, número `#P-AAAA-NNN` e data; destinatário (cliente ou lead e contato) e responsável
+  - [x] Título, descrição e escopo
+  - [x] Itens com serviço, descrição, recorrência e valor; subtotais por recorrência e total
+  - [x] Forma de pagamento, prazo, validade e observações
+  - [x] Rodapé com razão social, site e número da página
+  - [x] Acentos e caracteres especiais do texto digitado saem certos
+  - [x] Botão "PDF" na proposta, para conferir antes de enviar
+- [x] **Envio por e-mail**
+  - [x] Painel "Enviar por e-mail" com destinatário sugerido (contato da proposta ou e-mail do lead), cópia, assunto e mensagem editáveis e cópia para o responsável
+  - [x] E-mail para o cliente com layout próprio (sem "Admin" nem "Não responda"); resposta vai para o responsável (`reply_to`)
+  - [x] PDF anexado; sai pelo SES, em segundo plano (Sidekiq)
+  - [x] Rascunho passa a Enviada (data e hora); oportunidade em Reunião passa a Proposta
+  - [x] PDF enviado guardado em Documentos, ligado à proposta (cada envio guarda a sua versão)
+  - [x] Interação de e-mail registrada no lead ou na oportunidade
+  - [x] Reenvio para proposta Enviada ou Visualizada; Aprovada, Recusada e Expirada não enviam
+  - [x] Proposta sem itens ou destinatário com e-mail inválido não envia
+- [x] **Visualização automática**
+  - [x] E-mail traz link seguro ("Ver proposta"), sem login, que abre o último PDF enviado
+  - [x] Abrir o link muda Enviada para Visualizada, com data e hora; acesso de usuário logado não conta
+  - [x] Link inválido ou de proposta sem envio responde 404
+- [x] Testes (PDF, envio, link), preview do e-mail, rubocop e brakeman
+- [x] Spec do RF 10 atualizada (envio pelo sistema e visualização automática)

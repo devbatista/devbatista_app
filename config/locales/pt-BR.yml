@@ -542,6 +542,13 @@ pt-BR:
           attributes:
             current_password:
               invalid: não confere
+  activemodel:
+    attributes:
+      proposal_delivery:
+        to: Para
+        cc: Cópia
+        subject: Assunto
+        message: Mensagem
   date:
     formats:
       month_year: "%B de %Y"

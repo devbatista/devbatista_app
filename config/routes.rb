@@ -5,6 +5,9 @@ Rails.application.routes.draw do
 
   root "dashboard#show"
 
+  # Link "Ver proposta" do e-mail ao cliente, sem login (token assinado; pode conter "/").
+  get "p/*token", to: "proposal_views#show", as: :proposal_view, format: false
+
   # URLs em inglês e em kebab-case, agrupadas como o menu: /commercial/leads, /operations/time-entries.
   # Cada grupo é um módulo de controllers (Commercial::LeadsController), mas os helpers não levam
   # o prefixo (leads_path, form_with model: @lead). Os parâmetros de query continuam em português.
@@ -34,6 +37,9 @@ Rails.application.routes.draw do
         post :approve
         get :reject, action: :new_rejection
         patch :reject
+        get :pdf
+        get :deliver, action: :new_delivery
+        post :deliver
       end
     end
     get "pipeline", to: "pipeline#show", as: :pipeline

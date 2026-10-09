@@ -22,6 +22,9 @@ class Proposal < ApplicationRecord
 
   accepts_nested_attributes_for :items, allow_destroy: true, reject_if: ->(attrs) { attrs["service_id"].blank? }
 
+  # Link "Ver proposta" do e-mail ao cliente: abre o PDF sem login e marca Visualizada.
+  generates_token_for :client_view, expires_in: 120.days
+
   validates :title, :valid_until, presence: true
   validate :recipient_present
   validate :contact_from_company
@@ -60,6 +63,20 @@ class Proposal < ApplicationRecord
 
   def editable?
     draft? || sent? || viewed?
+  end
+
+  # Último PDF enviado ao cliente pelo sistema (ProposalDelivery).
+  def sent_document
+    documents.where(kind: "proposal").order(created_at: :desc, id: :desc).first
+  end
+
+  # Quem recebe o e-mail por padrão: o contato da proposta ou, para lead, o e-mail dele.
+  def recipient_email
+    contact&.email.presence || (lead&.email if company.nil?)
+  end
+
+  def recipient_first_name
+    (contact&.name || (lead&.name if company.nil?)).to_s.split.first
   end
 
   def mrr_cents

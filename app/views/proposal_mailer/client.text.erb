@@ -1,0 +1,9 @@
+PROPOSTA <%= @proposal.code %>
+
+<%= @proposal.title %>
+
+<%= @message %>
+
+Ver proposta: <%= @view_url %>
+
+Valor total: <%= brl(@proposal.total_cents) %> · válida até <%= date_br(@proposal.valid_until) %>. O PDF também está anexado a este e-mail.
