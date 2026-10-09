@@ -29,7 +29,7 @@ module CostCenter
 
   def cost_center_key=(value)
     kind, id = value.to_s.split(":", 2)
-    self.company_id = kind == "company" ? id.to_i : nil
+    self.company_id = kind == "company" ? id.presence : nil
     self.cost_center = kind == "area" ? id : nil
   end
 

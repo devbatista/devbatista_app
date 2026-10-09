@@ -82,7 +82,7 @@ Monte o payload de criação:
 {
   "mode": "create",
   "dry_run": true,
-  "defaults": { "origin": "outbound", "user_id": 1, "service_id": 2, "status": "new" },
+  "defaults": { "origin": "outbound", "user_id": "<uuid do usuário>", "service_id": "<uuid do serviço>", "status": "new" },
   "leads": [
     { "name": "Fran-coar", "email": "contatofrancoarcondicionado@gmail.com",
       "notes": "Segmento: Ar-condicionado\nLocalização ou atendimento: Jardim Novo Santo Amaro" }
@@ -92,6 +92,7 @@ Monte o payload de criação:
 
 - `defaults` vale para todos os leads; um campo dentro do lead sobrescreve o padrão.
 - `defaults.user_id` também é o autor gravado na auditoria.
+- Os ids são UUIDs (texto): copie-os da saída da consulta.
 - Rode primeiro com `"dry_run": true`. O script cria tudo numa transação, mostra o resultado e desfaz. Se aparecer `ERRO`, nada foi gravado: corrija o payload e simule de novo.
 - Com a simulação limpa, rode de novo com `"dry_run": false`. As respostas do passo 4 já valem como confirmação, inclusive em produção; só volte a perguntar se a simulação mudou algo (erro, duplicado novo).
 

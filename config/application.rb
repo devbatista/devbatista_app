@@ -44,6 +44,8 @@ module Devbatista
     config.active_record.schema_format = :sql
 
     config.generators do |g|
+      # Chaves em UUID v7 (default uuid_v7() no banco; ver ConvertPrimaryKeysToUuid).
+      g.orm :active_record, primary_key_type: :uuid
       g.test_framework :rspec, fixture: false, view_specs: false, helper_specs: false, routing_specs: false
       g.factory_bot dir: "spec/factories"
       g.system_tests = nil

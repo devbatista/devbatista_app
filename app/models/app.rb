@@ -31,7 +31,7 @@ class App < ApplicationRecord
     where("unaccent(apps.name) ILIKE unaccent(:q) OR apps.url ILIKE :q OR unaccent(apps.tech_stack) ILIKE unaccent(:q)", q: q)
   }
 
-  # Hospedagem no select: "Server:12" ou "ExternalService:3".
+  # Hospedagem no select: "Server:<uuid>" ou "ExternalService:<uuid>".
   def hosting_key
     "#{hosting_type}:#{hosting_id}" if hosting_id
   end
@@ -39,7 +39,7 @@ class App < ApplicationRecord
   def hosting_key=(value)
     type, id = value.to_s.split(":", 2)
     self.hosting_type = type.presence_in(HOSTING_TYPES)
-    self.hosting_id = hosting_type && id.to_i
+    self.hosting_id = hosting_type && id.presence
   end
 
   def host_name

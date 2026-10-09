@@ -37,6 +37,38 @@ END;
 $$;
 
 
+--
+-- Name: uuid_v7(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.uuid_v7() RETURNS uuid
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+  bytes bytea := uuid_send(gen_random_uuid());
+BEGIN
+  bytes := overlay(bytes PLACING substring(int8send(floor(extract(epoch FROM clock_timestamp()) * 1000)::bigint) FROM 3) FROM 1 FOR 6);
+  bytes := set_byte(bytes, 6, (get_byte(bytes, 6) & 15) | 112);
+  RETURN encode(bytes, 'hex')::uuid;
+END
+$$;
+
+
+--
+-- Name: uuid_v7_at(timestamp with time zone, bigint); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.uuid_v7_at(ts timestamp with time zone, seq bigint) RETURNS uuid
+    LANGUAGE sql IMMUTABLE
+    AS $$
+  SELECT encode(
+    substring(int8send(floor(extract(epoch FROM ts) * 1000)::bigint) FROM 3)
+    || decode('7000', 'hex')
+    || set_byte(int8send(seq), 0, (get_byte(int8send(seq), 0) & 63) | 128),
+    'hex')::uuid
+$$;
+
+
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
@@ -46,32 +78,13 @@ SET default_table_access_method = heap;
 --
 
 CREATE TABLE public.active_storage_attachments (
-    id bigint NOT NULL,
     name character varying NOT NULL,
     record_type character varying NOT NULL,
-    record_id bigint NOT NULL,
-    blob_id bigint NOT NULL,
-    created_at timestamp(6) without time zone NOT NULL
+    created_at timestamp(6) without time zone NOT NULL,
+    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    blob_id uuid NOT NULL,
+    record_id uuid NOT NULL
 );
-
-
---
--- Name: active_storage_attachments_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.active_storage_attachments_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: active_storage_attachments_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.active_storage_attachments_id_seq OWNED BY public.active_storage_attachments.id;
 
 
 --
@@ -79,7 +92,6 @@ ALTER SEQUENCE public.active_storage_attachments_id_seq OWNED BY public.active_s
 --
 
 CREATE TABLE public.active_storage_blobs (
-    id bigint NOT NULL,
     key character varying NOT NULL,
     filename character varying NOT NULL,
     content_type character varying,
@@ -87,27 +99,9 @@ CREATE TABLE public.active_storage_blobs (
     service_name character varying NOT NULL,
     byte_size bigint NOT NULL,
     checksum character varying,
-    created_at timestamp(6) without time zone NOT NULL
+    created_at timestamp(6) without time zone NOT NULL,
+    id uuid DEFAULT public.uuid_v7() NOT NULL
 );
-
-
---
--- Name: active_storage_blobs_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.active_storage_blobs_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: active_storage_blobs_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.active_storage_blobs_id_seq OWNED BY public.active_storage_blobs.id;
 
 
 --
@@ -115,29 +109,10 @@ ALTER SEQUENCE public.active_storage_blobs_id_seq OWNED BY public.active_storage
 --
 
 CREATE TABLE public.active_storage_variant_records (
-    id bigint NOT NULL,
-    blob_id bigint NOT NULL,
-    variation_digest character varying NOT NULL
+    variation_digest character varying NOT NULL,
+    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    blob_id uuid NOT NULL
 );
-
-
---
--- Name: active_storage_variant_records_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.active_storage_variant_records_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: active_storage_variant_records_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.active_storage_variant_records_id_seq OWNED BY public.active_storage_variant_records.id;
 
 
 --
@@ -145,35 +120,16 @@ ALTER SEQUENCE public.active_storage_variant_records_id_seq OWNED BY public.acti
 --
 
 CREATE TABLE public.activities (
-    id bigint NOT NULL,
-    user_id bigint,
-    company_id bigint,
     subject_type character varying,
-    subject_id bigint,
     area character varying NOT NULL,
     action character varying NOT NULL,
     description character varying NOT NULL,
-    created_at timestamp(6) without time zone NOT NULL
+    created_at timestamp(6) without time zone NOT NULL,
+    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    company_id uuid,
+    user_id uuid,
+    subject_id uuid
 );
-
-
---
--- Name: activities_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.activities_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: activities_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.activities_id_seq OWNED BY public.activities.id;
 
 
 --
@@ -181,8 +137,6 @@ ALTER SEQUENCE public.activities_id_seq OWNED BY public.activities.id;
 --
 
 CREATE TABLE public.apps (
-    id bigint NOT NULL,
-    company_id bigint NOT NULL,
     name character varying NOT NULL,
     description text,
     environment character varying DEFAULT 'production'::character varying NOT NULL,
@@ -191,33 +145,16 @@ CREATE TABLE public.apps (
     tech_stack character varying,
     repository_url character varying,
     hosting_type character varying,
-    hosting_id bigint,
-    project_id bigint,
-    contract_id bigint,
-    user_id bigint,
     vault_reference character varying,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    company_id uuid NOT NULL,
+    project_id uuid,
+    contract_id uuid,
+    user_id uuid,
+    hosting_id uuid
 );
-
-
---
--- Name: apps_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.apps_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: apps_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.apps_id_seq OWNED BY public.apps.id;
 
 
 --
@@ -237,36 +174,17 @@ CREATE TABLE public.ar_internal_metadata (
 --
 
 CREATE TABLE public.audit_logs (
-    id bigint NOT NULL,
-    user_id bigint,
     action character varying NOT NULL,
     area character varying NOT NULL,
     auditable_type character varying,
-    auditable_id bigint,
     auditable_label character varying,
     changeset jsonb DEFAULT '{}'::jsonb NOT NULL,
     ip_address character varying,
-    created_at timestamp(6) without time zone NOT NULL
+    created_at timestamp(6) without time zone NOT NULL,
+    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    user_id uuid,
+    auditable_id uuid
 );
-
-
---
--- Name: audit_logs_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.audit_logs_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: audit_logs_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.audit_logs_id_seq OWNED BY public.audit_logs.id;
 
 
 --
@@ -274,7 +192,6 @@ ALTER SEQUENCE public.audit_logs_id_seq OWNED BY public.audit_logs.id;
 --
 
 CREATE TABLE public.companies (
-    id bigint NOT NULL,
     legal_name character varying NOT NULL,
     trade_name character varying NOT NULL,
     cnpj character varying NOT NULL,
@@ -290,27 +207,9 @@ CREATE TABLE public.companies (
     customer_since date,
     external_id character varying,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    id uuid DEFAULT public.uuid_v7() NOT NULL
 );
-
-
---
--- Name: companies_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.companies_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: companies_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.companies_id_seq OWNED BY public.companies.id;
 
 
 --
@@ -318,8 +217,6 @@ ALTER SEQUENCE public.companies_id_seq OWNED BY public.companies.id;
 --
 
 CREATE TABLE public.contacts (
-    id bigint NOT NULL,
-    company_id bigint NOT NULL,
     name character varying NOT NULL,
     "position" character varying,
     phone character varying,
@@ -329,27 +226,10 @@ CREATE TABLE public.contacts (
     notes text,
     external_id character varying,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    company_id uuid NOT NULL
 );
-
-
---
--- Name: contacts_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.contacts_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: contacts_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.contacts_id_seq OWNED BY public.contacts.id;
 
 
 --
@@ -369,9 +249,7 @@ CREATE SEQUENCE public.contract_numbers
 --
 
 CREATE TABLE public.contracts (
-    id bigint NOT NULL,
     number integer DEFAULT nextval('public.contract_numbers'::regclass) NOT NULL,
-    company_id bigint NOT NULL,
     title character varying NOT NULL,
     status character varying DEFAULT 'draft'::character varying NOT NULL,
     start_date date NOT NULL,
@@ -381,27 +259,10 @@ CREATE TABLE public.contracts (
     periodicity character varying DEFAULT 'monthly'::character varying NOT NULL,
     notes text,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    company_id uuid NOT NULL
 );
-
-
---
--- Name: contracts_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.contracts_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: contracts_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.contracts_id_seq OWNED BY public.contracts.id;
 
 
 --
@@ -409,10 +270,6 @@ ALTER SEQUENCE public.contracts_id_seq OWNED BY public.contracts.id;
 --
 
 CREATE TABLE public.customer_services (
-    id bigint NOT NULL,
-    company_id bigint NOT NULL,
-    service_id bigint NOT NULL,
-    contract_id bigint,
     price_cents integer NOT NULL,
     recurrence character varying DEFAULT 'monthly'::character varying NOT NULL,
     mrr_cents integer DEFAULT 0 NOT NULL,
@@ -423,27 +280,12 @@ CREATE TABLE public.customer_services (
     description character varying,
     notes text,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    service_id uuid NOT NULL,
+    contract_id uuid,
+    company_id uuid NOT NULL
 );
-
-
---
--- Name: customer_services_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.customer_services_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: customer_services_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.customer_services_id_seq OWNED BY public.customer_services.id;
 
 
 --
@@ -451,8 +293,6 @@ ALTER SEQUENCE public.customer_services_id_seq OWNED BY public.customer_services
 --
 
 CREATE TABLE public.databases (
-    id bigint NOT NULL,
-    app_id bigint NOT NULL,
     technology character varying NOT NULL,
     version character varying,
     environment character varying DEFAULT 'production'::character varying NOT NULL,
@@ -461,27 +301,10 @@ CREATE TABLE public.databases (
     vault_reference character varying,
     notes text,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    app_id uuid NOT NULL
 );
-
-
---
--- Name: databases_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.databases_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: databases_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.databases_id_seq OWNED BY public.databases.id;
 
 
 --
@@ -489,36 +312,17 @@ ALTER SEQUENCE public.databases_id_seq OWNED BY public.databases.id;
 --
 
 CREATE TABLE public.documents (
-    id bigint NOT NULL,
     title character varying NOT NULL,
     kind character varying NOT NULL,
     documentable_type character varying,
-    documentable_id bigint,
-    company_id bigint,
-    uploaded_by_id bigint NOT NULL,
     notes text,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    company_id uuid,
+    uploaded_by_id uuid NOT NULL,
+    documentable_id uuid
 );
-
-
---
--- Name: documents_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.documents_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: documents_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.documents_id_seq OWNED BY public.documents.id;
 
 
 --
@@ -526,8 +330,6 @@ ALTER SEQUENCE public.documents_id_seq OWNED BY public.documents.id;
 --
 
 CREATE TABLE public.domains (
-    id bigint NOT NULL,
-    company_id bigint NOT NULL,
     name character varying NOT NULL,
     registrar character varying NOT NULL,
     registered_on date,
@@ -539,27 +341,10 @@ CREATE TABLE public.domains (
     dns_provider character varying,
     notes text,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    company_id uuid NOT NULL
 );
-
-
---
--- Name: domains_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.domains_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: domains_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.domains_id_seq OWNED BY public.domains.id;
 
 
 --
@@ -567,33 +352,14 @@ ALTER SEQUENCE public.domains_id_seq OWNED BY public.domains.id;
 --
 
 CREATE TABLE public.exchange_rates (
-    id bigint NOT NULL,
     currency character varying NOT NULL,
     quoted_on date NOT NULL,
     rate numeric(12,6) NOT NULL,
     source character varying DEFAULT 'ptax'::character varying NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    id uuid DEFAULT public.uuid_v7() NOT NULL
 );
-
-
---
--- Name: exchange_rates_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.exchange_rates_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: exchange_rates_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.exchange_rates_id_seq OWNED BY public.exchange_rates.id;
 
 
 --
@@ -601,12 +367,8 @@ ALTER SEQUENCE public.exchange_rates_id_seq OWNED BY public.exchange_rates.id;
 --
 
 CREATE TABLE public.external_services (
-    id bigint NOT NULL,
     name character varying NOT NULL,
     plan character varying,
-    supplier_id bigint NOT NULL,
-    company_id bigint NOT NULL,
-    app_id bigint,
     currency character varying DEFAULT 'BRL'::character varying NOT NULL,
     cost_cents integer DEFAULT 0 NOT NULL,
     periodicity character varying DEFAULT 'monthly'::character varying NOT NULL,
@@ -615,27 +377,12 @@ CREATE TABLE public.external_services (
     vault_reference character varying,
     notes text,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    supplier_id uuid NOT NULL,
+    company_id uuid NOT NULL,
+    app_id uuid
 );
-
-
---
--- Name: external_services_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.external_services_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: external_services_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.external_services_id_seq OWNED BY public.external_services.id;
 
 
 --
@@ -643,8 +390,6 @@ ALTER SEQUENCE public.external_services_id_seq OWNED BY public.external_services
 --
 
 CREATE TABLE public.integrations (
-    id bigint NOT NULL,
-    app_id bigint NOT NULL,
     platform character varying NOT NULL,
     variant character varying,
     environment character varying DEFAULT 'production'::character varying NOT NULL,
@@ -652,27 +397,10 @@ CREATE TABLE public.integrations (
     purpose character varying NOT NULL,
     notes text,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    app_id uuid NOT NULL
 );
-
-
---
--- Name: integrations_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.integrations_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: integrations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.integrations_id_seq OWNED BY public.integrations.id;
 
 
 --
@@ -680,35 +408,16 @@ ALTER SEQUENCE public.integrations_id_seq OWNED BY public.integrations.id;
 --
 
 CREATE TABLE public.interactions (
-    id bigint NOT NULL,
     subject_type character varying NOT NULL,
-    subject_id bigint NOT NULL,
-    user_id bigint NOT NULL,
     kind character varying NOT NULL,
     occurred_on date NOT NULL,
     notes text NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    user_id uuid NOT NULL,
+    subject_id uuid NOT NULL
 );
-
-
---
--- Name: interactions_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.interactions_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: interactions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.interactions_id_seq OWNED BY public.interactions.id;
 
 
 --
@@ -716,8 +425,6 @@ ALTER SEQUENCE public.interactions_id_seq OWNED BY public.interactions.id;
 --
 
 CREATE TABLE public.invoices (
-    id bigint NOT NULL,
-    company_id bigint NOT NULL,
     number character varying,
     competence date NOT NULL,
     amount_cents integer NOT NULL,
@@ -727,27 +434,10 @@ CREATE TABLE public.invoices (
     url character varying,
     notes text,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    company_id uuid NOT NULL
 );
-
-
---
--- Name: invoices_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.invoices_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: invoices_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.invoices_id_seq OWNED BY public.invoices.id;
 
 
 --
@@ -755,15 +445,12 @@ ALTER SEQUENCE public.invoices_id_seq OWNED BY public.invoices.id;
 --
 
 CREATE TABLE public.leads (
-    id bigint NOT NULL,
     name character varying NOT NULL,
     company_name character varying,
     phone character varying,
     whatsapp character varying,
     email character varying,
     origin character varying NOT NULL,
-    service_id bigint,
-    user_id bigint NOT NULL,
     status character varying DEFAULT 'new'::character varying NOT NULL,
     entered_on date NOT NULL,
     notes text,
@@ -772,31 +459,15 @@ CREATE TABLE public.leads (
     lost_reason character varying,
     lost_details text,
     lost_at timestamp(6) without time zone,
-    company_id bigint,
     converted_at timestamp(6) without time zone,
     external_id character varying,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    user_id uuid NOT NULL,
+    service_id uuid,
+    company_id uuid
 );
-
-
---
--- Name: leads_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.leads_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: leads_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.leads_id_seq OWNED BY public.leads.id;
 
 
 --
@@ -804,39 +475,20 @@ ALTER SEQUENCE public.leads_id_seq OWNED BY public.leads.id;
 --
 
 CREATE TABLE public.notifications (
-    id bigint NOT NULL,
-    user_id bigint NOT NULL,
     kind character varying NOT NULL,
     level character varying DEFAULT 'info'::character varying NOT NULL,
     title character varying NOT NULL,
     area character varying NOT NULL,
     path character varying,
     notifiable_type character varying,
-    notifiable_id bigint,
     dedup_key character varying,
     read_at timestamp(6) without time zone,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    user_id uuid NOT NULL,
+    notifiable_id uuid
 );
-
-
---
--- Name: notifications_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.notifications_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: notifications_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.notifications_id_seq OWNED BY public.notifications.id;
 
 
 --
@@ -844,12 +496,7 @@ ALTER SEQUENCE public.notifications_id_seq OWNED BY public.notifications.id;
 --
 
 CREATE TABLE public.opportunities (
-    id bigint NOT NULL,
     title character varying NOT NULL,
-    lead_id bigint,
-    company_id bigint NOT NULL,
-    service_id bigint,
-    user_id bigint NOT NULL,
     stage character varying DEFAULT 'meeting'::character varying NOT NULL,
     estimated_value_cents integer DEFAULT 0 NOT NULL,
     probability integer DEFAULT 25 NOT NULL,
@@ -863,27 +510,13 @@ CREATE TABLE public.opportunities (
     external_id character varying,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
+    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    service_id uuid,
+    lead_id uuid,
+    user_id uuid NOT NULL,
+    company_id uuid NOT NULL,
     CONSTRAINT opportunities_probability_range CHECK (((probability >= 0) AND (probability <= 100)))
 );
-
-
---
--- Name: opportunities_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.opportunities_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: opportunities_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.opportunities_id_seq OWNED BY public.opportunities.id;
 
 
 --
@@ -891,10 +524,6 @@ ALTER SEQUENCE public.opportunities_id_seq OWNED BY public.opportunities.id;
 --
 
 CREATE TABLE public.payables (
-    id bigint NOT NULL,
-    supplier_id bigint NOT NULL,
-    recurring_expense_id bigint,
-    company_id bigint,
     cost_center character varying,
     description character varying NOT NULL,
     category character varying NOT NULL,
@@ -909,29 +538,14 @@ CREATE TABLE public.payables (
     notes text,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    external_service_id bigint,
+    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    supplier_id uuid NOT NULL,
+    recurring_expense_id uuid,
+    company_id uuid,
+    external_service_id uuid,
     CONSTRAINT payables_amount_positive CHECK ((amount_cents >= 0)),
     CONSTRAINT payables_cost_center_present CHECK (((company_id IS NOT NULL) OR (cost_center IS NOT NULL)))
 );
-
-
---
--- Name: payables_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.payables_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: payables_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.payables_id_seq OWNED BY public.payables.id;
 
 
 --
@@ -939,32 +553,13 @@ ALTER SEQUENCE public.payables_id_seq OWNED BY public.payables.id;
 --
 
 CREATE TABLE public.product_costs (
-    id bigint NOT NULL,
-    product_id bigint NOT NULL,
     month date NOT NULL,
     amount_cents integer DEFAULT 0 NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    product_id uuid NOT NULL
 );
-
-
---
--- Name: product_costs_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.product_costs_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: product_costs_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.product_costs_id_seq OWNED BY public.product_costs.id;
 
 
 --
@@ -972,34 +567,15 @@ ALTER SEQUENCE public.product_costs_id_seq OWNED BY public.product_costs.id;
 --
 
 CREATE TABLE public.products (
-    id bigint NOT NULL,
     name character varying NOT NULL,
     url character varying,
     description text,
     status character varying DEFAULT 'idea'::character varying NOT NULL,
     notes text,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    id uuid DEFAULT public.uuid_v7() NOT NULL
 );
-
-
---
--- Name: products_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.products_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: products_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.products_id_seq OWNED BY public.products.id;
 
 
 --
@@ -1007,11 +583,8 @@ ALTER SEQUENCE public.products_id_seq OWNED BY public.products.id;
 --
 
 CREATE TABLE public.projects (
-    id bigint NOT NULL,
-    company_id bigint NOT NULL,
     name character varying NOT NULL,
     description text,
-    user_id bigint NOT NULL,
     status character varying DEFAULT 'planning'::character varying NOT NULL,
     start_date date,
     due_date date NOT NULL,
@@ -1019,31 +592,15 @@ CREATE TABLE public.projects (
     budget_cents integer DEFAULT 0 NOT NULL,
     progress integer DEFAULT 0 NOT NULL,
     progress_from_tasks boolean DEFAULT true NOT NULL,
-    contract_id bigint,
-    proposal_id bigint,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
+    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    company_id uuid NOT NULL,
+    user_id uuid NOT NULL,
+    contract_id uuid,
+    proposal_id uuid,
     CONSTRAINT projects_progress_range CHECK (((progress >= 0) AND (progress <= 100)))
 );
-
-
---
--- Name: projects_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.projects_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: projects_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.projects_id_seq OWNED BY public.projects.id;
 
 
 --
@@ -1051,36 +608,17 @@ ALTER SEQUENCE public.projects_id_seq OWNED BY public.projects.id;
 --
 
 CREATE TABLE public.proposal_items (
-    id bigint NOT NULL,
-    proposal_id bigint NOT NULL,
-    service_id bigint NOT NULL,
     description character varying,
     recurrence character varying DEFAULT 'monthly'::character varying NOT NULL,
     default_price_cents integer DEFAULT 0 NOT NULL,
     price_cents integer DEFAULT 0 NOT NULL,
     "position" integer DEFAULT 0 NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    proposal_id uuid NOT NULL,
+    service_id uuid NOT NULL
 );
-
-
---
--- Name: proposal_items_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.proposal_items_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: proposal_items_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.proposal_items_id_seq OWNED BY public.proposal_items.id;
 
 
 --
@@ -1088,15 +626,9 @@ ALTER SEQUENCE public.proposal_items_id_seq OWNED BY public.proposal_items.id;
 --
 
 CREATE TABLE public.proposals (
-    id bigint NOT NULL,
     year integer NOT NULL,
     number integer NOT NULL,
     title character varying NOT NULL,
-    company_id bigint,
-    lead_id bigint,
-    opportunity_id bigint,
-    contact_id bigint,
-    user_id bigint NOT NULL,
     status character varying DEFAULT 'draft'::character varying NOT NULL,
     description text,
     payment_terms character varying,
@@ -1109,30 +641,17 @@ CREATE TABLE public.proposals (
     decided_on date,
     rejection_reason character varying,
     rejection_details text,
-    contract_id bigint,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
+    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    user_id uuid NOT NULL,
+    contact_id uuid,
+    lead_id uuid,
+    contract_id uuid,
+    company_id uuid,
+    opportunity_id uuid,
     CONSTRAINT proposals_recipient_present CHECK (((company_id IS NOT NULL) OR (lead_id IS NOT NULL)))
 );
-
-
---
--- Name: proposals_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.proposals_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: proposals_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.proposals_id_seq OWNED BY public.proposals.id;
 
 
 --
@@ -1140,13 +659,6 @@ ALTER SEQUENCE public.proposals_id_seq OWNED BY public.proposals.id;
 --
 
 CREATE TABLE public.receivables (
-    id bigint NOT NULL,
-    company_id bigint NOT NULL,
-    contact_id bigint,
-    customer_service_id bigint,
-    service_id bigint,
-    contract_id bigint,
-    invoice_id bigint,
     description character varying NOT NULL,
     category character varying NOT NULL,
     amount_cents integer NOT NULL,
@@ -1158,27 +670,15 @@ CREATE TABLE public.receivables (
     notes text,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
+    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    company_id uuid NOT NULL,
+    contact_id uuid,
+    customer_service_id uuid,
+    service_id uuid,
+    contract_id uuid,
+    invoice_id uuid,
     CONSTRAINT receivables_amount_positive CHECK ((amount_cents >= 0))
 );
-
-
---
--- Name: receivables_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.receivables_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: receivables_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.receivables_id_seq OWNED BY public.receivables.id;
 
 
 --
@@ -1186,8 +686,6 @@ ALTER SEQUENCE public.receivables_id_seq OWNED BY public.receivables.id;
 --
 
 CREATE TABLE public.recurrence_runs (
-    id bigint NOT NULL,
-    user_id bigint,
     run_on date NOT NULL,
     started_at timestamp(6) without time zone NOT NULL,
     finished_at timestamp(6) without time zone,
@@ -1197,27 +695,10 @@ CREATE TABLE public.recurrence_runs (
     horizon_on date,
     warnings text,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    user_id uuid
 );
-
-
---
--- Name: recurrence_runs_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.recurrence_runs_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: recurrence_runs_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.recurrence_runs_id_seq OWNED BY public.recurrence_runs.id;
 
 
 --
@@ -1225,11 +706,8 @@ ALTER SEQUENCE public.recurrence_runs_id_seq OWNED BY public.recurrence_runs.id;
 --
 
 CREATE TABLE public.recurring_expenses (
-    id bigint NOT NULL,
-    supplier_id bigint NOT NULL,
     description character varying NOT NULL,
     category character varying NOT NULL,
-    company_id bigint,
     cost_center character varying,
     currency character varying DEFAULT 'BRL'::character varying NOT NULL,
     amount_cents integer NOT NULL,
@@ -1241,28 +719,12 @@ CREATE TABLE public.recurring_expenses (
     notes text,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    external_service_id bigint,
+    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    supplier_id uuid NOT NULL,
+    company_id uuid,
+    external_service_id uuid,
     CONSTRAINT recurring_expenses_cost_center_present CHECK (((company_id IS NOT NULL) OR (cost_center IS NOT NULL)))
 );
-
-
---
--- Name: recurring_expenses_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.recurring_expenses_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: recurring_expenses_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.recurring_expenses_id_seq OWNED BY public.recurring_expenses.id;
 
 
 --
@@ -1270,32 +732,13 @@ ALTER SEQUENCE public.recurring_expenses_id_seq OWNED BY public.recurring_expens
 --
 
 CREATE TABLE public.roles (
-    id bigint NOT NULL,
     name character varying NOT NULL,
     key character varying NOT NULL,
     permissions jsonb DEFAULT '{}'::jsonb NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    id uuid DEFAULT public.uuid_v7() NOT NULL
 );
-
-
---
--- Name: roles_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.roles_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: roles_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.roles_id_seq OWNED BY public.roles.id;
 
 
 --
@@ -1312,9 +755,6 @@ CREATE TABLE public.schema_migrations (
 --
 
 CREATE TABLE public.servers (
-    id bigint NOT NULL,
-    company_id bigint NOT NULL,
-    supplier_id bigint NOT NULL,
     name character varying NOT NULL,
     host character varying NOT NULL,
     environment character varying DEFAULT 'production'::character varying NOT NULL,
@@ -1324,27 +764,11 @@ CREATE TABLE public.servers (
     vault_reference character varying,
     notes text,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    company_id uuid NOT NULL,
+    supplier_id uuid NOT NULL
 );
-
-
---
--- Name: servers_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.servers_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: servers_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.servers_id_seq OWNED BY public.servers.id;
 
 
 --
@@ -1352,7 +776,6 @@ ALTER SEQUENCE public.servers_id_seq OWNED BY public.servers.id;
 --
 
 CREATE TABLE public.services (
-    id bigint NOT NULL,
     name character varying NOT NULL,
     description text,
     category character varying NOT NULL,
@@ -1360,27 +783,9 @@ CREATE TABLE public.services (
     default_price_cents integer DEFAULT 0 NOT NULL,
     status character varying DEFAULT 'active'::character varying NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    id uuid DEFAULT public.uuid_v7() NOT NULL
 );
-
-
---
--- Name: services_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.services_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: services_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.services_id_seq OWNED BY public.services.id;
 
 
 --
@@ -1388,31 +793,12 @@ ALTER SEQUENCE public.services_id_seq OWNED BY public.services.id;
 --
 
 CREATE TABLE public.settings (
-    id bigint NOT NULL,
     key character varying NOT NULL,
     value jsonb,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    id uuid DEFAULT public.uuid_v7() NOT NULL
 );
-
-
---
--- Name: settings_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.settings_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: settings_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.settings_id_seq OWNED BY public.settings.id;
 
 
 --
@@ -1420,9 +806,6 @@ ALTER SEQUENCE public.settings_id_seq OWNED BY public.settings.id;
 --
 
 CREATE TABLE public.subscriptions (
-    id bigint NOT NULL,
-    product_id bigint NOT NULL,
-    company_id bigint,
     subscriber_name character varying NOT NULL,
     email character varying,
     plan character varying NOT NULL,
@@ -1433,27 +816,11 @@ CREATE TABLE public.subscriptions (
     status character varying DEFAULT 'active'::character varying NOT NULL,
     notes text,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    product_id uuid NOT NULL,
+    company_id uuid
 );
-
-
---
--- Name: subscriptions_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.subscriptions_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: subscriptions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.subscriptions_id_seq OWNED BY public.subscriptions.id;
 
 
 --
@@ -1461,7 +828,6 @@ ALTER SEQUENCE public.subscriptions_id_seq OWNED BY public.subscriptions.id;
 --
 
 CREATE TABLE public.suppliers (
-    id bigint NOT NULL,
     name character varying NOT NULL,
     category character varying NOT NULL,
     contact_name character varying,
@@ -1471,27 +837,9 @@ CREATE TABLE public.suppliers (
     notes text,
     active boolean DEFAULT true NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    id uuid DEFAULT public.uuid_v7() NOT NULL
 );
-
-
---
--- Name: suppliers_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.suppliers_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: suppliers_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.suppliers_id_seq OWNED BY public.suppliers.id;
 
 
 --
@@ -1499,38 +847,19 @@ ALTER SEQUENCE public.suppliers_id_seq OWNED BY public.suppliers.id;
 --
 
 CREATE TABLE public.tasks (
-    id bigint NOT NULL,
-    project_id bigint NOT NULL,
     title character varying NOT NULL,
     description text,
-    user_id bigint,
     status character varying DEFAULT 'backlog'::character varying NOT NULL,
     priority character varying DEFAULT 'normal'::character varying NOT NULL,
     due_on date,
     estimated_minutes integer,
     completed_on date,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    project_id uuid NOT NULL,
+    user_id uuid
 );
-
-
---
--- Name: tasks_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.tasks_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: tasks_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.tasks_id_seq OWNED BY public.tasks.id;
 
 
 --
@@ -1538,35 +867,16 @@ ALTER SEQUENCE public.tasks_id_seq OWNED BY public.tasks.id;
 --
 
 CREATE TABLE public.ticket_messages (
-    id bigint NOT NULL,
-    ticket_id bigint NOT NULL,
-    user_id bigint NOT NULL,
     kind character varying DEFAULT 'reply'::character varying NOT NULL,
-    contact_id bigint,
     channel character varying,
     body text NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    ticket_id uuid NOT NULL,
+    user_id uuid NOT NULL,
+    contact_id uuid
 );
-
-
---
--- Name: ticket_messages_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.ticket_messages_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: ticket_messages_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.ticket_messages_id_seq OWNED BY public.ticket_messages.id;
 
 
 --
@@ -1586,41 +896,22 @@ CREATE SEQUENCE public.ticket_numbers
 --
 
 CREATE TABLE public.tickets (
-    id bigint NOT NULL,
     number integer DEFAULT nextval('public.ticket_numbers'::regclass) NOT NULL,
-    company_id bigint NOT NULL,
-    contact_id bigint,
     subject character varying NOT NULL,
     description text NOT NULL,
     category character varying NOT NULL,
     priority character varying DEFAULT 'normal'::character varying NOT NULL,
     status character varying DEFAULT 'open'::character varying NOT NULL,
-    user_id bigint,
     opened_at timestamp(6) without time zone NOT NULL,
     resolved_at timestamp(6) without time zone,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    app_id bigint
+    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    company_id uuid NOT NULL,
+    contact_id uuid,
+    user_id uuid,
+    app_id uuid
 );
-
-
---
--- Name: tickets_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.tickets_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: tickets_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.tickets_id_seq OWNED BY public.tickets.id;
 
 
 --
@@ -1628,38 +919,19 @@ ALTER SEQUENCE public.tickets_id_seq OWNED BY public.tickets.id;
 --
 
 CREATE TABLE public.time_entries (
-    id bigint NOT NULL,
-    user_id bigint NOT NULL,
-    company_id bigint NOT NULL,
-    project_id bigint,
-    task_id bigint,
-    ticket_id bigint,
     worked_on date NOT NULL,
     minutes integer NOT NULL,
     description text,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
+    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    user_id uuid NOT NULL,
+    company_id uuid NOT NULL,
+    project_id uuid,
+    task_id uuid,
+    ticket_id uuid,
     CONSTRAINT time_entries_minutes_positive CHECK ((minutes > 0))
 );
-
-
---
--- Name: time_entries_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.time_entries_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: time_entries_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.time_entries_id_seq OWNED BY public.time_entries.id;
 
 
 --
@@ -1667,9 +939,7 @@ ALTER SEQUENCE public.time_entries_id_seq OWNED BY public.time_entries.id;
 --
 
 CREATE TABLE public.users (
-    id bigint NOT NULL,
     name character varying NOT NULL,
-    role_id bigint NOT NULL,
     active boolean DEFAULT true NOT NULL,
     hourly_cost_cents integer,
     email character varying DEFAULT ''::character varying NOT NULL,
@@ -1685,314 +955,10 @@ CREATE TABLE public.users (
     locked_at timestamp(6) without time zone,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    email_preferences jsonb DEFAULT '{}'::jsonb NOT NULL
+    email_preferences jsonb DEFAULT '{}'::jsonb NOT NULL,
+    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    role_id uuid NOT NULL
 );
-
-
---
--- Name: users_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.users_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
-
-
---
--- Name: active_storage_attachments id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.active_storage_attachments ALTER COLUMN id SET DEFAULT nextval('public.active_storage_attachments_id_seq'::regclass);
-
-
---
--- Name: active_storage_blobs id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.active_storage_blobs ALTER COLUMN id SET DEFAULT nextval('public.active_storage_blobs_id_seq'::regclass);
-
-
---
--- Name: active_storage_variant_records id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.active_storage_variant_records ALTER COLUMN id SET DEFAULT nextval('public.active_storage_variant_records_id_seq'::regclass);
-
-
---
--- Name: activities id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.activities ALTER COLUMN id SET DEFAULT nextval('public.activities_id_seq'::regclass);
-
-
---
--- Name: apps id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.apps ALTER COLUMN id SET DEFAULT nextval('public.apps_id_seq'::regclass);
-
-
---
--- Name: audit_logs id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.audit_logs ALTER COLUMN id SET DEFAULT nextval('public.audit_logs_id_seq'::regclass);
-
-
---
--- Name: companies id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.companies ALTER COLUMN id SET DEFAULT nextval('public.companies_id_seq'::regclass);
-
-
---
--- Name: contacts id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.contacts ALTER COLUMN id SET DEFAULT nextval('public.contacts_id_seq'::regclass);
-
-
---
--- Name: contracts id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.contracts ALTER COLUMN id SET DEFAULT nextval('public.contracts_id_seq'::regclass);
-
-
---
--- Name: customer_services id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.customer_services ALTER COLUMN id SET DEFAULT nextval('public.customer_services_id_seq'::regclass);
-
-
---
--- Name: databases id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.databases ALTER COLUMN id SET DEFAULT nextval('public.databases_id_seq'::regclass);
-
-
---
--- Name: documents id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.documents ALTER COLUMN id SET DEFAULT nextval('public.documents_id_seq'::regclass);
-
-
---
--- Name: domains id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.domains ALTER COLUMN id SET DEFAULT nextval('public.domains_id_seq'::regclass);
-
-
---
--- Name: exchange_rates id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.exchange_rates ALTER COLUMN id SET DEFAULT nextval('public.exchange_rates_id_seq'::regclass);
-
-
---
--- Name: external_services id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.external_services ALTER COLUMN id SET DEFAULT nextval('public.external_services_id_seq'::regclass);
-
-
---
--- Name: integrations id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.integrations ALTER COLUMN id SET DEFAULT nextval('public.integrations_id_seq'::regclass);
-
-
---
--- Name: interactions id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.interactions ALTER COLUMN id SET DEFAULT nextval('public.interactions_id_seq'::regclass);
-
-
---
--- Name: invoices id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.invoices ALTER COLUMN id SET DEFAULT nextval('public.invoices_id_seq'::regclass);
-
-
---
--- Name: leads id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.leads ALTER COLUMN id SET DEFAULT nextval('public.leads_id_seq'::regclass);
-
-
---
--- Name: notifications id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.notifications ALTER COLUMN id SET DEFAULT nextval('public.notifications_id_seq'::regclass);
-
-
---
--- Name: opportunities id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.opportunities ALTER COLUMN id SET DEFAULT nextval('public.opportunities_id_seq'::regclass);
-
-
---
--- Name: payables id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.payables ALTER COLUMN id SET DEFAULT nextval('public.payables_id_seq'::regclass);
-
-
---
--- Name: product_costs id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.product_costs ALTER COLUMN id SET DEFAULT nextval('public.product_costs_id_seq'::regclass);
-
-
---
--- Name: products id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.products ALTER COLUMN id SET DEFAULT nextval('public.products_id_seq'::regclass);
-
-
---
--- Name: projects id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.projects ALTER COLUMN id SET DEFAULT nextval('public.projects_id_seq'::regclass);
-
-
---
--- Name: proposal_items id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.proposal_items ALTER COLUMN id SET DEFAULT nextval('public.proposal_items_id_seq'::regclass);
-
-
---
--- Name: proposals id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.proposals ALTER COLUMN id SET DEFAULT nextval('public.proposals_id_seq'::regclass);
-
-
---
--- Name: receivables id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.receivables ALTER COLUMN id SET DEFAULT nextval('public.receivables_id_seq'::regclass);
-
-
---
--- Name: recurrence_runs id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.recurrence_runs ALTER COLUMN id SET DEFAULT nextval('public.recurrence_runs_id_seq'::regclass);
-
-
---
--- Name: recurring_expenses id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.recurring_expenses ALTER COLUMN id SET DEFAULT nextval('public.recurring_expenses_id_seq'::regclass);
-
-
---
--- Name: roles id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.roles ALTER COLUMN id SET DEFAULT nextval('public.roles_id_seq'::regclass);
-
-
---
--- Name: servers id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.servers ALTER COLUMN id SET DEFAULT nextval('public.servers_id_seq'::regclass);
-
-
---
--- Name: services id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.services ALTER COLUMN id SET DEFAULT nextval('public.services_id_seq'::regclass);
-
-
---
--- Name: settings id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.settings ALTER COLUMN id SET DEFAULT nextval('public.settings_id_seq'::regclass);
-
-
---
--- Name: subscriptions id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.subscriptions ALTER COLUMN id SET DEFAULT nextval('public.subscriptions_id_seq'::regclass);
-
-
---
--- Name: suppliers id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.suppliers ALTER COLUMN id SET DEFAULT nextval('public.suppliers_id_seq'::regclass);
-
-
---
--- Name: tasks id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.tasks ALTER COLUMN id SET DEFAULT nextval('public.tasks_id_seq'::regclass);
-
-
---
--- Name: ticket_messages id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.ticket_messages ALTER COLUMN id SET DEFAULT nextval('public.ticket_messages_id_seq'::regclass);
-
-
---
--- Name: tickets id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.tickets ALTER COLUMN id SET DEFAULT nextval('public.tickets_id_seq'::regclass);
-
-
---
--- Name: time_entries id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.time_entries ALTER COLUMN id SET DEFAULT nextval('public.time_entries_id_seq'::regclass);
-
-
---
--- Name: users id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_id_seq'::regclass);
 
 
 --
@@ -3950,6 +2916,7 @@ ALTER TABLE ONLY public.leads
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261009120000'),
 ('20261006153022'),
 ('20261006151158'),
 ('20261006130008'),

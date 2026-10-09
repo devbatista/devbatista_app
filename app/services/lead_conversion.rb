@@ -4,7 +4,7 @@ class LeadConversion
   include ActiveModel::Model
   include ActiveModel::Attributes
 
-  attribute :company_id, :integer          # empresa existente (opcional)
+  attribute :company_id, :string           # empresa existente (opcional)
   attribute :trade_name, :string
   attribute :legal_name, :string
   attribute :cnpj, :string
@@ -14,12 +14,12 @@ class LeadConversion
   attribute :contact_email, :string
   attribute :contact_primary, :boolean, default: true
   attribute :title, :string
-  attribute :service_id, :integer
+  attribute :service_id, :string
   attribute :estimated_value, :string
   attribute :probability, :integer
   attribute :expected_close_on, :date
   attribute :stage, :string, default: "meeting"
-  attribute :user_id, :integer
+  attribute :user_id, :string
 
   attr_reader :lead, :opportunity, :company
 
