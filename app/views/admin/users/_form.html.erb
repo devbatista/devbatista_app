@@ -15,7 +15,7 @@
       </div>
       <div class="field">
         <%= f.label :role_id do %>Perfil <span class="req">*</span><% end %>
-        <%= f.collection_select :role_id, Role.order(:id), :id, :name, { prompt: "Selecione" }, class: "select", required: true %>
+        <%= f.collection_select :role_id, Role.ordered, :id, :name, { prompt: "Selecione" }, class: "select", required: true %>
         <span class="hint">Define o menu e as ações permitidas. <%= link_to "Ver permissões", admin_permissions_path %></span>
       </div>
       <div class="field">

@@ -22,7 +22,7 @@ class TimeEntry < ApplicationRecord
 
   before_validation :fill_links
 
-  scope :recent, -> { order(worked_on: :desc, id: :desc) }
+  scope :recent, -> { order(worked_on: :desc, created_at: :desc) }
   scope :search, lambda { |term|
     left_joins(:task).where("unaccent(time_entries.description) ILIKE unaccent(:q) OR unaccent(tasks.title) ILIKE unaccent(:q)",
                             q: "%#{sanitize_sql_like(term.to_s.strip)}%")

@@ -17,7 +17,7 @@ class Proposal < ApplicationRecord
   belongs_to :contact, optional: true
   belongs_to :user
   belongs_to :contract, optional: true
-  has_many :items, -> { order(:position, :id) }, class_name: "ProposalItem", dependent: :destroy, inverse_of: :proposal
+  has_many :items, -> { order(:position, :created_at) }, class_name: "ProposalItem", dependent: :destroy, inverse_of: :proposal
   has_many :documents, as: :documentable, dependent: :restrict_with_error
 
   accepts_nested_attributes_for :items, allow_destroy: true, reject_if: ->(attrs) { attrs["service_id"].blank? }

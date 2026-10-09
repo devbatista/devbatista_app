@@ -26,8 +26,8 @@ module Finance
       scope = scope.search(params[:q]) if params[:q].present?
       @totals = scope.not_cancelled.group(:status).sum(:amount_cents)
       scope = apply_sort(scope, {
-        "situacao" => [ "Situação e vencimento", ->(s) { s.in_order_of(:status, STATUS_ORDER).order(:due_on, :id) } ],
-        "vencimento" => [ "Vencimento", ->(s) { s.order(:due_on, :id) } ],
+        "situacao" => [ "Situação e vencimento", ->(s) { s.in_order_of(:status, STATUS_ORDER).order(:due_on, :created_at) } ],
+        "vencimento" => [ "Vencimento", ->(s) { s.order(:due_on, :created_at) } ],
         "cliente" => [ "Cliente", ->(s) { s.order("companies.trade_name", :due_on) } ],
         "valor" => [ "Maior valor", ->(s) { s.order(amount_cents: :desc) } ]
       })

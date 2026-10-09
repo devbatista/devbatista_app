@@ -29,7 +29,7 @@ module FinancialTitle
 
     scope :open, -> { where(status: OPEN_STATUSES) }
     scope :in_competence, ->(range) { where(competence: range.first.beginning_of_month..range.last) }
-    scope :by_due, -> { order(:due_on, :id) }
+    scope :by_due, -> { order(:due_on, :created_at) }
   end
 
   def open? = status.in?(OPEN_STATUSES)

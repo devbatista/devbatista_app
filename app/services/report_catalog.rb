@@ -195,7 +195,7 @@ class ReportCatalog
   # ── Comercial ───────────────────────────────────────────────────────────
 
   def leads
-    list = scope(Lead).where(entered_on: range).includes(:user).order(:entered_on, :id).to_a
+    list = scope(Lead).where(entered_on: range).includes(:user).order(:entered_on, :created_at).to_a
     rows = list.map { |l| [ l.name, l.company_name, l.origin_label, l.status_label, l.user&.name, l.entered_on ] }
     converted = list.count(&:status_converted?)
     Result.new(

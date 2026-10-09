@@ -14,7 +14,7 @@ module Commercial
       scope = scope.where(entered_on: period_range) if params[:periodo].present?
       scope = scope.search(params[:q]) if params[:q].present?
       scope = apply_sort(scope, {
-        "entrada" => [ "Entrada mais recente", ->(s) { s.order(entered_on: :desc, id: :desc) } ],
+        "entrada" => [ "Entrada mais recente", ->(s) { s.order(entered_on: :desc, created_at: :desc) } ],
         "nome" => [ "Nome (A–Z)", ->(s) { s.order(:name) } ]
       })
       @leads, @pager = paginate(scope)

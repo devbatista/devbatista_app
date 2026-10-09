@@ -3,12 +3,12 @@ module Admin
   class PermissionsController < ApplicationController
     def show
       authorize Role, :index?
-      @roles = Role.order(:id)
+      @roles = Role.ordered
     end
 
     def update
       authorize Role, :index?
-      roles = Role.where.not(key: "admin").order(:id)
+      roles = Role.where.not(key: "admin").ordered
 
       Role.transaction do
         roles.each do |role|
@@ -18,7 +18,7 @@ module Admin
       end
       redirect_to admin_permissions_path, notice: "Permissões salvas."
     rescue ActiveRecord::RecordInvalid => e
-      @roles = Role.order(:id)
+      @roles = Role.ordered
       flash.now[:alert] = e.record.errors.full_messages.to_sentence
       render :show, status: :unprocessable_entity
     end

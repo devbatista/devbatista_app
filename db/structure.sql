@@ -37,38 +37,6 @@ END;
 $$;
 
 
---
--- Name: uuid_v7(); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.uuid_v7() RETURNS uuid
-    LANGUAGE plpgsql
-    AS $$
-DECLARE
-  bytes bytea := uuid_send(gen_random_uuid());
-BEGIN
-  bytes := overlay(bytes PLACING substring(int8send(floor(extract(epoch FROM clock_timestamp()) * 1000)::bigint) FROM 3) FROM 1 FOR 6);
-  bytes := set_byte(bytes, 6, (get_byte(bytes, 6) & 15) | 112);
-  RETURN encode(bytes, 'hex')::uuid;
-END
-$$;
-
-
---
--- Name: uuid_v7_at(timestamp with time zone, bigint); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.uuid_v7_at(ts timestamp with time zone, seq bigint) RETURNS uuid
-    LANGUAGE sql IMMUTABLE
-    AS $$
-  SELECT encode(
-    substring(int8send(floor(extract(epoch FROM ts) * 1000)::bigint) FROM 3)
-    || decode('7000', 'hex')
-    || set_byte(int8send(seq), 0, (get_byte(int8send(seq), 0) & 63) | 128),
-    'hex')::uuid
-$$;
-
-
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
@@ -81,7 +49,7 @@ CREATE TABLE public.active_storage_attachments (
     name character varying NOT NULL,
     record_type character varying NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
-    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     blob_id uuid NOT NULL,
     record_id uuid NOT NULL
 );
@@ -100,7 +68,7 @@ CREATE TABLE public.active_storage_blobs (
     byte_size bigint NOT NULL,
     checksum character varying,
     created_at timestamp(6) without time zone NOT NULL,
-    id uuid DEFAULT public.uuid_v7() NOT NULL
+    id uuid DEFAULT gen_random_uuid() NOT NULL
 );
 
 
@@ -110,7 +78,7 @@ CREATE TABLE public.active_storage_blobs (
 
 CREATE TABLE public.active_storage_variant_records (
     variation_digest character varying NOT NULL,
-    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     blob_id uuid NOT NULL
 );
 
@@ -125,9 +93,9 @@ CREATE TABLE public.activities (
     action character varying NOT NULL,
     description character varying NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
-    id uuid DEFAULT public.uuid_v7() NOT NULL,
-    company_id uuid,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     user_id uuid,
+    company_id uuid,
     subject_id uuid
 );
 
@@ -148,7 +116,7 @@ CREATE TABLE public.apps (
     vault_reference character varying,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     company_id uuid NOT NULL,
     project_id uuid,
     contract_id uuid,
@@ -181,7 +149,7 @@ CREATE TABLE public.audit_logs (
     changeset jsonb DEFAULT '{}'::jsonb NOT NULL,
     ip_address character varying,
     created_at timestamp(6) without time zone NOT NULL,
-    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     user_id uuid,
     auditable_id uuid
 );
@@ -208,7 +176,7 @@ CREATE TABLE public.companies (
     external_id character varying,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    id uuid DEFAULT public.uuid_v7() NOT NULL
+    id uuid DEFAULT gen_random_uuid() NOT NULL
 );
 
 
@@ -227,7 +195,7 @@ CREATE TABLE public.contacts (
     external_id character varying,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     company_id uuid NOT NULL
 );
 
@@ -260,7 +228,7 @@ CREATE TABLE public.contracts (
     notes text,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     company_id uuid NOT NULL
 );
 
@@ -281,10 +249,10 @@ CREATE TABLE public.customer_services (
     notes text,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    company_id uuid NOT NULL,
     service_id uuid NOT NULL,
-    contract_id uuid,
-    company_id uuid NOT NULL
+    contract_id uuid
 );
 
 
@@ -302,7 +270,7 @@ CREATE TABLE public.databases (
     notes text,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     app_id uuid NOT NULL
 );
 
@@ -318,7 +286,7 @@ CREATE TABLE public.documents (
     notes text,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     company_id uuid,
     uploaded_by_id uuid NOT NULL,
     documentable_id uuid
@@ -342,7 +310,7 @@ CREATE TABLE public.domains (
     notes text,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     company_id uuid NOT NULL
 );
 
@@ -358,7 +326,7 @@ CREATE TABLE public.exchange_rates (
     source character varying DEFAULT 'ptax'::character varying NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    id uuid DEFAULT public.uuid_v7() NOT NULL
+    id uuid DEFAULT gen_random_uuid() NOT NULL
 );
 
 
@@ -378,7 +346,7 @@ CREATE TABLE public.external_services (
     notes text,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     supplier_id uuid NOT NULL,
     company_id uuid NOT NULL,
     app_id uuid
@@ -398,7 +366,7 @@ CREATE TABLE public.integrations (
     notes text,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     app_id uuid NOT NULL
 );
 
@@ -414,7 +382,7 @@ CREATE TABLE public.interactions (
     notes text NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     user_id uuid NOT NULL,
     subject_id uuid NOT NULL
 );
@@ -435,7 +403,7 @@ CREATE TABLE public.invoices (
     notes text,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     company_id uuid NOT NULL
 );
 
@@ -463,9 +431,9 @@ CREATE TABLE public.leads (
     external_id character varying,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    id uuid DEFAULT public.uuid_v7() NOT NULL,
-    user_id uuid NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     service_id uuid,
+    user_id uuid NOT NULL,
     company_id uuid
 );
 
@@ -485,7 +453,7 @@ CREATE TABLE public.notifications (
     read_at timestamp(6) without time zone,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     user_id uuid NOT NULL,
     notifiable_id uuid
 );
@@ -510,11 +478,11 @@ CREATE TABLE public.opportunities (
     external_id character varying,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    id uuid DEFAULT public.uuid_v7() NOT NULL,
-    service_id uuid,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     lead_id uuid,
-    user_id uuid NOT NULL,
     company_id uuid NOT NULL,
+    service_id uuid,
+    user_id uuid NOT NULL,
     CONSTRAINT opportunities_probability_range CHECK (((probability >= 0) AND (probability <= 100)))
 );
 
@@ -538,7 +506,7 @@ CREATE TABLE public.payables (
     notes text,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     supplier_id uuid NOT NULL,
     recurring_expense_id uuid,
     company_id uuid,
@@ -557,7 +525,7 @@ CREATE TABLE public.product_costs (
     amount_cents integer DEFAULT 0 NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     product_id uuid NOT NULL
 );
 
@@ -574,7 +542,7 @@ CREATE TABLE public.products (
     notes text,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    id uuid DEFAULT public.uuid_v7() NOT NULL
+    id uuid DEFAULT gen_random_uuid() NOT NULL
 );
 
 
@@ -594,7 +562,7 @@ CREATE TABLE public.projects (
     progress_from_tasks boolean DEFAULT true NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     company_id uuid NOT NULL,
     user_id uuid NOT NULL,
     contract_id uuid,
@@ -615,7 +583,7 @@ CREATE TABLE public.proposal_items (
     "position" integer DEFAULT 0 NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     proposal_id uuid NOT NULL,
     service_id uuid NOT NULL
 );
@@ -643,13 +611,13 @@ CREATE TABLE public.proposals (
     rejection_details text,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    id uuid DEFAULT public.uuid_v7() NOT NULL,
-    user_id uuid NOT NULL,
-    contact_id uuid,
-    lead_id uuid,
-    contract_id uuid,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     company_id uuid,
+    lead_id uuid,
     opportunity_id uuid,
+    contact_id uuid,
+    user_id uuid NOT NULL,
+    contract_id uuid,
     CONSTRAINT proposals_recipient_present CHECK (((company_id IS NOT NULL) OR (lead_id IS NOT NULL)))
 );
 
@@ -670,7 +638,7 @@ CREATE TABLE public.receivables (
     notes text,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     company_id uuid NOT NULL,
     contact_id uuid,
     customer_service_id uuid,
@@ -696,7 +664,7 @@ CREATE TABLE public.recurrence_runs (
     warnings text,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     user_id uuid
 );
 
@@ -719,7 +687,7 @@ CREATE TABLE public.recurring_expenses (
     notes text,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     supplier_id uuid NOT NULL,
     company_id uuid,
     external_service_id uuid,
@@ -737,7 +705,7 @@ CREATE TABLE public.roles (
     permissions jsonb DEFAULT '{}'::jsonb NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    id uuid DEFAULT public.uuid_v7() NOT NULL
+    id uuid DEFAULT gen_random_uuid() NOT NULL
 );
 
 
@@ -765,7 +733,7 @@ CREATE TABLE public.servers (
     notes text,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     company_id uuid NOT NULL,
     supplier_id uuid NOT NULL
 );
@@ -784,7 +752,7 @@ CREATE TABLE public.services (
     status character varying DEFAULT 'active'::character varying NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    id uuid DEFAULT public.uuid_v7() NOT NULL
+    id uuid DEFAULT gen_random_uuid() NOT NULL
 );
 
 
@@ -797,7 +765,7 @@ CREATE TABLE public.settings (
     value jsonb,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    id uuid DEFAULT public.uuid_v7() NOT NULL
+    id uuid DEFAULT gen_random_uuid() NOT NULL
 );
 
 
@@ -817,7 +785,7 @@ CREATE TABLE public.subscriptions (
     notes text,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     product_id uuid NOT NULL,
     company_id uuid
 );
@@ -838,7 +806,7 @@ CREATE TABLE public.suppliers (
     active boolean DEFAULT true NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    id uuid DEFAULT public.uuid_v7() NOT NULL
+    id uuid DEFAULT gen_random_uuid() NOT NULL
 );
 
 
@@ -856,7 +824,7 @@ CREATE TABLE public.tasks (
     completed_on date,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     project_id uuid NOT NULL,
     user_id uuid
 );
@@ -872,7 +840,7 @@ CREATE TABLE public.ticket_messages (
     body text NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     ticket_id uuid NOT NULL,
     user_id uuid NOT NULL,
     contact_id uuid
@@ -906,7 +874,7 @@ CREATE TABLE public.tickets (
     resolved_at timestamp(6) without time zone,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     company_id uuid NOT NULL,
     contact_id uuid,
     user_id uuid,
@@ -924,7 +892,7 @@ CREATE TABLE public.time_entries (
     description text,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
-    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     user_id uuid NOT NULL,
     company_id uuid NOT NULL,
     project_id uuid,
@@ -956,7 +924,7 @@ CREATE TABLE public.users (
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
     email_preferences jsonb DEFAULT '{}'::jsonb NOT NULL,
-    id uuid DEFAULT public.uuid_v7() NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     role_id uuid NOT NULL
 );
 
@@ -2916,6 +2884,7 @@ ALTER TABLE ONLY public.leads
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261009150000'),
 ('20261009120000'),
 ('20261006153022'),
 ('20261006151158'),

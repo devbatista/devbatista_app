@@ -65,6 +65,9 @@ class Role < ApplicationRecord
   validates :key, presence: true, uniqueness: true
   validate :permissions_are_valid
 
+  # Perfis padrão na ordem da matriz (Administrador primeiro); os criados depois vêm no fim.
+  scope :ordered, -> { in_order_of(:key, DEFAULTS.keys, filter: false).order(:created_at) }
+
   def self.seed_defaults!
     DEFAULTS.each do |key, attrs|
       find_or_create_by!(key: key) do |role|
