@@ -94,8 +94,8 @@ CREATE TABLE public.activities (
     description character varying NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
     id uuid DEFAULT gen_random_uuid() NOT NULL,
-    user_id uuid,
     company_id uuid,
+    user_id uuid,
     subject_id uuid
 );
 
@@ -118,9 +118,9 @@ CREATE TABLE public.apps (
     updated_at timestamp(6) without time zone NOT NULL,
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     company_id uuid NOT NULL,
-    project_id uuid,
     contract_id uuid,
     user_id uuid,
+    project_id uuid,
     hosting_id uuid
 );
 
@@ -250,9 +250,9 @@ CREATE TABLE public.customer_services (
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
     id uuid DEFAULT gen_random_uuid() NOT NULL,
-    company_id uuid NOT NULL,
     service_id uuid NOT NULL,
-    contract_id uuid
+    contract_id uuid,
+    company_id uuid NOT NULL
 );
 
 
@@ -347,9 +347,9 @@ CREATE TABLE public.external_services (
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
     id uuid DEFAULT gen_random_uuid() NOT NULL,
-    supplier_id uuid NOT NULL,
+    app_id uuid,
     company_id uuid NOT NULL,
-    app_id uuid
+    supplier_id uuid NOT NULL
 );
 
 
@@ -432,8 +432,8 @@ CREATE TABLE public.leads (
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
     id uuid DEFAULT gen_random_uuid() NOT NULL,
-    service_id uuid,
     user_id uuid NOT NULL,
+    service_id uuid,
     company_id uuid
 );
 
@@ -479,10 +479,10 @@ CREATE TABLE public.opportunities (
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
     id uuid DEFAULT gen_random_uuid() NOT NULL,
-    lead_id uuid,
-    company_id uuid NOT NULL,
     service_id uuid,
+    lead_id uuid,
     user_id uuid NOT NULL,
+    company_id uuid NOT NULL,
     CONSTRAINT opportunities_probability_range CHECK (((probability >= 0) AND (probability <= 100)))
 );
 
@@ -507,10 +507,10 @@ CREATE TABLE public.payables (
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
     id uuid DEFAULT gen_random_uuid() NOT NULL,
-    supplier_id uuid NOT NULL,
     recurring_expense_id uuid,
-    company_id uuid,
     external_service_id uuid,
+    supplier_id uuid NOT NULL,
+    company_id uuid,
     CONSTRAINT payables_amount_positive CHECK ((amount_cents >= 0)),
     CONSTRAINT payables_cost_center_present CHECK (((company_id IS NOT NULL) OR (cost_center IS NOT NULL)))
 );
@@ -563,10 +563,10 @@ CREATE TABLE public.projects (
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
     id uuid DEFAULT gen_random_uuid() NOT NULL,
-    company_id uuid NOT NULL,
-    user_id uuid NOT NULL,
     contract_id uuid,
+    company_id uuid NOT NULL,
     proposal_id uuid,
+    user_id uuid NOT NULL,
     CONSTRAINT projects_progress_range CHECK (((progress >= 0) AND (progress <= 100)))
 );
 
@@ -612,12 +612,12 @@ CREATE TABLE public.proposals (
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
     id uuid DEFAULT gen_random_uuid() NOT NULL,
-    company_id uuid,
-    lead_id uuid,
-    opportunity_id uuid,
-    contact_id uuid,
     user_id uuid NOT NULL,
+    contact_id uuid,
+    lead_id uuid,
     contract_id uuid,
+    company_id uuid,
+    opportunity_id uuid,
     CONSTRAINT proposals_recipient_present CHECK (((company_id IS NOT NULL) OR (lead_id IS NOT NULL)))
 );
 
@@ -639,12 +639,12 @@ CREATE TABLE public.receivables (
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
     id uuid DEFAULT gen_random_uuid() NOT NULL,
+    service_id uuid,
+    invoice_id uuid,
+    customer_service_id uuid,
+    contract_id uuid,
     company_id uuid NOT NULL,
     contact_id uuid,
-    customer_service_id uuid,
-    service_id uuid,
-    contract_id uuid,
-    invoice_id uuid,
     CONSTRAINT receivables_amount_positive CHECK ((amount_cents >= 0))
 );
 
@@ -689,8 +689,8 @@ CREATE TABLE public.recurring_expenses (
     updated_at timestamp(6) without time zone NOT NULL,
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     supplier_id uuid NOT NULL,
-    company_id uuid,
     external_service_id uuid,
+    company_id uuid,
     CONSTRAINT recurring_expenses_cost_center_present CHECK (((company_id IS NOT NULL) OR (cost_center IS NOT NULL)))
 );
 
@@ -734,8 +734,8 @@ CREATE TABLE public.servers (
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
     id uuid DEFAULT gen_random_uuid() NOT NULL,
-    company_id uuid NOT NULL,
-    supplier_id uuid NOT NULL
+    supplier_id uuid NOT NULL,
+    company_id uuid NOT NULL
 );
 
 
@@ -786,8 +786,8 @@ CREATE TABLE public.subscriptions (
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
     id uuid DEFAULT gen_random_uuid() NOT NULL,
-    product_id uuid NOT NULL,
-    company_id uuid
+    company_id uuid,
+    product_id uuid NOT NULL
 );
 
 
@@ -842,8 +842,8 @@ CREATE TABLE public.ticket_messages (
     updated_at timestamp(6) without time zone NOT NULL,
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     ticket_id uuid NOT NULL,
-    user_id uuid NOT NULL,
-    contact_id uuid
+    contact_id uuid,
+    user_id uuid NOT NULL
 );
 
 
@@ -875,10 +875,10 @@ CREATE TABLE public.tickets (
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
     id uuid DEFAULT gen_random_uuid() NOT NULL,
-    company_id uuid NOT NULL,
-    contact_id uuid,
     user_id uuid,
-    app_id uuid
+    app_id uuid,
+    company_id uuid NOT NULL,
+    contact_id uuid
 );
 
 
@@ -893,10 +893,10 @@ CREATE TABLE public.time_entries (
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
     id uuid DEFAULT gen_random_uuid() NOT NULL,
-    user_id uuid NOT NULL,
-    company_id uuid NOT NULL,
-    project_id uuid,
     task_id uuid,
+    company_id uuid NOT NULL,
+    user_id uuid NOT NULL,
+    project_id uuid,
     ticket_id uuid,
     CONSTRAINT time_entries_minutes_positive CHECK ((minutes > 0))
 );
