@@ -190,8 +190,22 @@ class ProposalPdf
 
   def closing(pdf)
     pdf.move_down 28
-    pdf.text "Para aprovar ou tirar dúvidas, responda o e-mail desta proposta ou fale com " \
-             "#{@proposal.user.name} (#{@proposal.user.email}).", size: 9, color: MUTED
+    pdf.text closing_line, size: 9, color: MUTED, inline_format: true
+  end
+
+  # E-mail do responsável e WhatsApp da empresa (Configurações), clicáveis no PDF.
+  def closing_line
+    email = escape(@proposal.user.email)
+    line = "Para aprovar ou tirar dúvidas, envie um e-mail para <link href='mailto:#{email}'><color rgb='#{ACCENT}'>#{email}</color></link>"
+    whatsapp = Setting[:company_whatsapp].presence
+    line += " ou um WhatsApp para <link href='https://wa.me/55#{whatsapp}'><color rgb='#{ACCENT}'>#{unbreakable(Setting.format_phone(whatsapp))}</color></link>" if whatsapp
+    "#{line}."
+  end
+
+  # O Prawn quebra linha em espaço e no "-": troca por espaço inquebrável e pelo hífen U+2010
+  # (a Montserrat não tem o U+2011), para o telefone não se dividir entre duas linhas.
+  def unbreakable(text)
+    text.tr(" -", " ‐")
   end
 
   def footer(pdf)
@@ -200,11 +214,16 @@ class ProposalPdf
         pdf.stroke_color RULE
         pdf.stroke_horizontal_rule
         pdf.move_down 8
-        pdf.text [ Setting[:company_legal_name], Setting[:company_site].to_s.delete_prefix("https://"), "Proposta #{@proposal.code}" ].compact_blank.join(" · "),
-                 size: 7.5, color: MUTED
+        pdf.text footer_line, size: 7.5, color: MUTED
       end
     end
     pdf.number_pages "Página <page> de <total>", at: [ pdf.bounds.right - 120, -28 ], width: 120, align: :right, size: 7.5, color: MUTED
+  end
+
+  def footer_line
+    cnpj = Setting[:company_cnpj].presence
+    [ Setting[:company_legal_name], ("CNPJ #{CnpjValidator.format(cnpj)}" if cnpj),
+      Setting[:company_site].to_s.delete_prefix("https://"), "Proposta #{@proposal.code}" ].compact_blank.join(" · ")
   end
 
   # Título de seção; `keep` evita deixá-lo sozinho no pé da página.
