@@ -8,6 +8,7 @@
 //   data-nav-toggle / data-nav-group       menu lateral no celular e grupos do menu
 //   data-password-toggle                   mostra e oculta a senha
 //   data-search="grupo" / data-search-item / data-search-section   busca por texto em cartões
+//   data-mask="cnpj" / "phone"             máscara 00.000.000/0000-00 ou (11) 98765-4321 no campo
 
 const overlay = () => document.querySelector("[data-overlay]")
 
@@ -182,6 +183,25 @@ document.addEventListener("input", (e) => {
   const scope = document.querySelector(`[data-search-scope="${input.dataset.search}"]`) || document
   scope.querySelectorAll("[data-search-item]").forEach((el) => { el.hidden = term !== "" && !normalize(el.textContent).includes(term) })
   scope.querySelectorAll("[data-search-section]").forEach((sec) => { sec.hidden = !sec.querySelector("[data-search-item]:not([hidden])") })
+})
+
+// Máscara de CNPJ (00.000.000/0000-00) enquanto digita ou cola.
+const maskCnpj = (value) => value.replace(/\D/g, "").slice(0, 14)
+  .replace(/^(\d{2})(\d)/, "$1.$2")
+  .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
+  .replace(/\.(\d{3})(\d)/, ".$1/$2")
+  .replace(/(\d{4})(\d)/, "$1-$2")
+// Telefone com DDD: (11) 3456-7890 ou (11) 98765-4321. Ignora o +55 de um número colado.
+const maskPhone = (value) => {
+  const d = value.replace(/\D/g, "").replace(/^55(?=\d{10,11}$)/, "").slice(0, 11)
+  if (d.length <= 2) return d.length ? `(${d}` : ""
+  const split = d.length === 11 ? 7 : 6
+  return `(${d.slice(0, 2)}) ${d.slice(2, split)}${d.length > split ? "-" + d.slice(split) : ""}`
+}
+const MASKS = { cnpj: maskCnpj, phone: maskPhone }
+document.addEventListener("input", (e) => {
+  const input = e.target.closest("input[data-mask]")
+  if (input && MASKS[input.dataset.mask]) input.value = MASKS[input.dataset.mask](input.value)
 })
 
 // Foco no primeiro campo quando o formulário chega na gaveta.

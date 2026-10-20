@@ -19,11 +19,14 @@ module Admin
 
     # Converte os campos do formulário para o tipo de cada configuração.
     def settings_params
-      raw = params.require(:settings).permit(:company_name, :company_legal_name, :company_site, :mailer_sender,
+      raw = params.require(:settings).permit(:company_name, :company_legal_name, :company_cnpj, :company_whatsapp, :company_site, :mailer_sender,
                                              :email_enabled, :daily_run_time, :session_timeout_minutes, :proposal_alert_days, :recurrence_months,
                                              contract_alert_days: [], domain_alert_days: [], loss_reasons: [],
                                              expense_categories: [], cost_centers: [])
       raw.to_h.to_h do |key, value|
+        next [ key, value.to_s.gsub(/\D/, "") ] if key == "company_cnpj"
+        next [ key, value.to_s.gsub(/\D/, "").sub(/\A55(?=\d{10,11}\z)/, "") ] if key == "company_whatsapp"
+
         case Setting::DEFAULTS[key]
         when Array then [ key, Array(value).compact_blank.map { |v| v.to_s.match?(/\A\d+\z/) ? v.to_i : v.strip }.uniq.then { |list| list.all?(Integer) ? list.sort.reverse : list } ]
         when Integer then [ key, value.to_i ]

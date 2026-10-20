@@ -52,6 +52,32 @@ RSpec.describe "Busca, notificações e configurações" do
       expect(Setting[:contract_alert_days]).to eq([ 90, 30, 15 ])
     end
 
+    it "salva o CNPJ da empresa só com os dígitos e recusa um inválido" do
+      cnpj = CnpjHelper.generate(42)
+      sign_in admin
+      patch admin_settings_path, params: { aba: "geral", settings: { company_cnpj: CnpjValidator.format(cnpj) } }
+      expect(Setting[:company_cnpj]).to eq(cnpj)
+
+      get admin_settings_path
+      expect(response.body).to include('data-mask="cnpj"', CnpjValidator.format(cnpj))
+
+      patch admin_settings_path, params: { aba: "geral", settings: { company_cnpj: "12.345.678/0001-00" } }
+      expect(flash[:alert]).to include("CNPJ")
+      expect(Setting[:company_cnpj]).to eq(cnpj)
+    end
+
+    it "salva o WhatsApp da empresa só com os dígitos" do
+      sign_in admin
+      patch admin_settings_path, params: { aba: "geral", settings: { company_whatsapp: "(11) 98765-4321" } }
+      expect(Setting[:company_whatsapp]).to eq("11987654321")
+
+      get admin_settings_path
+      expect(response.body).to include('data-mask="phone"', "(11) 98765-4321")
+
+      patch admin_settings_path, params: { aba: "geral", settings: { company_whatsapp: "+55 11 3456-7890" } }
+      expect(Setting[:company_whatsapp]).to eq("1134567890")
+    end
+
     it "expira a sessão pelo tempo sem uso configurado" do
       sign_in admin
       patch admin_settings_path, params: { aba: "geral", settings: { session_timeout_minutes: "60" } }
