@@ -46,6 +46,7 @@ Rails.application.configure do
 
   # Token para testar o MCP local (docs/specs/mcp-comercial/README.md).
   config.x.mcp.dev_token = ENV["MCP_DEV_TOKEN"].presence
+  config.x.mcp.base_url = "http://localhost:#{ENV.fetch("APP_PORT", "3000")}"
 
   # Print deprecation notices to the Rails logger.
   config.active_support.deprecation = :log

@@ -3,7 +3,8 @@
 #
 # App Rack montado nas rotas. Cada requisição monta um transporte Streamable HTTP stateless
 # que responde em JSON (sem sessão e sem SSE). O token do cabeçalho Authorization é conferido
-# pelo TokenVerifier antes de qualquer leitura do corpo; sem token válido, 401.
+# pelo TokenVerifier antes de qualquer leitura do corpo; sem token válido, 401 com o endereço
+# da descoberta do OAuth (Mcp::Metadata) no WWW-Authenticate.
 module Mcp
   class Endpoint
     TOOLS = [
@@ -48,6 +49,8 @@ module Mcp
         enable_json_response: true,
         serve_subscriptions_listen: false,
         token_verifier: TokenVerifier.new,
+        required_scopes: Metadata::SCOPES,
+        resource_metadata: Metadata.protected_resource,
         allowed_hosts: Rails.configuration.x.mcp.allowed_hosts
       )
     end

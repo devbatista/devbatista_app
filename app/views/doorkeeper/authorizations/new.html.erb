@@ -1,0 +1,27 @@
+<%# Consentimento do OAuth do MCP (config/initializers/doorkeeper.rb), no layout de login. %>
+<div class="stack" style="gap:6px">
+  <h1 style="font-size:24px">Conectar o <%= @pre_auth.client.name %></h1>
+  <p class="lead">Olá, <%= current_user.first_name %>. O <strong><%= @pre_auth.client.name %></strong> está pedindo acesso ao Admin DevBatista em seu nome.</p>
+</div>
+
+<ul class="stack" style="gap:10px;margin:0;padding:0;list-style:none">
+  <li class="row" style="gap:10px;align-items:flex-start"><%= icon(:check, size: 18, stroke: 2, style: "flex:none;margin-top:2px;color:var(--cyan)") %><span>Consultar leads, pipeline, oportunidades e propostas</span></li>
+  <li class="row" style="gap:10px;align-items:flex-start"><%= icon(:check, size: 18, stroke: 2, style: "flex:none;margin-top:2px;color:var(--cyan)") %><span>Cadastrar e atualizar leads, oportunidades, interações e rascunhos de proposta</span></li>
+  <li class="row" style="gap:10px;align-items:flex-start"><%= icon(:x, size: 18, stroke: 2, style: "flex:none;margin-top:2px;color:var(--crit)") %><span>Não exclui registros, não envia nada a clientes e não acessa o financeiro</span></li>
+</ul>
+
+<div class="stack" style="gap:10px">
+  <%= form_tag oauth_authorization_path, method: :post, data: { turbo: false } do %>
+    <%= render "doorkeeper/authorizations/params" %>
+    <%= submit_tag "Autorizar", class: "btn pri block" %>
+  <% end %>
+  <%= form_tag oauth_authorization_path, method: :delete, data: { turbo: false } do %>
+    <%= render "doorkeeper/authorizations/params" %>
+    <%= submit_tag "Recusar", class: "btn block" %>
+  <% end %>
+</div>
+
+<p class="caption" style="margin:0;display:flex;gap:8px;align-items:flex-start">
+  <%= icon(:lock, size: 16, stroke: 1.8, style: "flex:none;margin-top:1px") %>
+  <span>Tudo o que o <%= @pre_auth.client.name %> fizer fica na auditoria em seu nome. O acesso respeita as permissões do seu perfil.</span>
+</p>

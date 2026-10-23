@@ -84,3 +84,7 @@ group :development do
 end
 
 gem "mcp", "~> 1.8"
+
+gem "doorkeeper", "~> 5.8"
+
+gem "doorkeeper-i18n", "~> 5.2"

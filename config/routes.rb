@@ -150,5 +150,16 @@ Rails.application.routes.draw do
   # O lambda resolve Mcp::Endpoint a cada requisição, para o reload do código valer em desenvolvimento.
   match "mcp", to: ->(env) { Mcp::Endpoint.call(env) }, via: %i[get post delete], as: :mcp
 
+  # OAuth do MCP: /oauth/authorize, /oauth/token, /oauth/revoke e /oauth/introspect. Os apps
+  # são cadastrados pela task mcp:oauth_app, então as telas de apps do Doorkeeper ficam de fora.
+  use_doorkeeper do
+    skip_controllers :applications, :authorized_applications, :token_info
+  end
+  # Descoberta do OAuth pelo cliente MCP (RFC 9728 e RFC 8414).
+  scope ".well-known", controller: "oauth_metadata", format: false do
+    get "oauth-protected-resource(/mcp)", action: :protected_resource, as: :oauth_protected_resource
+    get "oauth-authorization-server", action: :authorization_server, as: :oauth_authorization_server
+  end
+
   get "up" => "rails/health#show", as: :rails_health_check
 end

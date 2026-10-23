@@ -135,6 +135,10 @@ GEM
       devise (>= 4.9.0)
       rails-i18n
     diff-lcs (1.6.2)
+    doorkeeper (5.9.9)
+      railties (>= 5)
+    doorkeeper-i18n (5.2.9)
+      doorkeeper (>= 5.2)
     dotenv (3.2.0)
     drb (2.2.3)
     ed25519 (1.4.0)
@@ -486,6 +490,8 @@ DEPENDENCIES
   debug
   devise (~> 4.9)
   devise-i18n
+  doorkeeper (~> 5.8)
+  doorkeeper-i18n (~> 5.2)
   factory_bot_rails
   image_processing (~> 1.2)
   importmap-rails

@@ -41,6 +41,7 @@ Rails.application.configure do
   # Set host to be used by links generated in mailer templates.
   config.action_mailer.default_url_options = { host: "example.com" }
 
+  config.x.mcp.base_url = "https://www.example.com"
   config.x.mcp.allowed_hosts = [ "www.example.com" ]
   config.x.mcp.dev_token = "token-de-teste"
 

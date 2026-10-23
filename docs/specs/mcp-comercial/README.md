@@ -60,29 +60,44 @@ Exclusões; enviar proposta ao cliente (`deliver`); aprovar ou recusar proposta 
 config/routes.rb                    match "/mcp" → Mcp::Endpoint (app Rack)
 config/initializers/mcp.rb          exceções das tools → Rails.error (log)
 app/services/mcp/endpoint.rb        MCP::Server com as tools registradas + transporte Streamable HTTP stateless, JSON
-app/services/mcp/token_verifier.rb  token → User (Fase 1: token de desenvolvimento; Fase 4: Doorkeeper)
+app/services/mcp/token_verifier.rb  token → User (tokens do Doorkeeper; token fixo só em desenvolvimento)
+app/services/mcp/metadata.rb        documentos de descoberta do OAuth
 app/services/mcp/tools/base.rb      Current.user, Pundit, erros → resposta legível
 app/services/mcp/tools/*.rb         uma classe por tool
+config/initializers/doorkeeper.rb   servidor de autorização OAuth
+app/controllers/oauth_metadata_controller.rb   /.well-known/oauth-protected-resource(/mcp) e /.well-known/oauth-authorization-server
+app/views/doorkeeper/authorizations/           tela de consentimento, no layout de login
+lib/tasks/mcp.rake                  bin/rails mcp:oauth_app (cadastra o app OAuth do Claude)
 ```
 
 - Gem oficial `mcp` (SDK Ruby), transporte **stateless** com resposta JSON, sem SSE.
 - Respostas em JSON enxuto: valores em reais, rótulos em português, ids em UUID.
-- Listas com limite (padrão 50) e paginação.
+- Listas com limite (padrão 25, até 50) e paginação.
 - Erro de validação ou permissão volta como resultado de erro legível, para o Claude corrigir e tentar de novo.
 
 ## OAuth (Fase 4)
 
-- Doorkeeper como servidor de autorização; tela de consentimento com o login do Devise, só para admin.
-- Um app OAuth pré-cadastrado, com `client_id` e `client_secret` informados nas configurações avançadas do conector no claude.ai (dispensa o cadastro dinâmico de clientes).
-- PKCE S256, redirect `https://claude.ai/api/mcp/auth_callback`, refresh token.
-- Metadata exigida pelo MCP: `/.well-known/oauth-protected-resource` (RFC 9728) e `/.well-known/oauth-authorization-server` (RFC 8414). Sem token, `/mcp` responde 401 com `WWW-Authenticate` apontando para a metadata.
+- Doorkeeper como servidor de autorização. `/oauth/authorize` usa o login do Devise e recusa quem não é administrador ativo.
+- Um app OAuth pré-cadastrado (`bin/rails mcp:oauth_app`), com Client ID e Client Secret informados nas configurações avançadas do conector no claude.ai. Não há cadastro dinâmico de clientes.
+- Só o fluxo authorization code, com PKCE S256 e escopo `mcp`. Token de acesso de 1 hora, refresh token, e o refresh anterior é revogado quando o token novo é usado.
+- O banco guarda só o hash dos tokens, dos códigos e do secret do app.
+- Descoberta: `/.well-known/oauth-protected-resource/mcp` (RFC 9728) e `/.well-known/oauth-authorization-server` (RFC 8414). Sem token, `/mcp` responde 401 com `WWW-Authenticate` apontando para a primeira.
+- O endereço público vem de `APP_HOST` (`config.x.mcp.base_url`); é ele que identifica o recurso e o emissor.
+
+## Conectar no claude.ai (Fase 5)
+
+1. Deploy do branch. A migration roda sozinha (`db:prepare` no entrypoint). `APP_HOST` precisa ser o domínio público do app.
+2. No Railway: `railway ssh` e `bin/rails mcp:oauth_app`. Guarde o Client Secret: ele só aparece nessa hora (para trocar: `ROTATE=1`).
+3. No claude.ai: Configurações → Conectores → Adicionar conector personalizado. URL `https://<APP_HOST>/mcp`; em Configurações avançadas, o Client ID e o Client Secret.
+4. Conectar: abre o login do Admin, depois a tela de consentimento; ao autorizar, volta ao claude.ai.
+5. O conector vale no web, no Desktop e no celular.
 
 ## Fases
 
 1. ✅ **Fundação**: gem `mcp`, endpoint `/mcp`, `Mcp::Tools::Base`, token de desenvolvimento, tool `opcoes_comerciais`; teste com o MCP Inspector e o Claude Code.
 2. ✅ **Leitura**: tools de leitura e auxiliares, com specs.
 3. ✅ **Escrita**: tools de escrita, com specs de permissão negada e erro de validação.
-4. **OAuth**: Doorkeeper, metadata, consentimento, specs do fluxo.
+4. ✅ **OAuth**: Doorkeeper, metadata, consentimento, specs do fluxo.
 5. **Produção**: deploy no Railway, conector no claude.ai, teste de ponta a ponta no web e no celular.
 
 ## Pontos resolvidos
