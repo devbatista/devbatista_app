@@ -39,7 +39,7 @@ Cada chamada de tool roda **como um usuário real**: o token resolve o `User`, q
 
 | Tool | O que faz |
 | --- | --- |
-| `criar_leads` | Lote, com checagem de duplicados e modo `simular`. Substitui a skill `adicionar-leads` |
+| `criar_leads` | Lote, com checagem de duplicados e modo `simular`. Substituiu a skill `adicionar-leads`, removida depois do conector em produção |
 | `atualizar_lead` | Dados e próximo passo |
 | `mover_lead` | Novo → Contato realizado → Qualificado |
 | `converter_lead` | Via `LeadConversion` |
