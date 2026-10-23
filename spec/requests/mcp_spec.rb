@@ -48,27 +48,31 @@ RSpec.describe "Servidor MCP" do
     expect(data["usuarios"]).to include(include("id" => admin.id, "voce" => true))
   end
 
-  describe Mcp::Tools::Base do
-    def context_for(user)
-      token = MCP::Server::OAuth::AccessToken.new(token: "x", subject: user&.id)
-      MCP::ServerContext.new({}, progress: nil, notification_target: nil, auth_info: token)
-    end
+  it "recusa argumento desconhecido com mensagem de erro, sem quebrar" do
+    mcp("tools/call", { name: "buscar_leads", arguments: { cor: "azul" } })
+    expect(tool_result["isError"]).to be(true)
+  end
 
+  describe Mcp::Tools::Base do
     it "responde sem permissão quando o perfil não acessa a área" do
-      response = Mcp::Tools::OpcoesComerciais.call(server_context: context_for(create(:user, :desenvolvedor)))
+      response = call_tool(Mcp::Tools::OpcoesComerciais, create(:user, :desenvolvedor))
       expect(response).to be_error
       expect(response.content.dig(0, :text)).to eq("Sem permissão para esta ação.")
     end
 
     it "recusa usuário desativado" do
-      response = Mcp::Tools::OpcoesComerciais.call(server_context: context_for(create(:user, :inactive)))
-      expect(response).to be_error
+      expect(call_tool(Mcp::Tools::OpcoesComerciais, create(:user, :inactive))).to be_error
+    end
+
+    it "responde registro não encontrado para id inexistente ou inválido" do
+      expect(call_tool(Mcp::Tools::VerLead, admin, id: SecureRandom.uuid).content.dig(0, :text)).to eq("Registro não encontrado.")
+      expect(call_tool(Mcp::Tools::VerLead, admin, id: "abc")).to be_error
     end
 
     it "roda como o usuário do token" do
       seen = nil
       allow_any_instance_of(Mcp::Tools::OpcoesComerciais).to receive(:execute) { seen = Current.user; {} }
-      Mcp::Tools::OpcoesComerciais.call(server_context: context_for(admin))
+      call_tool(Mcp::Tools::OpcoesComerciais, admin)
       expect(seen).to eq(admin)
     end
   end

@@ -7,7 +7,15 @@
 module Mcp
   class Endpoint
     TOOLS = [
-      Tools::OpcoesComerciais
+      Tools::OpcoesComerciais,
+      Tools::BuscarEmpresas,
+      Tools::Pipeline,
+      Tools::BuscarLeads,
+      Tools::VerLead,
+      Tools::BuscarOportunidades,
+      Tools::VerOportunidade,
+      Tools::BuscarPropostas,
+      Tools::VerProposta
     ].freeze
 
     INSTRUCTIONS = <<~TEXT.squish

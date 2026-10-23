@@ -15,6 +15,14 @@ FactoryBot.define do
     expected_close_on { Date.current + 30 }
   end
 
+  factory :interaction do
+    subject factory: :lead
+    user
+    kind { "call" }
+    notes { "Conversa com o cliente" }
+    occurred_on { Date.current }
+  end
+
   factory :proposal do
     company
     user

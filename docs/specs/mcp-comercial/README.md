@@ -78,8 +78,8 @@ app/services/mcp/tools/*.rb         uma classe por tool
 
 ## Fases
 
-1. **Fundação**: gem `mcp`, endpoint `/mcp`, `Mcp::Tools::Base`, token de desenvolvimento, tool `opcoes_comerciais`; teste com o MCP Inspector e o Claude Code.
-2. **Leitura**: tools de leitura e auxiliares, com specs.
+1. ✅ **Fundação**: gem `mcp`, endpoint `/mcp`, `Mcp::Tools::Base`, token de desenvolvimento, tool `opcoes_comerciais`; teste com o MCP Inspector e o Claude Code.
+2. ✅ **Leitura**: tools de leitura e auxiliares, com specs.
 3. **Escrita**: tools de escrita, com specs de permissão negada e erro de validação.
 4. **OAuth**: Doorkeeper, metadata, consentimento, specs do fluxo.
 5. **Produção**: deploy no Railway, conector no claude.ai, teste de ponta a ponta no web e no celular.

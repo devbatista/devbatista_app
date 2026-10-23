@@ -17,6 +17,15 @@
 module Mcp
   module Tools
     class Base < MCP::Tool
+      PER_PAGE = 25
+      MAX_PER_PAGE = 50
+
+      # Propriedades de paginação para o input_schema das listagens.
+      PAGINATION = {
+        pagina: { type: "integer", minimum: 1, description: "Página, começando em 1" },
+        por_pagina: { type: "integer", minimum: 1, maximum: MAX_PER_PAGE, description: "Itens por página (padrão #{PER_PAGE})" }
+      }.freeze
+
       class << self
         def call(server_context:, **args)
           user = User.active.find_by(id: server_context.auth_info&.subject)
@@ -72,9 +81,23 @@ module Mcp
         Pundit.policy_scope!(user, scope)
       end
 
+      # Página da listagem e o bloco de paginação da resposta.
+      def paginate(scope, pagina, por_pagina)
+        per = (por_pagina || PER_PAGE).clamp(1, MAX_PER_PAGE)
+        page = [ pagina.to_i, 1 ].max
+        total = scope.unscope(:order, :select).count
+        [ scope.offset((page - 1) * per).limit(per),
+          { pagina: page, por_pagina: per, total: total, paginas: [ (total / per.to_f).ceil, 1 ].max } ]
+      end
+
       # Centavos → reais, como número (o Claude formata).
       def reais(cents)
         cents && (cents / 100.0)
+      end
+
+      # Link para a tela do sistema, para o Claude oferecer ao usuário.
+      def link(route, *args)
+        Rails.application.routes.url_helpers.public_send(:"#{route}_url", *args, **ActionMailer::Base.default_url_options)
       end
     end
   end
