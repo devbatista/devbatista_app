@@ -15,7 +15,18 @@ module Mcp
       Tools::BuscarOportunidades,
       Tools::VerOportunidade,
       Tools::BuscarPropostas,
-      Tools::VerProposta
+      Tools::VerProposta,
+      Tools::GerarPdfProposta,
+      Tools::CriarLeads,
+      Tools::AtualizarLead,
+      Tools::MoverLead,
+      Tools::ConverterLead,
+      Tools::RegistrarInteracao,
+      Tools::MarcarPerdido,
+      Tools::CriarOportunidade,
+      Tools::AtualizarOportunidade,
+      Tools::MoverOportunidade,
+      Tools::CriarProposta
     ].freeze
 
     INSTRUCTIONS = <<~TEXT.squish

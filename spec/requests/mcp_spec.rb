@@ -48,6 +48,13 @@ RSpec.describe "Servidor MCP" do
     expect(data["usuarios"]).to include(include("id" => admin.id, "voce" => true))
   end
 
+  it "marca na auditoria o que veio pelo MCP" do
+    lead = create(:lead)
+    mcp("tools/call", { name: "mover_lead", arguments: { id: lead.id, status: "contacted" } })
+    expect(tool_result["isError"]).to be(false)
+    expect(AuditLog.where(auditable: lead, action: "status_change").sole).to have_attributes(user: admin, ip_address: "mcp:127.0.0.1")
+  end
+
   it "recusa argumento desconhecido com mensagem de erro, sem quebrar" do
     mcp("tools/call", { name: "buscar_leads", arguments: { cor: "azul" } })
     expect(tool_result["isError"]).to be(true)

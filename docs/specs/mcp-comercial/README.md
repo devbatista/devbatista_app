@@ -43,11 +43,12 @@ Cada chamada de tool roda **como um usuário real**: o token resolve o `User`, q
 | `atualizar_lead` | Dados e próximo passo |
 | `mover_lead` | Novo → Contato realizado → Qualificado |
 | `converter_lead` | Via `LeadConversion` |
-| `criar_oportunidade` / `mover_oportunidade` | Criação e etapa (ver ponto em aberto sobre "Fechado") |
+| `criar_oportunidade` / `atualizar_oportunidade` | Criação e alteração de valor, probabilidade, previsão, próximo passo |
+| `mover_oportunidade` | Reunião, Proposta, Negociação ou Fechado. Fechado só registra data e 100%; não cria contrato |
 | `marcar_perdido` | Lead ou oportunidade, com motivo da lista configurável |
 | `registrar_interacao` | Ligação, WhatsApp, e-mail, reunião ou nota |
 | `criar_proposta` | Só como rascunho, com itens |
-| `gerar_pdf_proposta` | Via `ProposalPdf`, devolve o arquivo |
+| `gerar_pdf_proposta` | Links para abrir e baixar o PDF (gerado na hora; pedem login no sistema) |
 
 ### Fora do MCP
 
@@ -80,13 +81,15 @@ app/services/mcp/tools/*.rb         uma classe por tool
 
 1. ✅ **Fundação**: gem `mcp`, endpoint `/mcp`, `Mcp::Tools::Base`, token de desenvolvimento, tool `opcoes_comerciais`; teste com o MCP Inspector e o Claude Code.
 2. ✅ **Leitura**: tools de leitura e auxiliares, com specs.
-3. **Escrita**: tools de escrita, com specs de permissão negada e erro de validação.
+3. ✅ **Escrita**: tools de escrita, com specs de permissão negada e erro de validação.
 4. **OAuth**: Doorkeeper, metadata, consentimento, specs do fluxo.
 5. **Produção**: deploy no Railway, conector no claude.ai, teste de ponta a ponta no web e no celular.
 
-## Em aberto
+## Pontos resolvidos
 
-- `mover_oportunidade` para "Fechado": verificar efeitos colaterais; se houver, a transição sai da tool.
+- `mover_oportunidade` para "Fechado": sem efeitos colaterais além de `closed_on` e probabilidade 100% (o mesmo que arrastar no quadro). Contrato, serviços contratados e empresa Ativa só vêm de `ProposalApproval`, pela tela. A tool fica com "Fechado", e a descrição orienta o Claude a usar só quando o usuário disser que fechou.
+- `gerar_pdf_proposta` devolve links em vez do arquivo: não há garantia de que o claude.ai mostre um PDF embutido no resultado da tool, e o link abre o PDF atual com o login do usuário.
+- `atualizar_oportunidade` entrou além do previsto, no mesmo molde de `atualizar_lead`.
 
 ## Testar localmente (Fase 1)
 

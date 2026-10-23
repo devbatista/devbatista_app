@@ -3,7 +3,47 @@
 module Mcp
   module Tools
     module CommercialData
+      # Campo da tool → atributo do model, nas tools que criam ou alteram.
+      LEAD_FIELDS = {
+        nome: :name, empresa: :company_name, email: :email, telefone: :phone, whatsapp: :whatsapp, origem: :origin,
+        servico_id: :service_id, responsavel_id: :user_id, entrada: :entered_on, observacoes: :notes,
+        proximo_passo: :next_step, proximo_passo_em: :next_step_on
+      }.freeze
+
+      OPPORTUNITY_FIELDS = {
+        titulo: :title, empresa_id: :company_id, servico_id: :service_id, responsavel_id: :user_id,
+        valor_estimado: :estimated_value, probabilidade: :probability, previsao_fechamento: :expected_close_on,
+        observacoes: :notes, proximo_passo: :next_step, proximo_passo_em: :next_step_on
+      }.freeze
+
+      TEXT = { type: [ "string", "null" ] }.freeze
+      DATE = { type: [ "string", "null" ], format: "date", description: "AAAA-MM-DD" }.freeze
+
+      LEAD_PROPERTIES = {
+        nome: { type: "string", description: "Pessoa de contato. Sem pessoa, use o nome da empresa" },
+        empresa: TEXT, email: TEXT, telefone: TEXT, whatsapp: TEXT,
+        origem: { type: "string", enum: Lead::ORIGIN_LABELS.keys },
+        servico_id: TEXT.merge(description: "Serviço de interesse (opcoes_comerciais); vazio = a definir"),
+        responsavel_id: { type: "string", description: "Usuário responsável (opcoes_comerciais); padrão: você" },
+        entrada: DATE.merge(description: "Data de entrada, AAAA-MM-DD; padrão: hoje"),
+        observacoes: TEXT, proximo_passo: TEXT, proximo_passo_em: DATE
+      }.freeze
+
+      OPPORTUNITY_PROPERTIES = {
+        titulo: { type: "string" },
+        empresa_id: { type: "string", description: "Empresa (buscar_empresas)" },
+        servico_id: TEXT.merge(description: "Serviço do catálogo (opcoes_comerciais)"),
+        responsavel_id: { type: "string", description: "Usuário responsável; padrão: você" },
+        valor_estimado: { type: "number", minimum: 0, description: "Em reais" },
+        probabilidade: { type: "integer", minimum: 0, maximum: 100, description: "Em %; padrão: o sugerido pela etapa" },
+        previsao_fechamento: DATE, observacoes: TEXT, proximo_passo: TEXT, proximo_passo_em: DATE
+      }.freeze
+
       private
+
+      def attributes_from(args, fields)
+        args.slice(*fields.keys).transform_keys(fields)
+      end
 
       def lead_data(lead)
         {

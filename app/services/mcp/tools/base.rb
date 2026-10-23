@@ -12,11 +12,14 @@
 #   end
 #
 # `execute` devolve um Hash, que vai ao Claude como JSON. Permissão negada, registro
-# inexistente e erro de validação voltam como resultado de erro legível, para o Claude
-# corrigir e tentar de novo; qualquer outra exceção vira "Internal error" e vai para o log.
+# inexistente, erro de validação e `fail!` voltam como resultado de erro legível, para o
+# Claude corrigir e tentar de novo; qualquer outra exceção vira "Internal error" e vai para o log.
 module Mcp
   module Tools
     class Base < MCP::Tool
+      # Recusa com mensagem para o Claude (regra de negócio, não erro do sistema).
+      class Failure < StandardError; end
+
       PER_PAGE = 25
       MAX_PER_PAGE = 50
 
@@ -32,6 +35,8 @@ module Mcp
           return error("Usuário do token não encontrado ou desativado. Conecte o Claude de novo.") unless user
 
           Current.set(user: user) { respond(new(user).execute(**args)) }
+        rescue Failure => e
+          error(e.message)
         rescue Pundit::NotAuthorizedError
           error("Sem permissão para esta ação.")
         rescue ActiveRecord::RecordNotFound
@@ -81,6 +86,10 @@ module Mcp
         Pundit.policy_scope!(user, scope)
       end
 
+      def fail!(message)
+        raise Failure, message
+      end
+
       # Página da listagem e o bloco de paginação da resposta.
       def paginate(scope, pagina, por_pagina)
         per = (por_pagina || PER_PAGE).clamp(1, MAX_PER_PAGE)
@@ -96,8 +105,8 @@ module Mcp
       end
 
       # Link para a tela do sistema, para o Claude oferecer ao usuário.
-      def link(route, *args)
-        Rails.application.routes.url_helpers.public_send(:"#{route}_url", *args, **ActionMailer::Base.default_url_options)
+      def link(route, *args, **params)
+        Rails.application.routes.url_helpers.public_send(:"#{route}_url", *args, **ActionMailer::Base.default_url_options, **params)
       end
     end
   end
