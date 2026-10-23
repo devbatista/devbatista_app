@@ -146,5 +146,9 @@ Rails.application.routes.draw do
     resource :settings, only: %i[show update]
   end
 
+  # Servidor MCP, para o conector do Claude (docs/specs/mcp-comercial/README.md).
+  # O lambda resolve Mcp::Endpoint a cada requisição, para o reload do código valer em desenvolvimento.
+  match "mcp", to: ->(env) { Mcp::Endpoint.call(env) }, via: %i[get post delete], as: :mcp
+
   get "up" => "rails/health#show", as: :rails_health_check
 end

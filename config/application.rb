@@ -43,6 +43,11 @@ module Devbatista
     # O schema em SQL preserva o trigger que torna a auditoria imutável.
     config.active_record.schema_format = :sql
 
+    # Servidor MCP (/mcp): hosts aceitos além de localhost (proteção contra DNS rebinding)
+    # e token fixo de desenvolvimento, que só existe fora de produção.
+    config.x.mcp.allowed_hosts = [ ENV.fetch("APP_HOST", "admin.devbatista.com") ]
+    config.x.mcp.dev_token = nil
+
     config.generators do |g|
       # Chaves em UUID v4 (default gen_random_uuid() no banco; ver RegenerateIdsAsUuidV4).
       g.orm :active_record, primary_key_type: :uuid
