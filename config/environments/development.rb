@@ -44,6 +44,10 @@ Rails.application.configure do
   config.action_mailer.default_url_options = { host: ENV.fetch("APP_HOST", "localhost"), port: ENV.fetch("APP_PORT", "3000").to_i }
   config.action_mailer.asset_host = "http://#{ENV.fetch("APP_HOST", "localhost")}:#{ENV.fetch("APP_PORT", "3000")}"
 
+  # Token para testar o MCP local (docs/specs/mcp-comercial/README.md).
+  config.x.mcp.dev_token = ENV["MCP_DEV_TOKEN"].presence
+  config.x.mcp.base_url = "http://localhost:#{ENV.fetch("APP_PORT", "3000")}"
+
   # Print deprecation notices to the Rails logger.
   config.active_support.deprecation = :log
 

@@ -1,0 +1,6 @@
+<div class="stack" style="gap:6px">
+  <h1 style="font-size:24px">Não foi possível conectar</h1>
+  <p class="lead"><%= (local_assigns[:error_response] ? error_response : @pre_auth.error_response).body[:error_description] %></p>
+</div>
+
+<%= link_to "Voltar ao Admin", root_path, class: "btn block" %>

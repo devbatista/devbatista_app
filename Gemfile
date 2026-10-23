@@ -82,3 +82,9 @@ group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
 end
+
+gem "mcp", "~> 1.8"
+
+gem "doorkeeper", "~> 5.8"
+
+gem "doorkeeper-i18n", "~> 5.2"

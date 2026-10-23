@@ -135,6 +135,10 @@ GEM
       devise (>= 4.9.0)
       rails-i18n
     diff-lcs (1.6.2)
+    doorkeeper (5.9.9)
+      railties (>= 5)
+    doorkeeper-i18n (5.2.9)
+      doorkeeper (>= 5.2)
     dotenv (3.2.0)
     drb (2.2.3)
     ed25519 (1.4.0)
@@ -160,6 +164,7 @@ GEM
       raabro (~> 1.4)
     globalid (1.4.0)
       activesupport (>= 6.1)
+    hana (1.3.7)
     i18n (1.15.2)
       concurrent-ruby (~> 1.0)
     image_processing (1.14.0)
@@ -180,6 +185,11 @@ GEM
       activesupport (>= 7.0.0)
     jmespath (1.6.2)
     json (3.0.2)
+    json_schemer (2.5.0)
+      bigdecimal
+      hana (~> 1.3)
+      regexp_parser (~> 2.0)
+      simpleidn (~> 0.2)
     kamal (2.12.0)
       activesupport (>= 7.0)
       base64 (~> 0.2)
@@ -216,6 +226,8 @@ GEM
       net-smtp
     marcel (1.2.1)
     matrix (0.4.3)
+    mcp (1.8.1)
+      json_schemer (>= 2.4)
     mini_magick (5.4.0)
       logger
     mini_mime (1.1.5)
@@ -415,6 +427,7 @@ GEM
       fugit (~> 1.8, >= 1.11.1)
       globalid (>= 1.0.1)
       sidekiq (>= 6.5.0)
+    simpleidn (0.3.0)
     sshkit (1.25.1)
       base64
       logger
@@ -477,12 +490,15 @@ DEPENDENCIES
   debug
   devise (~> 4.9)
   devise-i18n
+  doorkeeper (~> 5.8)
+  doorkeeper-i18n (~> 5.2)
   factory_bot_rails
   image_processing (~> 1.2)
   importmap-rails
   jbuilder
   kamal
   letter_opener_web (~> 3.0)
+  mcp (~> 1.8)
   pg (~> 1.1)
   prawn (~> 2.5)
   prawn-table (~> 0.2)
