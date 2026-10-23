@@ -120,6 +120,11 @@ RSpec.describe "OAuth do servidor MCP" do
       expect(response).to have_http_status(:unauthorized)
     end
 
+    it "não deixa o code_verifier do PKCE no log" do
+      filter = ActiveSupport::ParameterFilter.new(Rails.application.config.filter_parameters)
+      expect(filter.filter("code_verifier" => verifier)).to eq("code_verifier" => "[FILTERED]")
+    end
+
     it "guarda só o hash do token" do
       tokens = obtain_tokens
       expect(Doorkeeper::AccessToken.where(token: tokens["access_token"])).to be_empty

@@ -1,7 +1,7 @@
 module Mcp
   module Tools
-    # Cadastro de leads em lote, a partir de uma lista colada pelo usuário (substitui a skill
-    # adicionar-leads). Tudo ou nada: se um lead não passa na validação, nenhum é gravado.
+    # Cadastro de leads em lote, a partir de uma lista colada pelo usuário.
+    # Tudo ou nada: se um lead não passa na validação, nenhum é gravado.
     class CriarLeads < Base
       include CommercialData
 
