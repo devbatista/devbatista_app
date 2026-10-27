@@ -161,5 +161,11 @@ Rails.application.routes.draw do
     get "oauth-authorization-server", action: :authorization_server, as: :oauth_authorization_server
   end
 
+  # Webhook da Cloud API do WhatsApp (docs/specs/whatsapp), público: a Meta assina os eventos.
+  scope "webhooks", module: :webhooks, format: false do
+    get "whatsapp", to: "whatsapp#verify", as: :whatsapp_webhook
+    post "whatsapp", to: "whatsapp#receive", as: nil
+  end
+
   get "up" => "rails/health#show", as: :rails_health_check
 end

@@ -1,3 +1,5 @@
+require "net/http"
+
 # Substitui o Net::HTTP nas chamadas à Graph API, sem WebMock (como no financeiro_spec).
 #
 #   requests = stub_graph(graph_response(200, { "messages" => [ { "id" => "wamid.1" } ] }))
