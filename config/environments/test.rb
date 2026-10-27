@@ -45,6 +45,15 @@ Rails.application.configure do
   config.x.mcp.allowed_hosts = [ "www.example.com" ]
   config.x.mcp.dev_token = "token-de-teste"
 
+  # WhatsApp e Active Record Encryption com valores fixos de teste (não são segredos de verdade).
+  config.x.whatsapp.app_id = "app-de-teste"
+  config.x.whatsapp.app_secret = "segredo-de-teste"
+  config.x.whatsapp.embedded_signup_config_id = "config-de-teste"
+  config.x.whatsapp.webhook_verify_token = "verificacao-de-teste"
+  config.active_record.encryption.primary_key = "chave-primaria-de-teste-whatsapp-0001"
+  config.active_record.encryption.deterministic_key = "chave-deterministica-de-teste-0001"
+  config.active_record.encryption.key_derivation_salt = "sal-de-derivacao-de-teste-0001"
+
   # Print deprecation notices to the stderr.
   config.active_support.deprecation = :stderr
 

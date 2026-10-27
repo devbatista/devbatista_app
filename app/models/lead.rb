@@ -19,6 +19,7 @@ class Lead < ApplicationRecord
   has_many :opportunities, dependent: :nullify
   has_many :proposals, dependent: :restrict_with_error
   has_many :interactions, as: :subject, dependent: :destroy
+  has_many :whatsapp_conversations, dependent: :nullify
 
   normalizes :email, with: ->(value) { value.to_s.strip.downcase.presence }
 

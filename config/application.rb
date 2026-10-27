@@ -50,6 +50,21 @@ module Devbatista
     config.x.mcp.allowed_hosts = [ ENV.fetch("APP_HOST", "admin.devbatista.com") ]
     config.x.mcp.dev_token = nil
 
+    # WhatsApp Business (Cloud API da Meta). Tudo vem do ambiente; nenhum segredo no código.
+    config.x.whatsapp.app_id = ENV["META_APP_ID"].presence
+    config.x.whatsapp.app_secret = ENV["META_APP_SECRET"].presence
+    config.x.whatsapp.embedded_signup_config_id = ENV["WHATSAPP_EMBEDDED_SIGNUP_CONFIG_ID"].presence
+    config.x.whatsapp.webhook_verify_token = ENV["WHATSAPP_WEBHOOK_VERIFY_TOKEN"].presence
+    config.x.whatsapp.graph_version = ENV.fetch("WHATSAPP_GRAPH_VERSION", "v26.0")
+
+    # Active Record Encryption (token das contas do WhatsApp). As chaves vêm do ambiente; sem elas,
+    # das credentials (active_record_encryption.*). Gere com bin/rails db:encryption:init.
+    # Teste e desenvolvimento têm valores próprios (config/environments).
+    { primary_key: "PRIMARY_KEY", deterministic_key: "DETERMINISTIC_KEY", key_derivation_salt: "KEY_DERIVATION_SALT" }.each do |option, name|
+      value = ENV["ACTIVE_RECORD_ENCRYPTION_#{name}"].presence
+      config.active_record.encryption[option] = value if value
+    end
+
     config.generators do |g|
       # Chaves em UUID v4 (default gen_random_uuid() no banco; ver RegenerateIdsAsUuidV4).
       g.orm :active_record, primary_key_type: :uuid
