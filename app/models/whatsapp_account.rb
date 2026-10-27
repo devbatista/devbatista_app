@@ -25,6 +25,18 @@ class WhatsappAccount < ApplicationRecord
   validates :waba_id, :phone_number_id, :display_phone_number, presence: true
   validates :phone_number_id, uniqueness: true
 
+  # Atributos a partir de Whatsapp::Client#phone_number_details. A qualidade vem em maiúsculas
+  # (GREEN, YELLOW, RED; NA ou UNKNOWN sem avaliação); o limite de envio, do portfólio.
+  def self.attributes_from_phone_details(data)
+    quality = data["quality_rating"].to_s.downcase
+    {
+      display_phone_number: data["display_phone_number"], verified_name: data["verified_name"],
+      quality_rating: QUALITY_RATING_LABELS.key?(quality) ? quality : "unknown",
+      messaging_limit_tier: data["whatsapp_business_manager_messaging_limit"],
+      coexistence: data["is_on_biz_app"]
+    }.compact
+  end
+
   def messaging_limit_label
     MESSAGING_LIMITS.fetch(messaging_limit_tier.to_s, messaging_limit_tier.presence || "—")
   end

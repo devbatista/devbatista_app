@@ -9,10 +9,11 @@ class WhatsappTemplate < ApplicationRecord
   VARIABLE = /\{\{\s*(\w+)\s*\}\}/
 
   audited area: "whatsapp", ignore: %w[last_synced_at], activity: false
-  labeled_enum :category, marketing: "Marketing", utility: "Utilidade", authentication: "Autenticação"
+  labeled_enum :category, marketing: "Marketing", utility: "Utilidade", authentication: "Autenticação", free_service: "Atendimento"
   labeled_enum :status, {
-    approved: "Aprovado", pending: "Em análise", rejected: "Rejeitado", paused: "Pausado",
-    disabled: "Desativado", in_appeal: "Em recurso", deleted: "Excluído"
+    approved: "Aprovado", pending: "Em análise", rejected: "Rejeitado", paused: "Pausado", disabled: "Desativado",
+    in_appeal: "Em recurso", limit_exceeded: "Limite excedido", archived: "Arquivado", pending_deletion: "Excluindo",
+    deleted: "Excluído"
   }, prefix: :status
 
   belongs_to :account, class_name: "WhatsappAccount", foreign_key: :whatsapp_account_id, inverse_of: :templates
@@ -24,6 +25,29 @@ class WhatsappTemplate < ApplicationRecord
   validates :language, presence: true
 
   scope :usable, -> { status_approved.order(:name) }
+
+  # Atributos a partir de um template da Graph API, que manda categoria e status em maiúsculas
+  # (UTILITY, APPROVED…) e rejected_reason "NONE" quando não há motivo. Valor que os enums não
+  # conhecem (a Meta pode criar novos) não para a sincronização: vira um padrão seguro, com aviso
+  # no log. O status vira "pending"; a categoria fica a do template atual (current) ou "utility".
+  def self.attributes_from_meta(data, current: nil)
+    reason = data["rejected_reason"].presence
+    {
+      meta_template_id: data["id"], name: data["name"], language: data["language"],
+      category: known_value(data, "category", CATEGORY_LABELS) { current&.category.presence || "utility" },
+      status: known_value(data, "status", STATUS_LABELS) { "pending" },
+      components: data["components"] || [], rejection_reason: (reason unless reason == "NONE")
+    }.compact
+  end
+
+  def self.known_value(data, field, labels)
+    value = data[field].to_s.downcase.presence
+    return value if value.nil? || labels.key?(value)
+
+    Rails.logger.warn("[Whatsapp] valor desconhecido: #{field}=#{data[field]}, template=#{data["name"]}")
+    yield
+  end
+  private_class_method :known_value
 
   def component(type)
     Array(components).find { |c| c["type"].to_s.casecmp?(type) }
