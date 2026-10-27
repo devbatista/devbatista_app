@@ -984,6 +984,120 @@ CREATE TABLE public.users (
 
 
 --
+-- Name: whatsapp_accounts; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.whatsapp_accounts (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    business_id character varying,
+    waba_id character varying NOT NULL,
+    phone_number_id character varying NOT NULL,
+    display_phone_number character varying NOT NULL,
+    verified_name character varying,
+    access_token text,
+    status character varying DEFAULT 'pending'::character varying NOT NULL,
+    coexistence boolean DEFAULT false NOT NULL,
+    quality_rating character varying DEFAULT 'unknown'::character varying NOT NULL,
+    messaging_limit_tier character varying,
+    connected_by_id uuid,
+    connected_at timestamp(6) without time zone,
+    subscribed_at timestamp(6) without time zone,
+    disconnected_at timestamp(6) without time zone,
+    disconnect_reason character varying,
+    contacts_sync_request_id character varying,
+    contacts_synced_at timestamp(6) without time zone,
+    history_sync_request_id character varying,
+    history_sync_progress integer,
+    history_synced_at timestamp(6) without time zone,
+    history_sync_error character varying,
+    last_webhook_at timestamp(6) without time zone,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: whatsapp_conversations; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.whatsapp_conversations (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    whatsapp_account_id uuid NOT NULL,
+    bsuid character varying,
+    parent_bsuid character varying,
+    wa_id character varying,
+    username character varying,
+    profile_name character varying,
+    lead_id uuid,
+    contact_id uuid,
+    last_inbound_at timestamp(6) without time zone,
+    last_message_at timestamp(6) without time zone,
+    unread_count integer DEFAULT 0 NOT NULL,
+    preview character varying,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL,
+    CONSTRAINT whatsapp_conversations_identified CHECK (((bsuid IS NOT NULL) OR (wa_id IS NOT NULL))),
+    CONSTRAINT whatsapp_conversations_single_link CHECK (((lead_id IS NULL) OR (contact_id IS NULL)))
+);
+
+
+--
+-- Name: whatsapp_messages; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.whatsapp_messages (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    whatsapp_conversation_id uuid NOT NULL,
+    direction character varying NOT NULL,
+    kind character varying DEFAULT 'text'::character varying NOT NULL,
+    origin character varying NOT NULL,
+    body text,
+    wa_message_id character varying,
+    status character varying NOT NULL,
+    error_code character varying,
+    error_message text,
+    template_name character varying,
+    template_language character varying,
+    template_params jsonb DEFAULT '[]'::jsonb NOT NULL,
+    media_id character varying,
+    media_mime_type character varying,
+    media_filename character varying,
+    reply_to_wa_message_id character varying,
+    reaction_to_wa_message_id character varying,
+    reaction_emoji character varying,
+    user_id uuid,
+    from_history boolean DEFAULT false NOT NULL,
+    sent_at timestamp(6) without time zone NOT NULL,
+    delivered_at timestamp(6) without time zone,
+    read_at timestamp(6) without time zone,
+    raw_payload jsonb DEFAULT '{}'::jsonb NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: whatsapp_templates; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.whatsapp_templates (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    whatsapp_account_id uuid NOT NULL,
+    meta_template_id character varying,
+    name character varying NOT NULL,
+    language character varying NOT NULL,
+    category character varying NOT NULL,
+    status character varying DEFAULT 'pending'::character varying NOT NULL,
+    components jsonb DEFAULT '[]'::jsonb NOT NULL,
+    variables_count integer DEFAULT 0 NOT NULL,
+    rejection_reason character varying,
+    last_synced_at timestamp(6) without time zone,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
 -- Name: active_storage_attachments active_storage_attachments_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1349,6 +1463,59 @@ ALTER TABLE ONLY public.time_entries
 
 ALTER TABLE ONLY public.users
     ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: whatsapp_accounts whatsapp_accounts_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.whatsapp_accounts
+    ADD CONSTRAINT whatsapp_accounts_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: whatsapp_conversations whatsapp_conversations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.whatsapp_conversations
+    ADD CONSTRAINT whatsapp_conversations_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: whatsapp_messages whatsapp_messages_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.whatsapp_messages
+    ADD CONSTRAINT whatsapp_messages_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: whatsapp_templates whatsapp_templates_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.whatsapp_templates
+    ADD CONSTRAINT whatsapp_templates_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: idx_on_whatsapp_account_id_last_message_at_d238f72f0a; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_on_whatsapp_account_id_last_message_at_d238f72f0a ON public.whatsapp_conversations USING btree (whatsapp_account_id, last_message_at);
+
+
+--
+-- Name: idx_on_whatsapp_account_id_name_language_1d930ba085; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX idx_on_whatsapp_account_id_name_language_1d930ba085 ON public.whatsapp_templates USING btree (whatsapp_account_id, name, language);
+
+
+--
+-- Name: idx_on_whatsapp_conversation_id_sent_at_c7cc821bd2; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_on_whatsapp_conversation_id_sent_at_c7cc821bd2 ON public.whatsapp_messages USING btree (whatsapp_conversation_id, sent_at);
 
 
 --
@@ -2381,6 +2548,111 @@ CREATE INDEX index_users_on_role_id ON public.users USING btree (role_id);
 
 
 --
+-- Name: index_whatsapp_accounts_on_connected_by_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_whatsapp_accounts_on_connected_by_id ON public.whatsapp_accounts USING btree (connected_by_id);
+
+
+--
+-- Name: index_whatsapp_accounts_on_phone_number_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_whatsapp_accounts_on_phone_number_id ON public.whatsapp_accounts USING btree (phone_number_id);
+
+
+--
+-- Name: index_whatsapp_accounts_on_waba_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_whatsapp_accounts_on_waba_id ON public.whatsapp_accounts USING btree (waba_id);
+
+
+--
+-- Name: index_whatsapp_conversations_on_contact_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_whatsapp_conversations_on_contact_id ON public.whatsapp_conversations USING btree (contact_id);
+
+
+--
+-- Name: index_whatsapp_conversations_on_lead_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_whatsapp_conversations_on_lead_id ON public.whatsapp_conversations USING btree (lead_id);
+
+
+--
+-- Name: index_whatsapp_conversations_on_whatsapp_account_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_whatsapp_conversations_on_whatsapp_account_id ON public.whatsapp_conversations USING btree (whatsapp_account_id);
+
+
+--
+-- Name: index_whatsapp_conversations_on_whatsapp_account_id_and_bsuid; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_whatsapp_conversations_on_whatsapp_account_id_and_bsuid ON public.whatsapp_conversations USING btree (whatsapp_account_id, bsuid) WHERE (bsuid IS NOT NULL);
+
+
+--
+-- Name: index_whatsapp_conversations_on_whatsapp_account_id_and_wa_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_whatsapp_conversations_on_whatsapp_account_id_and_wa_id ON public.whatsapp_conversations USING btree (whatsapp_account_id, wa_id) WHERE (wa_id IS NOT NULL);
+
+
+--
+-- Name: index_whatsapp_messages_on_reaction_to_wa_message_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_whatsapp_messages_on_reaction_to_wa_message_id ON public.whatsapp_messages USING btree (reaction_to_wa_message_id);
+
+
+--
+-- Name: index_whatsapp_messages_on_reply_to_wa_message_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_whatsapp_messages_on_reply_to_wa_message_id ON public.whatsapp_messages USING btree (reply_to_wa_message_id);
+
+
+--
+-- Name: index_whatsapp_messages_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_whatsapp_messages_on_user_id ON public.whatsapp_messages USING btree (user_id);
+
+
+--
+-- Name: index_whatsapp_messages_on_wa_message_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_whatsapp_messages_on_wa_message_id ON public.whatsapp_messages USING btree (wa_message_id) WHERE (wa_message_id IS NOT NULL);
+
+
+--
+-- Name: index_whatsapp_messages_on_whatsapp_conversation_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_whatsapp_messages_on_whatsapp_conversation_id ON public.whatsapp_messages USING btree (whatsapp_conversation_id);
+
+
+--
+-- Name: index_whatsapp_templates_on_meta_template_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_whatsapp_templates_on_meta_template_id ON public.whatsapp_templates USING btree (meta_template_id) WHERE (meta_template_id IS NOT NULL);
+
+
+--
+-- Name: index_whatsapp_templates_on_whatsapp_account_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_whatsapp_templates_on_whatsapp_account_id ON public.whatsapp_templates USING btree (whatsapp_account_id);
+
+
+--
 -- Name: audit_logs audit_logs_no_update_delete; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -2420,6 +2692,14 @@ ALTER TABLE ONLY public.integrations
 
 
 --
+-- Name: whatsapp_accounts fk_rails_0ca350a050; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.whatsapp_accounts
+    ADD CONSTRAINT fk_rails_0ca350a050 FOREIGN KEY (connected_by_id) REFERENCES public.users(id);
+
+
+--
 -- Name: subscriptions fk_rails_0e8fef2fc0; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2449,6 +2729,14 @@ ALTER TABLE ONLY public.leads
 
 ALTER TABLE ONLY public.audit_logs
     ADD CONSTRAINT fk_rails_1f26bc34ae FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
+-- Name: whatsapp_conversations fk_rails_201018306d; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.whatsapp_conversations
+    ADD CONSTRAINT fk_rails_201018306d FOREIGN KEY (whatsapp_account_id) REFERENCES public.whatsapp_accounts(id);
 
 
 --
@@ -2612,6 +2900,14 @@ ALTER TABLE ONLY public.tickets
 
 
 --
+-- Name: whatsapp_templates fk_rails_53e97ad791; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.whatsapp_templates
+    ADD CONSTRAINT fk_rails_53e97ad791 FOREIGN KEY (whatsapp_account_id) REFERENCES public.whatsapp_accounts(id);
+
+
+--
 -- Name: time_entries fk_rails_55dd5dcf98; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2673,6 +2969,14 @@ ALTER TABLE ONLY public.proposals
 
 ALTER TABLE ONLY public.interactions
     ADD CONSTRAINT fk_rails_69c9b45391 FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
+-- Name: whatsapp_conversations fk_rails_6a55ee705b; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.whatsapp_conversations
+    ADD CONSTRAINT fk_rails_6a55ee705b FOREIGN KEY (contact_id) REFERENCES public.contacts(id);
 
 
 --
@@ -2756,6 +3060,14 @@ ALTER TABLE ONLY public.projects
 
 
 --
+-- Name: whatsapp_conversations fk_rails_9151a6c10c; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.whatsapp_conversations
+    ADD CONSTRAINT fk_rails_9151a6c10c FOREIGN KEY (lead_id) REFERENCES public.leads(id);
+
+
+--
 -- Name: active_storage_variant_records fk_rails_993965df05; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2825,6 +3137,14 @@ ALTER TABLE ONLY public.receivables
 
 ALTER TABLE ONLY public.proposal_items
     ADD CONSTRAINT fk_rails_aca8d0afd8 FOREIGN KEY (proposal_id) REFERENCES public.proposals(id) ON DELETE CASCADE;
+
+
+--
+-- Name: whatsapp_messages fk_rails_aeb63ace9d; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.whatsapp_messages
+    ADD CONSTRAINT fk_rails_aeb63ace9d FOREIGN KEY (user_id) REFERENCES public.users(id);
 
 
 --
@@ -2956,6 +3276,14 @@ ALTER TABLE ONLY public.apps
 
 
 --
+-- Name: whatsapp_messages fk_rails_db315c944a; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.whatsapp_messages
+    ADD CONSTRAINT fk_rails_db315c944a FOREIGN KEY (whatsapp_conversation_id) REFERENCES public.whatsapp_conversations(id);
+
+
+--
 -- Name: receivables fk_rails_e179c5abc7; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3050,6 +3378,7 @@ ALTER TABLE ONLY public.leads
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261027120000'),
 ('20261023120000'),
 ('20261009150000'),
 ('20261009120000'),

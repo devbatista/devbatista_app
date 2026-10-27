@@ -46,6 +46,12 @@ Rails.application.configure do
 
   # Token para testar o MCP local (docs/specs/mcp-comercial/README.md).
   config.x.mcp.dev_token = ENV["MCP_DEV_TOKEN"].presence
+
+  # Active Record Encryption sem configurar nada: sem ACTIVE_RECORD_ENCRYPTION_* no ambiente,
+  # as chaves são derivadas do secret local (tmp/local_secret.txt), que não vai para o git.
+  %i[primary_key deterministic_key key_derivation_salt].each do |option|
+    config.active_record.encryption[option] ||= Rails.application.key_generator.generate_key("active_record_encryption.#{option}", 32).unpack1("H*")
+  end
   config.x.mcp.base_url = "http://localhost:#{ENV.fetch("APP_PORT", "3000")}"
 
   # Print deprecation notices to the Rails logger.
