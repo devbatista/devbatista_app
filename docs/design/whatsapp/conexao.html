@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WhatsApp Business · Integrações · Admin DevBatista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/app.css">
+<style>
+  .acc-head { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 18px 20px; }
+  .acc-head .titles { flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 4px; }
+  .acc-head .row { gap: 8px; }
+  .ids { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; word-break: break-all; }
+  .step small { display: block; font-weight: 500; color: var(--muted); margin-top: 2px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chips .chip { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; height: 24px; }
+  .flow { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; counter-reset: f; }
+  .flow li { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 12px; font-size: 14px; }
+  .flow li::before { counter-increment: f; content: counter(f); width: 28px; height: 28px; border-radius: 50%; background: var(--cyan-tint); color: var(--cyan-300); box-shadow: inset 0 0 0 1px var(--cyan-line); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; }
+  .flow b { color: var(--text); }
+  .prog { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+  .prog li { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 10px 0; border-top: 1px solid var(--rule); font-size: 14px; }
+  .prog li:first-child { border-top: 0; }
+  .prog .s { width: 18px; height: 18px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; }
+  .prog .done .s { background: var(--good-bg); color: var(--good); box-shadow: inset 0 0 0 1px var(--good-line); }
+  .prog .cur .s { box-shadow: inset 0 0 0 2px var(--cyan); }
+  .prog .todo .s { box-shadow: inset 0 0 0 1px var(--border-strong); }
+  .prog .todo { color: var(--muted); }
+  .modal { max-height: 84vh; flex-direction: column; }
+  .modal.open { display: flex; }
+  .modal .modal-body { overflow-y: auto; }
+</style>
+</head>
+<body data-group="tec" data-item="Integrações" data-crumb='[["Tecnologia","aplicacoes.html"],["Integrações","integracoes.html"],["WhatsApp Business"]]'>
+<div class="app">
+<aside class="side"></aside>
+<div class="main">
+<header class="top"></header>
+<main class="content">
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Tecnologia · Integrações</span>
+    <h1>WhatsApp Business</h1>
+    <p class="lead">Números conectados pela Cloud API da Meta. As mensagens aparecem em <a href="conversas.html">WhatsApp → Conversas</a>.</p>
+  </div>
+  <div class="actions">
+    <button class="btn pri" type="button" data-open="conectar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1.4-4.2A8 8 0 1112 20a8 8 0 01-3.8-1z"/></svg>Conectar WhatsApp</button>
+  </div>
+</div>
+
+<div class="grid-kpi g4">
+  <div class="card kpi"><span class="eyebrow">Números conectados</span><span class="v">1</span><span class="f">1 desconectado</span></div>
+  <div class="card kpi"><span class="eyebrow">Conversas</span><span class="v">146</span><span class="f">8 com mensagem esta semana</span></div>
+  <div class="card kpi"><span class="eyebrow">Mensagens hoje</span><span class="v">23</span><span class="f">15 recebidas · 8 enviadas</span></div>
+  <div class="card kpi"><span class="eyebrow">Último evento</span><span class="v">há 2 min</span><span class="f"><span class="badge b-good">Webhook ok</span>assinatura válida</span></div>
+</div>
+
+<div class="cols-2-1">
+  <div class="stack">
+    <!-- Conta conectada -->
+    <section class="card" aria-labelledby="acc1-t">
+      <div class="acc-head">
+        <span class="co-avatar" aria-hidden="true">DB</span>
+        <div class="titles">
+          <div class="row wrap"><h2 id="acc1-t" style="font-size:18px">DevBatista</h2><span class="badge b-good dot-l">Conectado</span><span class="badge b-info" title="O número continua no app WhatsApp Business do celular">Coexistência</span></div>
+          <span class="mono" style="color:var(--text)">+55 11 97070-2026</span>
+        </div>
+        <div class="row wrap">
+          <a class="btn sm" href="conversas.html">Ver conversas</a>
+          <a class="btn sm" href="templates.html">Templates</a>
+          <button class="btn sm" type="button" data-open="desconectar">Desconectar</button>
+        </div>
+      </div>
+      <div class="card-body" style="padding-top:0">
+        <ol class="steps" aria-label="Conexão" style="list-style:none;margin:0;padding:0">
+          <li class="step done">Autorizado na Meta<small>15/09 10:07</small></li>
+          <li class="step done">App inscrito na conta<small>15/09 10:08</small></li>
+          <li class="step done">Contatos sincronizados<small>15/09 10:09 · 214</small></li>
+          <li class="step done">Histórico sincronizado<small>15/09 10:31 · 180 dias</small></li>
+          <li class="step cur" aria-current="step">Recebendo mensagens<small>desde 15/09 10:08</small></li>
+        </ol>
+      </div>
+      <dl class="dl" style="padding-top:4px;margin:0">
+        <div><dt>Nome exibido</dt><dd>DevBatista <span class="badge b-good">Aprovado</span></dd></div>
+        <div><dt>Qualidade</dt><dd><span class="badge b-good">Alta</span></dd></div>
+        <div><dt>Limite de envio</dt><dd>250 contatos novos em 24h<span class="cell-sub">Nível inicial da Meta; sobe com volume e qualidade</span></dd></div>
+        <div><dt>Velocidade</dt><dd>20 mensagens/s<span class="cell-sub">Fixa para números em coexistência</span></dd></div>
+        <div><dt>Contatos sincronizados</dt><dd>15/09/2026 10:09<span class="cell-sub">214 contatos do app</span></dd></div>
+        <div><dt>Histórico sincronizado</dt><dd>15/09/2026 10:31<span class="cell-sub">1.932 mensagens em 146 conversas</span></dd></div>
+        <div><dt>Portfólio</dt><dd>DevBatista<span class="cell-sub ids">106724254821671</span></dd></div>
+        <div><dt>Conta WhatsApp (WABA)</dt><dd class="ids">1029384756102938</dd></div>
+        <div><dt>ID do número</dt><dd class="ids">6655443322110099</dd></div>
+        <div><dt>Conectado por</dt><dd>Rafael<span class="cell-sub">15/09/2026 10:07</span></dd></div>
+      </dl>
+      <div class="card-body" style="border-top:1px solid var(--rule)">
+        <div class="callout"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:2px;color:var(--cyan)"><path d="M8 2h8a1 1 0 011 1v18a1 1 0 01-1 1H8a1 1 0 01-1-1V3a1 1 0 011-1zM11 18h2"/></svg><span><b class="strong">Para desconectar, use o celular.</b> Em coexistência, a Meta não permite remover o número pela API. No app WhatsApp Business: Configurações → Conta → Plataforma comercial → Desconectar conta. O Admin recebe o aviso da Meta, marca a conta como desconectada e mantém as conversas para consulta, sem envio.</span></div>
+      </div>
+      <div class="card-foot"><span>Token de acesso guardado criptografado. Ele nunca aparece na tela nem nos logs.</span></div>
+    </section>
+
+    <!-- Conta desconectada -->
+    <section class="card" aria-labelledby="acc2-t">
+      <div class="acc-head">
+        <span class="co-avatar sm" aria-hidden="true">NT</span>
+        <div class="titles">
+          <div class="row wrap"><h2 id="acc2-t">Número de teste da Meta</h2><span class="badge b-mute dot-l">Desconectado</span></div>
+          <span class="mono">+1 555 012-3456 · desconectado em 14/09/2026 · aviso account_update (PARTNER_REMOVED)</span>
+        </div>
+        <button class="btn sm" type="button" data-open="conectar">Reconectar</button>
+      </div>
+      <div class="card-foot"><span>As 12 conversas deste número ficam guardadas para consulta, sem envio.</span></div>
+    </section>
+
+    <div class="note">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;color:var(--cyan)"><path d="M12 22a10 10 0 100-20 10 10 0 000 20zM12 16v-4M12 8h.01"/></svg>
+      <span><b>Coexistência:</b> o número segue funcionando no app WhatsApp Business do celular. O que é enviado pelo app aparece nas conversas com a marca “Celular”. Grupos, listas de transmissão, mensagens temporárias e de visualização única não passam pela API.</span>
+    </div>
+  </div>
+
+  <div class="stack">
+    <section class="card" aria-labelledby="app-t">
+      <div class="card-head"><h2 id="app-t">App da Meta</h2><span class="badge b-info">Tech Provider</span></div>
+      <div class="kv"><span>App</span><span class="right"><b>DevBatista Admin</b><span class="cell-sub ids">1147404217813272</span></span></div>
+      <div class="kv"><span>Graph API</span><b>v26.0</b></div>
+      <div class="kv"><span>Embedded Signup</span><span class="badge b-good">Configurado</span></div>
+      <div class="kv"><span>Verificação de acesso</span><span class="badge b-warn">Em andamento</span></div>
+      <div class="kv"><span>Análise do app</span><span class="badge b-warn">Em andamento</span></div>
+      <div class="card-foot"><span>Valores das variáveis de ambiente (META_APP_ID, WHATSAPP_EMBEDDED_SIGNUP_CONFIG_ID…). Segredos não aparecem aqui.</span></div>
+    </section>
+
+    <section class="card" aria-labelledby="wh-t">
+      <div class="card-head"><h2 id="wh-t">Webhook</h2><span class="badge b-good dot-l">Recebendo</span></div>
+      <div class="kv" style="align-items:flex-start"><span>URL</span><span class="ids right">https://admin.devbatista.com/webhooks/whatsapp</span></div>
+      <div class="kv"><span>Token de verificação</span><b>Configurado</b></div>
+      <div class="kv"><span>Assinatura (X-Hub-Signature-256)</span><span class="badge b-good">Validada</span></div>
+      <div class="kv"><span>Rejeitados hoje</span><b>0</b></div>
+      <div class="card-body" style="border-top:1px solid var(--rule)">
+        <span class="eyebrow">Campos inscritos</span>
+        <div class="chips" style="margin-top:8px">
+          <span class="chip">messages</span><span class="chip">smb_message_echoes</span><span class="chip">history</span><span class="chip">smb_app_state_sync</span><span class="chip">account_update</span><span class="chip">message_template_status_update</span><span class="chip">message_template_quality_update</span><span class="chip">template_category_update</span>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+</main>
+</div>
+</div>
+
+<!-- Modal: conectar (Embedded Signup) -->
+<div class="modal" id="conectar" role="dialog" aria-modal="true" aria-labelledby="conectar-t">
+  <div class="modal-head"><h2 id="conectar-t">Conectar WhatsApp</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div class="modal-body form" id="cx-passos">
+    <p style="margin:0">A Meta abre uma janela para autorizar o Admin a usar o número. Tenha o celular com o WhatsApp Business por perto.</p>
+    <ol class="flow">
+      <li><span><b>Entre com o Facebook</b> de quem administra o portfólio da empresa e escolha o portfólio.</span></li>
+      <li><span><b>Escolha conectar o app WhatsApp Business existente</b> e informe o número. Ele continua funcionando no celular.</span></li>
+      <li><span><b>Confirme no celular</b> pelo app WhatsApp Business e escolha se compartilha o histórico das conversas.</span></li>
+      <li><span><b>De volta aqui</b>, o Admin guarda o acesso, inscreve o app na conta e sincroniza contatos e histórico. A Meta dá 24 horas para isso.</span></li>
+    </ol>
+    <div class="callout warn"><span>Precisa do app WhatsApp Business <b class="strong">2.24.17 ou mais recente</b>. Ao conectar, os aparelhos vinculados (WhatsApp Web, computador) são desconectados e podem ser vinculados de novo depois.</span></div>
+  </div>
+  <div class="modal-body form" id="cx-prog" hidden>
+    <div class="callout"><span>Conta autorizada: <b class="strong">DevBatista</b> · +55 11 97070-2026. Pode fechar esta janela; a sincronização continua em segundo plano.</span></div>
+    <ul class="prog">
+      <li class="done"><span class="s"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg></span><span>Autorização recebida</span><span class="caption mono">10:07</span></li>
+      <li class="done"><span class="s"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg></span><span>Token obtido e guardado criptografado</span><span class="caption mono">10:07</span></li>
+      <li class="done"><span class="s"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg></span><span>App inscrito na conta</span><span class="caption mono">10:08</span></li>
+      <li class="cur"><span class="s"></span><span>Sincronizando contatos…</span><span class="caption">em andamento</span></li>
+      <li class="todo"><span class="s"></span><span>Sincronizar histórico (até 180 dias)</span><span class="caption">na fila</span></li>
+    </ul>
+    <div class="progress" role="progressbar" aria-valuenow="55" aria-valuemin="0" aria-valuemax="100" aria-label="Sincronização em 55%"><i style="width:55%"></i></div>
+    <span class="caption">Se o celular recusar o histórico, só as conversas novas aparecem.</span>
+  </div>
+  <div class="modal-foot">
+    <button class="btn" type="button" data-close>Cancelar</button>
+    <button class="btn pri" type="button" id="cx-go"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M14 8h3V4h-3a4 4 0 00-4 4v2H8v4h2v8h4v-8h3l1-4h-4V8z"/></svg>Continuar com o Facebook</button>
+  </div>
+</div>
+
+<!-- Modal: como desconectar (em coexistência não há ação pelo Admin) -->
+<div class="modal" id="desconectar" role="dialog" aria-modal="true" aria-labelledby="desconectar-t">
+  <div class="modal-head"><h2 id="desconectar-t">Como desconectar DevBatista</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div class="modal-body form">
+    <p style="margin:0">Em coexistência, a Meta não permite remover o número pela API, porque ele é usado no app e na Cloud API ao mesmo tempo. A desconexão é feita no celular:</p>
+    <ol class="flow">
+      <li><span>Abra o <b>WhatsApp Business</b> no celular do número <span class="mono strong">+55 11 97070-2026</span>.</span></li>
+      <li><span>Vá em <b>Configurações → Conta → Plataforma comercial</b>.</span></li>
+      <li><span>Toque em <b>Desconectar conta</b> e confirme.</span></li>
+    </ol>
+    <div class="callout"><span><b class="strong">Depois disso,</b> o Admin recebe da Meta o evento <span class="mono">account_update</span> (<span class="mono">PARTNER_REMOVED</span>), marca a conta como Desconectada e mantém as 146 conversas para consulta, sem envio. Para voltar a usar, conecte o número de novo.</span></div>
+  </div>
+  <div class="modal-foot"><button class="btn pri" type="button" data-close>Entendi</button></div>
+</div>
+
+<script src="../assets/app.js"></script>
+<script>
+  // Simula a volta do Embedded Signup: troca a explicação pelo andamento da conexão.
+  (function () {
+    const go = document.getElementById('cx-go');
+    go.addEventListener('click', () => {
+      document.getElementById('cx-passos').hidden = true;
+      document.getElementById('cx-prog').hidden = false;
+      go.hidden = true;
+      go.previousElementSibling.textContent = 'Fechar';
+    });
+  })();
+</script>
+</body>
+</html>

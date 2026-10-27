@@ -12,6 +12,7 @@
   const ICON = {
     dash: 'M4 4h7v7H4zM13 4h7v4h-7zM13 10h7v10h-7zM4 13h7v7H4z',
     com: 'M3 5h18l-7 8v5l-4 2v-7z',
+    wa: 'M4 20l1.4-4.2A8 8 0 1112 20a8 8 0 01-3.8-1z',
     cli: 'M4 20V6l8-3v17M12 9h8v11M2 20h20M7 8h2M7 12h2M7 16h2M15 13h2M15 16h2',
     op: 'M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01',
     fin: 'M4 20V12M10 20V6M16 20v-9M21 20H3',
@@ -29,6 +30,8 @@
   const NAV = [
     { key: 'dash', label: 'Dashboard', href: 'dashboard.html', items: [] },
     { key: 'com', label: 'Comercial', items: [['Leads', 'leads.html'], ['Oportunidades', 'oportunidades.html'], ['Propostas', 'propostas.html'], ['Pipeline', 'pipeline.html']] },
+    // O terceiro valor do item é o contador (não lidas); o grupo mostra a soma quando está fechado.
+    { key: 'wa', label: 'WhatsApp', items: [['Conversas', 'conversas.html', 4], ['Templates', 'templates.html']] },
     { key: 'cli', label: 'Clientes', items: [['Empresas', 'empresas.html'], ['Contatos', 'contatos.html'], ['Contratos', 'contratos.html'], ['Serviços contratados', 'servicos-contratados.html']] },
     { key: 'op', label: 'Operação', items: [['Projetos', 'projetos.html'], ['Tarefas', 'tarefas.html'], ['Suporte', 'chamados.html'], ['Horas trabalhadas', 'horas.html']] },
     { key: 'fin', label: 'Financeiro', items: [['Dashboard financeiro', 'financeiro.html'], ['Receitas', 'receitas.html'], ['Despesas', 'despesas.html'], ['Contas a receber', 'contas-receber.html'], ['Contas a pagar', 'contas-pagar.html'], ['Recorrências', 'recorrencias.html'], ['Notas fiscais', 'notas-fiscais.html']] },
@@ -42,6 +45,7 @@
   const FOLDER = {
     dashboard: ['dashboard'],
     comercial: ['leads', 'lead', 'oportunidades', 'propostas', 'proposta', 'pipeline'],
+    whatsapp: ['conversas', 'templates', 'conexao'],
     clientes: ['empresas', 'empresa', 'contatos', 'contratos', 'contrato', 'servicos-contratados'],
     operacao: ['projetos', 'projeto', 'tarefas', 'chamados', 'chamado', 'horas'],
     financeiro: ['financeiro', 'receitas', 'despesas', 'contas-receber', 'contas-pagar', 'recorrencias', 'notas-fiscais'],
@@ -65,6 +69,7 @@
   const svg = (d, size, sw) =>
     `<svg width="${size || 20}" height="${size || 20}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw || 1.6}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"></path></svg>`;
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const count = (n) => `<span class="n" data-count>${n}<span class="sr-only"> não lidas</span></span>`;
 
   const body = document.body;
   const group = body.dataset.group || '';
@@ -81,10 +86,11 @@
         html += `<a class="grp${on ? ' on' : ''}" href="${page(g.href)}"${on ? ' aria-current="page"' : ''}>${svg(ICON[g.key])}${g.label}</a>`;
         return;
       }
-      html += `<button class="grp${on ? ' on open' : ''}" type="button" aria-expanded="${on}">${svg(ICON[g.key])}${g.label}<span class="chev">${svg(ICON.chev, 14, 2)}</span></button>`;
-      html += '<div class="sub">' + g.items.map(([l, h]) => {
+      const total = g.items.reduce((s, it) => s + (it[2] || 0), 0);
+      html += `<button class="grp${on ? ' on open' : ''}" type="button" aria-expanded="${on}">${svg(ICON[g.key])}${g.label}${total ? count(total) : ''}<span class="chev">${svg(ICON.chev, 14, 2)}</span></button>`;
+      html += '<div class="sub">' + g.items.map(([l, h, n]) => {
         const cur = on && l === item;
-        return `<a class="it${cur ? ' on' : ''}" href="${page(h)}"${cur ? ' aria-current="page"' : ''}>${l}</a>`;
+        return `<a class="it${cur ? ' on' : ''}" href="${page(h)}"${cur ? ' aria-current="page"' : ''}>${l}${n ? count(n) : ''}</a>`;
       }).join('') + '</div>';
     });
     html += '</nav>';
@@ -110,7 +116,7 @@
       `<button class="icon-btn ghost menu-btn" type="button" aria-label="Abrir menu" data-nav-toggle>${svg(ICON.menu, 22, 1.8)}</button>` +
       `<div class="crumb">${crumbHtml}</div>` +
       `<button class="search-trigger" type="button" data-search-open aria-label="Busca global">${svg(ICON.search, 16, 1.8)}<span>Buscar clientes, contratos, chamados…</span><span class="kbd">⌘K</span></button>` +
-      `<button class="icon-btn" type="button" aria-label="Notificações, 4 não lidas" data-notif-toggle>${svg(ICON.bell)}<span class="dot"></span></button>` +
+      `<button class="icon-btn" type="button" aria-label="Notificações, 5 não lidas" data-notif-toggle>${svg(ICON.bell)}<span class="dot"></span></button>` +
       `<a class="avatar" href="${page('usuarios.html')}" aria-label="Rafael, Administrador">R</a>`;
 
     // Notificações
@@ -120,6 +126,7 @@
     pop.setAttribute('aria-label', 'Notificações');
     pop.innerHTML =
       '<div class="card-head"><h2>Notificações</h2><a href="' + page('notificacoes.html') + '" style="font-size:13px;font-weight:600">Ver todas</a></div>' +
+      '<a class="notif" href="' + page('conversas.html') + '?c=lu"><i></i><div>Nova conversa no WhatsApp: Lu Martins (sem vínculo)<small>há 6 min · WhatsApp</small></div></a>' +
       '<a class="notif" href="' + page('chamado.html') + '"><i class="crit"></i><div>Chamado crítico #2394 aberto para Empresa Delta<small>há 12 min · Suporte</small></div></a>' +
       '<a class="notif" href="' + page('contas-receber.html') + '"><i class="crit"></i><div>3 títulos vencidos somam R$ 4.300<small>hoje, 07:00 · Financeiro</small></div></a>' +
       '<a class="notif" href="' + page('contratos.html') + '"><i class="warn"></i><div>Contrato #098 da Empresa XYZ vence em 30 dias<small>hoje, 07:00 · Contratos</small></div></a>' +
@@ -201,6 +208,17 @@
       tabs.querySelectorAll('[data-tab]').forEach((x) => { x.classList.toggle('on', x === t); x.setAttribute('aria-selected', x === t); });
       scope.querySelectorAll('[data-panel]').forEach((p) => { p.hidden = p.dataset.panel !== t.dataset.tab; });
     }));
+  });
+
+  /* ---------- Estados do protótipo (não existem no sistema): [data-proto-scope] > button[data-proto-state="x"] mostra [data-proto-view="x"] ---------- */
+  document.querySelectorAll('[data-proto-scope]').forEach((scope) => {
+    const btns = scope.querySelectorAll('[data-proto-state]');
+    const show = (v) => {
+      btns.forEach((b) => { const on = b.dataset.protoState === v; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
+      scope.querySelectorAll('[data-proto-view]').forEach((p) => { p.hidden = p.dataset.protoView !== v; });
+    };
+    btns.forEach((b) => b.addEventListener('click', () => show(b.dataset.protoState)));
+    if (btns.length) show((scope.querySelector('[data-proto-state].on') || btns[0]).dataset.protoState);
   });
 
   /* ---------- Filtros: [data-filter-group="tbl"] > button[data-filter] filtra [data-filter-target="tbl"] [data-status] ---------- */

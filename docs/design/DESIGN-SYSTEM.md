@@ -120,7 +120,7 @@ Toda tela autenticada tem a mesma estrutura. O menu lateral e a barra superior s
 </body>
 ```
 
-- `data-group`: chave do grupo do menu (`dash`, `com`, `cli`, `op`, `fin`, `tec`, `prod`, `ges`, `adm`).
+- `data-group`: chave do grupo do menu (`dash`, `com`, `wa`, `cli`, `op`, `fin`, `tec`, `prod`, `ges`, `adm`).
 - `data-item`: rótulo do item ativo, exatamente como aparece no menu.
 - `data-crumb`: trilha de navegação em JSON, `[["Rótulo","link"], ["Página atual"]]`.
 
@@ -390,17 +390,19 @@ Regras: um eixo por gráfico, valores rotulados em texto e cores de status só p
 | `.co-avatar` (`.sm`) | Iniciais de empresa, em quadrado arredondado | `clientes/empresas.html` |
 | `.tl` | Linha do tempo de eventos | Histórico na Visão 360º |
 | `.act` | Lista de atividades com hora | Dashboard |
-| `.msg` (`.client`) | Conversa de chamado; mensagens do cliente em ciano | `operacao/chamado.html` |
+| `.msg` (`.client`, `.out`) | Conversa de chamado; mensagens do cliente em ciano. `.out` alinha à direita a mensagem enviada pela DevBatista (conversas do WhatsApp) | `operacao/chamado.html`, `whatsapp/conversas.html` |
+| Conversa do WhatsApp | Três colunas (lista, `.thread`, painel do vínculo) com altura da janela; estilos locais da tela | `whatsapp/conversas.html` |
 | `.steps` / `.step` (`.done`, `.cur`) | Etapas de um fluxo | `comercial/lead.html`, `operacao/chamado.html` |
 | `.chip` | Etiqueta ou filtro aplicado | Tags de serviço |
 | `.divider` | Linha horizontal | Separar blocos num card |
 | `.kbd` | Tecla de atalho | "⌘K" na busca |
+| `.proto-switch` | Seletor tracejado que alterna estados de um card no protótipo (`data-proto-*`). Não vai para o sistema | Card WhatsApp em `comercial/lead.html` |
 
 ### Elementos globais
 
 Estes são montados pelo `app.js` em todas as telas:
 
-- **Menu lateral:** logo, selo "Admin", grupos com submenu e usuário logado no rodapé.
+- **Menu lateral:** logo, selo "Admin", grupos com submenu e usuário logado no rodapé. Um item pode ter contador (`<span class="n">`, pílula ciano), como as não lidas de WhatsApp → Conversas; com o submenu fechado, o grupo mostra a soma. No `NAV` do `app.js`, o contador é o terceiro valor do item.
 - **Barra superior:** botão do menu (só no celular), trilha, busca, notificações e avatar.
 - **Busca global** (`.palette`): abre com ⌘K ou Ctrl+K.
 - **Notificações** (`.popover`): abre pelo sino. O ponto vermelho indica que há notificações não lidas.

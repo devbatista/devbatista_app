@@ -139,6 +139,23 @@
         <div class="contact"><span class="avatar soft">PR</span><div><div class="nm">Paulo Reis</div><div class="ln">Coordenador de TI · abre chamados</div><div class="ln num">(11) 3456-7820 · WhatsApp (11) 97654-1122</div><div class="ln">paulo.reis@acme.com.br</div></div></div>
       </div>
 
+      <div class="stack" style="gap:8px" data-proto-scope>
+      <div class="proto-switch" role="group" aria-label="Estado do card no protótipo"><span>Protótipo · card WhatsApp</span><div class="seg"><button type="button" class="on" data-proto-state="com">Com conversas</button><button type="button" data-proto-state="sem">Sem conversa</button></div></div>
+      <div class="card" data-proto-view="com">
+        <div class="card-head"><h2>WhatsApp</h2><a href="../whatsapp/conversas.html" style="font-size:13px;font-weight:600">Conversas →</a></div>
+        <div class="contact"><span class="avatar soft">JF</span><div><div class="nm">Juliana Ferraz <span class="badge b-info">1 não lida</span></div><div class="ln">Segue o comprovante dos R$ 200 que estavam em aberto.</div><div class="ln">hoje 09:14 · documento · janela aberta</div><a class="link-btn" href="../whatsapp/conversas.html?c=juliana">Abrir conversa</a></div></div>
+        <div class="contact"><span class="avatar soft">MA</span><div><div class="nm">Marcos Andrade</div><div class="ln">Você: Combinado! Até terça.</div><div class="ln">14/09 · pelo celular · janela fechada</div><a class="link-btn" href="../whatsapp/conversas.html?c=marcos">Abrir conversa</a></div></div>
+        <div class="contact"><span class="avatar soft">PR</span><div><div class="nm">Paulo Reis</div><div class="ln">Nenhuma conversa ainda</div><button class="link-btn" type="button" data-wa-iniciar data-nome="Paulo Reis" data-org="Empresa ACME" data-numero="(11) 97654-1122" data-cadastro="contato" data-tpl="retomada_contato">Iniciar conversa no WhatsApp</button></div></div>
+      </div>
+      <div class="card" data-proto-view="sem" hidden>
+        <div class="card-head"><h2>WhatsApp</h2><span class="badge b-mute">Sem conversa</span></div>
+        <div class="card-body" style="padding-top:0"><p style="margin:0">Ainda não há conversa com os contatos da Empresa ACME. O primeiro contato precisa ser um <b class="strong">template aprovado</b>: a janela de 24h só abre quando a pessoa responder.</p></div>
+        <div class="contact"><span class="avatar soft">MA</span><div><div class="nm">Marcos Andrade <span class="badge b-info">Principal</span></div><div class="ln num">WhatsApp (11) 98765-4321</div><button class="link-btn" type="button" data-wa-iniciar data-nome="Marcos Andrade" data-org="Empresa ACME" data-numero="(11) 98765-4321" data-cadastro="contato" data-tpl="retomada_contato">Iniciar conversa no WhatsApp</button></div></div>
+        <div class="contact"><span class="avatar soft">JF</span><div><div class="nm">Juliana Ferraz</div><div class="ln num">WhatsApp (11) 99812-3344</div><button class="link-btn" type="button" data-wa-iniciar data-nome="Juliana Ferraz" data-org="Empresa ACME" data-numero="(11) 99812-3344" data-cadastro="contato" data-tpl="retomada_contato">Iniciar conversa no WhatsApp</button></div></div>
+        <div class="contact"><span class="avatar soft">PR</span><div><div class="nm">Paulo Reis</div><div class="ln num">WhatsApp (11) 97654-1122</div><button class="link-btn" type="button" data-wa-iniciar data-nome="Paulo Reis" data-org="Empresa ACME" data-numero="(11) 97654-1122" data-cadastro="contato" data-tpl="retomada_contato">Iniciar conversa no WhatsApp</button></div></div>
+      </div>
+      </div>
+
       <div class="card">
         <div class="card-head"><h2>Dados cadastrais</h2></div>
         <dl class="dl" style="padding-top:0;grid-template-columns:minmax(0,1fr)">
@@ -582,5 +599,6 @@
 </aside>
 
 <script src="../assets/app.js"></script>
+<script src="../assets/wa-iniciar.js"></script>
 </body>
 </html>

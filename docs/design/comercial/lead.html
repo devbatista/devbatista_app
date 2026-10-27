@@ -72,7 +72,7 @@
     </section>
 
     <section class="card" aria-labelledby="int-t">
-      <div class="card-head"><h2 id="int-t">Interações</h2><span class="caption">6 registros</span></div>
+      <div class="card-head"><h2 id="int-t">Interações</h2><span class="caption">7 registros</span></div>
       <form class="card-body form" style="padding-top:0;gap:12px" onsubmit="event.preventDefault()">
         <div class="row wrap" style="align-items:flex-end">
           <div class="field" style="width:180px"><label for="i-tipo">Tipo</label><select class="select" id="i-tipo"><option>Ligação</option><option>WhatsApp</option><option>E-mail</option><option>Reunião</option><option>Nota</option></select></div>
@@ -81,6 +81,7 @@
         <div class="field"><label for="i-txt">Registro</label><textarea class="textarea" id="i-txt" style="min-height:72px" placeholder="O que foi conversado e qual o próximo passo?"></textarea></div>
         <div class="row" style="justify-content:flex-end"><button class="btn sm pri" type="submit">Registrar interação</button></div>
       </form>
+      <div class="tl"><i style="background:var(--good)"></i><div><span class="strong">WhatsApp</span> — 4 mensagens recebidas (foto do fluxo TMS × ERP, áudio e pedido para incluir roteirização na reunião) e 2 enviadas. <a href="../whatsapp/conversas.html?c=henrique">Ver conversa</a><small>17/09/2026 · registrada automaticamente, uma por dia de conversa</small></div></div>
       <div class="tl"><i></i><div><span class="strong">Ligação</span> — confirmou orçamento para consultoria a partir de outubro. Decisão conjunta com o CFO; pediu reunião para apresentar o plano de trabalho.<small>16/09/2026 14:20 · Rafael</small></div></div>
       <div class="tl"><i></i><div><span class="strong">Status alterado</span> — Contato Realizado → Qualificado. Necessidade, perfil e capacidade de contratação confirmados.<small>12/09/2026 17:05 · Rafael</small></div></div>
       <div class="tl"><i></i><div><span class="strong">E-mail</span> — enviado o relatório do diagnóstico (12 páginas) com 3 frentes priorizadas: integração TMS × ERP, roteirização e indicadores de entrega.<small>12/09/2026 16:48 · Rafael</small></div></div>
@@ -97,6 +98,32 @@
         <div class="callout"><span><b class="strong">Reunião de plano de trabalho</b><br>Terça, 22/09/2026 às 10:00 · online<br><span class="caption">Converter antes da reunião para registrar a oportunidade de Consultoria de TI.</span></span></div>
       </div>
     </section>
+
+    <div class="stack" style="gap:8px" data-proto-scope>
+    <div class="proto-switch" role="group" aria-label="Estado do card no protótipo"><span>Protótipo · card WhatsApp</span><div class="seg"><button type="button" class="on" data-proto-state="com">Com conversa</button><button type="button" data-proto-state="sem">Sem conversa</button><button type="button" data-proto-state="sem-numero">Sem WhatsApp</button></div></div>
+    <section class="card" aria-labelledby="wa-t" data-proto-view="com">
+      <div class="card-head"><h2 id="wa-t">WhatsApp</h2><span class="badge b-good dot-l" title="Fecha em 18/09 10:42">Janela aberta · 23h18</span></div>
+      <div class="tl"><i></i><div>Consegue incluir o módulo de roteirização na reunião de terça? O CFO vai participar.<small>Henrique · hoje 10:42</small></div></div>
+      <div class="tl"><i style="background:var(--border-strong)"></i><div>Consigo sim! Levo uma demo.<small>Rafael · hoje 10:44 · pelo celular · Entregue</small></div></div>
+      <div class="tl"><i style="background:var(--border-strong)"></i><div>Confirmando: terça, 22/09 às 10h, online. Envio o convite por e-mail ainda hoje.<small>Rafael · hoje 10:51 · Enviada</small></div></div>
+      <div class="card-foot"><span>+55 11 99102-3344 · conta DevBatista</span><a class="btn sm" href="../whatsapp/conversas.html?c=henrique">Abrir conversa</a></div>
+    </section>
+    <section class="card" aria-labelledby="wa-sem-t" data-proto-view="sem" hidden>
+      <div class="card-head"><h2 id="wa-sem-t">WhatsApp</h2><span class="badge b-mute">Sem conversa</span></div>
+      <div class="card-body stack" style="padding-top:0;gap:12px">
+        <p style="margin:0">Ainda não há conversa com Henrique. O primeiro contato precisa ser um <b class="strong">template aprovado</b>: a janela de 24h para mensagens livres só abre quando ele responder.</p>
+        <span class="caption">WhatsApp do lead: <span class="mono strong">(11) 99102-3344</span></span>
+        <div><button class="btn sm pri" type="button" data-wa-iniciar data-nome="Henrique Duarte" data-org="Grupo Norte Logística" data-numero="(11) 99102-3344" data-cadastro="lead" data-tpl="boas_vindas_lead">Iniciar conversa no WhatsApp</button></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="wa-sn-t" data-proto-view="sem-numero" hidden>
+      <div class="card-head"><h2 id="wa-sn-t">WhatsApp</h2><span class="badge b-warn">Sem número</span></div>
+      <div class="card-body stack" style="padding-top:0;gap:12px">
+        <p style="margin:0">Ainda não há conversa com Henrique e o lead não tem <b class="strong">WhatsApp cadastrado</b>. Informe o número ao iniciar; o primeiro contato é sempre por template aprovado.</p>
+        <div class="row wrap" style="gap:8px"><button class="btn sm pri" type="button" data-wa-iniciar data-nome="Henrique Duarte" data-org="Grupo Norte Logística" data-numero="" data-cadastro="lead" data-tpl="boas_vindas_lead">Iniciar conversa no WhatsApp</button><button class="btn sm" type="button" data-open="editar-lead">Editar lead</button></div>
+      </div>
+    </section>
+    </div>
 
     <section class="card" aria-labelledby="obs-t">
       <div class="card-head"><h2 id="obs-t">Observações</h2><button class="link-btn" type="button" data-open="editar-lead">Editar</button></div>
@@ -202,5 +229,6 @@
 </div>
 
 <script src="../assets/app.js"></script>
+<script src="../assets/wa-iniciar.js"></script>
 </body>
 </html>

@@ -93,7 +93,15 @@ img { max-width: 100%; }
 .grp.open .chev { transform: rotate(90deg); }
 .sub { display: none; flex-direction: column; margin: 2px 0 8px 21px; padding-left: 12px; border-left: 1px solid var(--border); }
 .grp.open + .sub { display: flex; }
-.it { padding: 7px 10px; font-size: 13px; color: var(--muted); border-radius: 6px; }
+.it { display: flex; align-items: center; gap: 8px; padding: 7px 10px; font-size: 13px; color: var(--muted); border-radius: 6px; }
+/* Contador do menu (não lidas). No grupo, só aparece com o submenu fechado. */
+.it .n, .grp .n {
+  margin-left: auto; min-width: 20px; height: 18px; padding: 0 6px; border-radius: 999px; background: var(--cyan); color: var(--bg);
+  font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; font-variant-numeric: tabular-nums;
+}
+.grp .n + .chev { margin-left: 8px; }
+.grp.open .n { display: none; }
+.grp.open .n + .chev { margin-left: auto; }
 .it:hover { color: var(--white); background: var(--surface-hover); }
 .it.on { color: var(--cyan-300); background: var(--cyan-tint); font-weight: 600; }
 .me { margin-top: auto; display: flex; align-items: center; gap: 10px; padding: 14px 10px 0; border-top: 1px solid var(--border); font-size: 13px; color: var(--white); font-weight: 600; }
@@ -385,8 +393,16 @@ a.kcard, a.kcard:hover { color: inherit; }
 .msg { display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 12px; }
 .msg .bubble { background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; color: var(--text-2); }
 .msg.client .bubble { background: var(--cyan-tint); border-color: var(--cyan-line); }
+/* Mensagem enviada pela DevBatista: à direita, avatar depois do balão (conversas do WhatsApp). */
+.msg.out { grid-template-columns: minmax(0, 1fr) 36px; }
+.msg.out > .avatar { order: 2; }
+.msg.out > div { justify-self: end; min-width: 0; }
+.msg.out .who { text-align: right; }
 .msg .who { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
 .msg .who b { color: var(--text); }
+/* Seletor de estado do protótipo: mostra variações de um mesmo card. Não existe no sistema. */
+.proto-switch { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 8px 10px; border: 1.5px dashed var(--border-strong); border-radius: 12px; font-size: 12px; color: var(--muted); }
+.proto-switch .seg button { height: 26px; padding: 0 10px; font-size: 12px; }
 .steps { display: flex; gap: 0; overflow-x: auto; }
 .step { flex: 1; min-width: 120px; padding: 10px 12px; border-top: 3px solid var(--border-strong); font-size: 12px; color: var(--muted); font-weight: 600; }
 .step.done { border-color: var(--cyan-800); color: var(--text-2); }

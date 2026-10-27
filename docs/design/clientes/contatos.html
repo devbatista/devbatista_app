@@ -67,7 +67,7 @@
           <td data-label="Telefone" class="nowrap"><a href="tel:+551134567801">(11) 3456-7801</a><span class="cell-sub"><a class="wa" href="https://wa.me/5511987654321"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1.4-4.2A8 8 0 1112 20a8 8 0 01-3.8-1z"/></svg>(11) 98765-4321</a></span></td>
           <td data-label="E-mail"><a href="mailto:marcos.andrade@acme.com.br">marcos.andrade@acme.com.br</a></td>
           <td data-label="Principal"><span class="badge b-info">Principal</span></td>
-          <td data-label="" class="right"><button class="link-btn" type="button" data-open="editar-contato">Editar</button></td>
+          <td data-label="" class="right"><button class="link-btn" type="button" data-open="wa-contato">WhatsApp</button> · <button class="link-btn" type="button" data-open="editar-contato">Editar</button></td>
         </tr>
         <tr data-status="Demais">
           <td data-label="Contato"><div class="p-cell"><span class="avatar sm soft">JF</span><div><span class="strong">Juliana Ferraz</span><span class="cell-sub">Analista financeira · recebe as cobranças</span></div></div></td>
@@ -83,7 +83,7 @@
           <td data-label="Telefone" class="nowrap"><a href="tel:+551134567820">(11) 3456-7820</a><span class="cell-sub"><a class="wa" href="https://wa.me/5511976541122"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l1.4-4.2A8 8 0 1112 20a8 8 0 01-3.8-1z"/></svg>(11) 97654-1122</a></span></td>
           <td data-label="E-mail"><a href="mailto:paulo.reis@acme.com.br">paulo.reis@acme.com.br</a></td>
           <td data-label="Principal" class="muted">—</td>
-          <td data-label="" class="right"><button class="link-btn" type="button" data-open="tornar-principal">Tornar principal</button></td>
+          <td data-label="" class="right"><button class="link-btn" type="button" data-open="wa-sem-conversa">WhatsApp</button> · <button class="link-btn" type="button" data-open="tornar-principal">Tornar principal</button></td>
         </tr>
         <tr data-status="Principal">
           <td data-label="Contato"><div class="p-cell"><span class="avatar sm soft">FL</span><div><span class="strong">Fernanda Lopes</span><span class="cell-sub">Gerente de TI</span></div></div></td>
@@ -99,7 +99,7 @@
           <td data-label="Telefone" class="nowrap"><a href="tel:+551932104415">(19) 3210-4415</a></td>
           <td data-label="E-mail"><a href="mailto:financeiro@xyz.com.br">financeiro@xyz.com.br</a></td>
           <td data-label="Principal" class="muted">—</td>
-          <td data-label="" class="right"><button class="link-btn" type="button" data-open="tornar-principal">Tornar principal</button></td>
+          <td data-label="" class="right"><button class="link-btn" type="button" data-open="wa-sem-numero">WhatsApp</button> · <button class="link-btn" type="button" data-open="tornar-principal">Tornar principal</button></td>
         </tr>
         <tr data-status="Principal">
           <td data-label="Contato"><div class="p-cell"><span class="avatar sm soft">HM</span><div><span class="strong">Henrique Matos</span><span class="cell-sub">Sócio-diretor</span></div></div></td>
@@ -257,7 +257,42 @@
   </form>
 </div>
 
+<!-- Drawer: WhatsApp do contato (com conversa) -->
+<aside class="drawer" id="wa-contato" role="dialog" aria-modal="true" aria-labelledby="wa-contato-t">
+  <div class="drawer-head"><div><h2 id="wa-contato-t">WhatsApp · Marcos Andrade</h2><span class="caption">Empresa ACME · <span class="mono">+55 11 98765-4321</span></span></div><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div class="drawer-body form">
+    <div class="callout warn"><span><b class="strong">Janela de 24h fechada</b> desde 15/09 14:02. Para retomar, envie um template aprovado pela conversa.</span></div>
+    <div class="thread">
+      <div class="msg client"><span class="avatar sm soft" style="width:36px;height:36px;font-size:13px">MA</span><div><div class="who"><b>Marcos Andrade</b> · 14/09 14:02</div><div class="bubble">Rafael, conseguimos antecipar a reunião de alinhamento de terça para as 9h?</div></div></div>
+      <div class="msg out"><span class="avatar sm" style="width:36px;height:36px;font-size:13px">R</span><div><div class="who"><b>Rafael</b> · 14/09 14:10 · pelo celular · Lida</div><div class="bubble">Combinado! Até terça.</div></div></div>
+    </div>
+    <span class="caption">Últimas mensagens. A conversa completa, com anexos e status, fica em WhatsApp → Conversas.</span>
+  </div>
+  <div class="drawer-foot"><button class="btn" type="button" data-close>Fechar</button><a class="btn pri" href="../whatsapp/conversas.html?c=marcos">Abrir conversa</a></div>
+</aside>
+
+<!-- Drawer: WhatsApp do contato (sem conversa) -->
+<aside class="drawer" id="wa-sem-conversa" role="dialog" aria-modal="true" aria-labelledby="wa-sem-conversa-t">
+  <div class="drawer-head"><div><h2 id="wa-sem-conversa-t">WhatsApp · Paulo Reis</h2><span class="caption">Empresa ACME · <span class="mono">+55 11 97654-1122</span></span></div><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div class="drawer-body form">
+    <div class="row" style="gap:8px"><span class="badge b-mute">Sem conversa</span></div>
+    <p style="margin:0">Ainda não há conversa com Paulo. O primeiro contato precisa ser um <b class="strong">template aprovado</b>: a janela de 24h para mensagens livres só abre quando ele responder.</p>
+  </div>
+  <div class="drawer-foot"><button class="btn" type="button" data-close>Fechar</button><button class="btn pri" type="button" data-wa-iniciar data-nome="Paulo Reis" data-org="Empresa ACME" data-numero="(11) 97654-1122" data-cadastro="contato" data-tpl="retomada_contato">Iniciar conversa no WhatsApp</button></div>
+</aside>
+
+<!-- Drawer: WhatsApp do contato (sem número cadastrado) -->
+<aside class="drawer" id="wa-sem-numero" role="dialog" aria-modal="true" aria-labelledby="wa-sem-numero-t">
+  <div class="drawer-head"><div><h2 id="wa-sem-numero-t">WhatsApp · Rodrigo Nunes</h2><span class="caption">Empresa XYZ · sem WhatsApp cadastrado</span></div><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div class="drawer-body form">
+    <div class="row" style="gap:8px"><span class="badge b-warn">Sem número</span></div>
+    <p style="margin:0">Ainda não há conversa com Rodrigo e o contato não tem <b class="strong">WhatsApp cadastrado</b>. Informe o número ao iniciar; o primeiro contato é sempre por template aprovado.</p>
+  </div>
+  <div class="drawer-foot"><button class="btn" type="button" data-close>Fechar</button><button class="btn pri" type="button" data-wa-iniciar data-nome="Rodrigo Nunes" data-org="Empresa XYZ" data-numero="" data-cadastro="contato" data-tpl="proposta_enviada">Iniciar conversa no WhatsApp</button></div>
+</aside>
+
 <script src="../assets/app.js"></script>
+<script src="../assets/wa-iniciar.js"></script>
 <script>
   // Aviso do contato principal: mostra quem será desmarcado na empresa escolhida
   (function () {
