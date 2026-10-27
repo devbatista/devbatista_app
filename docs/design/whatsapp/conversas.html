@@ -1,0 +1,910 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Conversas · WhatsApp · Admin DevBatista</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/app.css">
+<style>
+  /* A tela ocupa a altura da janela; cada coluna rola por dentro. */
+  .content { height: calc(100vh - var(--top-h)); height: calc(100dvh - var(--top-h)); min-height: 600px; padding-bottom: 24px; gap: 16px; }
+  .page-head .actions { align-items: center; }
+  .wa { flex: 1; min-height: 0; display: grid; grid-template-columns: 300px minmax(0, 1fr) 320px; gap: 16px; }
+  .wa > .card { display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+  .col-head { padding: 14px 16px; border-bottom: 1px solid var(--rule); display: flex; flex-direction: column; gap: 10px; }
+  .col-body { flex: 1; min-height: 0; overflow-y: auto; }
+  .col-head .search-field, .col-head .search-field .input { width: 100%; }
+
+  /* Lista de conversas */
+  .filters { display: flex; flex-wrap: wrap; gap: 6px; }
+  .filters .chip { cursor: pointer; height: 26px; padding: 0 10px; gap: 6px; }
+  .filters .chip:hover { color: var(--white); border-color: #475569; }
+  .filters .chip[aria-pressed="true"] { background: var(--cyan-tint); border-color: var(--cyan-line); color: var(--cyan-300); font-weight: 600; }
+  .filters .chip .c { font-size: 11px; opacity: .8; }
+  .cv { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 12px; width: 100%; padding: 12px 16px; border: 0; border-bottom: 1px solid var(--rule); background: transparent; text-align: left; cursor: pointer; color: inherit; }
+  .cv:hover { background: var(--surface-hover); }
+  .cv.on { background: var(--cyan-tint); box-shadow: inset 3px 0 0 var(--cyan); }
+  .cv .avatar { width: 40px; height: 40px; }
+  .cv-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .cv-l1, .cv-l3 { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .cv-name { flex: 1; min-width: 0; color: var(--text); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cv-time { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; flex: none; }
+  .cv.unread .cv-time { color: var(--cyan-300); font-weight: 600; }
+  .cv-l2 { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); min-width: 0; white-space: nowrap; overflow: hidden; }
+  .cv-l2 .t { overflow: hidden; text-overflow: ellipsis; }
+  .cv-prev { flex: 1; min-width: 0; font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cv.unread .cv-prev { color: var(--text); font-weight: 500; }
+  .cv .badge, .msg .who .badge, .sm-badge { height: 18px; padding: 0 7px; font-size: 11px; }
+  .pill { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: var(--cyan); color: var(--bg); font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  .win-ic { display: inline-flex; color: var(--good); flex: none; }
+  .win-ic.soon { color: var(--warn); }
+
+  /* Conversa */
+  .conv-head { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--rule); }
+  .conv-head .avatar { width: 40px; height: 40px; }
+  .conv-title { flex: 1; min-width: 0; }
+  .conv-title h2 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .conv-sub { font-size: 12px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; }
+  .back-btn, .panel-btn, .close-panel { display: none !important; }
+  .thread-wrap { flex: 1; min-height: 0; overflow-y: auto; padding: 18px 20px; }
+  .thread { gap: 14px; }
+  .thread > .msg > div { max-width: 640px; }
+  .msg .bubble p { margin: 0; white-space: pre-line; }
+  .msg .who .badge { margin-left: 6px; vertical-align: 1px; }
+  .msg .who .badge svg { margin-right: -2px; }
+  .day { align-self: center; font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 3px 12px; text-align: center; }
+  .sys { align-self: center; max-width: 560px; display: flex; gap: 8px; align-items: flex-start; font-size: 12px; color: var(--muted); text-align: left; padding: 8px 12px; border: 1px dashed var(--border-strong); border-radius: 10px; }
+  .sys svg { flex: none; margin-top: 1px; color: var(--cyan); }
+  .b-foot { display: flex; justify-content: flex-end; align-items: center; gap: 10px; margin-top: 6px; flex-wrap: wrap; }
+  .st { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; color: var(--muted); }
+  .st.read { color: var(--cyan); }
+  .st.fail { color: var(--crit); }
+  .err { flex-basis: 100%; font-size: 12px; color: var(--crit); }
+  .m-img { display: block; width: min(300px, 100%); aspect-ratio: 16 / 10; border-radius: 8px; border: 1px solid var(--border); overflow: hidden; margin-bottom: 8px; background: var(--surface-solid); }
+  .m-img svg { display: block; width: 100%; height: 100%; }
+  .m-audio { display: flex; align-items: center; gap: 10px; min-width: 220px; }
+  .m-audio .progress { flex: 1; }
+  .play { width: 32px; height: 32px; border-radius: 50%; border: 0; background: var(--cyan); color: var(--bg); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; flex: none; }
+  .m-doc { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-solid); margin-bottom: 8px; }
+  .m-doc .t { flex: 1; min-width: 0; }
+  .m-doc .t b { display: block; color: var(--text); font-weight: 600; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .file-ic { width: 36px; height: 36px; border-radius: 8px; background: var(--surface-2); border: 1px solid var(--border); display: inline-flex; align-items: center; justify-content: center; color: var(--cyan); flex: none; }
+  .tpl-btns { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+  .tpl-btns span { display: block; text-align: center; padding: 6px; border: 1px solid var(--border-strong); border-radius: 6px; font-size: 13px; color: var(--cyan); font-weight: 600; }
+
+  /* Campo de envio */
+  .composer { border-top: 1px solid var(--rule); padding: 12px 16px 14px; display: flex; flex-direction: column; gap: 10px; max-height: 46vh; overflow-y: auto; flex: none; }
+  .composer .callout { padding: 10px 12px; font-size: 13px; align-items: flex-start; }
+  .composer .callout svg { flex: none; color: var(--warn); margin-top: 1px; }
+  .win-bar { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
+  .composer .textarea { min-height: 64px; max-height: 200px; width: 100%; }
+  .comp-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .attach { display: inline-flex; align-items: center; gap: 8px; height: 30px; padding: 0 6px 0 10px; border-radius: 999px; border: 1px solid var(--border-strong); font-size: 12px; color: var(--text-2); max-width: 100%; }
+  .attach span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .attach button { border: 0; background: transparent; color: var(--muted); cursor: pointer; display: inline-flex; padding: 2px; }
+  .tpl-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; align-items: start; }
+  .tpl-vars { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; }
+  .tpl-vars .field label { font-weight: 500; }
+  .wa-prev { background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; font-size: 13px; color: var(--text-2); margin-top: 6px; }
+  .wa-prev p { margin: 0; white-space: pre-line; }
+  .wa-prev mark { background: var(--cyan-tint); color: var(--cyan-300); border-radius: 4px; padding: 0 3px; }
+  .wa-prev .ft { font-size: 12px; color: var(--muted); margin-top: 6px; }
+
+  /* Painel do lead / empresa */
+  .pblock { border-top: 1px solid var(--rule); }
+  .pblock:first-child { border-top: 0; }
+  .pblock > .card-head { padding: 14px 20px 6px; }
+  .pblock .kv { padding: 10px 20px; border-top: 0; font-size: 13px; }
+  .pblock .kv > span:first-child { flex: none; }
+  .pblock .kv > span.pt { flex: 1 1 auto; min-width: 0; }
+  .pblock .kv b, .pblock .kv .right { min-width: 0; text-align: right; overflow-wrap: anywhere; }
+  .pblock .tl { border-top: 0; padding: 8px 20px; font-size: 13px; }
+  .pbody { padding: 6px 20px 16px; display: flex; flex-direction: column; gap: 10px; }
+  .who-card { display: flex; gap: 12px; align-items: center; padding: 16px 20px 8px; }
+  .who-card .co-avatar { width: 44px; height: 44px; font-size: 15px; }
+  .ministeps { display: flex; gap: 4px; }
+  .ministeps i { flex: 1; height: 4px; border-radius: 2px; background: var(--border-strong); }
+  .ministeps i.done { background: var(--cyan-800); }
+  .ministeps i.cur { background: var(--cyan); }
+  .ministeps-l { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); gap: 4px; }
+  .ministeps-l span.cur { color: var(--white); font-weight: 600; }
+  .move { display: flex; gap: 8px; }
+  .move .select { flex: 1; height: 32px; font-size: 13px; }
+  .unlinked { padding: 24px 20px 8px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px; color: var(--muted); }
+  .unlinked .ic { width: 48px; height: 48px; border-radius: 12px; background: var(--warn-bg); color: var(--warn); display: flex; align-items: center; justify-content: center; }
+  .unlinked .btn { width: 100%; }
+  .bsuid { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; word-break: break-all; }
+  .results { display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+  .results label { display: grid; grid-template-columns: 18px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 12px; border-top: 1px solid var(--rule); cursor: pointer; font-size: 13px; }
+  .results label:first-child { border-top: 0; }
+  .results label:hover { background: var(--surface-hover); }
+  .results input { accent-color: var(--cyan); width: 16px; height: 16px; }
+  .notify-bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .notify-bar span { flex: 1; min-width: 220px; }
+  .notify-blocked { margin: -6px 0 0; display: flex; align-items: center; gap: 6px; }
+
+  @media (max-width: 1360px) {
+    .wa { grid-template-columns: 300px minmax(0, 1fr); }
+    .wa .panel { position: fixed; top: 0; right: 0; bottom: 0; width: min(380px, 100%); z-index: 60; border-radius: 0; border-width: 0 0 0 1px; background: var(--surface-solid); transform: translateX(100%); visibility: hidden; transition: transform .25s ease; }
+    .wa.panel-open .panel { transform: none; visibility: visible; }
+    .panel-btn, .close-panel { display: inline-flex !important; }
+  }
+  @media (max-width: 960px) {
+    .content { padding: 12px 12px 12px; gap: 12px; min-height: 0; }
+    .page-head .lead, .page-head .hide-sm { display: none; }
+    .notify-bar .btn { flex: 1; }
+    .wa { grid-template-columns: minmax(0, 1fr); }
+    .wa .conv { display: none; }
+    .wa.show-conv .list { display: none; }
+    .wa.show-conv .conv { display: flex; }
+    .back-btn { display: inline-flex !important; }
+    .thread-wrap { padding: 14px 12px; }
+    .msg { grid-template-columns: 28px minmax(0, 1fr); gap: 8px; }
+    .msg.out { grid-template-columns: minmax(0, 1fr) 28px; }
+    .msg > .avatar { width: 28px !important; height: 28px !important; font-size: 11px !important; }
+    .tpl-grid, .tpl-vars { grid-template-columns: minmax(0, 1fr); }
+    .conv-head .badge { display: none; }
+  }
+</style>
+</head>
+<body data-group="wa" data-item="Conversas" data-crumb='[["WhatsApp"],["Conversas"]]'>
+<div class="app">
+<aside class="side"></aside>
+<div class="main">
+<header class="top"></header>
+<main class="content">
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">WhatsApp</span>
+    <h1>Conversas</h1>
+    <p class="lead">Mensagens do número da DevBatista, ligadas aos leads e contatos.</p>
+  </div>
+  <div class="actions">
+    <label class="sr-only" for="f-conta">Conta do WhatsApp</label>
+    <select class="select hide-sm" id="f-conta"><option>Todas as contas (1)</option><option>DevBatista · +55 11 97070-2026</option></select>
+    <a class="btn hide-sm" href="templates.html">Templates</a>
+    <button class="btn pri" type="button" data-open="nova-conversa"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Nova conversa</button>
+  </div>
+</div>
+
+<div class="callout notify-bar" id="notify-bar" hidden>
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;color:var(--cyan)"><path d="M6 8a6 6 0 1112 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.9 1.9 0 003.4 0"/></svg>
+  <span>Quer um aviso com som quando chegar mensagem com o Admin aberto, mesmo em outra aba? O navegador vai pedir sua permissão.</span>
+  <button class="btn sm pri" type="button" id="notify-on">Ativar avisos</button>
+  <button class="btn sm" type="button" id="notify-off">Agora não</button>
+</div>
+<p class="caption notify-blocked" id="notify-blocked" hidden><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 1112 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.9 1.9 0 003.4 0M3 3l18 18"/></svg>Avisos do navegador bloqueados para este site. Para reativar, clique no cadeado ao lado do endereço e permita notificações.</p>
+
+<div class="wa" id="wa">
+  <!-- Coluna 1: lista -->
+  <section class="card list" aria-label="Lista de conversas">
+    <div class="col-head">
+      <label class="search-field"><span class="sr-only">Buscar conversa</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M11 18a7 7 0 100-14 7 7 0 000 14zM21 21l-4.3-4.3"/></svg><input class="input" type="search" id="busca" placeholder="Nome, número, @usuário ou empresa"></label>
+      <div class="filters" role="group" aria-label="Filtrar conversas" id="filtros">
+        <button type="button" class="chip" data-f="todas" aria-pressed="true">Todas <span class="c"></span></button>
+        <button type="button" class="chip" data-f="naolidas" aria-pressed="false">Não lidas <span class="c"></span></button>
+        <button type="button" class="chip" data-f="leads" aria-pressed="false">Leads <span class="c"></span></button>
+        <button type="button" class="chip" data-f="clientes" aria-pressed="false" title="Conversas ligadas a um contato de empresa">Clientes <span class="c"></span></button>
+        <button type="button" class="chip" data-f="semvinculo" aria-pressed="false">Sem vínculo <span class="c"></span></button>
+        <button type="button" class="chip" data-f="janela" aria-pressed="false" title="Cliente escreveu nas últimas 24h">Janela aberta <span class="c"></span></button>
+      </div>
+    </div>
+    <div class="col-body" id="lista" role="list"></div>
+  </section>
+
+  <!-- Coluna 2: conversa -->
+  <section class="card conv" aria-label="Conversa" id="conv">
+    <div class="conv-head" id="conv-head"></div>
+    <div class="thread-wrap" id="thread-wrap"><div class="thread" id="thread" aria-live="polite"></div></div>
+    <div class="composer" id="composer"></div>
+  </section>
+
+  <!-- Coluna 3: painel do lead / empresa -->
+  <aside class="card panel" aria-label="Painel do vínculo" id="panel"></aside>
+</div>
+
+</main>
+</div>
+</div>
+
+<!-- Drawer: criar lead a partir da conversa -->
+<aside class="drawer" id="criar-lead" role="dialog" aria-modal="true" aria-labelledby="criar-lead-t">
+  <form class="form" style="display:contents">
+    <div class="drawer-head"><h2 id="criar-lead-t">Criar lead a partir da conversa</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="drawer-body form">
+      <div class="callout"><span>O lead nasce com <b class="strong">origem WhatsApp</b> e esta conversa fica ligada a ele. Mensagens anteriores passam a aparecer na ficha.</span></div>
+      <span class="fieldset-title">Contato</span>
+      <div class="form-grid">
+        <div class="field full"><label for="cl-nome">Nome <span class="req">*</span></label><input class="input" id="cl-nome" required value="Lu Martins"><span class="hint">Veio do nome do perfil no WhatsApp; ajuste se precisar</span></div>
+        <div class="field full"><label for="cl-emp">Empresa</label><input class="input" id="cl-emp" placeholder="Nome da empresa, se houver"></div>
+        <div class="field"><label for="cl-wa">WhatsApp</label><input class="input mono" id="cl-wa" type="tel" placeholder="Não compartilhado"><span class="hint" id="cl-wa-h">O contato não compartilhou o telefone. A conversa fica ligada pelo ID do WhatsApp.</span></div>
+        <div class="field"><label for="cl-mail">E-mail</label><input class="input" id="cl-mail" type="email" placeholder="nome@empresa.com.br"></div>
+      </div>
+      <span class="fieldset-title">Qualificação</span>
+      <div class="form-grid">
+        <div class="field"><label for="cl-orig">Origem <span class="req">*</span></label><select class="select" id="cl-orig" required><option selected>WhatsApp</option><option>Indicação</option><option>Site</option><option>Meta Ads</option><option>Google Ads</option><option>Outros</option></select></div>
+        <div class="field"><label for="cl-svc">Serviço de interesse</label><select class="select" id="cl-svc"><option value="">Selecione</option><option selected>Desenvolvimento de sites</option><option>Desenvolvimento de sistemas</option><option>Integrações</option><option>Consultoria de TI</option><option>Automação/RPA</option></select></div>
+        <div class="field"><label for="cl-resp">Responsável <span class="req">*</span></label><select class="select" id="cl-resp" required><option selected>Rafael</option><option>Ana Souza</option><option>Bruno Lima</option></select></div>
+        <div class="field"><label for="cl-st">Status <span class="req">*</span></label><select class="select" id="cl-st" required><option selected>Novo Lead</option><option>Contato Realizado</option><option>Qualificado</option></select></div>
+        <div class="field full"><label for="cl-obs">Observações</label><textarea class="textarea" id="cl-obs">Chegou pelo WhatsApp em 17/09/2026: "Vi o anúncio de vocês sobre site institucional. Vocês fazem loja virtual também?" Orçamento de até R$ 8 mil.</textarea></div>
+      </div>
+    </div>
+    <div class="drawer-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Criar lead e vincular</button></div>
+  </form>
+</aside>
+
+<!-- Modal: vincular a lead ou contato existente -->
+<div class="modal" id="vincular" role="dialog" aria-modal="true" aria-labelledby="vincular-t">
+  <form class="form" style="display:contents">
+    <div class="modal-head"><h2 id="vincular-t">Vincular a lead ou contato</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="modal-body form">
+      <label class="search-field" style="width:100%"><span class="sr-only">Buscar lead ou contato</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M11 18a7 7 0 100-14 7 7 0 000 14zM21 21l-4.3-4.3"/></svg><input class="input" type="search" value="Martins" style="width:100%" aria-label="Buscar lead ou contato"></label>
+      <div class="results" role="radiogroup" aria-label="Resultados">
+        <label><input type="radio" name="alvo" checked><span><span class="strong">Luciana Martins</span><span class="cell-sub">Rede Bella Moda · Novo Lead · Instagram</span></span><span class="badge b-info sm-badge">Lead</span></label>
+        <label><input type="radio" name="alvo"><span><span class="strong">Martins &amp; Filhos Transportes</span><span class="cell-sub">Ricardo Martins · Perdido em 12/08/2026</span></span><span class="badge b-info sm-badge">Lead</span></label>
+        <label><input type="radio" name="alvo"><span><span class="strong">Lucas Viana</span><span class="cell-sub">Empresa Orion · CEO</span></span><span class="badge b-good sm-badge">Contato</span></label>
+      </div>
+      <label class="check"><input type="checkbox" checked> Salvar o @usuário do WhatsApp no cadastro escolhido</label>
+      <div class="callout"><span>As mensagens desta conversa passam a aparecer na ficha escolhida, e as próximas geram a interação “WhatsApp” do dia no lead ou na oportunidade.</span></div>
+    </div>
+    <div class="modal-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Vincular conversa</button></div>
+  </form>
+</div>
+
+<!-- Modal: registrar interação -->
+<div class="modal" id="registrar-interacao" role="dialog" aria-modal="true" aria-labelledby="registrar-interacao-t">
+  <form class="form" style="display:contents">
+    <div class="modal-head"><h2 id="registrar-interacao-t">Registrar interação</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="modal-body form">
+      <div class="callout"><span id="ri-alvo">Lead · Grupo Norte Logística</span></div>
+      <div class="form-grid">
+        <div class="field"><label for="ri-tipo">Tipo <span class="req">*</span></label><select class="select" id="ri-tipo" required><option>Ligação</option><option>WhatsApp</option><option>E-mail</option><option selected>Reunião</option><option>Nota</option></select></div>
+        <div class="field"><label for="ri-data">Data <span class="req">*</span></label><input class="input" id="ri-data" type="date" value="2026-09-17" required></div>
+        <div class="field full"><label for="ri-txt">Registro <span class="req">*</span></label><textarea class="textarea" id="ri-txt" required placeholder="O que foi conversado e qual o próximo passo?"></textarea><span class="hint">As conversas do WhatsApp já viram uma interação por dia automaticamente. Use este campo para o que aconteceu fora dele.</span></div>
+      </div>
+    </div>
+    <div class="modal-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Registrar interação</button></div>
+  </form>
+</div>
+
+<!-- Modal: nova conversa (sempre começa por template) -->
+<div class="modal" id="nova-conversa" role="dialog" aria-modal="true" aria-labelledby="nova-conversa-t">
+  <form class="form" style="display:contents">
+    <div class="modal-head"><h2 id="nova-conversa-t">Nova conversa no WhatsApp</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="modal-body form">
+      <div class="form-grid">
+        <div class="field full"><label for="nc-para">Para <span class="req">*</span></label>
+          <select class="select" id="nc-para" required>
+            <optgroup label="Contatos">
+              <option data-first="Paulo" selected>Paulo Reis · Empresa ACME · (11) 97654-1122</option>
+              <option data-first="Henrique">Henrique Matos · Empresa Delta · (31) 98874-6120</option>
+              <option data-first="Lucas">Lucas Viana · Empresa Orion · (41) 99660-7731</option>
+            </optgroup>
+            <optgroup label="Leads">
+              <option data-first="Luciana">Luciana Martins · Rede Bella Moda · (11) 99420-1180</option>
+            </optgroup>
+          </select>
+          <span class="hint">Só aparecem leads e contatos com WhatsApp cadastrado</span>
+        </div>
+        <div class="field full"><label for="nc-conta">Enviar pela conta</label><select class="select" id="nc-conta"><option>DevBatista · +55 11 97070-2026</option></select></div>
+      </div>
+      <div data-tpl-form data-first-from="nc-para"></div>
+      <div class="callout"><span>Fora de uma conversa aberta, a primeira mensagem precisa ser um <b class="strong">template aprovado</b>. A janela de 24h para mensagens livres abre quando a pessoa responder.</span></div>
+    </div>
+    <div class="modal-foot"><button class="btn" type="button" data-close>Cancelar</button><button class="btn pri" type="submit">Enviar template</button></div>
+  </form>
+</div>
+
+<script src="../assets/app.js"></script>
+<script>
+  // Protótipo: as conversas são montadas a partir destes dados. "Agora" é 17/09/2026 11:24.
+  (function () {
+    'use strict';
+
+    const P = {
+      clock: 'M12 21a9 9 0 100-18 9 9 0 000 18zM12 7v5l3 2',
+      check: 'M5 12l5 5L20 7',
+      dbl: 'M1.5 12.5l4.5 4.5 9-9M10 16.5l.5.5 9-9',
+      alert: 'M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z',
+      phone: 'M8 2h8a1 1 0 011 1v18a1 1 0 01-1 1H8a1 1 0 01-1-1V3a1 1 0 011-1zM11 18h2',
+      info: 'M12 22a10 10 0 100-20 10 10 0 000 20zM12 16v-4M12 8h.01',
+      history: 'M3 12a9 9 0 103-6.7L3 8M3 3v5h5M12 7v5l3 2',
+      play: 'M8 5l11 7-11 7z',
+      file: 'M6 3h9l4 4v14H6zM14 3v5h5',
+      clip: 'M21 11l-8.5 8.5a5 5 0 01-7-7L14 4a3.5 3.5 0 015 5l-8.5 8.5a2 2 0 01-3-3L15 7',
+      back: 'M15 6l-6 6 6 6',
+      panel: 'M4 4h16v16H4zM14 4v16',
+      send: 'M4 12l16-8-6 16-2-7z',
+      x: 'M6 6l12 12M18 6L6 18',
+      link: 'M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1',
+      userplus: 'M15 19a6 6 0 00-12 0M9 11a4 4 0 100-8 4 4 0 000 8zM19 8v6M16 11h6',
+      unlink: 'M9 15l6-6M10 6l1-1a4 4 0 015.7 5.7l-1 1M14 18l-1 1a4 4 0 01-5.7-5.7l1-1'
+    };
+    const ic = (d, s, sw) => `<svg width="${s || 16}" height="${s || 16}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw || 1.8}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"/></svg>`;
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const initials = (n) => n.split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase();
+
+    // Templates aprovados da conta (os mesmos de templates.html).
+    const TPL = {
+      lembrete_proposta: { cat: 'Utilidade', body: 'Olá, {{1}}. A proposta {{2}} vence em {{3}}. Ficou alguma dúvida? Se quiser, ajusto algum ponto com você.', vars: ['Nome', 'Proposta', 'Validade'], btns: ['Ver proposta'] },
+      retomada_contato: { cat: 'Marketing', body: 'Olá, {{1}}! Tudo bem? Passando para retomar nossa conversa sobre {{2}}. Posso te ajudar com algo por aqui?', vars: ['Nome', 'Assunto'], btns: ['Quero conversar', 'Agora não'] },
+      lembrete_reuniao: { cat: 'Utilidade', body: 'Olá, {{1}}. Lembrete da nossa reunião {{2}} às {{3}}. O link de acesso está no convite enviado por e-mail.', vars: ['Nome', 'Data', 'Horário'], btns: ['Confirmar', 'Remarcar'] },
+      proposta_enviada: { cat: 'Utilidade', body: 'Olá, {{1}}. Enviamos a proposta {{2}} para o seu e-mail. Ela é válida até {{3}}.', vars: ['Nome', 'Proposta', 'Validade'], btns: ['Ver proposta'] },
+      boas_vindas_lead: { cat: 'Utilidade', body: 'Olá, {{1}}! Aqui é o {{2}}, da DevBatista. Recebemos seu pedido de {{3}} pelo site. Podemos conversar por aqui?', vars: ['Nome', 'Seu nome', 'Assunto'], btns: [] }
+    };
+
+    const HIST = 'Conectado ao Admin em 15/09/2026 10:08. As mensagens anteriores vieram da sincronização do histórico do celular (até 180 dias).';
+
+    const LEAD_STAGES = ['Novo Lead', 'Contato Realizado', 'Qualificado', 'Oportunidade'];
+    const OPP_STAGES = ['Reunião', 'Proposta', 'Negociação', 'Fechado'];
+
+    const CONVS = [
+      {
+        id: 'henrique', name: 'Henrique Duarte', phone: '+55 11 99102-3344', kind: 'lead', org: 'Grupo Norte Logística',
+        time: '10:51', unread: 0, preview: 'Você: Confirmando: terça, 22/09 às 10h…', win: { open: true, left: '23h18', until: '18/09 10:42' },
+        msgs: [
+          { day: '04/09/2026 · histórico do celular' },
+          { dir: 'in', t: '09:12', text: 'Bom dia! Preenchi o diagnóstico no site ontem à noite. Quando podemos conversar?', hist: 1 },
+          { dir: 'out', via: 'celular', t: '09:32', text: 'Bom dia, Henrique! Recebi sim. Podemos fazer o diagnóstico na quarta, 10/09, às 10h?', st: 'read', hist: 1 },
+          { dir: 'in', t: '09:40', text: 'Fechado, quarta às 10h.', hist: 1 },
+          { day: '12/09/2026 · histórico do celular' },
+          { dir: 'out', via: 'celular', t: '16:50', text: 'Henrique, acabei de enviar por e-mail o relatório do diagnóstico. Qualquer dúvida, me chama aqui.', st: 'read', hist: 1 },
+          { sys: HIST },
+          { day: '16/09/2026' },
+          { dir: 'out', via: 'admin', t: '14:45', text: 'Henrique, conforme falamos na ligação, segue o escopo preliminar.', doc: ['Escopo_preliminar_Grupo_Norte.pdf', '284 KB · PDF'], st: 'read' },
+          { day: 'Hoje' },
+          { dir: 'in', t: '10:31', img: 1, text: 'Esse é o fluxo atual entre o TMS e o ERP que comentei.' },
+          { dir: 'in', t: '10:33', audio: '0:48' },
+          { dir: 'in', t: '10:42', text: 'Consegue incluir o módulo de roteirização na reunião de terça? O CFO vai participar.' },
+          { dir: 'out', via: 'celular', t: '10:44', text: 'Consigo sim! Levo uma demo.', st: 'delivered' },
+          { log: 'Interação “WhatsApp” de hoje registrada no lead. As próximas mensagens do dia entram nela.' },
+          { dir: 'out', via: 'admin', t: '10:51', text: 'Confirmando: terça, 22/09 às 10h, online. Envio o convite por e-mail ainda hoje.', st: 'sent' }
+        ],
+        panel: {
+          type: 'lead', title: 'Grupo Norte Logística', href: '../comercial/lead.html', badge: ['Lead · Qualificado', 'b-info'],
+          rows: [['Contato', 'Henrique Duarte', 'Diretor de operações'], ['E-mail', 'henrique.duarte@gruponorte.com.br'], ['Origem', 'Diagnóstico'], ['Serviço', 'Consultoria de TI']],
+          owner: 'Rafael', stages: LEAD_STAGES, cur: 2, move: ['Novo Lead', 'Contato Realizado', 'Converter em oportunidade…', 'Marcar como perdido…'],
+          proposals: [['Sistema de roteirização', '#P-2026-032', 'Rascunho', 'b-mute', 'R$ 12.000', '']],
+          next: ['Reunião de plano de trabalho', '22/09/2026 às 10:00 · online'],
+          ints: [['WhatsApp', 'Conversa de hoje · 4 recebidas, 2 enviadas', 'hoje · automática'], ['Ligação', 'Confirmou orçamento para consultoria a partir de outubro.', '16/09/2026 14:20 · Rafael'], ['E-mail', 'Enviado o relatório do diagnóstico.', '12/09/2026 16:48 · Rafael']]
+        },
+        tpl: { name: 'lembrete_reuniao', vals: ['Henrique', 'de terça, 22/09', '10h'] }
+      },
+      {
+        id: 'lu', name: 'Lu Martins', user: '@lu.martins', bsuid: 'BR.11803477661209384712', kind: 'none',
+        time: '10:05', unread: 2, preview: 'Meu orçamento é até uns 8 mil.', win: { open: true, left: '22h41', until: '18/09 10:05' },
+        msgs: [
+          { day: 'Hoje' },
+          { dir: 'in', t: '09:58', text: 'Oi! Vi o anúncio de vocês sobre site institucional. Vocês fazem loja virtual também?' },
+          { dir: 'in', t: '10:05', text: 'Meu orçamento é até uns 8 mil.' }
+        ],
+        panel: { type: 'none', first: 'hoje, 09:58' },
+        tpl: { name: 'retomada_contato', vals: ['Lu', 'a sua loja virtual'] }
+      },
+      {
+        id: 'carlos', name: 'Carlos Pires', phone: '+55 21 98888-1234', bsuid: 'BR.20419938471100523867', kind: 'none',
+        time: '08:17', unread: 1, preview: 'Bom dia, vocês fazem integração com o Bling?', win: { open: true, left: '20h53', until: '18/09 08:17' },
+        msgs: [
+          { day: 'Hoje' },
+          { dir: 'in', t: '08:17', text: 'Bom dia, vocês fazem integração com o Bling? Tenho uma loja e queria ligar o estoque com o site.' }
+        ],
+        panel: { type: 'none', first: 'hoje, 08:17' },
+        tpl: { name: 'retomada_contato', vals: ['Carlos', 'a integração com o Bling'] }
+      },
+      {
+        id: 'juliana', name: 'Juliana Ferraz', phone: '+55 11 99812-3344', kind: 'contact', org: 'Empresa ACME',
+        time: '09:14', unread: 1, preview: 'Documento: Comprovante_ACME_R$200.pdf', win: { open: true, left: '21h50', until: '18/09 09:14' },
+        msgs: [
+          { day: '10/09/2026 · histórico do celular' },
+          { dir: 'out', via: 'celular', t: '08:02', text: 'Bom dia, Juliana! A fatura de setembro está no seu e-mail. Ficou um ajuste de R$ 200 em aberto, de agosto.', st: 'read', hist: 1 },
+          { dir: 'in', t: '08:30', text: 'Bom dia! Vou verificar com o banco e te aviso.', hist: 1 },
+          { sys: HIST },
+          { day: 'Hoje' },
+          { dir: 'in', t: '09:14', doc: ['Comprovante_ACME_R$200.pdf', '96 KB · PDF'], text: 'Segue o comprovante dos R$ 200 que estavam em aberto.' }
+        ],
+        panel: {
+          type: 'contact', title: 'Empresa ACME', href: '../clientes/empresa.html', badge: ['Cliente · Ativo', 'b-good'],
+          rows: [['Contato', 'Juliana Ferraz', 'Analista financeira · recebe as cobranças'], ['E-mail', 'financeiro@acme.com.br'], ['Contrato', '#104 Consultoria de TI', 'Ativo · R$ 3.000/mês']],
+          owner: null, opp: null, proposals: [], next: null, ints: []
+        },
+        tpl: { name: 'retomada_contato', vals: ['Juliana', 'o ajuste de agosto'] }
+      },
+      {
+        id: 'camila', name: 'Camila Rezende', phone: '+55 64 99902-4418', kind: 'contact', org: 'Agro Campos',
+        time: 'Ontem', unread: 0, preview: 'Vou levar a versão 2 para o diretor amanhã.', win: { open: true, soon: true, left: '6h56', until: '17/09 18:20' },
+        msgs: [
+          { day: '05/09/2026 · histórico do celular' },
+          { dir: 'out', via: 'celular', t: '15:02', text: 'Camila, enviei a versão 2 da proposta com o ajuste no escopo da automação de pedidos.', st: 'read', hist: 1 },
+          { sys: HIST },
+          { day: '16/09/2026' },
+          { dir: 'in', t: '18:20', text: 'Vou levar a versão 2 para o diretor amanhã. Te dou um retorno até sexta.' },
+          { log: 'Interação “WhatsApp” de 16/09 registrada na oportunidade Automação de notas e pedidos.' }
+        ],
+        panel: {
+          type: 'contact', title: 'Agro Campos', href: '../clientes/empresa.html', badge: ['Prospect', 'b-mute'],
+          rows: [['Contato', 'Camila Rezende', 'Gestora administrativa'], ['E-mail', 'camila@agrocampos.com.br']],
+          owner: 'Ana Souza', opp: ['Automação de notas e pedidos', 'Automação/RPA · R$ 9.000 · 75%'], stages: OPP_STAGES, cur: 2, move: ['Reunião', 'Proposta', 'Fechado (ganha)…', 'Perdida…'],
+          proposals: [['Automação de notas e pedidos', '#P-2026-028 · versão 2', 'Visualizada', 'b-blue', 'R$ 9.000', 'válida até 25/09']],
+          next: ['Retorno do diretor sobre a versão 2', 'até 18/09/2026'],
+          ints: [['WhatsApp', 'Vai levar a versão 2 ao diretor; retorno até sexta.', '16/09/2026 · automática'], ['E-mail', 'Enviada a versão 2 da proposta.', '05/09/2026 15:00 · Ana Souza']]
+        },
+        tpl: { name: 'lembrete_proposta', vals: ['Camila', 'Automação de notas e pedidos', '25/09/2026'] }
+      },
+      {
+        id: 'beatriz', name: 'Beatriz Toledo', phone: '+55 11 98553-0192', kind: 'contact', org: 'Studio Arq',
+        time: '16/09', unread: 0, preview: 'Você: Template lembrete_proposta · falhou', win: { open: false, since: '07/09 11:20' },
+        msgs: [
+          { day: '06/09/2026 · histórico do celular' },
+          { dir: 'out', via: 'celular', by: 'Ana Souza', t: '10:58', text: 'Beatriz, a proposta do novo site institucional está no seu e-mail. Validade até 20/09.', st: 'read', hist: 1 },
+          { dir: 'in', t: '11:20', text: 'Recebi! Vou analisar com meu sócio e te retorno.', hist: 1 },
+          { sys: HIST },
+          { day: '15/09/2026' },
+          { dir: 'out', via: 'celular', by: 'Ana Souza', t: '17:05', text: 'Beatriz, conseguiu olhar a proposta? Se quiser, marco 15 minutos para tirar dúvidas.', st: 'delivered' },
+          { sys: 'Mensagens enviadas pelo app do celular não abrem nem estendem a janela de 24h da API.' },
+          { day: '16/09/2026' },
+          { dir: 'out', via: 'admin', by: 'Ana Souza', t: '09:10', tpl: 'lembrete_proposta', text: 'Olá, Beatriz. A proposta Novo site institucional vence em 20/09/2026. Ficou alguma dúvida? Se quiser, ajusto algum ponto com você.', btns: ['Ver proposta'], st: 'failed', err: 'Não entregue pela Meta (erro 131026: mensagem não pôde ser entregue ao destinatário).' }
+        ],
+        panel: {
+          type: 'contact', title: 'Studio Arq', href: '../clientes/empresa.html', badge: ['Prospect', 'b-mute'],
+          rows: [['Contato', 'Beatriz Toledo', 'Sócia · arquiteta'], ['E-mail', 'beatriz@studioarq.com.br']],
+          owner: 'Ana Souza', opp: ['Novo site institucional', 'Desenvolvimento de sites · R$ 4.000 · 80%'], stages: OPP_STAGES, cur: 2, move: ['Reunião', 'Proposta', 'Fechado (ganha)…', 'Perdida…'],
+          proposals: [['Novo site institucional', '#P-2026-029', 'Enviada', 'b-info', 'R$ 4.000', 'expira em 3 dias']],
+          next: ['Retorno sobre a proposta', 'até 19/09/2026'],
+          ints: [['WhatsApp', 'Template lembrete_proposta não entregue.', '16/09/2026 · automática'], ['WhatsApp', 'Pergunta sobre a proposta, enviada pelo celular.', '15/09/2026 · automática'], ['E-mail', 'Proposta enviada.', '06/09/2026 10:40 · Ana Souza']]
+        },
+        tpl: { name: 'lembrete_proposta', vals: ['Beatriz', 'Novo site institucional', '20/09/2026'] }
+      },
+      {
+        id: 'fernanda', name: 'Fernanda Lopes', phone: '+55 19 99123-7788', kind: 'contact', org: 'Empresa XYZ',
+        time: '09:05', unread: 0, preview: 'Você: Template proposta_enviada', win: { open: false, since: '11/09 16:40' },
+        msgs: [
+          { day: '10/09/2026 · histórico do celular' },
+          { dir: 'in', t: '16:40', text: 'Rafael, pode mandar a proposta do portal para mim e para o Rodrigo?', hist: 1 },
+          { dir: 'out', via: 'celular', t: '16:52', text: 'Mando sim! Sai até o dia 17.', st: 'read', hist: 1 },
+          { sys: HIST },
+          { day: 'Hoje' },
+          { dir: 'out', via: 'admin', by: 'Ana Souza', t: '09:05', tpl: 'proposta_enviada', text: 'Olá, Fernanda. Enviamos a proposta Portal de Pedidos para o seu e-mail. Ela é válida até 02/10/2026.', btns: ['Ver proposta'], st: 'read' },
+          { log: 'Interação “WhatsApp” de hoje registrada na oportunidade Portal de Pedidos.' }
+        ],
+        panel: {
+          type: 'contact', title: 'Empresa XYZ', href: '../clientes/empresa.html', badge: ['Cliente · Ativo', 'b-good'],
+          rows: [['Contato', 'Fernanda Lopes', 'Gerente de TI · principal'], ['E-mail', 'fernanda.lopes@xyz.com.br']],
+          owner: 'Ana Souza', opp: ['Portal de Pedidos', 'Desenvolvimento de sistemas · R$ 14.000 · 60%'], stages: OPP_STAGES, cur: 1, move: ['Reunião', 'Negociação', 'Fechado (ganha)…', 'Perdida…'],
+          proposals: [['Portal de Pedidos', '#P-2026-031', 'Enviada', 'b-info', 'R$ 14.000', 'válida até 02/10']],
+          next: ['Follow-up da proposta', '24/09/2026'],
+          ints: [['WhatsApp', 'Template proposta_enviada lido.', 'hoje · automática'], ['E-mail', 'Proposta enviada para Fernanda e Rodrigo.', 'hoje 09:00 · Ana Souza']]
+        },
+        tpl: { name: 'lembrete_proposta', vals: ['Fernanda', 'Portal de Pedidos', '02/10/2026'] }
+      },
+      {
+        id: 'marcos', name: 'Marcos Andrade', phone: '+55 11 98765-4321', kind: 'contact', org: 'Empresa ACME',
+        time: '14/09', unread: 0, preview: 'Você: Combinado! Até terça.', win: { open: false, since: '15/09 14:02' },
+        msgs: [
+          { day: '14/09/2026 · histórico do celular' },
+          { dir: 'in', t: '14:02', text: 'Rafael, conseguimos antecipar a reunião de alinhamento de terça para as 9h?', hist: 1 },
+          { dir: 'out', via: 'celular', t: '14:10', text: 'Combinado! Até terça.', st: 'read', hist: 1 },
+          { sys: HIST }
+        ],
+        panel: {
+          type: 'contact', title: 'Empresa ACME', href: '../clientes/empresa.html', badge: ['Cliente · Ativo', 'b-good'],
+          rows: [['Contato', 'Marcos Andrade', 'Diretor de Operações · principal'], ['E-mail', 'marcos.andrade@acme.com.br'], ['Contrato', '#104 Consultoria de TI', 'Ativo · R$ 3.000/mês']],
+          owner: null, opp: null, proposals: [], next: null, ints: []
+        },
+        tpl: { name: 'lembrete_reuniao', vals: ['Marcos', 'de terça, 22/09', '9h'] }
+      }
+    ];
+
+    const wa = document.getElementById('wa');
+    const lista = document.getElementById('lista');
+    const head = document.getElementById('conv-head');
+    const thread = document.getElementById('thread');
+    const threadWrap = document.getElementById('thread-wrap');
+    const composer = document.getElementById('composer');
+    const panel = document.getElementById('panel');
+    const overlay = document.querySelector('.overlay');
+    let filtro = 'todas';
+    let termo = '';
+    let atual = null;
+    let modo = 'texto';
+
+    /* ---------- Lista ---------- */
+    const FILTROS = {
+      todas: () => true,
+      naolidas: (c) => c.unread > 0,
+      leads: (c) => c.kind === 'lead',
+      clientes: (c) => c.kind === 'contact',
+      semvinculo: (c) => c.kind === 'none',
+      janela: (c) => c.win.open
+    };
+    const ident = (c) => c.phone || c.user || 'sem identificação';
+    const vinculo = (c) => {
+      if (c.kind === 'lead') return '<span class="badge b-info">Lead</span>';
+      if (c.kind === 'none') return '<span class="badge b-warn">Sem vínculo</span>';
+      return `<span class="badge ${c.panel.badge[1]}">${c.panel.badge[0].split(' · ')[0]}</span>`;
+    };
+    const janelaIc = (c) => c.win.open
+      ? `<span class="win-ic${c.win.soon ? ' soon' : ''}" title="Janela de 24h aberta, fecha em ${c.win.left}">${ic(P.clock, 14)}<span class="sr-only">Janela aberta</span></span>`
+      : '';
+
+    function renderLista() {
+      document.querySelectorAll('#filtros [data-f]').forEach((b) => {
+        b.querySelector('.c').textContent = CONVS.filter(FILTROS[b.dataset.f]).length;
+      });
+      const q = termo.toLowerCase();
+      const itens = CONVS.filter(FILTROS[filtro]).filter((c) => !q || [c.name, c.phone, c.user, c.org, c.preview].join(' ').toLowerCase().includes(q));
+      lista.innerHTML = itens.map((c) => `
+        <button class="cv${c === atual ? ' on' : ''}${c.unread ? ' unread' : ''}" type="button" role="listitem" data-id="${c.id}"${c === atual ? ' aria-current="true"' : ''}>
+          <span class="avatar soft">${initials(c.name)}</span>
+          <span class="cv-body">
+            <span class="cv-l1"><span class="cv-name">${esc(c.name)}</span><span class="cv-time">${c.time}</span></span>
+            <span class="cv-l2"><span class="t">${esc(c.org || ident(c))}</span>${vinculo(c)}</span>
+            <span class="cv-l3"><span class="cv-prev">${esc(c.preview)}</span>${janelaIc(c)}${c.unread ? `<span class="pill">${c.unread}<span class="sr-only"> não lidas</span></span>` : ''}</span>
+          </span>
+        </button>`).join('') || '<div class="empty"><b class="strong">Nenhuma conversa</b><span>Nenhuma conversa com esse filtro.</span></div>';
+    }
+
+    // Atualiza o contador de não lidas do menu lateral.
+    function atualizarMenu() {
+      const total = CONVS.reduce((s, c) => s + c.unread, 0);
+      document.querySelectorAll('.side [data-count]').forEach((n) => {
+        n.firstChild.nodeValue = total;
+        n.hidden = !total;
+      });
+    }
+
+    /* ---------- Conversa ---------- */
+    const STATUS = {
+      sent: ['', P.check, 'Enviada'],
+      delivered: ['', P.dbl, 'Entregue'],
+      read: [' read', P.dbl, 'Lida'],
+      failed: [' fail', P.alert, 'Falhou']
+    };
+    const IMG = '<svg viewBox="0 0 300 188" role="img" aria-label="Foto de um quadro branco com o fluxo entre TMS e ERP"><rect width="300" height="188" fill="#1e293b"/><rect x="14" y="14" width="272" height="160" rx="6" fill="#e2e8f0"/><g fill="none" stroke="#0e7490" stroke-width="3"><rect x="34" y="54" width="70" height="44" rx="6"/><rect x="196" y="54" width="70" height="44" rx="6"/><path d="M106 76h86M182 68l10 8-10 8"/><path d="M231 100v34H69v-34" stroke-dasharray="6 6"/></g><g font-family="Montserrat, sans-serif" font-weight="700" font-size="15" fill="#0f172a"><text x="52" y="81">TMS</text><text x="214" y="81">ERP</text></g><text x="104" y="152" font-family="Montserrat, sans-serif" font-size="11" fill="#475569">planilha manual (diária)</text></svg>';
+
+    function msgHtml(m, c) {
+      if (m.day) return `<div class="day">${esc(m.day)}</div>`;
+      if (m.sys) return `<div class="sys">${ic(P.info, 14)}<span>${esc(m.sys)}</span></div>`;
+      if (m.log) return `<div class="sys">${ic(P.check, 14)}<span>${esc(m.log)}</span></div>`;
+      const inbound = m.dir === 'in';
+      const by = m.by || 'Rafael';
+      let who = inbound
+        ? `<b>${esc(c.name)}</b>${c.org ? ' · ' + esc(c.org) : (c.user ? ' · ' + c.user : '')} · ${m.t}`
+        : `<b>${esc(by)}</b> · ${m.t}${m.via === 'admin' ? ' · pelo Admin' : ''}`;
+      if (!inbound && m.via === 'celular') who += `<span class="badge b-mute" title="Enviada pelo app WhatsApp Business no celular (coexistência)">${ic(P.phone, 12)}Celular</span>`;
+      if (m.tpl) who += `<span class="badge b-blue">Template · ${m.tpl}</span>`;
+      if (m.hist) who += `<span class="badge b-mute" title="Veio da sincronização do histórico">${ic(P.history, 12)}Histórico</span>`;
+      let body = '';
+      if (m.img) body += `<a class="m-img" href="#" aria-label="Abrir imagem">${IMG}</a>`;
+      if (m.audio) body += `<div class="m-audio"><button class="play" type="button" aria-label="Ouvir áudio de ${m.audio}">${ic(P.play, 14, 2)}</button><div class="progress" aria-hidden="true"><i style="width:0"></i></div><span class="caption mono">${m.audio}</span></div>`;
+      if (m.doc) body += `<div class="m-doc"><span class="file-ic">${ic(P.file, 18)}</span><span class="t"><b>${esc(m.doc[0])}</b><span class="caption">${m.doc[1]}</span></span><a class="link-btn" href="#">Baixar</a></div>`;
+      if (m.text) body += `<p>${esc(m.text)}</p>`;
+      if (m.btns && m.btns.length) body += `<div class="tpl-btns">${m.btns.map((b) => `<span>${esc(b)}</span>`).join('')}</div>`;
+      let foot = '';
+      if (!inbound && m.st) {
+        const [k, d, l] = STATUS[m.st];
+        foot = `<div class="b-foot"><span class="st${k}">${ic(d, 14, 2)}${l}</span>${m.err ? `<span class="err">${esc(m.err)}</span><button class="link-btn" type="button">Tentar de novo</button>` : ''}</div>`;
+      }
+      return `<div class="msg ${inbound ? 'client' : 'out'}">
+        <span class="avatar sm${inbound ? ' soft' : ''}" style="width:36px;height:36px;font-size:13px">${inbound ? initials(c.name) : initials(by)}</span>
+        <div><div class="who">${who}</div><div class="bubble">${body}${foot}</div></div>
+      </div>`;
+    }
+
+    function renderHead(c) {
+      const sub = [];
+      if (c.phone) sub.push(`<span class="mono">${c.phone}</span>`);
+      if (c.user) sub.push(`<span>${c.user}</span>`);
+      if (!c.phone) sub.push(`<span title="O WhatsApp identifica esta pessoa pelo ID de usuário (BSUID). O telefone aparece se ela compartilhar.">telefone não compartilhado ${ic(P.info, 12)}</span>`);
+      if (c.org) sub.push(`<span>${esc(c.org)}</span>`);
+      const win = c.win.open
+        ? `<span class="badge ${c.win.soon ? 'b-warn' : 'b-good'} dot-l" title="Fecha em ${c.win.until}">Janela aberta · ${c.win.left}</span>`
+        : '<span class="badge b-mute dot-l">Janela fechada</span>';
+      head.innerHTML = `
+        <button class="icon-btn ghost back-btn" type="button" aria-label="Voltar para a lista" data-back>${ic(P.back, 20)}</button>
+        <span class="avatar soft">${initials(c.name)}</span>
+        <div class="conv-title"><h2>${esc(c.name)}</h2><div class="conv-sub">${sub.join('<span aria-hidden="true">·</span>')}</div></div>
+        ${win}
+        <button class="icon-btn ghost panel-btn" type="button" aria-label="Abrir painel do ${c.kind === 'lead' ? 'lead' : 'vínculo'}" data-panel-open>${ic(P.panel, 20)}</button>`;
+    }
+
+    function renderThread(c) {
+      thread.innerHTML = c.msgs.map((m) => msgHtml(m, c)).join('');
+      threadWrap.scrollTop = threadWrap.scrollHeight;
+    }
+
+    /* ---------- Template: seletor, variáveis e prévia ---------- */
+    function tplForm(root, preset) {
+      const name = preset && TPL[preset.name] ? preset.name : 'retomada_contato';
+      root.innerHTML = `
+        <div class="tpl-grid">
+          <div class="form" style="gap:10px">
+            <div class="field"><label>Template aprovado <span class="req">*</span></label>
+              <select class="select" data-tpl-sel>${Object.keys(TPL).map((k) => `<option value="${k}"${k === name ? ' selected' : ''}>${k} · ${TPL[k].cat}</option>`).join('')}</select>
+              <span class="hint">Só templates aprovados desta conta. <a href="templates.html">Gerenciar templates</a></span></div>
+            <div class="tpl-vars" data-tpl-vars></div>
+          </div>
+          <div><span class="eyebrow">Prévia</span><div class="wa-prev" data-tpl-prev></div></div>
+        </div>`;
+      const sel = root.querySelector('[data-tpl-sel]');
+      const vars = root.querySelector('[data-tpl-vars]');
+      const prev = root.querySelector('[data-tpl-prev]');
+      const draw = (vals) => {
+        const t = TPL[sel.value];
+        vars.innerHTML = t.vars.map((v, i) => `<div class="field"><label>{{${i + 1}}} ${v} <span class="req">*</span></label><input class="input" required data-v="${i}" value="${esc((vals && vals[i]) || '')}"></div>`).join('');
+        paint();
+      };
+      const paint = () => {
+        const t = TPL[sel.value];
+        const vals = [...vars.querySelectorAll('[data-v]')].map((i) => i.value);
+        const body = esc(t.body).replace(/\{\{(\d+)\}\}/g, (_, n) => `<mark>${esc(vals[n - 1] || `{{${n}}}`)}</mark>`);
+        prev.innerHTML = `<p>${body}</p><div class="ft">DevBatista · responda SAIR para não receber mensagens</div>${t.btns.length ? `<div class="tpl-btns">${t.btns.map((b) => `<span>${esc(b)}</span>`).join('')}</div>` : ''}`;
+      };
+      sel.addEventListener('change', () => {
+        const first = vars.querySelector('[data-v="0"]');
+        draw(first ? [first.value] : []);
+      });
+      vars.addEventListener('input', paint);
+      draw(name === (preset && preset.name) ? preset.vals : []);
+      return { sel, vals: () => [...vars.querySelectorAll('[data-v]')].map((i) => i.value), text: () => prev.querySelector('p').textContent, btns: () => TPL[sel.value].btns };
+    }
+
+    /* ---------- Campo de envio ---------- */
+    function renderComposer(c) {
+      const aberta = c.win.open;
+      const first = c.name.split(' ')[0];
+      const bar = aberta
+        ? `<div class="win-bar"><span class="badge ${c.win.soon ? 'b-warn' : 'b-good'} dot-l">Janela aberta</span><span>fecha em ${c.win.left} (${c.win.until}) · texto, anexos e templates</span></div>`
+        : `<div class="callout warn" role="status">${ic(P.clock, 18)}<span><b class="strong">Janela de 24h fechada desde ${c.win.since}.</b> Para retomar, envie um template aprovado. A janela reabre quando ${esc(first)} responder.</span></div>`;
+      if (!aberta && modo !== 'template') {
+        // Janela fechada: o formulário de template só abre quando pedido, para não esconder o histórico.
+        composer.innerHTML = `${bar}<div class="comp-actions"><span class="caption">Mensagem livre e anexo ficam bloqueados até a resposta.</span><span class="spacer"></span><button class="btn pri sm" type="button" data-modo="template">${ic(P.send)}Responder com template</button></div>`;
+        return;
+      }
+      if (modo === 'texto') {
+        composer.innerHTML = `${bar}
+          <form class="form" style="gap:10px" data-send-text>
+            <label class="sr-only" for="msg">Mensagem</label>
+            <textarea class="textarea" id="msg" maxlength="4096" placeholder="Mensagem para ${esc(first)}…  Enter envia, Shift+Enter quebra a linha"></textarea>
+            <div class="attach" id="anexo" hidden><span></span><button type="button" aria-label="Remover anexo">${ic(P.x, 14)}</button></div>
+            <div class="comp-actions">
+              <label class="btn sm" for="arquivo" style="cursor:pointer">${ic(P.clip)}Anexar</label>
+              <input type="file" id="arquivo" class="sr-only" accept="image/jpeg,image/png,audio/*,video/mp4,application/pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt">
+              <button class="link-btn" type="button" data-modo="template">Usar template</button>
+              <span class="spacer"></span>
+              <span class="caption mono" id="contador">0/4096</span>
+              <button class="btn pri sm" type="submit">${ic(P.send)}Enviar</button>
+            </div>
+          </form>`;
+        const ta = composer.querySelector('#msg');
+        const cont = composer.querySelector('#contador');
+        const arq = composer.querySelector('#arquivo');
+        const chip = composer.querySelector('#anexo');
+        ta.addEventListener('input', () => { cont.textContent = `${ta.value.length}/4096`; });
+        ta.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); ta.form.requestSubmit(); } });
+        arq.addEventListener('change', () => {
+          const f = arq.files[0];
+          if (!f) return;
+          chip.hidden = false;
+          chip.querySelector('span').textContent = `${f.name} · ${Math.max(1, Math.round(f.size / 1024))} KB`;
+        });
+        chip.querySelector('button').addEventListener('click', () => { arq.value = ''; chip.hidden = true; });
+        composer.querySelector('[data-send-text]').addEventListener('submit', (e) => {
+          e.preventDefault();
+          const f = arq.files[0];
+          if (!ta.value.trim() && !f) return;
+          enviar(c, { text: ta.value.trim(), doc: f ? [f.name, `${Math.max(1, Math.round(f.size / 1024))} KB`] : null });
+        });
+      } else {
+        composer.innerHTML = `${bar}
+          <form class="form" style="gap:10px" data-send-tpl>
+            <div data-tpl-root></div>
+            <div class="comp-actions">
+              <button class="link-btn" type="button" data-modo="texto">${aberta ? 'Voltar para mensagem livre' : 'Recolher'}</button>
+              <span class="spacer"></span>
+              <button class="btn pri sm" type="submit">${ic(P.send)}Enviar template</button>
+            </div>
+          </form>`;
+        const t = tplForm(composer.querySelector('[data-tpl-root]'), c.tpl);
+        composer.querySelector('[data-send-tpl]').addEventListener('submit', (e) => {
+          e.preventDefault();
+          enviar(c, { tpl: t.sel.value, text: t.text(), btns: t.btns() });
+        });
+      }
+    }
+
+    function enviar(c, m) {
+      const hoje = c.msgs.some((x) => x.day === 'Hoje');
+      if (!hoje) c.msgs.push({ day: 'Hoje' });
+      c.msgs.push(Object.assign({ dir: 'out', via: 'admin', t: '11:24', st: 'sent' }, m));
+      c.time = '11:24';
+      c.preview = m.tpl ? `Você: Template ${m.tpl}` : `Você: ${m.text || m.doc[0]}`;
+      modo = 'texto';
+      abrir(c, true);
+    }
+
+    /* ---------- Painel ---------- */
+    function panelHtml(c) {
+      const p = c.panel;
+      const fechar = `<button class="icon-btn ghost close-panel" type="button" aria-label="Fechar painel" data-panel-close>${ic(P.x, 20)}</button>`;
+      if (p.type === 'none') {
+        const tel = c.phone
+          ? `<b class="mono">${c.phone}</b>`
+          : '<span class="right"><b>Não compartilhado</b><span class="cell-sub">Ele aparece se a pessoa compartilhar</span></span>';
+        return `
+          <div class="card-head" style="border-bottom:1px solid var(--rule)"><h2>Sem vínculo</h2>${fechar}</div>
+          <div class="col-body">
+            <div class="unlinked">
+              <span class="ic">${ic(P.unlink, 24)}</span>
+              <b class="strong">Conversa sem lead ou contato</b>
+              <span>Ligue a conversa a um cadastro para ver o funil, as propostas e registrar interações.</span>
+              <button class="btn pri" type="button" data-dyn-open="criar-lead">${ic(P.userplus)}Criar lead</button>
+              <button class="btn" type="button" data-dyn-open="vincular">${ic(P.link)}Vincular a lead/contato existente</button>
+            </div>
+            <div class="pblock" style="margin-top:12px">
+              <div class="card-head"><h3>Dados do WhatsApp</h3></div>
+              <div class="kv"><span>Nome no perfil</span><b>${esc(c.name)}</b></div>
+              ${c.user ? `<div class="kv"><span>Usuário</span><b>${c.user}</b></div>` : ''}
+              <div class="kv"><span>Telefone</span>${tel}</div>
+              <div class="kv" style="align-items:flex-start"><span>ID do WhatsApp</span><span class="bsuid right" title="Business-scoped user ID: identifica a pessoa dentro do portfólio da DevBatista">${c.bsuid}</span></div>
+              <div class="kv"><span>Primeira mensagem</span><b>${p.first}</b></div>
+            </div>
+            <div class="pblock"><div class="pbody" style="padding-top:14px"><span class="caption">${c.phone ? 'Nenhum lead ou contato tem este telefone.' : 'Sem telefone, não há busca automática por correspondência. Procure pelo nome em “Vincular”.'}</span></div></div>
+          </div>`;
+      }
+      const isLead = p.type === 'lead';
+      const rows = p.rows.map(([k, v, s]) => `<div class="kv"><span>${k}</span>${s ? `<span class="right"><b>${esc(v)}</b><span class="cell-sub">${esc(s)}</span></span>` : `<b>${esc(v)}</b>`}</div>`).join('');
+      const owner = p.owner
+        ? `<span class="row" style="gap:8px"><span class="avatar sm soft">${initials(p.owner)}</span><b>${p.owner}</b></span>`
+        : '<span class="muted">—</span>';
+      let etapa;
+      if (isLead || p.opp) {
+        etapa = `
+          ${p.opp ? `<div class="kv" style="padding-top:2px"><span>Oportunidade</span><span class="right"><a href="../comercial/oportunidades.html" style="font-weight:600">${esc(p.opp[0])}</a><span class="cell-sub">${esc(p.opp[1])}</span></span></div>` : ''}
+          <div class="pbody">
+            <div class="ministeps" aria-hidden="true">${p.stages.map((s, i) => `<i class="${i < p.cur ? 'done' : (i === p.cur ? 'cur' : '')}"></i>`).join('')}</div>
+            <div class="ministeps-l">${p.stages.map((s, i) => `<span class="${i === p.cur ? 'cur' : ''}"${i === p.cur ? ' aria-current="step"' : ''}>${s}</span>`).join('')}</div>
+            <form class="move" onsubmit="event.preventDefault()"><label class="sr-only" for="mover">Mover para</label><select class="select" id="mover"><option value="">Mover para…</option>${p.move.map((o) => `<option>${o}</option>`).join('')}</select><button class="btn sm" type="submit">Mover</button></form>
+          </div>`;
+      } else {
+        etapa = `<div class="pbody"><span class="caption">Nenhuma oportunidade aberta com a ${esc(p.title)}.</span><a class="btn sm" href="../comercial/oportunidades.html">+ Nova oportunidade</a></div>`;
+      }
+      const props = p.proposals.length
+        ? p.proposals.map(([t, code, st, cls, v, sub]) => `<div class="kv"><span class="pt"><a href="../comercial/proposta.html" style="font-weight:600">${esc(t)}</a><span class="cell-sub">${code}${sub ? ' · ' + sub : ''}</span></span><span class="right"><b>${v}</b><span class="cell-sub"><span class="badge ${cls} sm-badge">${st}</span></span></span></div>`).join('')
+        : '<div class="pbody"><span class="caption">Nenhuma proposta em aberto.</span></div>';
+      const next = p.next
+        ? `<div class="pbody"><div class="callout"><span><b class="strong">${esc(p.next[0])}</b><br><span class="caption">${esc(p.next[1])}</span></span></div></div>`
+        : '<div class="pbody"><span class="caption">Nenhum próximo passo definido.</span></div>';
+      const ints = (isLead || p.opp)
+        ? p.ints.map(([k, t, w]) => `<div class="tl"><i${k === 'WhatsApp' ? ' style="background:var(--good)"' : ''}></i><div><span class="strong">${k}</span> — ${esc(t)}<small>${esc(w)}</small></div></div>`).join('')
+        : '<div class="pbody"><span class="caption">Interações ficam no lead ou na oportunidade. Sem oportunidade aberta, a conversa aparece só aqui e na Visão 360º da empresa.</span></div>';
+      return `
+        <div class="card-head" style="border-bottom:1px solid var(--rule)"><h2>${isLead ? 'Lead' : 'Contato e empresa'}</h2>${fechar}</div>
+        <div class="col-body">
+          <div class="pblock">
+            <div class="who-card"><span class="co-avatar" aria-hidden="true">${initials(p.title)}</span><div style="min-width:0"><a class="strong" href="${p.href}" style="font-size:15px">${esc(p.title)}</a><div><span class="badge ${p.badge[1]} sm-badge">${p.badge[0]}</span></div></div></div>
+            ${rows}
+            <div class="kv"><span>Responsável</span>${owner}</div>
+            <div class="pbody" style="padding-top:4px"><a class="btn sm" href="${p.href}">${isLead ? 'Abrir ficha do lead' : 'Abrir Visão 360º'} →</a></div>
+          </div>
+          <div class="pblock"><div class="card-head"><h3>Etapa no pipeline</h3>${isLead ? '<a href="../comercial/pipeline.html" style="font-size:12px;font-weight:600">Pipeline →</a>' : ''}</div>${etapa}</div>
+          <div class="pblock"><div class="card-head"><h3>Propostas</h3><a class="link-btn" href="../comercial/proposta.html">+ Nova proposta</a></div>${props}</div>
+          <div class="pblock"><div class="card-head"><h3>Próximo passo</h3><button class="link-btn" type="button">Editar</button></div>${next}</div>
+          <div class="pblock"><div class="card-head"><h3>Interações</h3>${(isLead || p.opp) ? '<button class="link-btn" type="button" data-dyn-open="registrar-interacao">+ Registrar</button>' : ''}</div>${ints}<div style="height:12px"></div></div>
+          <div class="pblock"><div class="pbody" style="padding-top:12px"><button class="link-btn" type="button" style="color:var(--muted)">Desvincular conversa</button></div></div>
+        </div>`;
+    }
+
+    function renderPanel(c) {
+      panel.innerHTML = panelHtml(c);
+      const p = c.panel;
+      document.getElementById('ri-alvo').textContent = p.type === 'lead' ? `Lead · ${p.title}` : (p.opp ? `Oportunidade · ${p.opp[0]} · ${p.title}` : p.title);
+      if (p.type === 'none') {
+        document.getElementById('cl-nome').value = c.name;
+        document.getElementById('cl-wa').value = c.phone || '';
+        document.getElementById('cl-wa-h').textContent = c.phone ? 'Telefone recebido do WhatsApp' : 'O contato não compartilhou o telefone. A conversa fica ligada pelo ID do WhatsApp.';
+        document.getElementById('cl-obs').value = `Chegou pelo WhatsApp em 17/09/2026: "${c.msgs.filter((m) => m.dir === 'in').map((m) => m.text).join(' ')}"`;
+      }
+    }
+
+    /* ---------- Abrir conversa ---------- */
+    function abrir(c, manterModo) {
+      atual = c;
+      if (!manterModo) modo = 'texto';
+      if (c.unread) { c.unread = 0; atualizarMenu(); }
+      renderLista();
+      renderHead(c);
+      renderThread(c);
+      renderComposer(c);
+      renderPanel(c);
+      wa.classList.add('show-conv');
+    }
+
+    lista.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-id]');
+      if (b) abrir(CONVS.find((c) => c.id === b.dataset.id));
+    });
+    document.getElementById('filtros').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-f]');
+      if (!b) return;
+      filtro = b.dataset.f;
+      document.querySelectorAll('#filtros [data-f]').forEach((x) => x.setAttribute('aria-pressed', x === b));
+      renderLista();
+    });
+    document.getElementById('busca').addEventListener('input', (e) => { termo = e.target.value; renderLista(); });
+
+    // Botões montados pelo script: abrir modais/drawers, painel, voltar e troca de modo.
+    const fecharPainel = () => { wa.classList.remove('panel-open'); overlay.classList.remove('open'); };
+    document.addEventListener('click', (e) => {
+      const t = e.target.closest('[data-dyn-open], [data-panel-open], [data-panel-close], [data-back], [data-modo]');
+      if (!t) return;
+      if (t.dataset.dynOpen) {
+        fecharPainel();
+        document.getElementById(t.dataset.dynOpen).classList.add('open');
+        overlay.classList.add('open');
+      } else if (t.hasAttribute('data-panel-open')) {
+        wa.classList.add('panel-open');
+        overlay.classList.add('open');
+      } else if (t.hasAttribute('data-panel-close')) {
+        fecharPainel();
+      } else if (t.hasAttribute('data-back')) {
+        wa.classList.remove('show-conv');
+      } else if (t.dataset.modo) {
+        modo = t.dataset.modo;
+        renderComposer(atual);
+      }
+    });
+    overlay.addEventListener('click', fecharPainel);
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') fecharPainel(); });
+
+    // Nova conversa: o {{1}} começa com o primeiro nome de quem foi escolhido.
+    document.querySelectorAll('[data-tpl-form]').forEach((root) => {
+      const para = document.getElementById(root.dataset.firstFrom);
+      const first = () => para.selectedOptions[0].dataset.first;
+      const f = tplForm(root, { name: 'retomada_contato', vals: [first(), 'o seu projeto'] });
+      para.addEventListener('change', () => {
+        const v = root.querySelector('[data-v="0"]');
+        v.value = first();
+        v.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+      return f;
+    });
+
+    // Aviso do navegador: depois de "Agora não" ou "Ativar avisos" não volta mais. No protótipo a escolha
+    // fica no localStorage (chave wa-avisos); no sistema, na preferência do usuário. Se o navegador
+    // bloquear, sobra só uma linha discreta explicando como reativar.
+    const bar = document.getElementById('notify-bar');
+    const bloqueado = document.getElementById('notify-blocked');
+    const pref = {
+      get: () => { try { return localStorage.getItem('wa-avisos'); } catch (e) { return null; } },
+      set: (v) => { try { localStorage.setItem('wa-avisos', v); } catch (e) { /* sem storage: vale só nesta visita */ } }
+    };
+    let escolhido = pref.get();
+    let negado = false; // resposta do pedido; Notification.permission pode continuar "default"
+    const permissao = () => ('Notification' in window ? Notification.permission : 'indisponivel');
+    const mostrarAviso = () => {
+      bloqueado.hidden = !(negado || permissao() === 'denied');
+      bar.hidden = permissao() !== 'default' || !!escolhido;
+    };
+    const escolher = (v) => { escolhido = v; pref.set(v); mostrarAviso(); };
+    document.getElementById('notify-off').addEventListener('click', () => escolher('dispensado'));
+    document.getElementById('notify-on').addEventListener('click', () => {
+      escolher('ativado');
+      Notification.requestPermission().then((p) => {
+        if (p === 'granted') new Notification('WhatsApp · Lu Martins', { body: 'Meu orçamento é até uns 8 mil.' });
+        negado = p === 'denied';
+        mostrarAviso();
+      });
+    });
+    mostrarAviso();
+
+    const pedido = new URLSearchParams(location.search).get('c');
+    renderLista();
+    abrir(CONVS.find((c) => c.id === pedido) || CONVS[0]);
+    if (!pedido && window.matchMedia('(max-width: 960px)').matches) wa.classList.remove('show-conv');
+  })();
+</script>
+</body>
+</html>

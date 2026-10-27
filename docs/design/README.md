@@ -13,9 +13,11 @@ docs/design/
 ├── assets/
 │   ├── app.css           identidade visual e todos os componentes
 │   ├── app.js            menu, barra superior, busca, notificações e interações
+│   ├── wa-iniciar.js     diálogo "Iniciar conversa no WhatsApp" (lead, empresa e contato)
 │   └── logo-*.png        logo DevBatista em branco (completo e só o ícone)
 ├── dashboard/            dashboard executivo
 ├── comercial/            leads, lead, oportunidades, propostas, proposta, pipeline
+├── whatsapp/             conversas, templates e conexão (esta fica no menu em Tecnologia → Integrações); regras no README da pasta
 ├── clientes/             empresas, empresa (Visão 360º), contatos, contratos, contrato, serviços contratados
 ├── operacao/             projetos, projeto, tarefas, chamados, chamado, horas
 ├── financeiro/           dashboard financeiro, receitas, despesas, contas a receber e a pagar, recorrências, notas fiscais
@@ -46,6 +48,7 @@ As cores e medidas ficam como variáveis no topo de `assets/app.css`. Tokens, co
   - `data-open="id"` e `data-close` abrem e fecham formulários laterais (`.drawer`) e modais (`.modal`).
   - `data-tabs`, `data-tab` e `data-panel` criam abas.
   - `data-filter-group`, `data-filter`, `data-filter-target` e `data-status` filtram linhas por status.
+  - `data-proto-scope`, `data-proto-state` e `data-proto-view` alternam variações de um card (seletor tracejado `.proto-switch`). Só existem no protótipo.
 - Busca global com ⌘K / Ctrl+K em todas as telas.
 - No celular (até 960 px) o menu vira gaveta, as tabelas com a classe `cards` viram cartões e os quadros kanban rolam na horizontal.
 
