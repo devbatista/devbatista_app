@@ -38,6 +38,11 @@ class WhatsappMessage < ApplicationRecord
   validates :reaction_to_wa_message_id, presence: true, if: :kind_reaction?
   validate :origin_matches_direction
 
+  # Texto da prévia na lista de conversas: o corpo ou a legenda, ou o tipo da mensagem.
+  def preview_text
+    (body.to_s.squish.presence || kind_label).truncate(120)
+  end
+
   private
 
   def origin_matches_direction

@@ -1036,6 +1036,7 @@ CREATE TABLE public.whatsapp_conversations (
     preview character varying,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
+    saved_name character varying,
     CONSTRAINT whatsapp_conversations_identified CHECK (((bsuid IS NOT NULL) OR (wa_id IS NOT NULL))),
     CONSTRAINT whatsapp_conversations_single_link CHECK (((lead_id IS NULL) OR (contact_id IS NULL)))
 );
@@ -1072,7 +1073,9 @@ CREATE TABLE public.whatsapp_messages (
     read_at timestamp(6) without time zone,
     raw_payload jsonb DEFAULT '{}'::jsonb NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    edited_at timestamp(6) without time zone,
+    revoked_at timestamp(6) without time zone
 );
 
 
@@ -3378,6 +3381,7 @@ ALTER TABLE ONLY public.leads
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261027180000'),
 ('20261027120000'),
 ('20261023120000'),
 ('20261009150000'),

@@ -51,13 +51,13 @@ Os valores ficam em `Rails.configuration.x.whatsapp`.
 | Tabela | Conteúdo |
 | --- | --- |
 | `whatsapp_accounts` | Portfólio, WABA, `phone_number_id` (único), número exibido, nome verificado, token criptografado, status (Conectando, Conectado, Desconectado), coexistência, qualidade e limite de envio, quem conectou, datas de conexão, inscrição do app e desconexão, pedidos e datas das sincronizações, último webhook |
-| `whatsapp_conversations` | Conta, `bsuid` e `parent_bsuid`, `wa_id` e @usuário opcionais, nome do perfil, lead **ou** contato, última mensagem recebida (janela de 24h), não lidas e prévia |
-| `whatsapp_messages` | Direção, tipo, origem (Admin, Celular, Contato), corpo, `wa_message_id` único, status (Enviando, Enviada, Entregue, Lida, Falhou, Recebida), erro, template e parâmetros, mídia (Active Storage e o ID da mídia na Meta), mensagem citada (`reply_to_wa_message_id`), reação (`reaction_to_wa_message_id` e `reaction_emoji`), autor, se veio do histórico, datas de envio, entrega e leitura, payload bruto |
+| `whatsapp_conversations` | Conta, `bsuid` e `parent_bsuid`, `wa_id` e @usuário opcionais, nome do perfil, nome salvo na agenda do celular (`saved_name`), lead **ou** contato, última mensagem recebida (janela de 24h), não lidas e prévia |
+| `whatsapp_messages` | Direção, tipo, origem (Admin, Celular, Contato), corpo, `wa_message_id` único, status (Enviando, Enviada, Entregue, Lida, Falhou, Recebida), erro, template e parâmetros, mídia (Active Storage e o ID da mídia na Meta), mensagem citada (`reply_to_wa_message_id`), reação (`reaction_to_wa_message_id` e `reaction_emoji`), autor, se veio do histórico, datas de envio, entrega, leitura, edição e exclusão, payload bruto |
 | `whatsapp_templates` | Conta, ID na Meta, nome, idioma, categoria, status, componentes (formato da Graph API), nº de variáveis do cabeçalho e do corpo, motivo de rejeição |
 
 Garantias no banco: o BSUID e o telefone são únicos por conta; a conversa precisa de BSUID ou telefone e não liga lead e contato ao mesmo tempo (check constraints); o `wa_message_id` é único, o que torna o processamento dos webhooks idempotente.
 
-Respostas e reações: a resposta guarda o `context.id` da mensagem citada em `reply_to_wa_message_id`. A reação (tipo `reaction`) guarda o alvo e o emoji e aparece **sobre a mensagem reagida**, não como mensagem nova: `WhatsappMessage.timeline` exclui as reações e `#reactions` lista as de cada mensagem. Emoji vazio é a pessoa removendo a reação.
+Respostas e reações: a resposta guarda o `context.id` da mensagem citada em `reply_to_wa_message_id`. A reação (tipo `reaction`) guarda o alvo e o emoji e aparece **sobre a mensagem reagida**, não como mensagem nova: `WhatsappMessage.timeline` exclui as reações e `#reactions` lista as de cada mensagem. Fica só a reação mais nova de cada lado (contato ou empresa) sobre cada mensagem. Emoji vazio é a pessoa removendo a reação; ele fica gravado para um reenvio atrasado da reação antiga não voltar, e a tela não mostra.
 
 O BSUID fica em `bsuid`, e não em `user_id`, porque nesta base `user_id` é sempre o usuário dono do registro: a `ApplicationPolicy` usa essa coluna no nível de permissão "own".
 
@@ -85,6 +85,53 @@ O BSUID fica em `bsuid`, e não em `user_id`, porque nesta base `user_id` é sem
   - `user_message` traz o texto em português para a tela.
 - O log registra só método, caminho, código e `fbtrace_id`. O token não vai para o log nem para o `inspect`.
 
+## Webhook (Fase 3)
+
+`/webhooks/whatsapp`, em `Webhooks::WhatsappController`, que herda de `ActionController::API`: fica fora do login, do Pundit, do bloqueio de navegadores e do CSRF.
+
+- **Verificação (GET):** devolve o `hub.challenge` quando `hub.mode` é `subscribe` e o `hub.verify_token` confere com `WHATSAPP_WEBHOOK_VERIFY_TOKEN`; senão, 403.
+- **Eventos (POST):**
+  - Confere o `X-Hub-Signature-256`, que é o HMAC-SHA256 do corpo cru com o `META_APP_SECRET`. Sem assinatura válida, ou sem o secret configurado, responde 401.
+  - Com a assinatura válida, responde 200 na hora e enfileira um `WhatsappWebhookJob` por mudança (`entry[].changes[]`).
+  - A Meta reenvia por até 7 dias o que não receber 200.
+- **Log:** o payload (mensagens, telefones, nomes) não vai para nenhum log.
+  - Na requisição, o corpo (`entry`) é filtrado.
+  - O `WhatsappWebhookJob` tem `log_arguments = false`, então o Active Job não registra os argumentos ao enfileirar nem ao executar.
+  - Quando um job falha, o Sidekiq registra o job inteiro. O handler de erro (`config/initializers/sidekiq.rb`) troca os argumentos por `[FILTERED]` nos jobs com `log_arguments = false`.
+  - O `WhatsappMediaJob` registra só a referência da mensagem (GlobalID).
+  - Os logs do processador levam só IDs e códigos.
+  - A mensagem de erro do PostgreSQL para índice único traz o valor duplicado (o telefone). Ela é tratada no `locate!` e no `record` e só chegaria ao log se esbarrasse três vezes seguidas.
+
+**Configurar no app da Meta** (WhatsApp → Configuração):
+- **URL de callback:** `https://admin.devbatista.com/webhooks/whatsapp`.
+- **Token de verificação:** o mesmo valor de `WHATSAPP_WEBHOOK_VERIFY_TOKEN`.
+- **Campos a inscrever:** `messages`, `smb_message_echoes`, `history`, `smb_app_state_sync`, `account_update`, `message_template_status_update`, `template_category_update`, `phone_number_quality_update` e `phone_number_name_update`.
+
+O `Whatsapp::WebhookProcessor` trata cada campo. A conta é achada pelo `metadata.phone_number_id` ou, nos campos sem número, pela WABA (`waba_info.waba_id` ou `entry.id`). Webhook de número que não está no Admin fica só no log.
+
+| Campo | O que acontece |
+| --- | --- |
+| `messages` | Mensagem recebida: acha ou cria a conversa (abaixo), grava a mensagem, abre a janela de 24h, soma às não lidas e atualiza a prévia. Mídia é baixada para o Active Storage pelo `WhatsappMediaJob`. Reação substitui a anterior da pessoa e não conta como não lida nem abre a janela. `request_welcome` é ignorado |
+| `messages` (sistema) | `user_changed_user_id` e `user_changed_number`: a conversa antiga (`previous_user_id`, telefone antigo em `from`) fica com o BSUID ou o telefone novo, e o aviso entra na linha do tempo, sem contar como não lida |
+| `messages` (status) | Enviada → entregue → lida, só avançando: webhooks fora de ordem não voltam o status, e a leitura e a gravação acontecem com a mensagem travada (`with_lock`), para dois status ao mesmo tempo não se sobrescreverem. `played` conta como lida. A falha guarda o código e a mensagem em português de `Whatsapp::Error::MESSAGES`. O `recipient_user_id` completa o BSUID da conversa iniciada pelo telefone |
+| `smb_message_echoes` | Enviada pelo app do celular: mensagem de origem "Celular", zera as não lidas (quem respondeu no app já leu) e não mexe na janela. `edit` e `revoke` alteram a mensagem original (`edited_at`, `revoked_at`) |
+| `history` | Mensagens antigas com `from_history`, sem abrir a janela nem contar como não lidas. Do celular, o status vem do `history_context`. Guarda o progresso (`history_sync_progress`, `history_synced_at` em 100) e a recusa (`2593109`) em `history_sync_error`. A mídia que veio como `media_placeholder` chega depois e completa a mensagem |
+| `smb_app_state_sync` | Nome salvo na agenda (`saved_name`), que vira o nome da conversa. Cria a conversa ainda sem mensagem, para o nome não se perder; a caixa de entrada usa `WhatsappConversation.with_messages`. `remove` apaga o nome |
+| `account_update` | `PARTNER_REMOVED`, `PARTNER_APP_UNINSTALLED`, `ACCOUNT_DELETED` e `ACCOUNT_OFFBOARDED` desconectam o número (data do evento e motivo, ex.: `PARTNER_REMOVED: ACCOUNT_DISCONNECTED`), mantendo as conversas. `ACCOUNT_RECONNECTED` reconecta depois do `ACCOUNT_OFFBOARDED`. Violação, restrição e banimento vão para o log |
+| `message_template_status_update` | Status e categoria pelo ID na Meta ou por nome e idioma (o webhook manda `en-US`; o banco usa `en_US`), com o motivo da rejeição. `REINSTATED` e `UNARCHIVED` voltam a aprovado; `FLAGGED` e `LOCKED` só vão para o log |
+| `template_category_update` | Troca a categoria quando a mudança foi concluída (`previous_category`); o aviso de troca futura vai para o log |
+| `phone_number_quality_update`, `phone_number_name_update` | Relê nome, qualidade e limite na Graph API (`phone_number_details`); se a chamada falhar, fica o limite do webhook |
+
+**Conversa pelo BSUID e pelo telefone** (`WhatsappConversation.locate!`). O BSUID é a identidade e o telefone completa:
+- A conversa achada só pelo telefone e sem BSUID é da mesma pessoa e é juntada à do BSUID (`absorb!`). Por exemplo, a conversa criada pelo telefone ao iniciar com template e a resposta que chega com o BSUID. A junção leva as mensagens, o vínculo, as não lidas e as datas.
+- Se a conversa do telefone tem **outro** BSUID, o número mudou de dono: o telefone sai da conversa antiga.
+- Dois jobs criando a mesma conversa esbarram no índice único (`RecordNotUnique`), e o segundo tenta de novo.
+
+**Idempotência:**
+- Mensagem que já entrou (`wa_message_id`) é ignorada, inclusive quando dois jobs a gravam juntos.
+- Status de mensagem ainda não gravada levanta `StatusTargetMissing` depois de processar o resto. O job tenta de novo 3 vezes, a cada 15 s, e depois desiste com uma linha no log.
+- A mídia tenta de novo só nas falhas transitórias (`Whatsapp::Error#transient?`).
+
 ## Permissões e auditoria
 
 - Área `whatsapp` em `Role::AREAS`. O Administrador tem nível "full"; os outros perfis começam sem acesso e podem ser liberados na tela de permissões.
@@ -96,7 +143,7 @@ O BSUID fica em `bsuid`, e não em `user_id`, porque nesta base `user_id` é sem
 0. ✅ **Protótipo**: telas em `docs/design/whatsapp`.
 1. ✅ **Fundação**: configuração, tabelas, models, criptografia do token, área de permissão e policies, grupo no menu ainda como "em breve".
 2. ✅ **Cliente da Graph API** em `app/services/whatsapp/` (Net::HTTP, sem gem nova): texto, mídia, template, marcar como lida, baixar mídia, templates, inscrição do app, troca do `code`, sincronizações.
-3. **Webhook e processamento**: `/webhooks/whatsapp` fora do `ApplicationController`, assinatura `X-Hub-Signature-256`, job no Sidekiq, todos os campos inscritos, idempotente pelo `wa_message_id`.
+3. ✅ **Webhook e processamento**: `/webhooks/whatsapp` fora do `ApplicationController`, assinatura `X-Hub-Signature-256`, job no Sidekiq, todos os campos inscritos, idempotente pelo `wa_message_id`, download da mídia.
 4. **Conexão**: Embedded Signup em Tecnologia → Integrações.
 5. **Templates**: tela, criação e edição na Meta, sincronização.
 6. **Conversas e tempo real**: tela de três colunas, Turbo Streams com ActionCable autenticado pelo Devise e Redis em desenvolvimento, campo de envio em Stimulus, contador no menu.
@@ -111,12 +158,27 @@ O BSUID fica em `bsuid`, e não em `user_id`, porque nesta base `user_id` é sem
   - Se `create_template` aceita a categoria em maiúsculas (a referência usa maiúsculas, o exemplo usa minúsculas).
   - O código `131062` (BSUID não aceito para aquela mensagem): aparece na página do BSUID, não na tabela de erros.
   - O sufixo do botão de URL com barra (`p/P-2026-029`, link da proposta em `/p/*token`): conferir com um template de verdade que a Meta monta o link com as barras e decodifica os caracteres especiais.
-- **Fases 3 e 5:** usar `WhatsappTemplate.attributes_from_meta` na sincronização e no webhook de status, e `WhatsappAccount.attributes_from_phone_details` ao conectar e no `account_update`, que convertem as maiúsculas da Meta (`UTILITY`, `APPROVED`, `GREEN`…) para os enums.
-- **Fase 3:**
-  - Buscar a conversa por BSUID **e** por telefone e completar o campo que faltar, para não duplicar quem já existia (por exemplo, a conversa criada pelo telefone ao iniciar com template e a resposta que chega com o BSUID).
-  - Tratar `ActiveRecord::RecordNotUnique` quando dois webhooks criarem a mesma conversa ao mesmo tempo: recarregar e seguir.
-  - Processar reações (sobre a mensagem reagida; nova reação da mesma pessoa substitui a anterior) e respostas citadas (`context.id`).
+  - Webhooks que a documentação lida não mostra por inteiro:
+    - `to_user_id` nos ecos e `user_id` na agenda: o código já usa se vierem;
+    - o `history` com BSUID no lugar do telefone em `threads[].id`;
+    - edição e exclusão vindas do contato (só os ecos estão documentados).
+  - Duas escolhas conservadoras sobre a janela de 24h, a confirmar:
+    - **Reação recebida não abre a janela.** Se a Meta abrir, o Admin só pede template quando não precisaria.
+    - **Mensagem do histórico não abre a janela.** Ela foi recebida no celular antes da conexão.
+- **Templates por número.** Os templates são da WABA, mas ficam gravados por conta (número). Com um número por WABA, não muda nada. Se um cliente tiver vários números na mesma WABA, os templates ficam duplicados por conta. Nesse caso, avaliar ligar os templates à WABA.
+- **Conversas vazias da agenda.** A sincronização da agenda (`smb_app_state_sync`) cria uma conversa vazia para cada contato do celular. A caixa de entrada mostra só as conversas com mensagem (`WhatsappConversation.with_messages`). As telas e contagens das próximas fases precisam usar esse scope:
+  - lista de conversas e filtros;
+  - contador de não lidas no menu;
+  - cards no lead, na empresa e no contato;
+  - indicadores.
 - **Fase 4:**
   - Confirmar a configuração do Embedded Signup para a versão atual (v4/v5).
   - Número conectado **sem coexistência** (futuros clientes, sem o app do celular) precisa de `POST /<PHONE_NUMBER_ID>/register` (`Whatsapp::Client#register(pin:)`) depois do Embedded Signup, com o PIN de 6 dígitos da verificação em duas etapas: o atual, se o número já tiver, ou um novo. Pedir o PIN na tela e não guardar. A Meta aceita 10 tentativas por número em 72h (erro 133016). A coexistência não usa `register`.
+  - Salvar a conta antes de inscrever o app e pedir as sincronizações: webhook de número que ainda não está no Admin é ignorado.
+  - Usar `WhatsappAccount.attributes_from_phone_details` ao conectar (o webhook de qualidade e de nome já usa).
+- **Fase 5:** usar `WhatsappTemplate.attributes_from_meta` na sincronização (o webhook de status já usa). Status de template que não está no Admin, criado direto no Gerenciador do WhatsApp, fica só no log até a sincronização trazê-lo.
+- **Fase 6:**
+  - Gravar a mensagem enviada com o `wa_message_id` logo depois da resposta do envio. O status que chegar antes é reprocessado (3 novas tentativas, 15 s).
+  - A caixa de entrada usa `with_messages` (a agenda cria conversas sem mensagem).
+  - Mensagem apagada (`revoked_at`) aparece como "Mensagem apagada". Reação com emoji vazio não aparece.
 - **Fase 7:** ao vincular conversa a lead ou contato pelo telefone, considerar a variação do nono dígito dos celulares brasileiros (com e sem o 9 depois do DDD).
