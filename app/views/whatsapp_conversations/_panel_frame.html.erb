@@ -1,0 +1,4 @@
+<%# Painel no broadcast de vínculo (sem sessão): o turbo-frame busca o painel com a permissão de quem vê. %>
+<turbo-frame id="<%= dom_id(conversation, :panel) %>" class="wa-frame" src="<%= panel_whatsapp_conversation_path(conversation) %>">
+  <aside class="card panel" aria-label="Painel da conversa"><div class="col-body"><p class="caption" style="padding:20px;margin:0">Carregando…</p></div></aside>
+</turbo-frame>

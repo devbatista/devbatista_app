@@ -5,11 +5,14 @@
 # abrir uma conversa recarrega só ela ("whatsapp_conversation"). As duas paginam por cursor: a
 # lista pela última mensagem e a linha do tempo pela data e o id da mensagem, sem pular nem repetir
 # quando chega mensagem nova.
+#
+# O painel (Fase 7a) mostra o vínculo com o CRM conforme a permissão de quem vê. Quando o vínculo
+# muda, o broadcast troca o painel por um turbo-frame que busca a action panel.
 class WhatsappConversationsController < ApplicationController
   INBOX_PAGE = 30
   THREAD_PAGE = 50
 
-  before_action :set_conversation, only: %i[show messages read]
+  before_action :set_conversation, only: %i[show messages panel read]
 
   def index
     authorize WhatsappConversation
@@ -29,6 +32,10 @@ class WhatsappConversationsController < ApplicationController
     before = @conversation.messages.find(params[:before])
     @messages, @older = thread_page(@conversation.messages.before_cursor(before))
     render layout: false
+  end
+
+  def panel
+    render partial: "panel", locals: { conversation: @conversation }
   end
 
   # Mensagem recebida com a conversa aberta e a aba visível.

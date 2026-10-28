@@ -1,0 +1,25 @@
+<%# Registrar interação na gaveta (painel da conversa do WhatsApp). As conversas já viram uma
+    interação por dia sozinhas; esta é para o que aconteceu fora delas. %>
+<% lead = @subject.is_a?(Lead) %>
+<% nav_location :com, lead ? "Leads" : "Oportunidades" %>
+<% breadcrumb ["Comercial"], [lead ? "Leads" : "Oportunidades", lead ? leads_path : opportunities_path], ["Registrar interação"] %>
+<% back = lead ? lead_path(@subject) : opportunities_path %>
+<div class="form-page">
+  <%= render layout: "shared/drawer_form", locals: { title: "Registrar interação", cancel_path: back } do %>
+    <%= form_with model: @interaction, url: (lead ? lead_interactions_path(@subject) : opportunity_interactions_path(@subject)), class: "form", data: { turbo_frame: "_top" } do |f| %>
+      <div class="drawer-body form">
+        <div class="callout"><span><%= lead ? "Lead · #{@subject.display_name}" : "Oportunidade · #{@subject.title} · #{@subject.company.trade_name}" %></span></div>
+        <div class="form-grid">
+          <div class="field"><%= f.label :kind do %>Tipo <span class="req">*</span><% end %><%= f.select :kind, Interaction.options_for_kind, {}, class: "select", required: true %></div>
+          <div class="field"><%= f.label :occurred_on do %>Data <span class="req">*</span><% end %><%= f.date_field :occurred_on, class: "input", required: true %></div>
+          <div class="field full"><%= f.label :notes do %>Registro <span class="req">*</span><% end %><%= f.text_area :notes, class: "textarea", required: true, placeholder: "O que foi conversado e qual o próximo passo?" %>
+            <span class="hint">As conversas do WhatsApp já viram uma interação por dia automaticamente. Use este campo para o que aconteceu fora delas.</span></div>
+        </div>
+      </div>
+      <div class="drawer-foot">
+        <%= link_to "Cancelar", back, class: "btn", data: { close: true, turbo_frame: "_top" } %>
+        <%= f.submit "Registrar interação", class: "btn pri" %>
+      </div>
+    <% end %>
+  <% end %>
+</div>

@@ -196,7 +196,9 @@ CREATE TABLE public.contacts (
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
     id uuid DEFAULT gen_random_uuid() NOT NULL,
-    company_id uuid NOT NULL
+    company_id uuid NOT NULL,
+    whatsapp_digits character varying GENERATED ALWAYS AS (NULLIF(regexp_replace((whatsapp)::text, '\D'::text, ''::text, 'g'::text), ''::text)) STORED,
+    phone_digits character varying GENERATED ALWAYS AS (NULLIF(regexp_replace((phone)::text, '\D'::text, ''::text, 'g'::text), ''::text)) STORED
 );
 
 
@@ -384,7 +386,8 @@ CREATE TABLE public.interactions (
     updated_at timestamp(6) without time zone NOT NULL,
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     user_id uuid NOT NULL,
-    subject_id uuid NOT NULL
+    subject_id uuid NOT NULL,
+    whatsapp_conversation_id uuid
 );
 
 
@@ -434,7 +437,9 @@ CREATE TABLE public.leads (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     user_id uuid NOT NULL,
     service_id uuid,
-    company_id uuid
+    company_id uuid,
+    whatsapp_digits character varying GENERATED ALWAYS AS (NULLIF(regexp_replace((whatsapp)::text, '\D'::text, ''::text, 'g'::text), ''::text)) STORED,
+    phone_digits character varying GENERATED ALWAYS AS (NULLIF(regexp_replace((phone)::text, '\D'::text, ''::text, 'g'::text), ''::text)) STORED
 );
 
 
@@ -1043,6 +1048,9 @@ CREATE TABLE public.whatsapp_conversations (
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
     saved_name character varying,
+    linked_at timestamp(6) without time zone,
+    auto_link_blocked_at timestamp(6) without time zone,
+    linked_by_id uuid,
     CONSTRAINT whatsapp_conversations_identified CHECK (((bsuid IS NOT NULL) OR (wa_id IS NOT NULL))),
     CONSTRAINT whatsapp_conversations_single_link CHECK (((lead_id IS NULL) OR (contact_id IS NULL)))
 );
@@ -1675,6 +1683,20 @@ CREATE UNIQUE INDEX index_contacts_on_external_id ON public.contacts USING btree
 
 
 --
+-- Name: index_contacts_on_phone_digits; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_contacts_on_phone_digits ON public.contacts USING btree (phone_digits);
+
+
+--
+-- Name: index_contacts_on_whatsapp_digits; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_contacts_on_whatsapp_digits ON public.contacts USING btree (whatsapp_digits);
+
+
+--
 -- Name: index_contacts_one_primary_per_company; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1836,6 +1858,13 @@ CREATE INDEX index_interactions_on_user_id ON public.interactions USING btree (u
 
 
 --
+-- Name: index_interactions_whatsapp_daily; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_interactions_whatsapp_daily ON public.interactions USING btree (whatsapp_conversation_id, subject_type, subject_id, occurred_on) WHERE (whatsapp_conversation_id IS NOT NULL);
+
+
+--
 -- Name: index_invoices_on_company_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1871,6 +1900,13 @@ CREATE UNIQUE INDEX index_leads_on_external_id ON public.leads USING btree (exte
 
 
 --
+-- Name: index_leads_on_phone_digits; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_leads_on_phone_digits ON public.leads USING btree (phone_digits);
+
+
+--
 -- Name: index_leads_on_service_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1889,6 +1925,13 @@ CREATE INDEX index_leads_on_status ON public.leads USING btree (status);
 --
 
 CREATE INDEX index_leads_on_user_id ON public.leads USING btree (user_id);
+
+
+--
+-- Name: index_leads_on_whatsapp_digits; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_leads_on_whatsapp_digits ON public.leads USING btree (whatsapp_digits);
 
 
 --
@@ -2851,6 +2894,14 @@ ALTER TABLE ONLY public.recurring_expenses
 
 
 --
+-- Name: interactions fk_rails_3cc25e7f8c; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.interactions
+    ADD CONSTRAINT fk_rails_3cc25e7f8c FOREIGN KEY (whatsapp_conversation_id) REFERENCES public.whatsapp_conversations(id) ON DELETE SET NULL;
+
+
+--
 -- Name: payables fk_rails_3f4c87199d; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2880,6 +2931,14 @@ ALTER TABLE ONLY public.contacts
 
 ALTER TABLE ONLY public.invoices
     ADD CONSTRAINT fk_rails_433d4c368d FOREIGN KEY (company_id) REFERENCES public.companies(id);
+
+
+--
+-- Name: whatsapp_conversations fk_rails_43e3c20000; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.whatsapp_conversations
+    ADD CONSTRAINT fk_rails_43e3c20000 FOREIGN KEY (linked_by_id) REFERENCES public.users(id) ON DELETE SET NULL;
 
 
 --
@@ -3401,6 +3460,7 @@ ALTER TABLE ONLY public.leads
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261028190000'),
 ('20261028180000'),
 ('20261028120000'),
 ('20261027200000'),

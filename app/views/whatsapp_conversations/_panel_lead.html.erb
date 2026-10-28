@@ -1,0 +1,24 @@
+<%# Lead vinculado: cadastro, etapa, propostas, próximo passo e interações (no lead ou na oportunidade
+    aberta que ele virou). Sem acesso ao Comercial, só o nome. %>
+<% if policy(lead).show? %>
+  <% subject = conversation.interaction_subject %>
+  <% opportunity = subject if subject.is_a?(Opportunity) %>
+  <div class="pblock">
+    <div class="who-card">
+      <span class="co-avatar" aria-hidden="true"><%= lead.initials %></span>
+      <div style="min-width:0"><%= link_to lead.display_name, lead_path(lead), class: "strong", style: "font-size:15px", data: { turbo_frame: "_top" } %>
+        <div><span class="badge b-info sm-badge">Lead · <%= lead.status_label %></span></div></div>
+    </div>
+    <% if lead.company_name.present? %><div class="kv"><span>Contato</span><b><%= lead.name %></b></div><% end %>
+    <div class="kv"><span>E-mail</span><b><%= lead.email || "—" %></b></div>
+    <div class="kv"><span>Origem</span><b><%= lead.origin_label %></b></div>
+    <div class="kv"><span>Serviço</span><b><%= lead.service&.name || "—" %></b></div>
+    <div class="kv"><span>Responsável</span><b><%= (opportunity || lead).user.name %></b></div>
+    <div class="pbody" style="padding-top:4px"><%= link_to "Abrir ficha do lead →", lead_path(lead), class: "btn sm", data: { turbo_frame: "_top" } %></div>
+  </div>
+  <%= render "whatsapp_conversations/panel_pipeline", lead: lead, opportunity: opportunity %>
+  <%= render "whatsapp_conversations/panel_commercial", subject: subject, proposals: (opportunity ? Proposal.open.where(lead: lead).or(Proposal.open.where(opportunity: opportunity)) : lead.proposals.open).order(updated_at: :desc).limit(3) %>
+<% else %>
+  <div class="who-card"><span class="co-avatar" aria-hidden="true"><%= lead.initials %></span><div style="min-width:0"><b class="strong"><%= lead.display_name %></b><div><span class="badge b-info sm-badge">Lead</span></div></div></div>
+  <div class="pbody"><span class="caption">Os dados do lead ficam no Comercial, sem acesso no seu perfil.</span></div>
+<% end %>

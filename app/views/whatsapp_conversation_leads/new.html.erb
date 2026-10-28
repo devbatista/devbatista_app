@@ -1,0 +1,3 @@
+<% nav_location :wa, "Conversas" %>
+<% breadcrumb ["WhatsApp"], ["Conversas", whatsapp_conversation_path(@conversation)], ["Criar lead"] %>
+<div class="form-page"><%= render "form", conversation: @conversation, lead: @lead %></div>

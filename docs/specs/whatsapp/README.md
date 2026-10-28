@@ -52,8 +52,9 @@ Os valores ficam em `Rails.configuration.x.whatsapp`.
 | Tabela | Conteúdo |
 | --- | --- |
 | `whatsapp_accounts` | Portfólio, WABA, `phone_number_id` (único), número exibido (vazio até a ativação ler o número), nome verificado, token criptografado e validade (`token_expires_at`), status (Conectando, Aguardando registro, Conectado, Reconectar necessário, Desconectado), erro da ativação (`activation_error`), coexistência, qualidade e limite de envio, quem conectou, datas de conexão, inscrição do app, registro (`registered_at`) e desconexão, pedidos e datas das sincronizações, último webhook, andamento da sincronização de templates (`templates_sync_requested_at`, `templates_synced_at`, `templates_sync_error`) |
-| `whatsapp_conversations` | Conta, `bsuid` e `parent_bsuid`, `wa_id` e @usuário opcionais, nome do perfil, nome salvo na agenda do celular (`saved_name`), lead **ou** contato, última mensagem recebida (janela de 24h), não lidas e prévia |
+| `whatsapp_conversations` | Conta, `bsuid` e `parent_bsuid`, `wa_id` e @usuário opcionais, nome do perfil, nome salvo na agenda do celular (`saved_name`), lead **ou** contato, quando e quem vinculou (`linked_at`, `linked_by_id`; vazio é o vínculo automático), quando foi desvinculada à mão (`auto_link_blocked_at`), última mensagem recebida (janela de 24h), não lidas e prévia |
 | `whatsapp_messages` | Direção, tipo, origem (Admin, Celular, Contato), corpo, `wa_message_id` único, status (Enviando, Enviada, Entregue, Lida, Falhou, Recebida), erro, template e parâmetros, mídia (Active Storage e o ID da mídia na Meta), mensagem citada (`reply_to_wa_message_id`), reação (`reaction_to_wa_message_id` e `reaction_emoji`), autor, se veio do histórico, datas de envio, entrega, leitura, edição e exclusão, payload bruto |
+| CRM (Fase 7a) | Leads e contatos ganham `whatsapp_digits` e `phone_digits` (colunas geradas, só os dígitos, com índice). A interação ganha `whatsapp_conversation_id`: a automática, única por conversa, cadastro e dia |
 | `whatsapp_templates` | Conta, ID na Meta, nome, idioma, categoria, status, componentes (formato da Graph API), nº de variáveis do cabeçalho e do corpo, motivo de rejeição, última sincronização. O excluído fica no banco com status `deleted`; nome e idioma são únicos por conta só entre os não excluídos |
 
 Garantias no banco: o BSUID e o telefone são únicos por conta; a conversa precisa de BSUID ou telefone e não liga lead e contato ao mesmo tempo (check constraints); o `wa_message_id` é único, o que torna o processamento dos webhooks idempotente.
@@ -332,12 +333,53 @@ O `WhatsappSendJob` (`log_arguments = false`):
 
 **Testes:** channel specs, request specs, `WhatsappSendJob`, `WhatsappReadJob` e broadcasts a partir do webhook. O projeto não tem Capybara nem Cuprite, então não há system spec; o fluxo no navegador (abrir conversa, enviar e ver o balão) fica para o teste em produção.
 
+## Vínculo com o CRM (Fase 7a)
+
+O painel da conversa liga a conversa a um lead ou a um contato, mostra os dados do CRM e registra uma interação "WhatsApp" por dia de conversa. "Iniciar conversa", os cards no lead, na empresa e no contato e o preenchimento das variáveis do template ficam para a Fase 7b.
+
+**Telefone** (`Whatsapp::Phone`):
+- O mesmo celular do Brasil pode chegar com e sem o nono dígito depois do DDD: a Meta manda um ou outro conforme a conta, e o cadastro pode ter qualquer um dos dois.
+- `stored_forms(wa_id)` dá as formas em que o número da conversa pode estar no CRM, só os dígitos: com e sem o 55, com e sem o 0 do DDD e, no celular, com e sem o 9. `wa_ids(telefone)` faz o caminho de volta, do telefone como foi digitado para os `wa_id` possíveis (10 ou 11 dígitos sem o código do país são do Brasil). Fixo e número de fora do Brasil ficam como estão.
+- Leads e contatos têm `whatsapp_digits` e `phone_digits`, colunas geradas pelo banco (só os dígitos, com índice). A busca olha o WhatsApp e o telefone do cadastro.
+
+**Vínculo automático:**
+- Conversa com telefone e sem vínculo se liga sozinha quando há **um único** candidato: um lead em aberto (Novo Lead, Contato Realizado, Qualificado) ou um contato. Acontece quando a conversa ganha o telefone (`before_save`) e quando um lead ou contato ganha o WhatsApp ou o telefone (`WhatsappAutoLinkJob`, pelo concern `WhatsappLinkable`).
+- Com mais de um candidato, ou só leads convertidos ou perdidos, não vincula: o painel mostra os cadastros em "Mesmo telefone", com "Vincular" em cada um.
+- `linked_at` e `linked_by` guardam quando e quem vinculou; sem `linked_by`, foi pelo telefone.
+- **Desvinculada à mão:** "Desvincular conversa" grava `auto_link_blocked_at`, e o vínculo automático deixa a conversa de fora (`auto_link!`, e o scope `WhatsappConversation.auto_linkable`, usado pelo `WhatsappAutoLinkJob` e pela rake). Mensagem nova, cadastro salvo de novo com o mesmo número ou a rake não a ligam de novo.
+  - A marca cai quando a conversa é vinculada à mão ou quando ganha outro telefone (`wa_id`). Com telefone novo, o vínculo automático tenta na hora.
+  - O painel continua mostrando os candidatos em "Mesmo telefone", com "Vincular" manual, e avisa que o vínculo automático está desligado.
+- **Depois do deploy:** `bin/rails whatsapp:link_conversations` liga as conversas que já existiam. Pode rodar mais de uma vez; as desvinculadas à mão ficam de fora.
+
+**Painel** (com a sessão de quem vê, porque os dados seguem a permissão de cada área):
+- **Lead:** nome e empresa com link para a ficha, status, contato, e-mail, origem, serviço e responsável; a etapa (Novo Lead → Oportunidade, ou a da oportunidade aberta que o lead virou); propostas em aberto; próximo passo; as três últimas interações e "+ Registrar".
+- **Contato:** a empresa com link para a Visão 360º, o contato e o cargo, o e-mail, o responsável e a etapa da oportunidade aberta da empresa; propostas em aberto da empresa; próximo passo e interações da oportunidade. Sem oportunidade aberta, avisa.
+- **Sem vínculo:** "Criar lead", "Vincular a lead/contato existente" e os candidatos pelo telefone. Sem telefone, explica que não há busca automática.
+- "Desvincular conversa", com confirmação. As interações já registradas continuam no cadastro.
+- Mover a etapa e editar o próximo passo ficam na ficha e no pipeline.
+- Quando o vínculo muda, o broadcast troca o painel por um turbo-frame com `src` (`panel_frame`), que busca o painel de novo (action `panel`) com a permissão de quem está vendo. O broadcast não leva dados do CRM.
+
+**Gavetas** (a gaveta lateral do Admin):
+- **Criar lead** (`WhatsappConversationLeadsController`): nome da agenda ou do perfil, WhatsApp "(11) 99102-3344", origem WhatsApp, responsável, status em aberto e as três primeiras mensagens de texto recebidas nas observações ("Chegou pelo WhatsApp em …"). Cria o lead e vincula na mesma transação.
+- **Vincular** (`WhatsappConversationLinksController`): sem busca, os cadastros com o telefone da conversa; com busca, nome, empresa, e-mail e telefone (a partir de 4 dígitos). Só entram os leads e contatos que a pessoa pode ler. "Salvar o telefone no WhatsApp do cadastro" grava o número só quando o campo está vazio.
+- **Registrar interação** (`Commercial::InteractionsController#new`): o mesmo registro manual do lead e da oportunidade, que volta para a conversa.
+
+**Interação "WhatsApp" automática** (`WhatsappInteractionJob`):
+- Uma por conversa, cadastro e dia (`interactions.whatsapp_conversation_id`, índice único), em nome do responsável pelo lead ou pela oportunidade.
+- Vai para o lead em aberto; o lead convertido, para a oportunidade aberta que ele virou; o lead perdido, para o próprio lead; o contato, para a oportunidade aberta da empresa. Contato sem oportunidade aberta fica sem interação.
+- O texto leva só as contagens do dia ("Conversa do dia · 4 recebidas, 2 enviadas"), nunca o conteúdo. É refeito a cada mensagem, depois do commit. Não contam histórico, reação, aviso do sistema e envio que falhou.
+- Vincular registra a de hoje, se já houve mensagem. Na ficha e no painel, a interação aparece marcada como "automática".
+- A conversa juntada por troca de BSUID leva o vínculo e as interações da outra.
+
+**Testes:** `Whatsapp::Phone`, vínculo automático (webhook, cadastro novo, candidatos, junção, desvinculada à mão que não religa), broadcast do painel, `WhatsappInteractionJob` e request specs do painel, das gavetas e das permissões.
+
 ## Permissões e auditoria
 
 - Área `whatsapp` em `Role::AREAS`. O Administrador tem nível "full"; os outros perfis começam sem acesso e podem ser liberados na tela de permissões.
 - Policies `WhatsappConversationPolicy`, `WhatsappMessagePolicy` e `WhatsappTemplatePolicy` seguem a matriz. `WhatsappAccountPolicy` exige nível "full" para conectar ou alterar um número.
 - Templates: quem só lê a área vê a lista, a prévia e os detalhes; criar, editar e sincronizar (`sync?`) exigem escrita; excluir exige "full".
 - Conversas: quem só lê a área vê as conversas e a mídia, e abrir marca como lida; enviar e "Tentar de novo" (`retry?`) exigem escrita. O canal do tempo real também exige a área.
+- Vínculo (Fase 7a): vincular, criar lead e desvincular (`link?`) exigem escrita no WhatsApp; criar lead também exige criar no Comercial. O painel mostra os dados do lead só com leitura no Comercial e os do contato só com leitura em Clientes. "+ Registrar" segue a permissão de alterar o lead ou a oportunidade.
 - `AuditLog` na conta (conexão, status) e nos templates, sem o token, sem o erro da ativação e sem os campos que a Meta atualiza sozinha. As conexões aparecem também nas atividades.
 
 ## Fases
@@ -349,7 +391,9 @@ O `WhatsappSendJob` (`log_arguments = false`):
 4. ✅ **Conexão**: Embedded Signup v5 em Tecnologia → Integrações → WhatsApp, ativação em job (inscrição, registro ou sincronizações), validade do token.
 5. ✅ **Templates**: lista, editor com prévia, criação, edição e exclusão na Meta, exemplo de mídia pelo upload retomável, sincronização pelo botão e diária.
 6. ✅ **Conversas e tempo real**: tela de três colunas, Turbo Streams com ActionCable autenticado pelo Devise e Redis em desenvolvimento, campo de envio em Stimulus (texto, anexo, resposta, template), envio e leitura em jobs, contador no menu.
-7. **Ligação com o CRM**: vincular ou criar lead, interação "WhatsApp" automática (uma por dia de conversa), cards no lead, na empresa e no contato, "Iniciar conversa".
+7. **Ligação com o CRM**, em dois PRs:
+   - 7a. ✅ **Vínculo**: vínculo automático pelo telefone (com e sem o nono dígito), painel com os dados do CRM, criar lead, vincular e desvincular, interação "WhatsApp" automática (uma por dia de conversa).
+   - 7b. **Iniciar conversa**: diálogo com template, "Nova conversa", cards no lead, na empresa e no contato, preenchimento das variáveis do template com os dados do cadastro.
 8. **Avisos**: notificação por conversa (`Notification::KINDS`) e aviso do navegador com som.
 
 ## Pontos em aberto
@@ -400,7 +444,9 @@ O `WhatsappSendJob` (`log_arguments = false`):
   - Lista filtrada ou com busca: o broadcast põe no topo a conversa que recebeu mensagem mesmo que ela não combine com o filtro. Ao refazer a busca ou trocar o filtro, a lista volta a ficar certa.
   - A contagem de cada filtro é calculada ao abrir a tela e não muda com o tempo real.
   - O formato do cabeçalho de mídia no envio de template (primeiro item da lista "Primeiro uso real").
-- **Fase 7:**
-  - ao vincular conversa a lead ou contato pelo telefone, considerar a variação do nono dígito dos celulares brasileiros (com e sem o 9 depois do DDD);
-  - no painel da conversa entram os dados do CRM e os botões Criar lead e Vincular; no composer, o preenchimento automático das variáveis do template com os dados do lead ou contato.
+- **Fase 7a (resolvido):** o vínculo pelo telefone considera o nono dígito (`Whatsapp::Phone`); o painel tem os dados do CRM, "Criar lead" e "Vincular".
+- **Fase 7a, a conferir no uso real:**
+  - O vínculo automático com contato que tem o mesmo telefone de outro contato (sócios com o celular da empresa, por exemplo): fica sem vínculo e aparece em "Mesmo telefone".
+  - O painel não acompanha em tempo real as mudanças feitas no cadastro (etapa, propostas, próximo passo): ele é atualizado ao abrir a conversa ou quando o vínculo muda.
+- **Fase 7b:** no composer e em "Iniciar conversa", o preenchimento automático das variáveis do template com os dados do lead ou contato. Ao iniciar pelo telefone digitado, guardar na conversa o `wa_id` que a Meta devolver (pode vir sem o nono dígito).
 - **Fase 8:** aviso do navegador e som para mensagem nova. O `whatsapp-thread` já sabe quando chega mensagem recebida com a aba escondida.
