@@ -1,0 +1,18 @@
+<%# Item da lista. Também renderizado pelo broadcast (sem sessão): nada aqui depende de quem vê. %>
+<% c = conversation %>
+<% name = c.display_name %>
+<%= link_to whatsapp_conversation_path(c), id: dom_id(c, :inbox), class: "cv#{' unread' if c.unread_count.positive?}", role: "listitem",
+                                           data: { turbo_frame: "whatsapp_conversation", turbo_action: "advance", conversation_id: c.id } do %>
+  <span class="avatar soft" aria-hidden="true"><%= whatsapp_initials_for(name) %></span>
+  <span class="cv-body">
+    <span class="cv-l1"><span class="cv-name"><%= name %></span><span class="cv-time"><%= whatsapp_time_label(c.last_message_at) %></span></span>
+    <span class="cv-l2"><span class="t"><%= whatsapp_identification(c) %></span><%= whatsapp_link_badge(c) %></span>
+    <span class="cv-l3">
+      <span class="cv-prev"><%= c.preview %></span>
+      <% if c.window_open? %>
+        <span class="win-ic<%= ' soon' if whatsapp_window_soon?(c) %>" title="Janela de 24h aberta, fecha em <%= whatsapp_window_left(c) %>"><%= icon(:clock, size: 14, stroke: 1.8) %><span class="sr-only">Janela aberta</span></span>
+      <% end %>
+      <% if c.unread_count.positive? %><span class="pill"><%= c.unread_count %><span class="sr-only"> não lidas</span></span><% end %>
+    </span>
+  </span>
+<% end %>

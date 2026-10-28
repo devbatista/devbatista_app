@@ -31,6 +31,14 @@ module NavigationHelper
     x: "M6 6l12 12M18 6L6 18",
     swap: "M7 7h11l-3-3M17 17H6l3 3",
     sync: "M3 12a9 9 0 0115.5-6.3L21 8M21 3v5h-5M21 12a9 9 0 01-15.5 6.3L3 16M3 21v-5h5",
+    dbl: "M1.5 12.5l4.5 4.5 9-9M10 16.5l.5.5 9-9",
+    mobile: "M8 2h8a1 1 0 011 1v18a1 1 0 01-1 1H8a1 1 0 01-1-1V3a1 1 0 011-1zM11 18h2",
+    history: "M3 12a9 9 0 103-6.7L3 8M3 3v5h5M12 7v5l3 2",
+    clip: "M21 11l-8.5 8.5a5 5 0 01-7-7L14 4a3.5 3.5 0 015 5l-8.5 8.5a2 2 0 01-3-3L15 7",
+    back: "M15 6l-6 6 6 6",
+    panel: "M4 4h16v16H4zM14 4v16",
+    reply: "M9 14L4 9l5-5M4 9h11a5 5 0 015 5v6",
+    unlink: "M9 15l6-6M10 6l1-1a4 4 0 015.7 5.7l-1 1M14 18l-1 1a4 4 0 01-5.7-5.7l1-1",
     clock: "M12 21a9 9 0 100-18 9 9 0 000 18zM12 7v5l3 2",
     alert: "M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z",
     board: "M4 4h4v16H4zM10 4h4v10h-4zM16 4h4v13h-4z",
@@ -52,7 +60,7 @@ module NavigationHelper
       [ "Propostas", :proposals_path, "comercial" ], [ "Pipeline", :pipeline_path, "comercial" ]
     ] },
     { key: :wa, label: "WhatsApp", items: [
-      [ "Conversas", nil, "whatsapp" ], [ "Templates", :whatsapp_templates_path, "whatsapp" ]
+      [ "Conversas", :whatsapp_conversations_path, "whatsapp" ], [ "Templates", :whatsapp_templates_path, "whatsapp" ]
     ] },
     { key: :cli, label: "Clientes", items: [
       [ "Empresas", :companies_path, "clientes" ], [ "Contatos", :contacts_path, "clientes" ],

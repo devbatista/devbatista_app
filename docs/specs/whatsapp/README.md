@@ -38,6 +38,7 @@ Tudo pelo ambiente (`.env.example`); nenhum segredo no código.
 | `WHATSAPP_WEBHOOK_VERIFY_TOKEN` | Texto combinado com a Meta na verificação do webhook |
 | `WHATSAPP_GRAPH_VERSION` | Versão da Graph API (padrão `v26.0`) |
 | `ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY`, `..._DETERMINISTIC_KEY`, `..._KEY_DERIVATION_SALT` | Criptografia do token. Gere com `bin/rails db:encryption:init`. Sem elas, valem as credentials; em desenvolvimento, chaves derivadas do secret local; em teste, valores fixos de teste |
+| `REDIS_URL` | O Redis do Sidekiq também serve o ActionCable (tempo real das conversas), em desenvolvimento e em produção (`config/cable.yml`; sem a variável, `redis://localhost:6379/1`). No Railway, já está no serviço web. Em teste, o adapter `test` |
 
 Os valores ficam em `Rails.configuration.x.whatsapp`.
 
@@ -246,11 +247,97 @@ WhatsApp → **Templates** (`/whatsapp/templates`, `WhatsappTemplatesController`
 
 **Auditoria:** criação, edição (mudança de status) e exclusão vão para o `AuditLog`, sem os components.
 
+## Conversas e tempo real (Fase 6)
+
+WhatsApp → **Conversas** (`/whatsapp/conversations`, `WhatsappConversationsController`), seguindo `docs/design/whatsapp/conversas.html`. O item saiu do "em breve" do menu.
+
+**Tempo real.**
+- O `ApplicationCable::Connection` identifica o usuário pela sessão do Devise (`env["warden"].user`) e recusa a conexão sem login ou de usuário inativo.
+- Todos os streams do WhatsApp usam o `WhatsappStreamsChannel` (`turbo_stream_from …, channel: WhatsappStreamsChannel`). Além do nome assinado, ele exige que a pessoa possa ver a área WhatsApp.
+- Os broadcasts saem dos `after_commit` dos models e são renderizados num job (`broadcast_*_later`). Por isso funcionam a partir do webhook no Sidekiq e da requisição, e mudam só a mensagem ou o item da lista.
+
+| Stream | O que muda |
+| --- | --- |
+| `[conta, :whatsapp_inbox]` (lista) | Mensagem nova tira o item de onde estiver, inclusive das páginas carregadas depois, e o põe no topo. Não lidas, prévia, nome, vínculo e janela redesenham o item |
+| `[conversa, :whatsapp]` (conversa aberta) | Mensagem nova; status (Enviando → enviada → entregue → lida → falhou), edição, exclusão e mídia baixada substituem o balão; reação redesenha a mensagem reagida; janela que abre ou fecha redesenha o cabeçalho e o campo de envio |
+| `:whatsapp_menu` (contador) | Total de conversas com mensagem e não lidas (`WhatsappConversation.menu_unread_count`, uma consulta) |
+
+- As partes renderizadas no broadcast não dependem de quem vê, porque não há sessão no job. "Responder", "Tentar de novo" e o campo de envio levam `data-send-only` e somem por CSS para quem só lê a área. O servidor confere a permissão de novo.
+- Os jobs de broadcast levam só o nome do stream, o alvo, o partial e a referência (GlobalID), nunca o conteúdo.
+
+**Tela.**
+- **Lista:**
+  - seletor de conta quando há mais de uma;
+  - busca por nome do perfil, nome da agenda, telefone (dígitos) e @usuário;
+  - filtros Todas, Não lidas, Leads, Clientes, Sem vínculo e Janela aberta, com a contagem numa consulta só;
+  - sempre `with_messages`, ordenada pela última mensagem;
+  - paginação por cursor (última mensagem + id) num turbo-frame lazy, sem pular nem repetir.
+- **Nome:** agenda > perfil > telefone (+55 11 99102-3344) > @usuário > "Contato do WhatsApp" (`WhatsappConversation#display_name`).
+- **Conversa** (turbo-frame; abrir pela lista recarrega só ela):
+  - cabeçalho com o telefone, ou "telefone não compartilhado" quando só há BSUID, e a janela ("Janela aberta · fecha em 5h (até 18/09 10:42)" ou "Janela fechada desde …");
+  - linha do tempo com separador por dia, avisos do sistema, autor, marcas Celular, Template e Histórico, links seguros (`rel="noopener noreferrer"`);
+  - mídia: imagem com ampliação, áudio e vídeo com player, documento com nome e tamanho, figurinha, "baixando…" até o `WhatsappMediaJob` terminar;
+  - resposta citando a original (o clique leva até ela) e reações agrupadas;
+  - selo "editada", "Mensagem apagada", status com ícones e a falha em português com "Tentar de novo".
+  - Abre na última mensagem. As anteriores carregam ao rolar até o topo, por cursor (`sent_at` + id), mantendo a posição.
+- **Painel:**
+  - dados do WhatsApp: perfil, agenda, telefone ou "Não compartilhado", @usuário, BSUID, primeira mensagem e conta;
+  - o vínculo, só o nome com link para a ficha, ou "Conversa sem lead ou contato". Criar e vincular ficam para a Fase 7.
+- **Telas estreitas:** as colunas viram navegação (lista → conversa → painel), pelo controller `whatsapp-screen`.
+
+**Campo de envio** (controller `whatsapp-composer`):
+- **Janela aberta:**
+  - texto até 4096 caracteres (Enter envia, Shift+Enter quebra a linha);
+  - anexo (imagem, documento, áudio ou vídeo; legenda nos tipos que aceitam), conferido pelo tipo (`WhatsappMessage::UPLOAD_TYPES`) e pelo tamanho (`MEDIA_LIMITS`) antes de enviar;
+  - "Responder" cita a mensagem (`context`).
+- **Janela fechada:** texto e anexo bloqueados, com a explicação, e o botão "Responder com template".
+- **Modo template:**
+  - os aprovados da conta (com categoria e idioma) e o link para "Gerenciar templates";
+  - um campo por variável (manuais nesta fase), a mídia do cabeçalho quando o template pede, o fim do link dos botões de URL com variável, e a prévia;
+  - os campos e o envio são descritos por `Whatsapp::TemplateFields`, para o servidor e para o navegador.
+- A resposta do envio já traz o balão "Enviando". O broadcast do mesmo balão tem o mesmo id e só o substitui, porque o Turbo não duplica.
+- Quando a janela fecha com a conversa aberta, ela é recarregada.
+
+**Envio** (`Whatsapp::Outbound` na requisição, `WhatsappSendJob` no Sidekiq):
+1. A requisição confere a permissão, a conta (só conectada) e a janela no servidor: texto e mídia só com ela aberta, template sempre.
+2. Grava a mensagem de saída (Enviando, origem Admin, autor, template e parâmetros, mídia no Active Storage) e atualiza a prévia.
+3. Enfileira o job e responde.
+
+O `WhatsappSendJob` (`log_arguments = false`):
+- **Envio:**
+  - texto (`send_text`, com prévia do link quando há URL);
+  - mídia (`upload_media`, com o ID guardado para não subir de novo, e `send_media`);
+  - template (`send_template` com `TemplateComponents.build`: corpo posicional ou nomeado, cabeçalho de texto ou de mídia, sufixo dos botões);
+  - sempre com a citação.
+- **Depois da resposta da Meta:** grava o `wa_message_id` sem callbacks e completa o telefone ou o BSUID da conversa com o que a Meta devolveu.
+- **Falha transitória:** tenta de novo com espera curta (3, 10, 30, 60 s), mantendo "Enviando"; esgotadas as tentativas, falha. No POST da mensagem, só quando o pedido não saiu ou o erro transitório é da própria Meta.
+- **Sem confirmação da Meta** no POST da mensagem (timeout de leitura, conexão interrompida): falha sem nova tentativa, com "A Meta não confirmou o envio. Ele pode ter chegado ao contato: confira antes de tentar de novo." (ver "Pontos em aberto").
+- **Falha definitiva:** o status vai para falhou, com o código e a mensagem de `Whatsapp::Error::MESSAGES`.
+  - `131047` fecha a janela na tela.
+  - `131062` sugere o template ou o telefone.
+  - `190` leva a conta a "Reconectar necessário".
+  - Conta não conectada é recusada antes de chamar a Meta.
+- **Sem duplicar:** mensagem com `wa_message_id` nunca é enviada de novo. "Tentar de novo" cria outra mensagem; a que falhou fica.
+
+**Leitura.**
+- Abrir a conversa, ou receber mensagem com ela aberta e a aba visível, zera as não lidas e enfileira o `WhatsappReadJob`.
+- O job chama `mark_as_read` com a última mensagem recebida, sem travar a conversa durante a chamada. Depois da resposta, grava o `read_at` só nas recebidas que ainda estão sem ele, então cada mensagem é marcada uma vez só.
+- Na falha, o log leva só o código e o `fbtrace_id` da Meta.
+- Os ticks azuis aparecem para o contato.
+- Responder pelo celular continua zerando as não lidas (Fase 3).
+
+**Mídia:** a action `media` exige permissão e redireciona para uma URL temporária do serviço (`blob.url(expires_in: 5.minutes)`, S3 em produção). Não usa o `rails_blob_path`, que é permanente e abre sem login. A imagem aparece reduzida por CSS, sem variant, porque o Railway pode não ter libvips.
+
+**Índices** (migration da Fase 6): lista por conta (`last_message_at DESC, id DESC`, só com mensagem), não lidas e janela por conta, linha do tempo por conversa (`sent_at, id`).
+
+**Testes:** channel specs, request specs, `WhatsappSendJob`, `WhatsappReadJob` e broadcasts a partir do webhook. O projeto não tem Capybara nem Cuprite, então não há system spec; o fluxo no navegador (abrir conversa, enviar e ver o balão) fica para o teste em produção.
+
 ## Permissões e auditoria
 
 - Área `whatsapp` em `Role::AREAS`. O Administrador tem nível "full"; os outros perfis começam sem acesso e podem ser liberados na tela de permissões.
 - Policies `WhatsappConversationPolicy`, `WhatsappMessagePolicy` e `WhatsappTemplatePolicy` seguem a matriz. `WhatsappAccountPolicy` exige nível "full" para conectar ou alterar um número.
 - Templates: quem só lê a área vê a lista, a prévia e os detalhes; criar, editar e sincronizar (`sync?`) exigem escrita; excluir exige "full".
+- Conversas: quem só lê a área vê as conversas e a mídia, e abrir marca como lida; enviar e "Tentar de novo" (`retry?`) exigem escrita. O canal do tempo real também exige a área.
 - `AuditLog` na conta (conexão, status) e nos templates, sem o token, sem o erro da ativação e sem os campos que a Meta atualiza sozinha. As conexões aparecem também nas atividades.
 
 ## Fases
@@ -261,7 +348,7 @@ WhatsApp → **Templates** (`/whatsapp/templates`, `WhatsappTemplatesController`
 3. ✅ **Webhook e processamento**: `/webhooks/whatsapp` fora do `ApplicationController`, assinatura `X-Hub-Signature-256`, job no Sidekiq, todos os campos inscritos, idempotente pelo `wa_message_id`, download da mídia.
 4. ✅ **Conexão**: Embedded Signup v5 em Tecnologia → Integrações → WhatsApp, ativação em job (inscrição, registro ou sincronizações), validade do token.
 5. ✅ **Templates**: lista, editor com prévia, criação, edição e exclusão na Meta, exemplo de mídia pelo upload retomável, sincronização pelo botão e diária.
-6. **Conversas e tempo real**: tela de três colunas, Turbo Streams com ActionCable autenticado pelo Devise e Redis em desenvolvimento, campo de envio em Stimulus, contador no menu.
+6. ✅ **Conversas e tempo real**: tela de três colunas, Turbo Streams com ActionCable autenticado pelo Devise e Redis em desenvolvimento, campo de envio em Stimulus (texto, anexo, resposta, template), envio e leitura em jobs, contador no menu.
 7. **Ligação com o CRM**: vincular ou criar lead, interação "WhatsApp" automática (uma por dia de conversa), cards no lead, na empresa e no contato, "Iniciar conversa".
 8. **Avisos**: notificação por conversa (`Notification::KINDS`) e aviso do navegador com som.
 
@@ -299,8 +386,21 @@ WhatsApp → **Templates** (`/whatsapp/templates`, `WhatsappTemplatesController`
 - **Desconectar sem coexistência** (números de clientes): não há tela. Quando houver, usar `POST /<PHONE_NUMBER_ID>/deregister` e `unsubscribe_app`.
 - **Fase 8:** avisar o vencimento do token também pela central de notificações (hoje só na tela).
 - **Fase 5 (resolvido):** a sincronização usa `WhatsappTemplate.attributes_from_meta`, como o webhook de status. O template criado direto no Gerenciador do WhatsApp entra na lista pela sincronização (botão ou rotina diária). Até lá, o status dele que chega pelo webhook fica só no log.
-- **Fase 6:**
-  - Gravar a mensagem enviada com o `wa_message_id` logo depois da resposta do envio. O status que chegar antes é reprocessado (3 novas tentativas, 15 s).
-  - A caixa de entrada usa `with_messages` (a agenda cria conversas sem mensagem).
-  - Mensagem apagada (`revoked_at`) aparece como "Mensagem apagada". Reação com emoji vazio não aparece.
-- **Fase 7:** ao vincular conversa a lead ou contato pelo telefone, considerar a variação do nono dígito dos celulares brasileiros (com e sem o 9 depois do DDD).
+- **Fase 6 (resolvido):**
+  - o `wa_message_id` é gravado logo depois da resposta do envio, e o status que chegar antes é reprocessado pela Fase 3;
+  - a caixa de entrada e o contador usam `with_messages`;
+  - a mensagem apagada aparece como "Mensagem apagada";
+  - a reação com emoji vazio não aparece.
+- **Fase 6, a conferir no uso real:**
+  - **Envio sem confirmação da Meta não é tentado de novo**, para não duplicar no celular do contato (a Cloud API não tem chave de idempotência).
+    - Casos: timeout de leitura, conexão interrompida, resposta inválida (`Whatsapp::Error#delivery_uncertain?`).
+    - No POST da mensagem, a mensagem vai para falha com "A Meta não confirmou o envio. Ele pode ter chegado ao contato: confira antes de tentar de novo.", sem código da Meta. "Tentar de novo" fica com a pessoa, depois de conferir no celular.
+    - Só tentam de novo o pedido que não saiu (timeout de conexão, conexão recusada, DNS, handshake SSL) e os erros transitórios da própria Meta. O upload da mídia, que não envia nada ao contato, tenta de novo em qualquer falha de rede.
+    - Também já está coberto: o ID é gravado sem callbacks logo depois da resposta, e mensagem com ID nunca é reenviada.
+  - Lista filtrada ou com busca: o broadcast põe no topo a conversa que recebeu mensagem mesmo que ela não combine com o filtro. Ao refazer a busca ou trocar o filtro, a lista volta a ficar certa.
+  - A contagem de cada filtro é calculada ao abrir a tela e não muda com o tempo real.
+  - O formato do cabeçalho de mídia no envio de template (primeiro item da lista "Primeiro uso real").
+- **Fase 7:**
+  - ao vincular conversa a lead ou contato pelo telefone, considerar a variação do nono dígito dos celulares brasileiros (com e sem o 9 depois do DDD);
+  - no painel da conversa entram os dados do CRM e os botões Criar lead e Vincular; no composer, o preenchimento automático das variáveis do template com os dados do lead ou contato.
+- **Fase 8:** aviso do navegador e som para mensagem nova. O `whatsapp-thread` já sabe quando chega mensagem recebida com a aba escondida.

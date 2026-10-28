@@ -202,6 +202,24 @@ RSpec.describe Whatsapp::Client do
     end
   end
 
+  describe "falhas de rede" do
+    it "separa o pedido que não saiu do que pode ter sido processado pela Meta" do
+      not_sent = [ Net::OpenTimeout, Errno::ECONNREFUSED, Errno::EHOSTUNREACH, SocketError, OpenSSL::SSL::SSLError ]
+      uncertain = [ Net::ReadTimeout, Errno::ECONNRESET, EOFError, Net::HTTPBadResponse ]
+      (not_sent + uncertain).each do |exception|
+        stub_graph(exception)
+        error = begin
+          client.mark_as_read("wamid.1")
+        rescue Whatsapp::Error => e
+          e
+        end
+        expect(error).to be_a(Whatsapp::Error).and(be_transient)
+        expect(error.delivery_uncertain?).to eq(uncertain.include?(exception)), "#{exception}: #{error.delivery_uncertain?}"
+      end
+      expect(Whatsapp::Error.new("x")).not_to be_delivery_uncertain
+    end
+  end
+
   describe "exemplo de mídia do template" do
     let(:session_id) { "upload:MTphdHRhY2htZW50OjZiMmE3NDZk?sig=ARZtiC6xXUe8D4V8YmM" }
 

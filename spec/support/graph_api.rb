@@ -6,7 +6,8 @@ require "net/http"
 #   ... chama o cliente ...
 #   requests.first.path  # pedido feito, para conferir caminho, corpo e cabeçalhos
 #
-# Cada chamada consome a próxima resposta, na ordem; uma chamada a mais falha o teste.
+# Cada chamada consome a próxima resposta, na ordem; uma chamada a mais falha o teste. Uma
+# exceção no lugar da resposta (Net::ReadTimeout, Net::OpenTimeout…) é levantada na chamada.
 module GraphApiHelpers
   def stub_graph(*responses)
     requests = []
@@ -14,6 +15,8 @@ module GraphApiHelpers
     allow(http).to receive(:request) do |req, &block|
       requests << req
       response = responses.shift || raise("chamada inesperada à Graph API: #{req.method} #{req.path}")
+      raise response if response.is_a?(Exception) || (response.is_a?(Class) && response <= Exception)
+
       block&.call(response)
       response
     end

@@ -1,0 +1,14 @@
+<%# Coluna da conversa e painel. O stream da conversa traz mensagens, status, mídia baixada e a janela. %>
+<% c = conversation %>
+<%= turbo_stream_from c, :whatsapp, channel: WhatsappStreamsChannel %>
+<section class="card conv" aria-label="Conversa com <%= c.display_name %>" data-conversation-id="<%= c.id %>"
+         data-controller="whatsapp-thread" data-whatsapp-thread-read-url-value="<%= read_whatsapp_conversation_path(c) %>">
+  <%= render "whatsapp_conversations/header", conversation: c %>
+  <div class="thread-wrap" data-whatsapp-thread-target="scroller">
+    <div class="thread" id="<%= dom_id(c, :thread) %>" aria-live="polite" data-whatsapp-thread-target="thread">
+      <%= render "whatsapp_conversations/thread_page", conversation: c, messages: messages, older: older %>
+    </div>
+  </div>
+  <%= render "whatsapp_conversations/composer", conversation: c %>
+</section>
+<%= render "whatsapp_conversations/panel", conversation: c %>

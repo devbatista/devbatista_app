@@ -1,0 +1,25 @@
+<%# Cabeçalho da conversa. Redesenhado pelo broadcast quando a janela abre ou fecha. %>
+<% c = conversation %>
+<div class="conv-head" id="<%= dom_id(c, :header) %>">
+  <button class="icon-btn ghost back-btn" type="button" aria-label="Voltar para a lista" data-action="whatsapp-screen#back"><%= icon(:back, size: 20) %></button>
+  <span class="avatar soft" aria-hidden="true"><%= whatsapp_initials_for(c.display_name) %></span>
+  <div class="conv-title">
+    <h2><%= c.display_name %></h2>
+    <div class="conv-sub">
+      <% if c.phone_label %>
+        <span class="mono"><%= c.phone_label %></span>
+      <% else %>
+        <span title="O WhatsApp identifica esta pessoa pelo ID de usuário (BSUID). O telefone aparece se ela compartilhar.">telefone não compartilhado <%= icon(:info, size: 12) %></span>
+      <% end %>
+      <% if c.username %><span aria-hidden="true">·</span><span>@<%= c.username.delete_prefix("@") %></span><% end %>
+    </div>
+  </div>
+  <% if c.window_open? %>
+    <span class="badge <%= whatsapp_window_soon?(c) ? 'b-warn' : 'b-good' %> dot-l" title="A pessoa escreveu nas últimas 24h: texto, anexos e templates">Janela aberta · fecha em <%= whatsapp_window_left(c) %> (até <%= l(c.window_closes_at, format: "%d/%m %H:%M") %>)</span>
+  <% elsif c.last_inbound_at %>
+    <span class="badge b-mute dot-l">Janela fechada desde <%= l(c.window_closes_at, format: "%d/%m %H:%M") %></span>
+  <% else %>
+    <span class="badge b-mute dot-l">Janela fechada</span>
+  <% end %>
+  <button class="icon-btn ghost panel-btn" type="button" aria-label="Mostrar ou ocultar o painel" data-action="whatsapp-screen#togglePanel"><%= icon(:panel, size: 20) %></button>
+</div>

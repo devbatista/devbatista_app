@@ -1,0 +1,6 @@
+<% if turbo_frame_request? %>
+  <%# Conversa aberta pela lista: só a conversa e o painel. %>
+  <turbo-frame id="whatsapp_conversation"><%= render "conversation", conversation: @conversation, messages: @messages, older: @older %></turbo-frame>
+<% else %>
+  <%= render "screen", conversation: @conversation %>
+<% end %>

@@ -1,0 +1,6 @@
+<% if turbo_frame_request? %>
+  <%# Filtro ou busca: só a lista. %>
+  <turbo-frame id="whatsapp_inbox"><%= render "inbox" %></turbo-frame>
+<% else %>
+  <%= render "screen", conversation: nil %>
+<% end %>

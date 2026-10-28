@@ -17,6 +17,10 @@ module Whatsapp
     READ_TIMEOUT = 30
     TRANSFER_TIMEOUT = 120 # upload e download de mídia
     NETWORK_ERRORS = [ Timeout::Error, SystemCallError, SocketError, IOError, OpenSSL::SSL::SSLError, Net::HTTPBadResponse ].freeze
+    # Falhas de rede em que o pedido não chegou a sair (conexão, DNS, handshake). As outras (leitura
+    # que expirou, conexão interrompida, resposta inválida) podem ter sido processadas pela Meta:
+    # Whatsapp::Error#delivery_uncertain?.
+    NOT_SENT_ERRORS = [ Net::OpenTimeout, Errno::ECONNREFUSED, Errno::EHOSTUNREACH, Errno::ENETUNREACH, SocketError, OpenSSL::SSL::SSLError ].freeze
 
     # messaging_limit_tier foi descontinuado; o limite agora é do portfólio, lido no número.
     PHONE_FIELDS = %w[display_phone_number verified_name quality_rating whatsapp_business_manager_messaging_limit
@@ -285,7 +289,7 @@ module Whatsapp
 
       response.body.present? ? JSON.parse(response.body) : {}
     rescue *NETWORK_ERRORS => e
-      raise log(Error.new("#{e.class}: #{e.message}", network: true), method, uri&.path)
+      raise log(network_error(e), method, uri&.path)
     end
 
     # Download em pedaços (até 100 MB), com o token: a URL da mídia exige autenticação.
@@ -300,7 +304,11 @@ module Whatsapp
         end
       end
     rescue *NETWORK_ERRORS => e
-      raise log(Error.new("#{e.class}: #{e.message}", network: true), :get, uri.path)
+      raise log(network_error(e), :get, uri.path)
+    end
+
+    def network_error(exception)
+      Error.new("#{exception.class}: #{exception.message}", network: true, uncertain: NOT_SENT_ERRORS.none? { |klass| exception.is_a?(klass) })
     end
 
     def media_too_large(type, size = nil)

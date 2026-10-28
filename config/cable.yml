@@ -1,5 +1,9 @@
+# Turbo Streams das conversas do WhatsApp (docs/specs/whatsapp). Desenvolvimento e produção usam o
+# Redis do Sidekiq (REDIS_URL): os broadcasts também saem dos jobs, que rodam em outro processo.
 development:
-  adapter: async
+  adapter: redis
+  url: <%= ENV.fetch("REDIS_URL") { "redis://localhost:6379/1" } %>
+  channel_prefix: devbatista_development
 
 test:
   adapter: test

@@ -1507,20 +1507,6 @@ ALTER TABLE ONLY public.whatsapp_templates
 
 
 --
--- Name: idx_on_whatsapp_account_id_last_message_at_d238f72f0a; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX idx_on_whatsapp_account_id_last_message_at_d238f72f0a ON public.whatsapp_conversations USING btree (whatsapp_account_id, last_message_at);
-
-
---
--- Name: idx_on_whatsapp_conversation_id_sent_at_c7cc821bd2; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX idx_on_whatsapp_conversation_id_sent_at_c7cc821bd2 ON public.whatsapp_messages USING btree (whatsapp_conversation_id, sent_at);
-
-
---
 -- Name: index_active_storage_attachments_on_blob_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2571,6 +2557,13 @@ CREATE INDEX index_whatsapp_accounts_on_waba_id ON public.whatsapp_accounts USIN
 
 
 --
+-- Name: index_whatsapp_conversations_inbox; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_whatsapp_conversations_inbox ON public.whatsapp_conversations USING btree (whatsapp_account_id, last_message_at DESC, id DESC) WHERE (last_message_at IS NOT NULL);
+
+
+--
 -- Name: index_whatsapp_conversations_on_contact_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2606,6 +2599,20 @@ CREATE UNIQUE INDEX index_whatsapp_conversations_on_whatsapp_account_id_and_wa_i
 
 
 --
+-- Name: index_whatsapp_conversations_unread; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_whatsapp_conversations_unread ON public.whatsapp_conversations USING btree (whatsapp_account_id) WHERE ((unread_count > 0) AND (last_message_at IS NOT NULL));
+
+
+--
+-- Name: index_whatsapp_conversations_window; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_whatsapp_conversations_window ON public.whatsapp_conversations USING btree (whatsapp_account_id, last_inbound_at);
+
+
+--
 -- Name: index_whatsapp_messages_on_reaction_to_wa_message_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2638,6 +2645,13 @@ CREATE UNIQUE INDEX index_whatsapp_messages_on_wa_message_id ON public.whatsapp_
 --
 
 CREATE INDEX index_whatsapp_messages_on_whatsapp_conversation_id ON public.whatsapp_messages USING btree (whatsapp_conversation_id);
+
+
+--
+-- Name: index_whatsapp_messages_timeline; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_whatsapp_messages_timeline ON public.whatsapp_messages USING btree (whatsapp_conversation_id, sent_at, id);
 
 
 --
@@ -3387,6 +3401,7 @@ ALTER TABLE ONLY public.leads
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261028180000'),
 ('20261028120000'),
 ('20261027200000'),
 ('20261027180000'),

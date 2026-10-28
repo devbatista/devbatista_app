@@ -1,7 +1,5 @@
 require "rails_helper"
 
-RSpec::Matchers.define_negated_matcher :exclude, :include
-
 RSpec.describe "WhatsApp → Templates" do
   let(:admin) { create(:user, :admin) }
   let(:reader) { create(:user, role: create(:role, permissions: { "whatsapp" => "read" })) }

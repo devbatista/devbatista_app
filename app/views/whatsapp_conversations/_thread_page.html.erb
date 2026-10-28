@@ -1,0 +1,12 @@
+<%# Uma página da linha do tempo, em ordem cronológica. As anteriores carregam ao rolar até o topo. %>
+<% if older %>
+  <turbo-frame id="whatsapp_older_<%= messages.first.id %>" src="<%= messages_whatsapp_conversation_path(conversation, before: messages.first.id) %>" loading="lazy" class="older">
+    <div class="day muted">Carregando mensagens anteriores…</div>
+  </turbo-frame>
+<% end %>
+<% previous_day = (messages.first.sent_at.to_date unless messages.first.nil? || messages.first.first_of_day?) %>
+<% messages.each do |message| %>
+  <%= render "whatsapp_messages/message", message: message, show_day: message.sent_at.to_date != previous_day %>
+  <% previous_day = message.sent_at.to_date %>
+<% end %>
+<% if messages.empty? %><div class="day muted">Nenhuma mensagem ainda.</div><% end %>

@@ -1,0 +1,55 @@
+<%# Três colunas (docs/design/whatsapp/conversas.html): lista, conversa e painel. Em telas estreitas
+    viram navegação (lista → conversa → painel), pelo controller whatsapp-screen. %>
+<% nav_location :wa, "Conversas" %>
+<% breadcrumb ["WhatsApp"], ["Conversas"] %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">WhatsApp</span>
+    <h1>Conversas</h1>
+    <p class="lead">Mensagens dos números conectados, ligadas aos leads e contatos.</p>
+  </div>
+  <% if @account %>
+    <div class="actions">
+      <% if @accounts.size > 1 %>
+        <%= form_with url: whatsapp_conversations_path, method: :get, class: "hide-sm", data: { turbo_frame: "_top" } do %>
+          <label class="sr-only" for="wa-conta">Conta do WhatsApp</label>
+          <%= select_tag :conta, options_for_select(@accounts.map { |acc| [ "#{whatsapp_account_label(acc)}#{' (desconectado)' if acc.disconnected?}", acc.id ] }, @account.id),
+                         class: "select", id: "wa-conta", onchange: "this.form.requestSubmit()" %>
+        <% end %>
+      <% end %>
+      <% if policy(WhatsappTemplate).index? %><%= link_to "Templates", whatsapp_templates_path(conta: @account.id), class: "btn hide-sm" %><% end %>
+    </div>
+  <% end %>
+</div>
+
+<% if @account.nil? %>
+  <section class="card"><%= render "shared/empty", title: "Nenhum número conectado", text: "As conversas aparecem aqui depois de conectar o WhatsApp em Tecnologia → Integrações → WhatsApp." do %><% if policy(WhatsappAccount).index? %><%= link_to "Ir para a integração", whatsapp_accounts_path, class: "btn" %><% end %><% end %></section>
+<% else %>
+  <div class="wa<%= ' show-conv' if conversation %><%= ' can-send' if policy(WhatsappMessage).create? %>" data-controller="whatsapp-screen"
+       data-whatsapp-screen-selected-value="<%= conversation&.id %>" data-action="turbo:frame-load->whatsapp-screen#opened">
+    <section class="card list" aria-label="Lista de conversas">
+      <%= turbo_stream_from @account, :whatsapp_inbox, channel: WhatsappStreamsChannel %>
+      <%= form_with url: whatsapp_conversations_path, method: :get, class: "col-head", data: { turbo_frame: "whatsapp_inbox", whatsapp_screen_target: "form" } do %>
+        <%= hidden_field_tag :conta, @account.id, id: nil %>
+        <%= hidden_field_tag :filtro, @filter, id: nil, data: { whatsapp_screen_target: "filter" } %>
+        <label class="search-field"><span class="sr-only">Buscar conversa</span><%= icon(:search, size: 16, stroke: 1.8) %>
+          <%= search_field_tag :q, params[:q], class: "input", id: nil, placeholder: "Nome, telefone ou @usuário", autocomplete: "off", data: { action: "input->whatsapp-screen#search" } %></label>
+        <div class="filters" role="group" aria-label="Filtrar conversas">
+          <% WhatsappConversation::FILTERS.each do |key, label| %>
+            <button type="button" class="chip" data-filter="<%= key %>" aria-pressed="<%= @filter == key %>" data-action="whatsapp-screen#filterBy"><%= label %> <span class="c"><%= @counts[key] %></span></button>
+          <% end %>
+        </div>
+      <% end %>
+      <turbo-frame id="whatsapp_inbox" class="col-body" role="list" data-whatsapp-screen-target="list"><%= render "inbox" %></turbo-frame>
+    </section>
+
+    <turbo-frame id="whatsapp_conversation" class="wa-frame">
+      <% if conversation %>
+        <%= render "conversation", conversation: conversation, messages: @messages, older: @older %>
+      <% else %>
+        <section class="card conv conv-empty"><%= render "shared/empty", title: "Escolha uma conversa", text: "Escolha uma conversa na lista. As mensagens novas chegam aqui em tempo real." %></section>
+      <% end %>
+    </turbo-frame>
+  </div>
+<% end %>
