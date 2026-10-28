@@ -4,6 +4,14 @@
 # See the Securing Rails Applications Guide for more information:
 # https://guides.rubyonrails.org/security.html#content-security-policy-header
 
+# Só upgrade-insecure-requests: o navegador troca qualquer http:// de imagem, script ou formulário
+# por https://, evitando o aviso de "conexão não segura" por conteúdo misto. Não restringe origens.
+Rails.application.configure do
+  config.content_security_policy do |policy|
+    policy.upgrade_insecure_requests true
+  end
+end
+
 # Rails.application.configure do
 #   config.content_security_policy do |policy|
 #     policy.default_src :self, :https
