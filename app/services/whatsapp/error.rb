@@ -21,6 +21,8 @@ module Whatsapp
                  "Confira a qualidade no Gerenciador do WhatsApp.",
       131_049 => "A Meta não entregou esta mensagem de marketing para preservar o engajamento. Espere pelo menos 24h para reenviar.",
       133_010 => "O número não está registrado na Cloud API. Conclua o registro antes de enviar.",
+      133_005 => "O PIN da verificação em duas etapas não confere.",
+      133_016 => "O número passou do limite de 10 tentativas de registro em 72 horas. Tente de novo depois.",
       131_047 => "A janela de 24h está fechada. Envie um template aprovado.",
       131_026 => "A mensagem não pôde ser entregue a esse contato.",
       131_051 => "Tipo de mensagem não suportado.",

@@ -1,0 +1,81 @@
+<% nav_location :tec, "Integrações" %>
+<% breadcrumb ["Tecnologia"], ["Integrações", integrations_path], ["WhatsApp Business"] %>
+<% can_connect = policy(WhatsappAccount).create? %>
+<% config = Whatsapp.config %>
+<% k = @kpis %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Tecnologia · Integrações</span>
+    <h1>WhatsApp Business</h1>
+    <p class="lead">Números conectados pela Cloud API da Meta, pelo Embedded Signup. As conversas chegam pelo webhook.</p>
+  </div>
+  <% if can_connect %>
+    <div class="actions">
+      <button class="btn pri" type="button" data-open="whatsapp-connect" <%= "disabled" if @missing.any? %>><%= icon(:whatsapp, size: 16, stroke: 1.8) %>Conectar WhatsApp</button>
+    </div>
+  <% end %>
+</div>
+
+<% if @missing.any? %>
+  <div class="callout warn" role="alert"><span><b class="strong">Conexão desabilitada.</b> Faltam variáveis de ambiente: <span class="mono"><%= @missing.to_sentence %></span>. Configure no Railway e reinicie o Admin.</span></div>
+<% end %>
+
+<div class="grid-kpi g4">
+  <div class="card kpi"><span class="eyebrow">Números conectados</span><span class="v"><%= @accounts.count(&:connected?) %></span><span class="f"><%= pluralize(@accounts.count { |a| !a.connected? }, "outro", plural: "outros") %> (conectando, reconectar ou desconectado)</span></div>
+  <div class="card kpi"><span class="eyebrow">Conversas</span><span class="v"><%= k[:conversations] %></span><span class="f"><%= k[:recent] %> com mensagem nos últimos 7 dias</span></div>
+  <div class="card kpi"><span class="eyebrow">Mensagens hoje</span><span class="v"><%= k[:messages_today].values.sum %></span><span class="f"><%= k[:messages_today]["inbound"].to_i %> recebidas · <%= k[:messages_today]["outbound"].to_i %> enviadas</span></div>
+  <div class="card kpi"><span class="eyebrow">Último evento</span><span class="v"><%= k[:last_webhook_at] ? "há #{time_ago_in_words(k[:last_webhook_at])}" : "—" %></span><span class="f"><%= k[:last_webhook_at] ? datetime_br(k[:last_webhook_at]) : "nenhum webhook recebido" %></span></div>
+</div>
+
+<div class="cols-2-1">
+  <div class="stack">
+    <%# Atualiza sozinha enquanto a ativação ou o histórico estão em andamento. %>
+    <turbo-frame id="whatsapp_accounts" target="_top" data-controller="refresh" data-refresh-url-value="<%= whatsapp_accounts_path %>">
+      <div class="stack">
+        <% if @accounts.any? %>
+          <%= render partial: "account", collection: @accounts, locals: { can_connect: can_connect, missing: @missing } %>
+        <% else %>
+          <section class="card"><%= render "shared/empty", title: "Nenhum número conectado", text: "Conecte o WhatsApp Business pela Meta para receber e enviar mensagens pelo Admin." %></section>
+        <% end %>
+      </div>
+    </turbo-frame>
+
+    <div class="note">
+      <%= icon(:info, size: 20) %>
+      <span><b>Coexistência:</b> o número segue funcionando no app WhatsApp Business do celular. O que é enviado pelo app aparece nas conversas com a marca “Celular”. Grupos, listas de transmissão, mensagens temporárias e de visualização única não passam pela API.</span>
+    </div>
+  </div>
+
+  <div class="stack">
+    <section class="card" aria-labelledby="meta-app-t">
+      <div class="card-head"><h2 id="meta-app-t">App da Meta</h2><span class="badge b-info">Tech Provider</span></div>
+      <div class="kv"><span>App</span><span class="right"><b>DevBatista Admin</b><span class="cell-sub ids"><%= config.app_id || "META_APP_ID não configurado" %></span></span></div>
+      <div class="kv"><span>Segredo do app</span><%= config.app_secret.present? ? status_badge("Configurado", "good") : status_badge("Falta", "crit") %></div>
+      <div class="kv"><span>Graph API</span><b><%= config.graph_version %></b></div>
+      <div class="kv"><span>Embedded Signup</span><%= config.embedded_signup_config_id.present? ? status_badge("Configurado · v5", "good") : status_badge("Falta", "crit") %></div>
+      <div class="kv"><span>Criptografia do token</span><%= @missing.any? { |name| name.start_with?("ACTIVE_RECORD_ENCRYPTION") } ? status_badge("Faltam chaves", "crit") : status_badge("Configurada", "good") %></div>
+      <div class="card-foot"><span>Valores das variáveis de ambiente (META_APP_ID, WHATSAPP_EMBEDDED_SIGNUP_CONFIG_ID…). Segredos não aparecem aqui.</span></div>
+    </section>
+
+    <section class="card" aria-labelledby="webhook-t">
+      <% receiving = k[:last_webhook_at] && k[:last_webhook_at] > 24.hours.ago %>
+      <div class="card-head"><h2 id="webhook-t">Webhook</h2><%= receiving ? tag.span("Recebendo", class: "badge b-good dot-l") : tag.span("Sem eventos em 24h", class: "badge b-mute dot-l") %></div>
+      <div class="kv" style="align-items:flex-start"><span>URL</span><span class="ids right"><%= whatsapp_webhook_url %></span></div>
+      <div class="kv"><span>Token de verificação</span><%= config.webhook_verify_token.present? ? tag.b("Configurado") : status_badge("Falta", "crit") %></div>
+      <div class="kv"><span>Assinatura (X-Hub-Signature-256)</span><%= config.app_secret.present? ? status_badge("Validada", "good") : status_badge("Sem META_APP_SECRET", "crit") %></div>
+      <div class="kv"><span>Último evento</span><b><%= k[:last_webhook_at] ? datetime_br(k[:last_webhook_at]) : "—" %></b></div>
+      <div class="card-body" style="border-top:1px solid var(--rule)">
+        <span class="eyebrow">Campos a inscrever no app da Meta</span>
+        <div class="chips" style="margin-top:8px"><% Whatsapp::WEBHOOK_FIELDS.each do |field| %><span class="chip"><%= field %></span><% end %></div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<% if can_connect %>
+  <%= render "connect_modal", missing: @missing %>
+  <% @accounts.select { |a| a.coexistence? && !a.disconnected? }.each do |account| %>
+    <%= render "disconnect_modal", account: account, conversations: @conversation_counts[account.id].to_i %>
+  <% end %>
+<% end %>

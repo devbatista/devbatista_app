@@ -7,5 +7,6 @@ class DailyAlertsJob < ApplicationJob
     ProposalAlertsJob.perform_now
     OperationAlertsJob.perform_now
     DomainAlertsJob.perform_now
+    WhatsappTokenExpiryJob.perform_now
   end
 end

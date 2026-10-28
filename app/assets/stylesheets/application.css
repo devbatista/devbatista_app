@@ -225,6 +225,19 @@ tr[data-href] { cursor: pointer; }
 .alert-step .n { font-size: 22px; font-weight: 700; color: var(--white); font-variant-numeric: tabular-nums; }
 .table tr.late td:first-child { box-shadow: inset 3px 0 0 var(--crit-dot); }
 
+/* Integrações → WhatsApp (docs/design/whatsapp/conexao.html) */
+.acc-head { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 18px 20px; }
+.acc-head .titles { flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 4px; }
+.acc-head .row { gap: 8px; }
+.ids { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; word-break: break-all; }
+.step small { display: block; font-weight: 500; color: var(--muted); margin-top: 2px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chips .chip { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; height: 24px; }
+.flow { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; counter-reset: f; }
+.flow li { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 12px; font-size: 14px; }
+.flow li::before { counter-increment: f; content: counter(f); width: 28px; height: 28px; border-radius: 50%; background: var(--cyan-tint); color: var(--cyan-300); box-shadow: inset 0 0 0 1px var(--cyan-line); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; }
+.flow b { color: var(--text); }
+
 /* Produtos */
 .prod { display: flex; flex-direction: column; }
 .prod .card-head { align-items: flex-start; }

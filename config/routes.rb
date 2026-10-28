@@ -107,6 +107,17 @@ Rails.application.routes.draw do
       end
     end
     resources :databases, except: :show
+    # Números do WhatsApp (Embedded Signup), em Integrações → WhatsApp.
+    resources :whatsapp_accounts, path: "integrations/whatsapp", only: :index do
+      collection do
+        post :connect
+        post :signup_event, path: "signup-event"
+      end
+      member do
+        post :register
+        post :activate
+      end
+    end
     resources :integrations, except: :show
     resources :external_services, path: "external-services", except: :show
   end

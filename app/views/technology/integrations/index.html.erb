@@ -8,7 +8,10 @@
     <h1>Integrações</h1>
     <p class="lead">Plataformas e APIs externas que cada aplicação consome.</p>
   </div>
-  <% if policy(Integration).create? %><div class="actions"><%= drawer_link_to new_integration_path, class: "btn pri" do %><%= icon(:plus, size: 16, stroke: 2) %>Nova integração<% end %></div><% end %>
+  <div class="actions">
+    <% if policy(WhatsappAccount).index? %><%= link_to whatsapp_accounts_path, class: "btn" do %><%= icon(:whatsapp, size: 16, stroke: 1.8) %>WhatsApp Business<% end %><% end %>
+    <% if policy(Integration).create? %><%= drawer_link_to new_integration_path, class: "btn pri" do %><%= icon(:plus, size: 16, stroke: 2) %>Nova integração<% end %><% end %>
+  </div>
 </div>
 
 <div class="grid-kpi g4">

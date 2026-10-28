@@ -1,0 +1,36 @@
+<%# Embedded Signup (v5). O controller whatsapp-signup carrega o SDK da Meta só nesta tela. %>
+<% config = Whatsapp.config %>
+<div class="modal" id="whatsapp-connect" role="dialog" aria-modal="true" aria-labelledby="whatsapp-connect-t"
+     data-controller="whatsapp-signup"
+     data-whatsapp-signup-app-id-value="<%= config.app_id %>"
+     data-whatsapp-signup-config-id-value="<%= config.embedded_signup_config_id if missing.empty? %>"
+     data-whatsapp-signup-version-value="<%= config.graph_version %>"
+     data-whatsapp-signup-connect-url-value="<%= connect_whatsapp_accounts_path %>"
+     data-whatsapp-signup-event-url-value="<%= signup_event_whatsapp_accounts_path %>">
+  <div class="modal-head"><h2 id="whatsapp-connect-t">Conectar WhatsApp</h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><%= icon(:x, size: 20, stroke: 1.8) %></button></div>
+  <div class="modal-body form">
+    <p style="margin:0">A Meta abre uma janela para autorizar o Admin a usar o número. Tenha o celular com o WhatsApp Business por perto.</p>
+    <ol class="flow">
+      <li><span><b>Entre com o Facebook</b> de quem administra o portfólio da empresa e escolha o portfólio.</span></li>
+      <li><span><b>Escolha conectar o app WhatsApp Business existente</b> e informe o número. Ele continua funcionando no celular.</span></li>
+      <li><span><b>Confirme no celular</b> pelo app WhatsApp Business e escolha se compartilha o histórico das conversas.</span></li>
+      <li><span><b>De volta aqui</b>, o Admin guarda o acesso, inscreve o app na conta e pede a sincronização dos contatos e do histórico. A Meta dá 24 horas para isso.</span></li>
+    </ol>
+    <div class="callout warn">
+      <span>
+        <b class="strong">Antes de continuar, na coexistência</b> (app WhatsApp Business 2.24.17 ou mais recente):
+        <ul style="margin:6px 0 0;padding-left:18px">
+          <li>os aparelhos conectados (WhatsApp Web e computador) são desconectados e precisam ser conectados de novo. O WhatsApp para Windows não é compatível;</li>
+          <li>as listas de transmissão passam a ser só de leitura;</li>
+          <li>as mensagens temporárias e de visualização única são desligadas;</li>
+          <li>deixe o app aberto no celular durante a sincronização.</li>
+        </ul>
+      </span>
+    </div>
+    <div data-whatsapp-signup-target="status" role="status" aria-live="polite" hidden></div>
+  </div>
+  <div class="modal-foot">
+    <button class="btn" type="button" data-close>Fechar</button>
+    <button class="btn pri" type="button" data-whatsapp-signup-target="button" data-action="whatsapp-signup#launch" disabled>Continuar com o Facebook</button>
+  </div>
+</div>
