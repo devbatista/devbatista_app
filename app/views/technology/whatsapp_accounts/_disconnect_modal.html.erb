@@ -1,0 +1,14 @@
+<%# Em coexistência não há desconexão pela API: o caminho é o app do celular. %>
+<div class="modal" id="whatsapp-disconnect-<%= account.id %>" role="dialog" aria-modal="true" aria-labelledby="whatsapp-disconnect-<%= account.id %>-t">
+  <div class="modal-head"><h2 id="whatsapp-disconnect-<%= account.id %>-t">Como desconectar <%= account.verified_name.presence || account.display_phone_number %></h2><button class="icon-btn ghost" type="button" data-close aria-label="Fechar"><%= icon(:x, size: 20, stroke: 1.8) %></button></div>
+  <div class="modal-body form">
+    <p style="margin:0">Em coexistência, a Meta não permite remover o número pela API, porque ele é usado no app e na Cloud API ao mesmo tempo. A desconexão é feita no celular:</p>
+    <ol class="flow">
+      <li><span>Abra o <b>WhatsApp Business</b> no celular do número <span class="mono strong"><%= account.display_phone_number %></span>.</span></li>
+      <li><span>Vá em <b>Configurações → Conta → Plataforma comercial</b>.</span></li>
+      <li><span>Toque em <b>Desconectar conta</b> e confirme.</span></li>
+    </ol>
+    <div class="callout"><span><b class="strong">Depois disso,</b> o Admin recebe da Meta o evento <span class="mono">account_update</span> (<span class="mono">PARTNER_REMOVED</span>), marca a conta como Desconectada e mantém <%= pluralize(conversations, "conversa") %> para consulta, sem envio. Para voltar a usar, conecte o número de novo.</span></div>
+  </div>
+  <div class="modal-foot"><button class="btn pri" type="button" data-close>Entendi</button></div>
+</div>

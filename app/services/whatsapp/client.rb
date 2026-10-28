@@ -38,13 +38,26 @@ module Whatsapp
 
     # Troca o code do Embedded Signup (vale 30 segundos) pelo token de acesso da conta do cliente.
     def self.exchange_code(code)
+      app_id, app_secret = app_credentials
+      new.send(:request, :get, "oauth/access_token", auth: false, query: { client_id: app_id, client_secret: app_secret, code: code })
+         .fetch("access_token")
+    end
+
+    # Dados do token (GET /debug_token, com o token do app app_id|app_secret): app_id, is_valid,
+    # expires_at (0 quando não expira) e granular_scopes, com as WABAs liberadas em target_ids.
+    def self.debug_token(token)
+      app_id, app_secret = app_credentials
+      new.send(:request, :get, "debug_token", auth: false, query: { input_token: token, access_token: "#{app_id}|#{app_secret}" })
+         .fetch("data")
+    end
+
+    def self.app_credentials
       config = Whatsapp.config
       raise Error, "META_APP_ID e META_APP_SECRET não estão configurados" if config.app_id.blank? || config.app_secret.blank?
 
-      new.send(:request, :get, "oauth/access_token", auth: false,
-                                                     query: { client_id: config.app_id, client_secret: config.app_secret, code: code })
-         .fetch("access_token")
+      [ config.app_id, config.app_secret ]
     end
+    private_class_method :app_credentials
 
     def initialize(account = nil, access_token: account&.access_token, version: Whatsapp.config.graph_version)
       @phone_number_id = account&.phone_number_id
@@ -197,6 +210,11 @@ module Whatsapp
 
     def phone_number_details
       request(:get, phone_number_id, query: { fields: PHONE_FIELDS.join(",") })
+    end
+
+    # Números da WABA: id, display_phone_number e verified_name.
+    def phone_numbers
+      request(:get, "#{waba_id}/phone_numbers", query: { fields: "id,display_phone_number,verified_name" }).fetch("data", [])
     end
 
     # Registra na Cloud API um número sem coexistência (cliente sem o app do celular), depois do

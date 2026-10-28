@@ -5,6 +5,9 @@
 # See the ActiveSupport::ParameterFilter documentation for supported notations and behaviors.
 # code_verifier é o segredo do PKCE no /oauth/token do MCP; o code o Doorkeeper já filtra.
 # entry é o corpo do webhook do WhatsApp (mensagens e telefones); só o nome exato, para não pegar time_entry.
+# code e pin são o code do Embedded Signup e o PIN do registro do número, também pelo nome exato
+# (sem pegar zip_code, pinned etc.).
 Rails.application.config.filter_parameters += [
-  :passw, :email, :secret, :token, :_key, :crypt, :salt, :certificate, :otp, :ssn, :cvv, :cvc, :code_verifier, /\Aentry\z/
+  :passw, :email, :secret, :token, :_key, :crypt, :salt, :certificate, :otp, :ssn, :cvv, :cvc, :code_verifier,
+  /\Aentry\z/, /\Acode\z/, /\Apin\z/
 ]

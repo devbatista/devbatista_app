@@ -7,7 +7,7 @@ Outubro de 2026 · Integração com a **Cloud API da Meta** para conversar pelo 
 | Tema | Decisão |
 | --- | --- |
 | Contas | Várias contas conectadas (uma por número). Na v1, o número da DevBatista; depois, números de clientes |
-| Conexão | Embedded Signup da Meta, em Tecnologia → Integrações. O token fica criptografado (Active Record Encryption) e fora da auditoria |
+| Conexão | Embedded Signup da Meta (v5), em Tecnologia → Integrações → WhatsApp. O token fica criptografado (Active Record Encryption) e fora da auditoria |
 | Identificação do contato | Pelo **BSUID** (business-scoped user ID), na coluna `bsuid`. Telefone (`wa_id`) e @usuário são opcionais |
 | Primeiro contato | Só por template aprovado. Mensagem livre só com a janela de 24h aberta |
 | Vínculo | Cada conversa liga a um lead **ou** a um contato, ou fica sem vínculo |
@@ -21,7 +21,7 @@ Outubro de 2026 · Integração com a **Cloud API da Meta** para conversar pelo 
 - **Envio.** `to` para telefone ou `recipient` para BSUID; com os dois, `to` vence. Templates de autenticação one-tap, zero-tap e copy code exigem telefone.
 - **Troca de BSUID.** Chega em `messages` com `type: "system"`: `user_changed_number` (trocou de telefone; traz `user_id` novo e `previous_user_id`) ou `user_changed_user_id` (sem telefone). Não existe webhook `user_id_update`.
 - **Coexistência.** Sincronizar contatos e histórico (`POST /<PHONE_NUMBER_ID>/smb_app_data`, `sync_type` `smb_app_state_sync` e `history`) só pode ser chamado **uma vez** por conexão e em até **24h**. O histórico vai até 180 dias, chega em pedaços fora de ordem (`chunk_order`, `progress`) e, se a pessoa recusar, vem o erro `2593109`. Mídia só dos últimos 14 dias. Mensagens enviadas pelo app chegam em `smb_message_echoes` e **não abrem nem estendem a janela de 24h**. Velocidade fixa de 20 mensagens/s.
-- **Embedded Signup.** O `code` devolvido vale 30 segundos (a troca por token acontece na própria requisição). As versões 2 e 3 foram descontinuadas em 15/10/2026: a configuração `featureType: "whatsapp_business_app_onboarding"` com `sessionInfoVersion: 3` precisa ser confirmada para a versão atual (v4/v5) na Fase 4.
+- **Embedded Signup.** O `code` devolvido vale 30 segundos (a troca por token acontece na própria requisição). As versões 2 e 3 foram descontinuadas em 15/10/2026. O Admin usa a **v5** (lançada em 20/10/2026), em que a coexistência vem ligada por padrão: sem `featureType` e sem `sessionInfoVersion`, só `extras: { version: "v5" }` no `FB.login`.
 
 - **Limite de envio.** O campo `messaging_limit_tier` do número foi descontinuado. O limite agora é do portfólio, compartilhado por todos os números, e se lê no número em `whatsapp_business_manager_messaging_limit` (ex.: `TIER_250`). A coluna `messaging_limit_tier` da conta guarda esse valor.
 - **Erros da sincronização.** Chamar o `smb_app_data` de novo dá `2593107`; depois de 24h, `2593108`. Nos dois casos, só desconectando e conectando de novo.
@@ -50,7 +50,7 @@ Os valores ficam em `Rails.configuration.x.whatsapp`.
 
 | Tabela | Conteúdo |
 | --- | --- |
-| `whatsapp_accounts` | Portfólio, WABA, `phone_number_id` (único), número exibido, nome verificado, token criptografado, status (Conectando, Conectado, Desconectado), coexistência, qualidade e limite de envio, quem conectou, datas de conexão, inscrição do app e desconexão, pedidos e datas das sincronizações, último webhook |
+| `whatsapp_accounts` | Portfólio, WABA, `phone_number_id` (único), número exibido (vazio até a ativação ler o número), nome verificado, token criptografado e validade (`token_expires_at`), status (Conectando, Aguardando registro, Conectado, Reconectar necessário, Desconectado), erro da ativação (`activation_error`), coexistência, qualidade e limite de envio, quem conectou, datas de conexão, inscrição do app, registro (`registered_at`) e desconexão, pedidos e datas das sincronizações, último webhook |
 | `whatsapp_conversations` | Conta, `bsuid` e `parent_bsuid`, `wa_id` e @usuário opcionais, nome do perfil, nome salvo na agenda do celular (`saved_name`), lead **ou** contato, última mensagem recebida (janela de 24h), não lidas e prévia |
 | `whatsapp_messages` | Direção, tipo, origem (Admin, Celular, Contato), corpo, `wa_message_id` único, status (Enviando, Enviada, Entregue, Lida, Falhou, Recebida), erro, template e parâmetros, mídia (Active Storage e o ID da mídia na Meta), mensagem citada (`reply_to_wa_message_id`), reação (`reaction_to_wa_message_id` e `reaction_emoji`), autor, se veio do histórico, datas de envio, entrega, leitura, edição e exclusão, payload bruto |
 | `whatsapp_templates` | Conta, ID na Meta, nome, idioma, categoria, status, componentes (formato da Graph API), nº de variáveis do cabeçalho e do corpo, motivo de rejeição |
@@ -76,6 +76,8 @@ O BSUID fica em `bsuid`, e não em `user_id`, porque nesta base `user_id` é sem
 | `request_sync(:contacts / :history)` | `POST /<PHONE_NUMBER_ID>/smb_app_data`. Devolve o `request_id` |
 | `register(pin:)` | `POST /<PHONE_NUMBER_ID>/register` com o PIN de 6 dígitos da verificação em duas etapas. Só para número sem coexistência (ver Fase 4 em "Pontos em aberto") |
 | `Client.exchange_code(code)` | `GET /oauth/access_token?client_id&client_secret&code`, sem conta e sem cabeçalho de autorização |
+| `Client.debug_token(token)` | `GET /debug_token` com o token do app (`app_id\|app_secret`): validade (`expires_at`, 0 quando não expira) e WABAs liberadas (`granular_scopes[].target_ids`) |
+| `phone_numbers` | `GET /<WABA_ID>/phone_numbers` (id, número exibido, nome verificado) |
 
 - `Whatsapp::TemplateComponents.build` monta os parâmetros do envio de template: corpo posicional ou nomeado, cabeçalho de texto ou de mídia, sufixo do botão de URL (codificado segmento a segmento, mantendo as barras: `p/P-2026-029` continua `p/P-2026-029`).
 - `WhatsappTemplate.attributes_from_meta` e `WhatsappAccount.attributes_from_phone_details` convertem os valores em maiúsculas da Meta para os enums. Status e categoria que a Meta tem e a fase 1 não tinha entraram nos enums: `limit_exceeded`, `archived`, `pending_deletion` e `free_service`. Valor que a Meta passar a mandar e os enums não conhecem não para a sincronização: o status vira `pending`, a categoria fica a do template atual (`current:`) ou `utility`, e o log registra `[Whatsapp] valor desconhecido: campo=valor, template=nome`. A qualidade do número desconhecida vira `unknown`.
@@ -132,11 +134,70 @@ O `Whatsapp::WebhookProcessor` trata cada campo. A conta é achada pelo `metadat
 - Status de mensagem ainda não gravada levanta `StatusTargetMissing` depois de processar o resto. O job tenta de novo 3 vezes, a cada 15 s, e depois desiste com uma linha no log.
 - A mídia tenta de novo só nas falhas transitórias (`Whatsapp::Error#transient?`).
 
+## Conexão (Fase 4)
+
+Tecnologia → Integrações → **WhatsApp Business** (`/technology/integrations/whatsapp`, `Technology::WhatsappAccountsController`; atalho na tela de Integrações). Ver a tela exige leitura na área `whatsapp`; conectar, registrar e retomar exigem nível "full".
+
+**No navegador** (controller Stimulus `whatsapp-signup`):
+- O SDK da Meta (`connect.facebook.net/en_US/sdk.js`) é carregado só nesta tela, com `FB.init({ appId, autoLogAppEvents, xfbml, version: WHATSAPP_GRAPH_VERSION })`.
+- "Conectar WhatsApp" mostra antes um aviso da coexistência: os aparelhos conectados são desconectados (o WhatsApp para Windows não é compatível), as listas de transmissão viram só leitura, as mensagens temporárias e de visualização única são desligadas e o app precisa ficar aberto no celular durante a sincronização.
+- `FB.login` com `config_id`, `response_type: "code"`, `override_default_response_type: true` e `extras: { version: "v5" }`.
+- O listener de `message` aceita só `https://` de `facebook.com` ou subdomínio e `type: "WA_EMBEDDED_SIGNUP"`:
+  - **`FINISH`** (v5): `phone_number_id`, `messaging_account_ids[0]` (a WABA), `business_id` e `is_on_biz_app`. Também aceita o formato da v4 (`waba_id`, `FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING`).
+  - **`CANCEL`**: a tela mostra o passo (`current_step`) ou o erro reportado. Ao servidor vão só o passo, o código e o `session_id`, para o log.
+- Com o `code` e o session info, envia os dois (POST JSON com o token CSRF). Se o session info não chegar em 5 s, envia só o `code`. O `code` não vai para o console.
+
+**No servidor**, na própria requisição (`Whatsapp::Signup`), por causa dos 30 s do `code`:
+1. `Client.exchange_code`.
+2. `Client.debug_token`: confere que o token é válido e do app da DevBatista e lê o `expires_at`. As WABAs liberadas são os `target_ids` de `whatsapp_business_management` e `whatsapp_business_messaging`:
+   - com session info, a WABA dele precisa estar entre elas; senão, a conexão é recusada ("A conta informada pela janela da Meta não corresponde à autorização. Conecte de novo."). Sem `target_ids` no `debug_token`, não há com o que conferir e o session info vale;
+   - sem session info, a WABA vem delas e o número, de `GET /<WABA>/phone_numbers`. Com vários números, fica o que ainda não está conectado; se continuar ambíguo, a tela pede para conectar de novo.
+3. Cria ou atualiza a conta pelo `phone_number_id`. Reconectar o mesmo número reaproveita o registro e as conversas, volta para Conectando e limpa a desconexão e o erro da ativação. As marcas da ativação (inscrição, registro, `request_id`s, datas e progresso das sincronizações, `history_sync_error`):
+   - são **zeradas só se a conta estava desconectada** (no celular ou pela Meta): para a Meta é uma conexão nova, com novo prazo de 24h, e a ativação pede as sincronizações de novo;
+   - **ficam** na renovação do token (conta Conectando, Aguardando registro, Conectada ou Reconectar necessário). Com os `request_id`s preenchidos, a ativação não pede a sincronização outra vez.
+4. Enfileira o `WhatsappActivationJob` (só com a referência da conta) e responde. A tela recarrega e acompanha a ativação.
+
+Sem `META_APP_ID`, `META_APP_SECRET`, `WHATSAPP_EMBEDDED_SIGNUP_CONFIG_ID` ou as chaves de criptografia (`Whatsapp.missing_signup_configuration`), a tela avisa o que falta, o botão fica desabilitado e o SDK não é carregado.
+
+**Ativação** (`WhatsappActivationJob`, `log_arguments = false`). Etapas em ordem; cada uma grava sua marca e é pulada quando já foi feita, então o job retoma de onde parou:
+
+| Etapa | Marca |
+| --- | --- |
+| 1. `subscribe_app` na WABA | `subscribed_at` |
+| 2. `phone_number_details`: nome, qualidade, limite e coexistência (`is_on_biz_app`) | relida a cada execução, para valer o estado atual do número |
+| 3. Sem coexistência e sem registro na Cloud API (`platform_type` diferente de `CLOUD_API`): para em **Aguardando registro**. A tela pede o PIN de 6 dígitos da verificação em duas etapas e chama `register(pin:)` na própria requisição. O PIN não é salvo nem vai para log ou job. Com coexistência, não há `register` | `registered_at` |
+| 4. Só com coexistência: `request_sync(:contacts)` e depois `request_sync(:history)`, uma única vez cada (com a conta travada) e em até 24h da conexão | `contacts_sync_request_id`, `history_sync_request_id` |
+| 5. Conectado (ou Aguardando registro, na etapa 3) | `status`, gravado com a conta travada e relida, só se ela ainda estiver em Conectando |
+
+- Uma desconexão (`account_update`) que chegue pelo webhook durante a ativação prevalece: o job não pede as sincronizações de conta que já não está em Conectando e não sobrescreve o status.
+- Falha transitória (`Whatsapp::Error#transient?`) tenta de novo (5 tentativas).
+- Falha definitiva, inclusive token inválido (`190`), e tentativas esgotadas ficam em `activation_error`, em português. A tela mostra o erro e o botão **Tentar de novo**, que retoma da etapa que falhou.
+- Erros da sincronização, sem retry. Em ambos o número fica conectado:
+  - **`2593107`** é sincronização já pedida antes. A coluna do `request_id` recebe o marcador `already-requested`, para não pedir de novo. Se alguma sincronização já chegou (`contacts_synced_at`, `history_synced_at` ou progresso do histórico), não há aviso;
+  - **`2593108`** (fora das 24h), ou `2593107` sem nenhuma sincronização registrada: fica o aviso em `activation_error`, e a tela explica que o caminho é desconectar no celular e conectar de novo.
+
+**Tela** (segue `docs/design/whatsapp/conexao.html`):
+- Cada número mostra o status, a coexistência e a linha do tempo: autorizado, app inscrito, contatos e histórico (com o progresso em %) ou registro, recebendo mensagens.
+- Detalhes: nome exibido, qualidade, limite, velocidade de 20 mensagens/s na coexistência, portfólio, WABA, ID do número, quem conectou e quando, validade do acesso.
+- A lista se atualiza sozinha (turbo-frame e controller `refresh`, a cada 5 s) enquanto há ativação em andamento, ou histórico em andamento no primeiro dia da conexão. Não recarrega com um campo em foco.
+- Cartões "App da Meta" e "Webhook" com os valores do ambiente e da conta. Segredos aparecem só como "Configurado". "Último evento" vem do `last_webhook_at`.
+- **Desconectar** (coexistência): só o diálogo com o caminho no celular (Configurações → Conta → Plataforma comercial → Desconectar conta). Não existe chamada na API.
+
+**Validade do token.** Vem do `expires_at` do `debug_token` (0, sem validade, fica vazio).
+- A tela avisa a partir de 7 dias do fim.
+- A rotina diária (`WhatsappTokenExpiryJob`, chamada pelo `DailyAlertsJob` às 7h) marca as contas com o token vencido como **Reconectar necessário**.
+- O botão **Reconectar** abre o mesmo cadastro. A renovação mantém as sincronizações (passo 3 acima).
+
+**Segurança.**
+- O `code`, o token e o PIN não vão para log, `inspect`, payload de job nem tela.
+- `code` e `pin` estão em `filter_parameter_logging`, pelo nome exato.
+- O Admin não envia `Cross-Origin-Opener-Policy` nem `Content-Security-Policy`, que bloqueariam a janela e o `postMessage` da Meta; um request spec garante isso. Se um dia tiverem CSP, liberar `connect.facebook.net` e `facebook.com`, e o COOP não pode ser `same-origin`.
+
 ## Permissões e auditoria
 
 - Área `whatsapp` em `Role::AREAS`. O Administrador tem nível "full"; os outros perfis começam sem acesso e podem ser liberados na tela de permissões.
 - Policies `WhatsappConversationPolicy`, `WhatsappMessagePolicy` e `WhatsappTemplatePolicy` seguem a matriz. `WhatsappAccountPolicy` exige nível "full" para conectar ou alterar um número.
-- `AuditLog` na conta (conexão, status) e nos templates, sem o token e sem os campos que a Meta atualiza sozinha. As conexões aparecem também nas atividades.
+- `AuditLog` na conta (conexão, status) e nos templates, sem o token, sem o erro da ativação e sem os campos que a Meta atualiza sozinha. As conexões aparecem também nas atividades.
 
 ## Fases
 
@@ -144,7 +205,7 @@ O `Whatsapp::WebhookProcessor` trata cada campo. A conta é achada pelo `metadat
 1. ✅ **Fundação**: configuração, tabelas, models, criptografia do token, área de permissão e policies, grupo no menu ainda como "em breve".
 2. ✅ **Cliente da Graph API** em `app/services/whatsapp/` (Net::HTTP, sem gem nova): texto, mídia, template, marcar como lida, baixar mídia, templates, inscrição do app, troca do `code`, sincronizações.
 3. ✅ **Webhook e processamento**: `/webhooks/whatsapp` fora do `ApplicationController`, assinatura `X-Hub-Signature-256`, job no Sidekiq, todos os campos inscritos, idempotente pelo `wa_message_id`, download da mídia.
-4. **Conexão**: Embedded Signup em Tecnologia → Integrações.
+4. ✅ **Conexão**: Embedded Signup v5 em Tecnologia → Integrações → WhatsApp, ativação em job (inscrição, registro ou sincronizações), validade do token.
 5. **Templates**: tela, criação e edição na Meta, sincronização.
 6. **Conversas e tempo real**: tela de três colunas, Turbo Streams com ActionCable autenticado pelo Devise e Redis em desenvolvimento, campo de envio em Stimulus, contador no menu.
 7. **Ligação com o CRM**: vincular ou criar lead, interação "WhatsApp" automática (uma por dia de conversa), cards no lead, na empresa e no contato, "Iniciar conversa".
@@ -154,7 +215,7 @@ O `Whatsapp::WebhookProcessor` trata cada campo. A conta é achada pelo `metadat
 
 - **Primeiro uso real (Fases 4 a 6)**, porque a documentação lida não mostra estes pontos:
   - O formato de envio do cabeçalho de mídia em template (`{ type: "document", document: { id } }`). Só a criação está documentada.
-  - Se o token do Embedded Signup expira. A doc não diz; tratar o erro `190` pedindo para conectar de novo.
+  - Se o token do Embedded Signup expira. O Admin lê o `expires_at` do `debug_token` (Fase 4) e trata o erro `190` pedindo para conectar de novo; conferir o valor que vem na primeira conexão.
   - Se `create_template` aceita a categoria em maiúsculas (a referência usa maiúsculas, o exemplo usa minúsculas).
   - O código `131062` (BSUID não aceito para aquela mensagem): aparece na página do BSUID, não na tabela de erros.
   - O sufixo do botão de URL com barra (`p/P-2026-029`, link da proposta em `/p/*token`): conferir com um template de verdade que a Meta monta o link com as barras e decodifica os caracteres especiais.
@@ -171,11 +232,13 @@ O `Whatsapp::WebhookProcessor` trata cada campo. A conta é achada pelo `metadat
   - contador de não lidas no menu;
   - cards no lead, na empresa e no contato;
   - indicadores.
-- **Fase 4:**
-  - Confirmar a configuração do Embedded Signup para a versão atual (v4/v5).
-  - Número conectado **sem coexistência** (futuros clientes, sem o app do celular) precisa de `POST /<PHONE_NUMBER_ID>/register` (`Whatsapp::Client#register(pin:)`) depois do Embedded Signup, com o PIN de 6 dígitos da verificação em duas etapas: o atual, se o número já tiver, ou um novo. Pedir o PIN na tela e não guardar. A Meta aceita 10 tentativas por número em 72h (erro 133016). A coexistência não usa `register`.
-  - Salvar a conta antes de inscrever o app e pedir as sincronizações: webhook de número que ainda não está no Admin é ignorado.
-  - Usar `WhatsappAccount.attributes_from_phone_details` ao conectar (o webhook de qualidade e de nome já usa).
+- **Fase 4, a conferir no teste de ponta a ponta em produção** (o Embedded Signup só abre nos domínios cadastrados na Meta, então nada disso roda fora de `admin.devbatista.com`):
+  - O payload da v5 (`FINISH`, `messaging_account_ids`, `is_on_biz_app`) e os nomes de `current_step` no `CANCEL`. A tela mostra o passo como a Meta manda.
+  - Que os `target_ids` do `debug_token` são WABAs. O fallback sem session info e a conferência da WABA do session info dependem disso: se vierem outros IDs, toda conexão é recusada com "A conta informada pela janela da Meta não corresponde à autorização". O log de conexão registra os IDs para o diagnóstico.
+  - O `platform_type` de um número sem coexistência recém-conectado (esperado: diferente de `CLOUD_API`, para pedir o PIN).
+  - Entre a conexão e a leitura do número (etapa 2 da ativação), a conta ainda não tem `display_phone_number`. Nesses segundos, `account_update` e os webhooks de número que trazem o telefone ficam só no log.
+- **Desconectar sem coexistência** (números de clientes): não há tela. Quando houver, usar `POST /<PHONE_NUMBER_ID>/deregister` e `unsubscribe_app`.
+- **Fase 8:** avisar o vencimento do token também pela central de notificações (hoje só na tela).
 - **Fase 5:** usar `WhatsappTemplate.attributes_from_meta` na sincronização (o webhook de status já usa). Status de template que não está no Admin, criado direto no Gerenciador do WhatsApp, fica só no log até a sincronização trazê-lo.
 - **Fase 6:**
   - Gravar a mensagem enviada com o `wa_message_id` logo depois da resposta do envio. O status que chegar antes é reprocessado (3 novas tentativas, 15 s).

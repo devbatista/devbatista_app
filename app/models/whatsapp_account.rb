@@ -12,9 +12,17 @@ class WhatsappAccount < ApplicationRecord
     "TIER_100K" => "100.000", "TIER_UNLIMITED" => "Ilimitado"
   }.freeze
 
+  # A tela avisa da validade do token a partir de 7 dias do fim.
+  TOKEN_WARNING = 7.days
+  # Status que passam a "Reconectar necessário" quando o token vence (WhatsappTokenExpiryJob).
+  ACTIVE_STATUSES = %w[pending registration_pending connected].freeze
+
   audited area: "whatsapp",
-          ignore: %w[access_token quality_rating messaging_limit_tier history_sync_progress last_webhook_at]
-  labeled_enum :status, pending: "Conectando", connected: "Conectado", disconnected: "Desconectado"
+          ignore: %w[access_token quality_rating messaging_limit_tier history_sync_progress last_webhook_at activation_error]
+  # Conectando: ativação em andamento (WhatsappActivationJob). Aguardando registro: número sem
+  # coexistência esperando o PIN. Reconectar necessário: o token venceu.
+  labeled_enum :status, pending: "Conectando", registration_pending: "Aguardando registro", connected: "Conectado",
+                        reconnect_required: "Reconectar necessário", disconnected: "Desconectado"
   labeled_enum :quality_rating, { green: "Alta", yellow: "Média", red: "Baixa", unknown: "Desconhecida" }, prefix: :quality
   encrypts :access_token
 
@@ -22,8 +30,10 @@ class WhatsappAccount < ApplicationRecord
   has_many :conversations, class_name: "WhatsappConversation", inverse_of: :account, dependent: :restrict_with_error
   has_many :templates, class_name: "WhatsappTemplate", inverse_of: :account, dependent: :destroy
 
-  validates :waba_id, :phone_number_id, :display_phone_number, presence: true
+  validates :waba_id, :phone_number_id, presence: true
   validates :phone_number_id, uniqueness: true
+
+  scope :token_expired, ->(now = Time.current) { where(status: ACTIVE_STATUSES, token_expires_at: ..now) }
 
   # Atributos a partir de Whatsapp::Client#phone_number_details. A qualidade vem em maiúsculas
   # (GREEN, YELLOW, RED; NA ou UNKNOWN sem avaliação); o limite de envio, do portfólio.
@@ -37,8 +47,40 @@ class WhatsappAccount < ApplicationRecord
     }.compact
   end
 
+  # Marcas da ativação e das sincronizações, zeradas só depois de uma desconexão.
+  ACTIVATION_MARKS = %i[subscribed_at registered_at contacts_sync_request_id contacts_synced_at history_sync_request_id
+                        history_sync_progress history_synced_at history_sync_error].freeze
+
+  # Atributos de uma conexão pelo Embedded Signup. Reconectar o mesmo número reaproveita o
+  # registro e as conversas e recomeça a ativação. Depois de uma desconexão (no celular ou pela
+  # Meta), é conexão nova, com novo prazo de 24h para as sincronizações: as marcas são zeradas
+  # (reset_marks). Na renovação do token, ficam, e a ativação não pede as sincronizações de novo.
+  def self.connection_attributes(token:, token_expires_at:, user:, reset_marks:)
+    attributes = { access_token: token, token_expires_at: token_expires_at, connected_by: user, connected_at: Time.current,
+                   status: "pending", disconnected_at: nil, disconnect_reason: nil, activation_error: nil }
+    reset_marks ? attributes.merge(ACTIVATION_MARKS.index_with(nil)) : attributes
+  end
+
+  # Alguma sincronização com o app do celular já chegou pelo webhook.
+  def sync_received?
+    contacts_synced_at.present? || history_synced_at.present? || history_sync_progress.present?
+  end
+
   def messaging_limit_label
     MESSAGING_LIMITS.fetch(messaging_limit_tier.to_s, messaging_limit_tier.presence || "—")
+  end
+
+  def token_expired?(now = Time.current)
+    token_expires_at.present? && token_expires_at <= now
+  end
+
+  def token_expiring?(now = Time.current)
+    token_expires_at.present? && !token_expired?(now) && token_expires_at <= now + TOKEN_WARNING
+  end
+
+  # Falha definitiva da ativação, com a mensagem em português para a tela.
+  def fail_activation!(error)
+    update!(activation_error: error.user_message.to_s.truncate(255))
   end
 
   def activity_name
@@ -46,6 +88,6 @@ class WhatsappAccount < ApplicationRecord
   end
 
   def to_s
-    [ verified_name.presence, display_phone_number ].compact.join(" · ")
+    [ verified_name.presence, display_phone_number.presence ].compact.join(" · ").presence || "Número #{phone_number_id}"
   end
 end

@@ -992,7 +992,7 @@ CREATE TABLE public.whatsapp_accounts (
     business_id character varying,
     waba_id character varying NOT NULL,
     phone_number_id character varying NOT NULL,
-    display_phone_number character varying NOT NULL,
+    display_phone_number character varying,
     verified_name character varying,
     access_token text,
     status character varying DEFAULT 'pending'::character varying NOT NULL,
@@ -1012,7 +1012,10 @@ CREATE TABLE public.whatsapp_accounts (
     history_sync_error character varying,
     last_webhook_at timestamp(6) without time zone,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    token_expires_at timestamp(6) without time zone,
+    activation_error character varying,
+    registered_at timestamp(6) without time zone
 );
 
 
@@ -3381,6 +3384,7 @@ ALTER TABLE ONLY public.leads
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261027200000'),
 ('20261027180000'),
 ('20261027120000'),
 ('20261023120000'),

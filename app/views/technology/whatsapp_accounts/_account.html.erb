@@ -1,0 +1,95 @@
+<% conversations = @conversation_counts[account.id].to_i %>
+<% reconnect = can_connect && missing.empty? %>
+<section class="card" aria-labelledby="wa-<%= account.id %>-t" <%= "data-refresh-busy" if whatsapp_busy?(account) %>>
+  <div class="acc-head">
+    <span class="co-avatar<%= ' sm' if account.disconnected? %>" aria-hidden="true"><%= whatsapp_initials(account) %></span>
+    <div class="titles">
+      <div class="row wrap">
+        <h2 id="wa-<%= account.id %>-t" style="font-size:18px"><%= account.verified_name.presence || "Número em conexão" %></h2>
+        <%= whatsapp_account_badge(account) %>
+        <% if account.coexistence? %><span class="badge b-info" title="O número continua no app WhatsApp Business do celular">Coexistência</span><% end %>
+      </div>
+      <span class="mono" style="color:var(--text)"><%= account.display_phone_number.presence || "ID #{account.phone_number_id}" %></span>
+      <% if account.disconnected? %>
+        <span class="mono">desconectado em <%= datetime_br(account.disconnected_at) %><%= " · #{account.disconnect_reason}" if account.disconnect_reason.present? %></span>
+      <% end %>
+    </div>
+    <% if can_connect %>
+      <div class="row wrap">
+        <% if account.coexistence? && !account.disconnected? %>
+          <button class="btn sm" type="button" data-open="whatsapp-disconnect-<%= account.id %>">Desconectar</button>
+        <% end %>
+        <% if !account.connected? || account.token_expiring? %>
+          <button class="btn sm<%= ' pri' if account.reconnect_required? %>" type="button" data-open="whatsapp-connect" <%= "disabled" unless reconnect %>>Reconectar</button>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <% unless account.disconnected? %>
+    <div class="card-body stack" style="padding-top:0">
+      <ol class="steps" aria-label="Conexão" style="list-style:none;margin:0;padding:0">
+        <% whatsapp_steps(account).each do |label, state, detail| %>
+          <li class="step<%= " #{state}" unless state == :todo %>"<%= ' aria-current="step"'.html_safe if state == :cur %>><%= label %><% if detail %><small><%= detail %></small><% end %></li>
+        <% end %>
+      </ol>
+
+      <% if account.reconnect_required? %>
+        <div class="callout crit" role="alert"><span><b class="strong">O acesso à Meta venceu<%= " em #{datetime_br(account.token_expires_at)}" if account.token_expires_at %>.</b> O número não envia nem sincroniza até ser conectado de novo. Use Reconectar: o cadastro da Meta abre de novo e as conversas continuam aqui.</span></div>
+      <% elsif account.token_expiring? %>
+        <div class="callout warn"><span><b class="strong">O acesso à Meta vence em <%= datetime_br(account.token_expires_at) %></b> (<%= distance_of_time_in_words(Time.current, account.token_expires_at) %>). Reconecte antes para o número não parar.</span></div>
+      <% end %>
+
+      <% if account.activation_error? && account.pending? %>
+        <div class="callout crit" role="alert">
+          <span><b class="strong">A ativação parou.</b> <%= account.activation_error %>
+            <% if can_connect %><%= button_to "Tentar de novo", activate_whatsapp_account_path(account), class: "btn sm", form_class: "inline-form", form: { style: "margin-top:8px" } %><% end %>
+          </span>
+        </div>
+      <% elsif account.activation_error? %>
+        <div class="callout warn"><span><b class="strong">Sincronização com o celular não feita.</b> <%= account.activation_error %></span></div>
+      <% elsif account.pending? %>
+        <div class="callout" role="status"><span><b class="strong">Ativando o número.</b> Inscrevendo o app e pedindo as sincronizações à Meta. Esta lista se atualiza sozinha; pode sair da tela.</span></div>
+      <% end %>
+
+      <% if account.history_sync_error? %>
+        <div class="callout warn"><span><b class="strong">Histórico não sincronizado.</b> <%= account.history_sync_error %>. Só as conversas novas aparecem.</span></div>
+      <% end %>
+
+      <% if account.registration_pending? %>
+        <div class="callout warn">
+          <span>
+            <b class="strong">Falta registrar o número na Cloud API.</b> Informe o PIN de 6 dígitos da verificação em duas etapas do número: o atual, se ele já tiver, ou um novo. O PIN não fica guardado. A Meta aceita 10 tentativas em 72 horas.
+            <% if can_connect %>
+              <%= form_with url: register_whatsapp_account_path(account), class: "row wrap", style: "margin-top:10px;gap:8px", data: { turbo_frame: "_top" } do %>
+                <label class="sr-only" for="pin-<%= account.id %>">PIN de 6 dígitos</label>
+                <input class="input mono" id="pin-<%= account.id %>" name="pin" type="password" inputmode="numeric" pattern="\d{6}" maxlength="6" minlength="6" autocomplete="one-time-code" required placeholder="PIN de 6 dígitos" style="max-width:180px">
+                <button class="btn sm pri" type="submit">Registrar número</button>
+              <% end %>
+            <% end %>
+          </span>
+        </div>
+      <% end %>
+    </div>
+
+    <dl class="dl" style="padding-top:4px;margin:0">
+      <div><dt>Nome exibido</dt><dd><%= account.verified_name.presence || "—" %></dd></div>
+      <div><dt>Qualidade</dt><dd><%= whatsapp_quality_badge(account) %></dd></div>
+      <div><dt>Limite de envio</dt><dd><%= whatsapp_messaging_limit(account) %><span class="cell-sub">Do portfólio, compartilhado pelos números; sobe com volume e qualidade</span></dd></div>
+      <% if account.coexistence? %>
+        <div><dt>Velocidade</dt><dd>20 mensagens/s<span class="cell-sub">Fixa para números em coexistência</span></dd></div>
+        <div><dt>Contatos sincronizados</dt><dd><%= datetime_br(account.contacts_synced_at) %></dd></div>
+        <div><dt>Histórico sincronizado</dt><dd><%= account.history_synced_at ? datetime_br(account.history_synced_at) : (account.history_sync_progress ? "#{account.history_sync_progress}%" : "—") %><% if account.history_sync_progress && !account.history_synced_at %><span class="progress" role="progressbar" aria-valuenow="<%= account.history_sync_progress %>" aria-valuemin="0" aria-valuemax="100" aria-label="Histórico em <%= account.history_sync_progress %>%" style="display:block;margin-top:6px"><i style="width:<%= account.history_sync_progress %>%"></i></span><% end %></dd></div>
+      <% end %>
+      <div><dt>Portfólio</dt><dd class="ids"><%= account.business_id.presence || "—" %></dd></div>
+      <div><dt>Conta WhatsApp (WABA)</dt><dd class="ids"><%= account.waba_id %></dd></div>
+      <div><dt>ID do número</dt><dd class="ids"><%= account.phone_number_id %></dd></div>
+      <div><dt>Conectado por</dt><dd><%= account.connected_by&.name || "—" %><span class="cell-sub"><%= datetime_br(account.connected_at) %></span></dd></div>
+      <div><dt>Validade do acesso</dt><dd><%= account.token_expires_at ? datetime_br(account.token_expires_at) : "Sem validade informada pela Meta" %></dd></div>
+    </dl>
+  <% end %>
+
+  <div class="card-foot">
+    <span><%= account.disconnected? ? "Conversas deste número: #{conversations}. Ficam guardadas para consulta, sem envio." : "Token de acesso guardado criptografado. Ele nunca aparece na tela nem nos logs." %></span>
+  </div>
+</section>
