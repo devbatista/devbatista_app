@@ -2,11 +2,11 @@
 # desmarca o anterior (RF 13).
 class Contact < ApplicationRecord
   include Auditable
+  include WhatsappLinkable
 
   audited area: "clientes"
 
   belongs_to :company, inverse_of: :contacts
-  has_many :whatsapp_conversations, dependent: :nullify
 
   normalizes :email, with: ->(value) { value.to_s.strip.downcase.presence }
 

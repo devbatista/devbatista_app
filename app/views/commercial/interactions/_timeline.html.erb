@@ -15,7 +15,7 @@
               history.select { |l| l.action.in?(%w[create status_change]) }.map { |l| [ l.created_at, :log, l ] } %>
   <% events.sort_by { |time, _, _| -time.to_i }.each do |_time, type, item| %>
     <% if type == :interaction %>
-      <div class="tl"><i></i><div><span class="strong"><%= item.kind_label %></span> — <%= item.notes %><small><%= date_br(item.occurred_on) %> · <%= item.user.name %></small></div></div>
+      <div class="tl"><%= tag.i(class: ("good" if item.automatic?)) %><div><span class="strong"><%= item.kind_label %></span> — <%= item.notes %><small><%= date_br(item.occurred_on) %> · <%= item.user.name %><%= " · automática" if item.automatic? %></small></div></div>
     <% elsif item.action == "create" %>
       <div class="tl"><i class="mute"></i><div><span class="strong"><%= created_label %></span><small><%= datetime_br(item.created_at) %> · <%= item.user&.name || "Sistema" %></small></div></div>
     <% else %>

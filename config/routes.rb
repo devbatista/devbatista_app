@@ -20,7 +20,7 @@ Rails.application.routes.draw do
         patch :lose
       end
       resource :conversion, only: %i[new create], controller: "lead_conversions"
-      resources :interactions, only: :create
+      resources :interactions, only: %i[new create]
     end
     resources :opportunities, except: :show do
       member do
@@ -28,7 +28,7 @@ Rails.application.routes.draw do
         get :lose, action: :new_loss
         patch :lose
       end
-      resources :interactions, only: :create
+      resources :interactions, only: %i[new create]
     end
     resources :proposals do
       member do
@@ -98,13 +98,17 @@ Rails.application.routes.draw do
   end
 
   # WhatsApp → Conversas (/whatsapp/conversations) e Templates (/whatsapp/templates).
+  # Vínculo da conversa com o CRM: /conversations/:id/link (vincular e desvincular) e /lead (criar lead).
   scope "whatsapp" do
     resources :whatsapp_conversations, path: "conversations", only: %i[index show] do
       member do
         get :messages
+        get :panel
         post :read
       end
       resources :whatsapp_messages, path: "messages", only: :create
+      resource :link, only: %i[new create destroy], controller: "whatsapp_conversation_links"
+      resource :lead, only: %i[new create], controller: "whatsapp_conversation_leads"
     end
     resources :whatsapp_messages, path: "messages", only: [] do
       member do

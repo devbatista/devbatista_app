@@ -1,0 +1,46 @@
+<%# Propostas em aberto, próximo passo e interações do lead ou da oportunidade (subject; nil para o
+    contato sem oportunidade aberta). "+ Registrar" abre a interação na gaveta. Locals: subject, proposals. %>
+<% if policy(Proposal).index? %>
+  <div class="pblock">
+    <div class="card-head"><h3>Propostas</h3></div>
+    <% if proposals.any? %>
+      <% proposals.each do |proposal| %>
+        <div class="kv"><span class="pt"><%= link_to proposal.title, proposal_path(proposal), style: "font-weight:600", data: { turbo_frame: "_top" } %><span class="cell-sub"><%= proposal.code %></span></span>
+          <span class="right"><b><%= brl(proposal.total_cents) %></b><span class="cell-sub"><span class="badge b-mute sm-badge"><%= proposal.status_label %></span></span></span></div>
+      <% end %>
+    <% else %>
+      <div class="pbody"><span class="caption">Nenhuma proposta em aberto.</span></div>
+    <% end %>
+  </div>
+<% end %>
+<% if subject %>
+  <div class="pblock">
+    <div class="card-head"><h3>Próximo passo</h3></div>
+    <div class="pbody">
+      <% if subject.next_step.present? %>
+        <div class="callout"><span><b class="strong"><%= subject.next_step %></b><% if subject.next_step_on %><br><span class="caption"><%= date_br(subject.next_step_on) %></span><% end %></span></div>
+      <% else %>
+        <span class="caption">Nenhum próximo passo definido.</span>
+      <% end %>
+    </div>
+  </div>
+  <div class="pblock">
+    <div class="card-head"><h3>Interações</h3>
+      <% if policy(subject).update? %><%= drawer_link_to "+ Registrar", subject.is_a?(Lead) ? new_lead_interaction_path(subject) : new_opportunity_interaction_path(subject), class: "link-btn" %><% end %></div>
+    <% interactions = subject.interactions.includes(:user).recent.limit(3) %>
+    <% if interactions.any? %>
+      <% interactions.each do |interaction| %>
+        <div class="tl"><%= tag.i(class: ("wa-auto" if interaction.automatic?)) %><div><span class="strong"><%= interaction.kind_label %></span> — <%= interaction.notes.truncate(140) %>
+          <small><%= date_br(interaction.occurred_on) %> · <%= interaction.user.name %><%= " · automática" if interaction.automatic? %></small></div></div>
+      <% end %>
+    <% else %>
+      <div class="pbody"><span class="caption">Nenhuma interação registrada.</span></div>
+    <% end %>
+    <div style="height:12px"></div>
+  </div>
+<% else %>
+  <div class="pblock">
+    <div class="card-head"><h3>Interações</h3></div>
+    <div class="pbody"><span class="caption">Interações ficam no lead ou na oportunidade. Sem oportunidade aberta, a conversa fica só aqui, sem interação automática.</span></div>
+  </div>
+<% end %>

@@ -1,0 +1,31 @@
+<%# Contato vinculado: a empresa, o contato, a oportunidade aberta da empresa (etapa, próximo passo e
+    interações) e as propostas em aberto. Sem acesso a Clientes, só o nome. %>
+<% company = contact.company %>
+<% if policy(contact).show? %>
+  <% opportunity = conversation.interaction_subject if policy(Opportunity).index? %>
+  <div class="pblock">
+    <div class="who-card">
+      <span class="co-avatar" aria-hidden="true"><%= company.initials %></span>
+      <div style="min-width:0"><%= link_to company.trade_name, company_path(company), class: "strong", style: "font-size:15px", data: { turbo_frame: "_top" } %>
+        <div><%= tag.span(company.status_label, class: "badge sm-badge b-#{ListingHelper::STATUS_TONES.fetch(company.status, 'mute')}") %></div></div>
+    </div>
+    <div class="kv"><span>Contato</span><% if contact.position.present? %><span class="right"><b><%= contact.name %></b><span class="cell-sub"><%= contact.position %></span></span><% else %><b><%= contact.name %></b><% end %></div>
+    <div class="kv"><span>E-mail</span><b><%= contact.email || "—" %></b></div>
+    <div class="kv"><span>Responsável</span><b><%= opportunity&.user&.name || "—" %></b></div>
+    <div class="pbody" style="padding-top:4px"><%= link_to "Abrir Visão 360º →", company_path(company), class: "btn sm", data: { turbo_frame: "_top" } %></div>
+  </div>
+  <% if policy(Opportunity).index? %>
+    <% if opportunity %>
+      <%= render "whatsapp_conversations/panel_pipeline", lead: nil, opportunity: opportunity %>
+    <% else %>
+      <div class="pblock">
+        <div class="card-head"><h3>Etapa no pipeline</h3></div>
+        <div class="pbody"><span class="caption">Nenhuma oportunidade aberta com a <%= company.trade_name %>.</span></div>
+      </div>
+    <% end %>
+    <%= render "whatsapp_conversations/panel_commercial", subject: opportunity, proposals: company.proposals.open.order(updated_at: :desc).limit(3) %>
+  <% end %>
+<% else %>
+  <div class="who-card"><span class="co-avatar" aria-hidden="true"><%= contact.initials %></span><div style="min-width:0"><b class="strong"><%= contact.name %></b><div><span class="badge b-good sm-badge">Contato</span></div></div></div>
+  <div class="pbody"><span class="caption">Os dados do contato ficam em Clientes, sem acesso no seu perfil.</span></div>
+<% end %>

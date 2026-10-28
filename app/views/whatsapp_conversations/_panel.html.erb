@@ -1,35 +1,42 @@
-<%# Painel lateral: dados do WhatsApp e o vínculo. Criar lead e vincular ficam para a fase 7. %>
+<%# Painel lateral: o vínculo com o CRM e os dados do WhatsApp (Fase 7a). Renderizado sempre com a
+    sessão de quem vê, porque os dados do CRM seguem a permissão de cada área. O broadcast de vínculo
+    manda só o turbo-frame que busca o painel de novo (panel_frame). %>
 <% c = conversation %>
-<aside class="card panel" aria-label="Painel da conversa">
-  <div class="card-head" style="border-bottom:1px solid var(--rule)">
-    <h2><%= c.lead ? "Lead" : (c.contact ? "Contato" : "Sem vínculo") %></h2>
-    <button class="icon-btn ghost close-panel" type="button" aria-label="Fechar painel" data-action="whatsapp-screen#closePanel"><%= icon(:x, size: 20) %></button>
-  </div>
-  <div class="col-body">
-    <div class="pblock">
+<turbo-frame id="<%= dom_id(c, :panel) %>" class="wa-frame">
+  <aside class="card panel" aria-label="Painel da conversa">
+    <div class="card-head" style="border-bottom:1px solid var(--rule)">
+      <h2><%= c.lead ? "Lead" : (c.contact ? "Contato e empresa" : "Sem vínculo") %></h2>
+      <button class="icon-btn ghost close-panel" type="button" aria-label="Fechar painel" data-action="whatsapp-screen#closePanel"><%= icon(:x, size: 20) %></button>
+    </div>
+    <div class="col-body">
       <% if c.lead %>
-        <div class="who-card"><span class="co-avatar" aria-hidden="true"><%= whatsapp_initials_for(c.lead.display_name) %></span>
-          <div style="min-width:0"><%= link_to c.lead.display_name, lead_path(c.lead), class: "strong", style: "font-size:15px", data: { turbo_frame: "_top" } %><div><span class="badge b-info sm-badge">Lead</span></div></div></div>
+        <%= render "whatsapp_conversations/panel_lead", conversation: c, lead: c.lead %>
       <% elsif c.contact %>
-        <div class="who-card"><span class="co-avatar" aria-hidden="true"><%= whatsapp_initials_for(c.contact.name) %></span>
-          <div style="min-width:0"><%= link_to c.contact.name, company_path(c.contact.company), class: "strong", style: "font-size:15px", data: { turbo_frame: "_top" } %>
-            <div class="caption"><%= c.contact.company.trade_name %></div></div></div>
+        <%= render "whatsapp_conversations/panel_contact", conversation: c, contact: c.contact %>
       <% else %>
-        <div class="unlinked">
-          <span class="ic"><%= icon(:unlink, size: 24) %></span>
-          <b class="strong">Conversa sem lead ou contato</b>
+        <%= render "whatsapp_conversations/panel_unlinked", conversation: c %>
+      <% end %>
+      <div class="pblock">
+        <div class="card-head"><h3>Dados do WhatsApp</h3></div>
+        <div class="kv"><span>Nome no perfil</span><b><%= c.profile_name || "—" %></b></div>
+        <div class="kv"><span>Nome na agenda</span><b><%= c.saved_name || "—" %></b></div>
+        <div class="kv"><span>Telefone</span><% if c.phone_label %><b class="mono"><%= c.phone_label %></b><% else %><span class="right"><b>Não compartilhado</b><span class="cell-sub">Aparece se a pessoa compartilhar</span></span><% end %></div>
+        <% if c.username %><div class="kv"><span>Usuário</span><b>@<%= c.username.delete_prefix("@") %></b></div><% end %>
+        <div class="kv" style="align-items:flex-start"><span>ID do WhatsApp</span><span class="bsuid right" title="Business-scoped user ID: identifica a pessoa dentro do portfólio"><%= c.bsuid || "—" %></span></div>
+        <div class="kv"><span>Primeira mensagem</span><b><%= datetime_br(c.messages.timeline.minimum(:sent_at)) %></b></div>
+        <div class="kv"><span>Conta</span><b><%= whatsapp_account_label(c.account) %></b></div>
+      </div>
+      <% if c.linked? %>
+        <div class="pblock">
+          <div class="pbody" style="padding-top:12px">
+            <span class="caption">Vinculada <%= c.linked_by ? "por #{c.linked_by.name}" : "pelo telefone" %><%= " em #{datetime_br(c.linked_at)}" if c.linked_at %>.</span>
+            <% if policy(c).link? %>
+              <%= button_to "Desvincular conversa", whatsapp_conversation_link_path(c), method: :delete, class: "link-btn", style: "color:var(--muted);padding:0",
+                            form_class: "inline-form", form: { data: { turbo_frame: "_top", turbo_confirm: "Desvincular a conversa de #{c.link}? As interações já registradas continuam no cadastro." } } %>
+            <% end %>
+          </div>
         </div>
       <% end %>
     </div>
-    <div class="pblock">
-      <div class="card-head"><h3>Dados do WhatsApp</h3></div>
-      <div class="kv"><span>Nome no perfil</span><b><%= c.profile_name || "—" %></b></div>
-      <div class="kv"><span>Nome na agenda</span><b><%= c.saved_name || "—" %></b></div>
-      <div class="kv"><span>Telefone</span><% if c.phone_label %><b class="mono"><%= c.phone_label %></b><% else %><span class="right"><b>Não compartilhado</b><span class="cell-sub">Aparece se a pessoa compartilhar</span></span><% end %></div>
-      <% if c.username %><div class="kv"><span>Usuário</span><b>@<%= c.username.delete_prefix("@") %></b></div><% end %>
-      <div class="kv" style="align-items:flex-start"><span>ID do WhatsApp</span><span class="bsuid right" title="Business-scoped user ID: identifica a pessoa dentro do portfólio"><%= c.bsuid || "—" %></span></div>
-      <div class="kv"><span>Primeira mensagem</span><b><%= datetime_br(c.messages.timeline.minimum(:sent_at)) %></b></div>
-      <div class="kv"><span>Conta</span><b><%= whatsapp_account_label(c.account) %></b></div>
-    </div>
-  </div>
-</aside>
+  </aside>
+</turbo-frame>

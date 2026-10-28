@@ -317,9 +317,12 @@ RSpec.describe "Integrações → WhatsApp" do
     end
   end
 
-  it "não envia COOP nem CSP, que bloqueariam a janela da Meta" do
+  it "não envia COOP nem CSP que restrinja origens, que bloqueariam a janela da Meta" do
     sign_in admin
     get whatsapp_accounts_path
-    expect(response.headers.keys.map(&:downcase)).not_to include("cross-origin-opener-policy", "content-security-policy")
+    expect(response.headers.keys.map(&:downcase)).not_to include("cross-origin-opener-policy")
+    # Só o upgrade-insecure-requests (config/initializers/content_security_policy.rb), sem diretivas *-src.
+    directives = response.headers["Content-Security-Policy"].to_s.split(";").map(&:strip).compact_blank
+    expect(directives).to all(eq("upgrade-insecure-requests"))
   end
 end

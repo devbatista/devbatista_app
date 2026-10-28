@@ -1,0 +1,23 @@
+<%# Etapa no pipeline, só para ver: a oportunidade aberta (Reunião → Fechado) ou o lead (Novo Lead →
+    Oportunidade). Mover a etapa fica na ficha e no pipeline. Locals: lead, opportunity. %>
+<% if opportunity %>
+  <% steps = Opportunity::OPEN_STAGES + [ "won" ] %>
+  <% labels, current = Opportunity::STAGE_LABELS.values_at(*steps), steps.index(opportunity.stage) %>
+<% else %>
+  <% steps = Lead::OPEN_STATUSES + [ "converted" ] %>
+  <% labels, current = Lead::STATUS_LABELS.values_at(*Lead::OPEN_STATUSES) + [ "Oportunidade" ], steps.index(lead.status) %>
+<% end %>
+<div class="pblock">
+  <div class="card-head"><h3>Etapa no pipeline</h3><%= link_to "Pipeline →", pipeline_path, style: "font-size:12px;font-weight:600", data: { turbo_frame: "_top" } %></div>
+  <% if opportunity %>
+    <div class="kv" style="padding-top:2px"><span>Oportunidade</span><span class="right"><b><%= opportunity.title %></b><span class="cell-sub"><%= brl(opportunity.estimated_value_cents) %> · <%= opportunity.probability %>%</span></span></div>
+  <% end %>
+  <div class="pbody">
+    <% if lead&.status_lost? %>
+      <span class="caption">Perdido em <%= date_br(lead.lost_at) %><%= " · #{lead.lost_reason}" if lead.lost_reason.present? %>.</span>
+    <% else %>
+      <div class="ministeps" aria-hidden="true"><% steps.each_index do |i| %><i class="<%= 'done' if current && i < current %><%= 'cur' if i == current %>"></i><% end %></div>
+      <div class="ministeps-l"><% labels.each_with_index do |label, i| %><%= tag.span(label, class: ("cur" if i == current), "aria-current": ("step" if i == current)) %><% end %></div>
+    <% end %>
+  </div>
+</div>

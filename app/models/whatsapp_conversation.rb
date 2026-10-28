@@ -2,6 +2,12 @@
 # identificada pelo BSUID (business-scoped user ID) da Meta; o telefone (wa_id) e o @usuário
 # podem não vir. Pode estar ligada a um lead ou a um contato, nunca aos dois.
 #
+# Vínculo (Fase 7a): com telefone e sem vínculo, a conversa se liga sozinha ao único lead em aberto
+# ou contato com o mesmo número (com e sem o nono dígito, Whatsapp::Phone). Com mais de um, os
+# candidatos aparecem no painel. Desvinculada à mão, fica marcada (auto_link_blocked_at) e não se
+# liga sozinha de novo até o telefone mudar. Ligada, cada dia de conversa vira a interação "WhatsApp" do lead
+# ou da oportunidade (WhatsappInteractionJob).
+#
 # Janela de 24h: mensagem livre só até 24h depois da última mensagem recebida da pessoa.
 # Mensagens enviadas pelo app do celular não abrem nem estendem a janela.
 class WhatsappConversation < ApplicationRecord
@@ -15,6 +21,8 @@ class WhatsappConversation < ApplicationRecord
   belongs_to :account, class_name: "WhatsappAccount", foreign_key: :whatsapp_account_id, inverse_of: :conversations
   belongs_to :lead, optional: true
   belongs_to :contact, optional: true
+  belongs_to :linked_by, class_name: "User", optional: true
+  has_many :interactions, dependent: nil # a chave estrangeira solta as interações (on delete set null)
   has_many :messages, -> { order(:sent_at, :created_at) }, class_name: "WhatsappMessage",
                                                           foreign_key: :whatsapp_conversation_id, inverse_of: :conversation, dependent: :destroy
 
@@ -30,6 +38,8 @@ class WhatsappConversation < ApplicationRecord
   scope :recent, -> { order(Arel.sql("last_message_at DESC NULLS LAST"), created_at: :desc) }
   scope :unread, -> { where(unread_count: 1..) }
   scope :unlinked, -> { where(lead_id: nil, contact_id: nil) }
+  # Sem vínculo e sem a marca de desvinculada à mão: o vínculo automático pode ligar.
+  scope :auto_linkable, -> { unlinked.where(auto_link_blocked_at: nil) }
   scope :window_open, -> { where(last_inbound_at: WINDOW.ago..) }
   # A sincronização da agenda do celular cria conversas ainda sem mensagem; a caixa de entrada só mostra as outras.
   scope :with_messages, -> { where.not(last_message_at: nil) }
@@ -46,7 +56,9 @@ class WhatsappConversation < ApplicationRecord
     digits.length >= 3 ? names.or(where("whatsapp_conversations.wa_id LIKE ?", "%#{digits}%")) : names
   }
 
+  before_save :phone_changed, if: -> { will_save_change_to_wa_id? && wa_id }
   after_commit :broadcast_inbox, on: %i[create update]
+  after_commit :link_changed, on: %i[create update], if: -> { saved_change_to_lead_id? || saved_change_to_contact_id? }
 
   def self.filtered(key)
     case key
@@ -108,7 +120,14 @@ class WhatsappConversation < ApplicationRecord
   # A outra é apagada antes de esta herdar o BSUID ou o telefone dela (índices únicos).
   def absorb!(other)
     other.messages.update_all(whatsapp_conversation_id: id)
-    self.lead_id, self.contact_id = other.lead_id, other.contact_id unless linked?
+    unless linked?
+      self.lead_id, self.contact_id, self.linked_at, self.linked_by_id = other.slice(:lead_id, :contact_id, :linked_at, :linked_by_id).values
+      self.auto_link_blocked_at = linked? ? nil : [ auto_link_blocked_at, other.auto_link_blocked_at ].compact.max
+    end
+    other.interactions.find_each do |interaction|
+      taken = interactions.exists?(subject_type: interaction.subject_type, subject_id: interaction.subject_id, occurred_on: interaction.occurred_on)
+      interaction.update_columns(whatsapp_conversation_id: id) unless taken
+    end
     self.unread_count += other.unread_count
     self.last_inbound_at = [ last_inbound_at, other.last_inbound_at ].compact.max
     if other.last_message_at && (last_message_at.nil? || other.last_message_at > last_message_at)
@@ -139,6 +158,7 @@ class WhatsappConversation < ApplicationRecord
       end
       save!
     end
+    record_interaction(message.sent_at.to_date) if interaction_message?(message)
   end
 
   def window_open?(at = Time.current)
@@ -155,6 +175,53 @@ class WhatsappConversation < ApplicationRecord
 
   def linked?
     lead_id.present? || contact_id.present?
+  end
+
+  # Liga a conversa ao lead ou ao contato e tira a marca de desvinculada. Sem user, é o vínculo
+  # automático pelo telefone.
+  def link!(record, user: nil)
+    assign_link(record, user: user)
+    save!
+  end
+
+  # Desvincula e marca: o vínculo automático não liga de novo até o telefone da conversa mudar.
+  def unlink!
+    update!(lead: nil, contact: nil, linked_at: nil, linked_by: nil, auto_link_blocked_at: Time.current)
+  end
+
+  def auto_link_blocked?
+    auto_link_blocked_at.present?
+  end
+
+  # Leads e contatos com o telefone da conversa, no WhatsApp ou no telefone do cadastro.
+  def matching_leads
+    forms = Whatsapp::Phone.stored_forms(wa_id)
+    forms.empty? ? Lead.none : Lead.where(whatsapp_digits: forms).or(Lead.where(phone_digits: forms))
+  end
+
+  def matching_contacts
+    forms = Whatsapp::Phone.stored_forms(wa_id)
+    forms.empty? ? Contact.none : Contact.where(whatsapp_digits: forms).or(Contact.where(phone_digits: forms))
+  end
+
+  # Vincula sozinha quando há um só candidato: um lead em aberto ou um contato. Leads convertidos
+  # e perdidos não contam, mas aparecem como sugestão no painel. A desvinculada à mão fica de fora.
+  def auto_link!
+    return false if linked? || wa_id.nil? || auto_link_blocked?
+
+    auto_link
+    linked? && save!
+  end
+
+  # Onde fica a interação "WhatsApp" do dia: o lead em aberto; o lead convertido, na oportunidade
+  # aberta que ele virou; o contato, na oportunidade aberta da empresa. Sem oportunidade aberta,
+  # o contato fica sem interação (a conversa aparece no card da empresa) e o lead perdido, no lead.
+  def interaction_subject
+    if lead
+      lead.open? ? lead : (lead.opportunities.open.order(updated_at: :desc).first || lead)
+    elsif contact
+      contact.company.opportunities.open.order(updated_at: :desc).first
+    end
   end
 
   # Destinatário na Cloud API: o telefone quando a conversa tem (a Meta continua mandando o
@@ -203,6 +270,43 @@ class WhatsappConversation < ApplicationRecord
   end
 
   private
+
+  def assign_link(record, user:)
+    self.lead, self.contact = record.is_a?(Lead) ? [ record, nil ] : [ nil, record ]
+    self.linked_at, self.linked_by = Time.current, user
+    self.auto_link_blocked_at = nil
+  end
+
+  # Telefone novo: a marca de desvinculada à mão cai e o vínculo automático pode tentar de novo.
+  def phone_changed
+    self.auto_link_blocked_at = nil
+    auto_link unless linked?
+  end
+
+  def auto_link
+    candidates = matching_leads.open.limit(2).to_a + matching_contacts.limit(2).to_a
+    assign_link(candidates.first, user: nil) if candidates.one?
+  end
+
+  # Mensagem que conta na interação do dia: da conversa de agora (não do histórico), sem reação
+  # nem aviso do sistema, e que não falhou.
+  def interaction_message?(message)
+    linked? && !message.from_history? && !message.kind_reaction? && !message.kind_system? && !message.status_failed?
+  end
+
+  # Depois do commit, para o job contar a mensagem que acabou de entrar.
+  def record_interaction(day)
+    ActiveRecord.after_all_transactions_commit { WhatsappInteractionJob.perform_later(self, day.iso8601) }
+  end
+
+  # Vínculo novo: a interação de hoje (se já houve mensagem) e o painel da conversa aberta. O painel
+  # vem como turbo-frame com src, carregado por quem está vendo, porque mostra dados do CRM conforme
+  # a permissão de cada um.
+  def link_changed
+    record_interaction(Date.current) if linked?
+    broadcast_replace_later_to self, :whatsapp, target: ActionView::RecordIdentifier.dom_id(self, :panel),
+                                                partial: "whatsapp_conversations/panel_frame", locals: { conversation: self }
+  end
 
   # Caixa de entrada da conta e contador do menu. Nova mensagem leva o item ao topo (sai de onde
   # estiver, inclusive das páginas carregadas depois); o resto só redesenha o item.

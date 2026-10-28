@@ -1,0 +1,45 @@
+<%# Conversa sem vínculo: criar lead, vincular a um cadastro e os candidatos com o mesmo telefone
+    (vários, só leads encerrados ou conversa desvinculada à mão: o vínculo automático exige um único
+    lead em aberto ou contato e não religa a desvinculada). %>
+<% c = conversation %>
+<% can_link = policy(c).link? %>
+<% candidates = c.wa_id ? policy_scope(c.matching_leads).limit(5).to_a + policy_scope(c.matching_contacts).includes(:company).limit(5).to_a : [] %>
+<div class="unlinked">
+  <span class="ic"><%= icon(:unlink, size: 24) %></span>
+  <b class="strong">Conversa sem lead ou contato</b>
+  <span>Ligue a conversa a um cadastro para ver o funil, as propostas e as interações.</span>
+  <% if can_link %>
+    <% if policy(Lead).create? %><%= drawer_link_to new_whatsapp_conversation_lead_path(c), class: "btn pri" do %><%= icon(:userplus, size: 16) %>Criar lead<% end %><% end %>
+    <%= drawer_link_to new_whatsapp_conversation_link_path(c), class: "btn" do %><%= icon(:link, size: 16) %>Vincular a lead/contato existente<% end %>
+  <% end %>
+</div>
+<% if candidates.any? %>
+  <div class="pblock" style="margin-top:12px">
+    <div class="card-head"><h3>Mesmo telefone</h3></div>
+    <% candidates.each do |record| %>
+      <div class="kv">
+        <span class="pt"><b class="strong"><%= record.is_a?(Lead) ? record.display_name : record.name %></b>
+          <span class="cell-sub"><%= record.is_a?(Lead) ? "Lead · #{record.status_label}" : [ "Contato", record.company.trade_name ].join(" · ") %></span></span>
+        <% if can_link %>
+          <%= button_to "Vincular", whatsapp_conversation_link_path(c), params: { alvo: "#{record.class.name}:#{record.id}" }, class: "btn sm",
+                                                                      form_class: "inline-form", form: { data: { turbo_frame: "_top" } } %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+<div class="pblock">
+  <div class="pbody" style="padding-top:14px">
+    <span class="caption">
+      <% if c.wa_id.nil? %>
+        Sem telefone, não há busca automática por correspondência. Procure pelo nome em “Vincular”.
+      <% elsif c.auto_link_blocked? %>
+        Conversa desvinculada à mão: o vínculo automático fica desligado até o telefone dela mudar.<%= " Escolha acima, se quiser vincular de novo." if candidates.any? %>
+      <% elsif candidates.any? %>
+        O vínculo automático só acontece com um único lead em aberto ou contato com este telefone. Escolha acima.
+      <% else %>
+        Nenhum lead ou contato tem este telefone.
+      <% end %>
+    </span>
+  </div>
+</div>
