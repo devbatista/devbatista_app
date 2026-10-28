@@ -18,7 +18,8 @@ class WhatsappAccount < ApplicationRecord
   ACTIVE_STATUSES = %w[pending registration_pending connected].freeze
 
   audited area: "whatsapp",
-          ignore: %w[access_token quality_rating messaging_limit_tier history_sync_progress last_webhook_at activation_error]
+          ignore: %w[access_token quality_rating messaging_limit_tier history_sync_progress last_webhook_at activation_error
+                     templates_sync_requested_at templates_synced_at templates_sync_error]
   # Conectando: ativação em andamento (WhatsappActivationJob). Aguardando registro: número sem
   # coexistência esperando o PIN. Reconectar necessário: o token venceu.
   labeled_enum :status, pending: "Conectando", registration_pending: "Aguardando registro", connected: "Conectado",
@@ -76,6 +77,24 @@ class WhatsappAccount < ApplicationRecord
 
   def token_expiring?(now = Time.current)
     token_expires_at.present? && !token_expired?(now) && token_expires_at <= now + TOKEN_WARNING
+  end
+
+  # Templates só sincronizam com o acesso à Meta válido.
+  def templates_syncable?
+    ACTIVE_STATUSES.include?(status)
+  end
+
+  def templates_sync_blocked_reason
+    case status
+    when "disconnected" then "O número está desconectado. Conecte de novo em Integrações → WhatsApp para sincronizar e criar templates."
+    when "reconnect_required" then "O acesso à Meta venceu. Reconecte o número em Integrações → WhatsApp para sincronizar e criar templates."
+    end
+  end
+
+  # Sincronização pedida pela tela e ainda sem resultado.
+  def templates_syncing?
+    templates_sync_requested_at.present? && templates_sync_error.blank? &&
+      (templates_synced_at.nil? || templates_synced_at < templates_sync_requested_at)
   end
 
   # Falha definitiva da ativação, com a mensagem em português para a tela.

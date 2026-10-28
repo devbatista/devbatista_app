@@ -1,0 +1,40 @@
+<% nav_location :wa, "Templates" %>
+<% breadcrumb ["WhatsApp"], ["Templates", whatsapp_templates_path(conta: @template.whatsapp_account_id)], [@template.name] %>
+<% t = @template %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">WhatsApp · Templates</span>
+    <h1 class="mono"><%= t.name %></h1>
+    <p class="lead"><%= t.language_label %> · <%= t.category_label %> · <%= whatsapp_template_badge(t) %></p>
+  </div>
+  <div class="actions">
+    <% if t.editable? && policy(t).edit? && t.account.templates_syncable? %><%= link_to t.status_rejected? ? "Corrigir" : "Editar", edit_whatsapp_template_path(t), class: "btn pri" %><% end %>
+    <% if policy(t).destroy? && t.deletable? && t.account.templates_syncable? %>
+      <%= button_to "Excluir", whatsapp_template_path(t), method: :delete, class: "btn danger", form_class: "inline-form",
+                               form: { data: { turbo_confirm: "Excluir #{t.name} (#{t.language})? Só este idioma sai da Meta, e o nome só pode ser usado de novo depois de 30 dias. As mensagens já enviadas continuam no histórico." } } %>
+    <% end %>
+  </div>
+</div>
+
+<div class="editor">
+  <section class="card" aria-label="Detalhes do template">
+    <% if t.status_rejected? %>
+      <div class="card-body"><div class="callout crit"><span><b class="strong">Rejeitado pela Meta:</b> <%= t.rejection_label || "sem motivo informado" %>.</span></div></div>
+    <% elsif t.status_note %>
+      <div class="card-body"><div class="callout warn"><span><%= t.status_note %></span></div></div>
+    <% end %>
+    <% if t.read_only? && !t.status_deleted? %>
+      <div class="card-body"><div class="callout"><span>Templates de <%= t.category_label.downcase %> vêm da Meta e ficam só para leitura no Admin.</span></div></div>
+    <% end %>
+    <dl class="dl" style="margin:0">
+      <div><dt>Conta</dt><dd><%= whatsapp_account_label(t.account) %></dd></div>
+      <div><dt>Variáveis</dt><dd><%= t.variables_count %></dd></div>
+      <div><dt>Corpo</dt><dd style="white-space:pre-line"><%= t.body_text.presence || "—" %></dd></div>
+      <div><dt>ID na Meta</dt><dd class="mono"><%= t.meta_template_id || "—" %></dd></div>
+      <div><dt>Sincronizado</dt><dd><%= datetime_br(t.last_synced_at) %></dd></div>
+      <div><dt>Atualizado</dt><dd><%= datetime_br(t.updated_at) %></dd></div>
+    </dl>
+  </section>
+  <%= render "preview", builder: @builder %>
+</div>

@@ -1,0 +1,97 @@
+<% nav_location :wa, "Templates" %>
+<% breadcrumb ["WhatsApp"], ["Templates"] %>
+<% a = @account %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">WhatsApp</span>
+    <h1>Templates</h1>
+    <p class="lead">Mensagens pré-aprovadas pela Meta. São o único jeito de iniciar uma conversa ou retomar depois de 24h sem resposta.</p>
+  </div>
+  <% if a && a.templates_syncable? %>
+    <div class="actions">
+      <% if policy(WhatsappTemplate).sync? %>
+        <%= button_to sync_whatsapp_templates_path(conta: a.id), class: "btn", form_class: "inline-form", disabled: a.templates_syncing? do %><%= icon(:sync, size: 16, stroke: 1.8) %>Sincronizar com a Meta<% end %>
+      <% end %>
+      <% if policy(WhatsappTemplate).create? %>
+        <%= link_to new_whatsapp_template_path(conta: a.id), class: "btn pri" do %><%= icon(:plus, size: 16, stroke: 2) %>Novo template<% end %>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+
+<% if a.nil? %>
+  <section class="card"><%= render "shared/empty", title: "Nenhum número conectado", text: "Os templates são da conta do WhatsApp. Conecte um número em Tecnologia → Integrações → WhatsApp." do %><% if policy(WhatsappAccount).index? %><%= link_to "Ir para a integração", whatsapp_accounts_path, class: "btn" %><% end %><% end %></section>
+<% else %>
+  <%# Atualiza sozinha enquanto a sincronização pedida na tela está em andamento. %>
+  <turbo-frame id="whatsapp_templates" target="_top" data-controller="refresh" data-refresh-url-value="<%= request.fullpath %>">
+    <% if a.templates_syncing? %>
+      <div class="callout" role="status" data-refresh-busy><span><b class="strong">Sincronizando com a Meta…</b> A lista se atualiza sozinha.</span></div>
+    <% elsif a.templates_sync_error.present? %>
+      <div class="callout crit" role="alert"><span><b class="strong">A sincronização falhou.</b> <%= a.templates_sync_error %></span></div>
+    <% end %>
+    <% unless a.templates_syncable? %>
+      <div class="callout warn" role="alert"><span><b class="strong">Sem sincronização nem criação de templates.</b> <%= a.templates_sync_blocked_reason %></span></div>
+    <% end %>
+
+    <% c = @counts %>
+    <div class="grid-kpi g4" style="margin-top:16px">
+      <div class="card kpi"><span class="eyebrow">Aprovados</span><span class="v"><%= c["approved"].to_i %></span><span class="f">disponíveis no envio</span></div>
+      <div class="card kpi<%= ' warn' if c["pending"].to_i.positive? %>"><span class="eyebrow">Em análise</span><span class="v"><%= c["pending"].to_i %></span><span class="f">a Meta costuma responder em minutos</span></div>
+      <div class="card kpi<%= ' alert' if c["rejected"].to_i.positive? %>"><span class="eyebrow">Rejeitados</span><span class="v"><%= c["rejected"].to_i %></span><span class="f"><%= @latest_rejected ? [ @latest_rejected.name, @latest_rejected.rejection_label ].compact.join(" · ") : "nenhum" %></span></div>
+      <div class="card kpi"><span class="eyebrow">Pausados</span><span class="v"><%= c["paused"].to_i %></span><span class="f"><%= c["paused"].to_i.positive? ? "avaliação negativa dos destinatários" : "nenhum" %></span></div>
+    </div>
+  </turbo-frame>
+
+  <%= form_with url: whatsapp_templates_path, method: :get, class: "toolbar" do %>
+    <% if @accounts.size > 1 %>
+      <label class="sr-only" for="f-conta">Conta</label>
+      <%= select_tag :conta, options_for_select(@accounts.map { |acc| [ "#{whatsapp_account_label(acc)}#{' (desconectado)' if acc.disconnected?}", acc.id ] }, a.id), class: "select", id: "f-conta", onchange: "this.form.requestSubmit()" %>
+    <% else %>
+      <%= hidden_field_tag :conta, a.id, id: nil %>
+    <% end %>
+    <%= status_filter :status, [ [ "todos", "Todos", c.except("deleted").values.sum ] ] + WhatsappTemplatesController::STATUS_FILTERS.map { |key| [ key, WhatsappTemplate::STATUS_LABELS[key], c[key].to_i ] } %>
+    <%= hidden_field_tag :status, params[:status], id: nil if params[:status].present? %>
+    <span class="spacer"></span>
+    <%= search_field placeholder: "Nome ou texto do template", label: "Buscar template" %>
+  <% end %>
+
+  <section class="card" aria-label="Lista de templates">
+    <% if @templates.any? %>
+      <div class="table-wrap">
+        <table class="table cards">
+          <thead><tr><th>Template</th><th>Categoria e idioma</th><th class="num">Variáveis</th><th>Status</th><th>Atualizado</th><th><span class="sr-only">Ações</span></th></tr></thead>
+          <tbody>
+            <% @templates.each do |t| %>
+              <tr<%= ' class="late"'.html_safe if t.status_rejected? %>>
+                <td data-label="Template"><%= link_to t.name, whatsapp_template_path(t), class: "tpl-name" %><span class="cell-sub<%= ' clip' unless t.status_rejected? || t.status_note %>"><%= whatsapp_template_note(t) %></span></td>
+                <td data-label="Categoria"><%= t.category_label %><span class="cell-sub"><%= t.language_label %></span></td>
+                <td data-label="Variáveis" class="num"><%= t.variables_count %></td>
+                <td data-label="Status"><%= whatsapp_template_badge(t) %></td>
+                <td data-label="Atualizado" class="mono"><%= date_br(t.updated_at) %></td>
+                <td data-label="" class="right">
+                  <% if t.status_pending? %>
+                    <span class="caption">aguardando a Meta</span>
+                  <% elsif t.editable? && policy(t).edit? && a.templates_syncable? %>
+                    <%= link_to t.status_rejected? ? "Corrigir" : "Editar", edit_whatsapp_template_path(t), class: "link-btn" %>
+                  <% else %>
+                    <%= link_to "Ver", whatsapp_template_path(t), class: "link-btn" %>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+      <%= render "shared/pagination", pager: @pager %>
+    <% else %>
+      <%= render "shared/empty", title: "Nenhum template encontrado", text: "Crie um template ou sincronize com a Meta para trazer os que já existem no Gerenciador do WhatsApp." %>
+    <% end %>
+    <div class="card-foot"><span>Templates da conta <%= whatsapp_account_label(a) %> · status atualizado pelo webhook da Meta<%= " · sincronizado em #{datetime_br(a.templates_synced_at)}" if a.templates_synced_at %></span></div>
+  </section>
+
+  <div class="note">
+    <%= icon(:info, size: 20) %>
+    <span><b>Regras da Meta.</b> Nome e idioma não mudam depois de criados. Editar um template aprovado o manda de volta para análise (até 1 edição por dia e 10 por mês). A Meta pode mudar a categoria se o texto não combinar com ela. Depois de excluir, o nome só pode ser usado de novo depois de 30 dias.</span>
+  </div>
+<% end %>

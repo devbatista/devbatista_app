@@ -50,10 +50,10 @@ Os valores ficam em `Rails.configuration.x.whatsapp`.
 
 | Tabela | Conteúdo |
 | --- | --- |
-| `whatsapp_accounts` | Portfólio, WABA, `phone_number_id` (único), número exibido (vazio até a ativação ler o número), nome verificado, token criptografado e validade (`token_expires_at`), status (Conectando, Aguardando registro, Conectado, Reconectar necessário, Desconectado), erro da ativação (`activation_error`), coexistência, qualidade e limite de envio, quem conectou, datas de conexão, inscrição do app, registro (`registered_at`) e desconexão, pedidos e datas das sincronizações, último webhook |
+| `whatsapp_accounts` | Portfólio, WABA, `phone_number_id` (único), número exibido (vazio até a ativação ler o número), nome verificado, token criptografado e validade (`token_expires_at`), status (Conectando, Aguardando registro, Conectado, Reconectar necessário, Desconectado), erro da ativação (`activation_error`), coexistência, qualidade e limite de envio, quem conectou, datas de conexão, inscrição do app, registro (`registered_at`) e desconexão, pedidos e datas das sincronizações, último webhook, andamento da sincronização de templates (`templates_sync_requested_at`, `templates_synced_at`, `templates_sync_error`) |
 | `whatsapp_conversations` | Conta, `bsuid` e `parent_bsuid`, `wa_id` e @usuário opcionais, nome do perfil, nome salvo na agenda do celular (`saved_name`), lead **ou** contato, última mensagem recebida (janela de 24h), não lidas e prévia |
 | `whatsapp_messages` | Direção, tipo, origem (Admin, Celular, Contato), corpo, `wa_message_id` único, status (Enviando, Enviada, Entregue, Lida, Falhou, Recebida), erro, template e parâmetros, mídia (Active Storage e o ID da mídia na Meta), mensagem citada (`reply_to_wa_message_id`), reação (`reaction_to_wa_message_id` e `reaction_emoji`), autor, se veio do histórico, datas de envio, entrega, leitura, edição e exclusão, payload bruto |
-| `whatsapp_templates` | Conta, ID na Meta, nome, idioma, categoria, status, componentes (formato da Graph API), nº de variáveis do cabeçalho e do corpo, motivo de rejeição |
+| `whatsapp_templates` | Conta, ID na Meta, nome, idioma, categoria, status, componentes (formato da Graph API), nº de variáveis do cabeçalho e do corpo, motivo de rejeição, última sincronização. O excluído fica no banco com status `deleted`; nome e idioma são únicos por conta só entre os não excluídos |
 
 Garantias no banco: o BSUID e o telefone são únicos por conta; a conversa precisa de BSUID ou telefone e não liga lead e contato ao mesmo tempo (check constraints); o `wa_message_id` é único, o que torna o processamento dos webhooks idempotente.
 
@@ -70,7 +70,8 @@ O BSUID fica em `bsuid`, e não em `user_id`, porque nesta base `user_id` é sem
 | `send_text`, `send_media`, `send_template` | `POST /<PHONE_NUMBER_ID>/messages`. Destinatário pela conversa: `to` (telefone) ou `recipient` (BSUID). `reply_to:` vira `context.message_id`. Devolve `SentMessage` (wamid, telefone, BSUID) |
 | `mark_as_read` | `POST /<PHONE_NUMBER_ID>/messages` com `status: "read"` |
 | `upload_media`, `media`, `download_media`, `delete_media` | `POST /<PHONE_NUMBER_ID>/media` (multipart); `GET /<MEDIA_ID>` e a URL temporária com o token. O download vai em pedaços para um `Tempfile` e confere o `sha256`. Respeita o limite do tipo (pelo `mime_type`; `image/webp` é figurinha): recusa antes de baixar se o `file_size` informado passar dele e interrompe se o total baixado passar, mesmo sem `file_size` |
-| `templates`, `create_template`, `update_template`, `delete_template` | `/<WABA_ID>/message_templates` (com paginação) e `POST /<TEMPLATE_ID>` |
+| `templates`, `create_template`, `update_template`, `delete_template` | `/<WABA_ID>/message_templates` (com paginação) e `POST /<TEMPLATE_ID>`. A categoria vai em maiúsculas; `update_template` só a manda quando muda (nunca para aprovado) |
+| `upload_template_sample` | Exemplo da mídia do cabeçalho para a análise: `POST /<APP_ID>/uploads?file_name&file_length&file_type` (token da conta) abre a sessão `upload:…`; `POST /<sessão>` com `Authorization: OAuth <token>`, `file_offset: 0` e o arquivo devolve o handle (`h`). Respeita os limites por tipo. Não é o `/media` das mensagens |
 | `subscribe_app`, `unsubscribe_app`, `subscribed_apps` | `/<WABA_ID>/subscribed_apps` |
 | `phone_number_details` | `GET /<PHONE_NUMBER_ID>?fields=…` (nome, qualidade, limite de envio, coexistência) |
 | `request_sync(:contacts / :history)` | `POST /<PHONE_NUMBER_ID>/smb_app_data`. Devolve o `request_id` |
@@ -193,10 +194,63 @@ Sem `META_APP_ID`, `META_APP_SECRET`, `WHATSAPP_EMBEDDED_SIGNUP_CONFIG_ID` ou as
 - `code` e `pin` estão em `filter_parameter_logging`, pelo nome exato.
 - O Admin não envia `Cross-Origin-Opener-Policy` nem `Content-Security-Policy`, que bloqueariam a janela e o `postMessage` da Meta; um request spec garante isso. Se um dia tiverem CSP, liberar `connect.facebook.net` e `facebook.com`, e o COOP não pode ser `same-origin`.
 
+## Templates (Fase 5)
+
+WhatsApp → **Templates** (`/whatsapp/templates`, `WhatsappTemplatesController`), seguindo `docs/design/whatsapp/templates.html`. O item saiu do "em breve" do menu; Conversas continua até a Fase 6.
+
+**Lista.**
+- KPIs: Aprovados, Em análise, Rejeitados (com o nome e o motivo do mais recente) e Pausados.
+- Seletor de conta quando há mais de uma; a padrão é a primeira não desconectada.
+- Filtro por status, busca no nome e no texto do corpo, paginação.
+- Cada linha mostra:
+  - o motivo da rejeição traduzido ou a explicação do status (pausa, desativação), ou o início do corpo;
+  - a ação por status: Editar, ou Corrigir se rejeitado; em análise, "aguardando a Meta"; nos demais, Ver.
+- Os excluídos não aparecem. O rodapé lembra as regras da Meta.
+- Motivos de rejeição: `WhatsappTemplate::REJECTION_REASONS` (`INCORRECT_CATEGORY`, `TAG_CONTENT_MISMATCH`, `INVALID_FORMAT`, `ABUSIVE_CONTENT`, `SCAM`, `PROMOTIONAL`). O webhook grava "CÓDIGO — detalhe" e a sincronização só o código. Código desconhecido aparece cru e vai para o log (`[Whatsapp] motivo de rejeição desconhecido`) quando é gravado.
+
+**Sincronização** (`WhatsappTemplateSyncJob`, uma por conta):
+- Pelo botão "Sincronizar com a Meta" (a lista se atualiza sozinha enquanto roda) e pela rotina diária (`DailyAlertsJob`, 7h, para as contas com acesso válido).
+- Lê `Client#templates` (todas as páginas). Grava pelo `meta_template_id` ou, se o template do Admin ainda não tem ID, por nome e idioma, com `attributes_from_meta(data, current:)` e `last_synced_at`. Sem motivo na Meta (`NONE`), o motivo antigo sai.
+- Os criados direto no Gerenciador do WhatsApp entram na lista.
+- O template que sumiu da Meta fica como excluído (`deleted`), sem apagar: as mensagens antigas apontam para ele por nome e idioma. Isso acontece antes de gravar os da Meta, para um template novo com o mesmo nome não esbarrar no antigo.
+- Conta desconectada ou com o token vencido não sincroniza nem cria templates, e a tela explica o motivo.
+- Falha transitória tenta de novo (5 vezes). A definitiva, e a transitória esgotada, ficam em `templates_sync_error`, em português, na tela.
+
+**Editor** (páginas Novo e Editar, com a prévia ao lado; controller Stimulus `template-editor`). Os campos viram components no `Whatsapp::TemplateBuilder`, um objeto de formulário testável, separado da tela:
+
+| Campo | Regras |
+| --- | --- |
+| Conta, idioma | Só contas com acesso válido. Idiomas `pt_BR`, `en_US` e `es`. Bloqueados na edição |
+| Nome | `a–z`, `0–9` e `_`, conferido no navegador (`pattern`) e no builder. Bloqueado na edição. Nome e idioma já existentes na conta são recusados antes de chamar a Meta |
+| Categoria | Marketing ou Utilidade. Autenticação (e Atendimento) vindos da Meta ficam só para leitura |
+| Cabeçalho | Nenhum; texto (até 60 caracteres, no máximo `{{1}}`, com exemplo em `example.header_text`); ou mídia (imagem JPEG/PNG, documento PDF, vídeo MP4) com o exemplo enviado por `upload_template_sample` e o handle em `example.header_handle` |
+| Corpo | Obrigatório, até 1024 caracteres. Variáveis `{{1}}`, `{{2}}`… em sequência, sem começar nem terminar com variável e sem duas seguidas; um exemplo obrigatório por variável (`example.body_text`). "+ Adicionar variável" insere a próxima |
+| Rodapé | Opcional, até 60 caracteres, sem variável |
+| Botões | Até 10: respostas rápidas, até 2 links (URL fixa ou com `{{1}}` no fim, com exemplo da URL completa) e 1 telefone. Texto até 25 caracteres. As respostas rápidas vão primeiro, porque a Meta pede os botões agrupados por tipo |
+
+- A prévia "como o contato vê" mostra os exemplos no lugar das variáveis e é atualizada ao vivo. Na tela Ver, ela é renderizada no servidor, com o mesmo partial.
+- O handle do exemplo de mídia volta no formulário num campo oculto, para não escolher o arquivo de novo se outro campo der erro.
+- O `variables_count` (cabeçalho + corpo) é calculado pelo model a partir dos components.
+
+**Criação:** `create_template`, com a categoria em maiúsculas. Grava `meta_template_id`, status e a categoria devolvida, que pode já vir diferente; a tela avisa ("A Meta classificou como Marketing").
+
+**Edição:**
+- Só aprovado, rejeitado ou pausado, via `update_template`. Volta para Em análise e limpa o motivo.
+- Do aprovado, a categoria não muda e a tela avisa antes que ele volta para análise.
+- "Corrigir" (rejeitado) mostra o motivo no topo e permite trocar a categoria.
+- Os limites de edição (1 por dia, 10 por mês) são da Meta: o Admin não conta e mostra o erro dela.
+
+**Exclusão:**
+- Confirmação explicando os 30 dias. `delete_template` com o `hsm_id`, então só aquele idioma sai da Meta. No banco, fica como excluído.
+- Bloqueada enquanto houver mensagem com o template ainda Enviando. Envio agendado ainda não existe; quando existir, entra em `WhatsappTemplate#pending_sends?`.
+
+**Auditoria:** criação, edição (mudança de status) e exclusão vão para o `AuditLog`, sem os components.
+
 ## Permissões e auditoria
 
 - Área `whatsapp` em `Role::AREAS`. O Administrador tem nível "full"; os outros perfis começam sem acesso e podem ser liberados na tela de permissões.
 - Policies `WhatsappConversationPolicy`, `WhatsappMessagePolicy` e `WhatsappTemplatePolicy` seguem a matriz. `WhatsappAccountPolicy` exige nível "full" para conectar ou alterar um número.
+- Templates: quem só lê a área vê a lista, a prévia e os detalhes; criar, editar e sincronizar (`sync?`) exigem escrita; excluir exige "full".
 - `AuditLog` na conta (conexão, status) e nos templates, sem o token, sem o erro da ativação e sem os campos que a Meta atualiza sozinha. As conexões aparecem também nas atividades.
 
 ## Fases
@@ -206,7 +260,7 @@ Sem `META_APP_ID`, `META_APP_SECRET`, `WHATSAPP_EMBEDDED_SIGNUP_CONFIG_ID` ou as
 2. ✅ **Cliente da Graph API** em `app/services/whatsapp/` (Net::HTTP, sem gem nova): texto, mídia, template, marcar como lida, baixar mídia, templates, inscrição do app, troca do `code`, sincronizações.
 3. ✅ **Webhook e processamento**: `/webhooks/whatsapp` fora do `ApplicationController`, assinatura `X-Hub-Signature-256`, job no Sidekiq, todos os campos inscritos, idempotente pelo `wa_message_id`, download da mídia.
 4. ✅ **Conexão**: Embedded Signup v5 em Tecnologia → Integrações → WhatsApp, ativação em job (inscrição, registro ou sincronizações), validade do token.
-5. **Templates**: tela, criação e edição na Meta, sincronização.
+5. ✅ **Templates**: lista, editor com prévia, criação, edição e exclusão na Meta, exemplo de mídia pelo upload retomável, sincronização pelo botão e diária.
 6. **Conversas e tempo real**: tela de três colunas, Turbo Streams com ActionCable autenticado pelo Devise e Redis em desenvolvimento, campo de envio em Stimulus, contador no menu.
 7. **Ligação com o CRM**: vincular ou criar lead, interação "WhatsApp" automática (uma por dia de conversa), cards no lead, na empresa e no contato, "Iniciar conversa".
 8. **Avisos**: notificação por conversa (`Notification::KINDS`) e aviso do navegador com som.
@@ -216,7 +270,12 @@ Sem `META_APP_ID`, `META_APP_SECRET`, `WHATSAPP_EMBEDDED_SIGNUP_CONFIG_ID` ou as
 - **Primeiro uso real (Fases 4 a 6)**, porque a documentação lida não mostra estes pontos:
   - O formato de envio do cabeçalho de mídia em template (`{ type: "document", document: { id } }`). Só a criação está documentada.
   - Se o token do Embedded Signup expira. O Admin lê o `expires_at` do `debug_token` (Fase 4) e trata o erro `190` pedindo para conectar de novo; conferir o valor que vem na primeira conexão.
-  - Se `create_template` aceita a categoria em maiúsculas (a referência usa maiúsculas, o exemplo usa minúsculas).
+  - A categoria em maiúsculas no `create_template` e no `update_template`. A referência usa maiúsculas e o exemplo, minúsculas; o Admin manda **maiúsculas** (`UTILITY`, `MARKETING`). Conferir no primeiro template criado em produção e registrar aqui o resultado.
+  - O upload retomável do exemplo de mídia (`upload_template_sample`), pouco documentado. A confirmar com um template real:
+    - o `id` da sessão vem com `?sig=…` e é usado inteiro no caminho do segundo POST;
+    - o cabeçalho `Authorization: OAuth`;
+    - o `Content-Type` `application/octet-stream`;
+    - se o handle continua aceito ao editar um template sem trocar a mídia (o Admin reenvia o handle guardado nos components).
   - O código `131062` (BSUID não aceito para aquela mensagem): aparece na página do BSUID, não na tabela de erros.
   - O sufixo do botão de URL com barra (`p/P-2026-029`, link da proposta em `/p/*token`): conferir com um template de verdade que a Meta monta o link com as barras e decodifica os caracteres especiais.
   - Webhooks que a documentação lida não mostra por inteiro:
@@ -226,7 +285,7 @@ Sem `META_APP_ID`, `META_APP_SECRET`, `WHATSAPP_EMBEDDED_SIGNUP_CONFIG_ID` ou as
   - Duas escolhas conservadoras sobre a janela de 24h, a confirmar:
     - **Reação recebida não abre a janela.** Se a Meta abrir, o Admin só pede template quando não precisaria.
     - **Mensagem do histórico não abre a janela.** Ela foi recebida no celular antes da conexão.
-- **Templates por número.** Os templates são da WABA, mas ficam gravados por conta (número). Com um número por WABA, não muda nada. Se um cliente tiver vários números na mesma WABA, os templates ficam duplicados por conta. Nesse caso, avaliar ligar os templates à WABA.
+- **Templates por número.** Os templates são da WABA, mas ficam gravados por conta (número). Com um número por WABA, não muda nada. Com vários números na mesma WABA, o `meta_template_id` (único) só pode ficar numa conta: a sincronização da segunda conta deixa esses templates de fora, com aviso no log (`não sincronizado`). Nesse caso, ligar os templates à WABA.
 - **Conversas vazias da agenda.** A sincronização da agenda (`smb_app_state_sync`) cria uma conversa vazia para cada contato do celular. A caixa de entrada mostra só as conversas com mensagem (`WhatsappConversation.with_messages`). As telas e contagens das próximas fases precisam usar esse scope:
   - lista de conversas e filtros;
   - contador de não lidas no menu;
@@ -239,7 +298,7 @@ Sem `META_APP_ID`, `META_APP_SECRET`, `WHATSAPP_EMBEDDED_SIGNUP_CONFIG_ID` ou as
   - Entre a conexão e a leitura do número (etapa 2 da ativação), a conta ainda não tem `display_phone_number`. Nesses segundos, `account_update` e os webhooks de número que trazem o telefone ficam só no log.
 - **Desconectar sem coexistência** (números de clientes): não há tela. Quando houver, usar `POST /<PHONE_NUMBER_ID>/deregister` e `unsubscribe_app`.
 - **Fase 8:** avisar o vencimento do token também pela central de notificações (hoje só na tela).
-- **Fase 5:** usar `WhatsappTemplate.attributes_from_meta` na sincronização (o webhook de status já usa). Status de template que não está no Admin, criado direto no Gerenciador do WhatsApp, fica só no log até a sincronização trazê-lo.
+- **Fase 5 (resolvido):** a sincronização usa `WhatsappTemplate.attributes_from_meta`, como o webhook de status. O template criado direto no Gerenciador do WhatsApp entra na lista pela sincronização (botão ou rotina diária). Até lá, o status dele que chega pelo webhook fica só no log.
 - **Fase 6:**
   - Gravar a mensagem enviada com o `wa_message_id` logo depois da resposta do envio. O status que chegar antes é reprocessado (3 novas tentativas, 15 s).
   - A caixa de entrada usa `with_messages` (a agenda cria conversas sem mensagem).

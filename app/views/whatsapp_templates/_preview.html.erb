@@ -1,0 +1,18 @@
+<%# Prévia "como o contato vê". No editor, o controller template-editor atualiza ao vivo. %>
+<% b = builder %>
+<aside class="card preview-card" aria-label="Prévia">
+  <div class="card-head"><h2>Prévia</h2><span class="caption">como o contato vê</span></div>
+  <div class="card-body" style="padding-top:0">
+    <div class="phone">
+      <div class="wa-bubble">
+        <div class="hd" data-template-editor-target="pvHeader"<%= " hidden" unless b.header_type == "text" && b.header_text.present? %>><%= whatsapp_preview_text(b.header_text, [ b.header_example ]) if b.header_type == "text" %></div>
+        <div class="media" data-template-editor-target="pvMedia"<%= " hidden" unless b.media_header? %>><%= Whatsapp::TemplateBuilder::HEADER_TYPES[b.header_type] if b.media_header? %></div>
+        <p data-template-editor-target="pvBody"><%= b.body.present? ? whatsapp_preview_text(b.body, b.body_examples) : "O texto do corpo aparece aqui." %></p>
+        <div class="ft" data-template-editor-target="pvFooter"<%= " hidden" if b.footer.blank? %>><%= b.footer %></div>
+        <div class="tm"><%= l(Time.current, format: "%H:%M") %></div>
+      </div>
+      <div class="wa-btns" data-template-editor-target="pvButtons"><% b.buttons.each do |button| %><span><%= whatsapp_button_label(button) %></span><% end %></div>
+    </div>
+    <p class="caption" style="margin:12px 0 0">As variáveis aparecem com os exemplos. No envio, os campos são preenchidos com os dados do lead ou contato.</p>
+  </div>
+</aside>

@@ -1015,7 +1015,10 @@ CREATE TABLE public.whatsapp_accounts (
     updated_at timestamp(6) without time zone NOT NULL,
     token_expires_at timestamp(6) without time zone,
     activation_error character varying,
-    registered_at timestamp(6) without time zone
+    registered_at timestamp(6) without time zone,
+    templates_sync_requested_at timestamp(6) without time zone,
+    templates_synced_at timestamp(6) without time zone,
+    templates_sync_error character varying
 );
 
 
@@ -1508,13 +1511,6 @@ ALTER TABLE ONLY public.whatsapp_templates
 --
 
 CREATE INDEX idx_on_whatsapp_account_id_last_message_at_d238f72f0a ON public.whatsapp_conversations USING btree (whatsapp_account_id, last_message_at);
-
-
---
--- Name: idx_on_whatsapp_account_id_name_language_1d930ba085; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX idx_on_whatsapp_account_id_name_language_1d930ba085 ON public.whatsapp_templates USING btree (whatsapp_account_id, name, language);
 
 
 --
@@ -2645,6 +2641,13 @@ CREATE INDEX index_whatsapp_messages_on_whatsapp_conversation_id ON public.whats
 
 
 --
+-- Name: index_whatsapp_templates_on_account_name_language; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_whatsapp_templates_on_account_name_language ON public.whatsapp_templates USING btree (whatsapp_account_id, name, language) WHERE ((status)::text <> 'deleted'::text);
+
+
+--
 -- Name: index_whatsapp_templates_on_meta_template_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -3384,6 +3387,7 @@ ALTER TABLE ONLY public.leads
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261028120000'),
 ('20261027200000'),
 ('20261027180000'),
 ('20261027120000'),

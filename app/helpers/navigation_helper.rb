@@ -30,6 +30,7 @@ module NavigationHelper
     send: "M4 12l16-8-6 16-2-7z",
     x: "M6 6l12 12M18 6L6 18",
     swap: "M7 7h11l-3-3M17 17H6l3 3",
+    sync: "M3 12a9 9 0 0115.5-6.3L21 8M21 3v5h-5M21 12a9 9 0 01-15.5 6.3L3 16M3 21v-5h5",
     clock: "M12 21a9 9 0 100-18 9 9 0 000 18zM12 7v5l3 2",
     alert: "M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z",
     board: "M4 4h4v16H4zM10 4h4v10h-4zM16 4h4v13h-4z",
@@ -51,7 +52,7 @@ module NavigationHelper
       [ "Propostas", :proposals_path, "comercial" ], [ "Pipeline", :pipeline_path, "comercial" ]
     ] },
     { key: :wa, label: "WhatsApp", items: [
-      [ "Conversas", nil, "whatsapp" ], [ "Templates", nil, "whatsapp" ]
+      [ "Conversas", nil, "whatsapp" ], [ "Templates", :whatsapp_templates_path, "whatsapp" ]
     ] },
     { key: :cli, label: "Clientes", items: [
       [ "Empresas", :companies_path, "clientes" ], [ "Contatos", :contacts_path, "clientes" ],

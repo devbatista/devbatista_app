@@ -97,6 +97,13 @@ Rails.application.routes.draw do
     end
   end
 
+  # WhatsApp → Templates (/whatsapp/templates).
+  scope "whatsapp" do
+    resources :whatsapp_templates, path: "templates" do
+      post :sync, on: :collection
+    end
+  end
+
   scope module: :technology, path: "technology" do
     resources :apps
     resources :servers, except: :show

@@ -181,10 +181,25 @@ module Whatsapp
                       allow_category_change: allow_category_change })
     end
 
-    # Só templates aprovados, rejeitados ou pausados podem ser editados; a categoria de um aprovado não muda.
-    def update_template(meta_template_id, components:)
-      request(:post, meta_template_id, json: { components: components })
+    # Só templates aprovados, rejeitados ou pausados podem ser editados; a categoria de um aprovado
+    # não muda (não mande category para ele).
+    def update_template(meta_template_id, components:, category: nil)
+      request(:post, meta_template_id, json: { components: components, category: category&.to_s&.upcase }.compact)
       true
+    end
+
+    # Exemplo da mídia do cabeçalho para a análise do template: upload retomável do app
+    # (POST /<APP_ID>/uploads abre a sessão; POST /<sessão> com o arquivo devolve o handle). Não é o
+    # /media das mensagens. Respeita MEDIA_LIMITS. Devolve o handle para example.header_handle.
+    def upload_template_sample(io, filename:, mime_type:)
+      type = self.class.media_type(mime_type)
+      size = io.size
+      raise log(media_too_large(type, size), :post, "uploads") if size > MEDIA_LIMITS.fetch(type)
+
+      app_id = Whatsapp.config.app_id.presence || raise(Error, "META_APP_ID não está configurado")
+      session = request(:post, "#{app_id}/uploads", query: { file_name: filename, file_length: size, file_type: mime_type }).fetch("id")
+      io.rewind if io.respond_to?(:rewind)
+      request(:post, session, auth: :oauth, raw: io.read, headers: { "file_offset" => "0" }, timeout: TRANSFER_TIMEOUT).fetch("h")
     end
 
     # Com o ID, apaga só aquele idioma; sem ele, todos os idiomas do nome.
@@ -249,16 +264,21 @@ module Whatsapp
       SentMessage.new(wa_message_id: message["id"], wa_id: contact["wa_id"], bsuid: contact["user_id"], message_status: message["message_status"])
     end
 
-    def request(method, path, query: nil, json: nil, form: nil, auth: true, timeout: READ_TIMEOUT)
+    # auth: true (Bearer), :oauth (OAuth, no upload retomável) ou false. raw: corpo binário.
+    def request(method, path, query: nil, json: nil, form: nil, raw: nil, headers: {}, auth: true, timeout: READ_TIMEOUT)
       uri = URI("https://#{HOST}/#{version}/#{path}")
       uri.query = URI.encode_www_form(query) if query.present?
       req = { get: Net::HTTP::Get, post: Net::HTTP::Post, delete: Net::HTTP::Delete }.fetch(method).new(uri)
-      req["Authorization"] = "Bearer #{access_token}" if auth
+      req["Authorization"] = "#{auth == :oauth ? 'OAuth' : 'Bearer'} #{access_token}" if auth
+      headers.each { |name, value| req[name] = value }
       if json
         req["Content-Type"] = "application/json"
         req.body = JSON.generate(json)
       elsif form
         req.set_form(form, "multipart/form-data")
+      elsif raw
+        req["Content-Type"] = "application/octet-stream"
+        req.body = raw
       end
       response = Net::HTTP.start(uri.host, uri.port, use_ssl: true, open_timeout: OPEN_TIMEOUT, read_timeout: timeout) { |http| http.request(req) }
       raise log(Error.from_response(response), method, uri.path) unless response.is_a?(Net::HTTPSuccess)

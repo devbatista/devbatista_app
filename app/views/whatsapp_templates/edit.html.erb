@@ -1,0 +1,18 @@
+<% nav_location :wa, "Templates" %>
+<% breadcrumb ["WhatsApp"], ["Templates", whatsapp_templates_path(conta: @template.whatsapp_account_id)], [@template.name] %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">WhatsApp · Templates</span>
+    <h1><%= @template.status_rejected? ? "Corrigir" : "Editar" %> <span class="mono"><%= @template.name %></span></h1>
+    <p class="lead"><%= @template.language_label %> · <%= @template.category_label %> · <%= whatsapp_template_badge(@template) %></p>
+  </div>
+  <% if policy(@template).destroy? && @template.deletable? %>
+    <div class="actions">
+      <%= button_to "Excluir", whatsapp_template_path(@template), method: :delete, class: "btn danger", form_class: "inline-form",
+                               form: { data: { turbo_confirm: "Excluir #{@template.name} (#{@template.language})? Só este idioma sai da Meta, e o nome só pode ser usado de novo depois de 30 dias. As mensagens já enviadas continuam no histórico." } } %>
+    </div>
+  <% end %>
+</div>
+
+<%= render "editor", builder: @builder, template: @template, accounts: [], account: @template.account %>

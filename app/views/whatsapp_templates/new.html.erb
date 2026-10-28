@@ -1,0 +1,12 @@
+<% nav_location :wa, "Templates" %>
+<% breadcrumb ["WhatsApp"], ["Templates", whatsapp_templates_path(conta: @account&.id)], ["Novo template"] %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">WhatsApp · Templates</span>
+    <h1>Novo template</h1>
+    <p class="lead">O template vai para a análise da Meta, que costuma responder em minutos. Ele só fica disponível no envio depois de aprovado.</p>
+  </div>
+</div>
+
+<%= render "editor", builder: @builder, accounts: @accounts.select(&:templates_syncable?), account: @account %>

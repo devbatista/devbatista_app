@@ -202,6 +202,34 @@ RSpec.describe Whatsapp::Client do
     end
   end
 
+  describe "exemplo de mídia do template" do
+    let(:session_id) { "upload:MTphdHRhY2htZW50OjZiMmE3NDZk?sig=ARZtiC6xXUe8D4V8YmM" }
+
+    it "abre a sessão de upload do app e envia o arquivo, devolvendo o handle" do
+      requests = stub_graph(graph_response(200, { "id" => session_id }), graph_response(200, { "h" => "4::aW1hZ2UvanBlZw==:ARZ" }))
+
+      handle = client.upload_template_sample(StringIO.new("%PDF-1.7 proposta"), filename: "proposta.pdf", mime_type: "application/pdf")
+
+      expect(handle).to eq("4::aW1hZ2UvanBlZw==:ARZ")
+      open, upload = requests
+      expect(open.method).to eq("POST")
+      expect(open.uri.path).to eq("/v26.0/app-de-teste/uploads")
+      expect(Rack::Utils.parse_query(open.uri.query)).to eq("file_name" => "proposta.pdf", "file_length" => "17", "file_type" => "application/pdf")
+      expect(open["Authorization"]).to eq("Bearer EAAG-token-secreto")
+      expect(upload.path).to eq("/v26.0/#{session_id}")
+      expect(upload["Authorization"]).to eq("OAuth EAAG-token-secreto")
+      expect(upload["file_offset"]).to eq("0")
+      expect(upload.body).to eq("%PDF-1.7 proposta")
+    end
+
+    it "recusa o arquivo acima do limite do tipo antes de chamar a Meta" do
+      stub_graph
+      big = StringIO.new("x" * (5.megabytes + 1))
+      expect { client.upload_template_sample(big, filename: "foto.jpg", mime_type: "image/jpeg") }
+        .to raise_error(Whatsapp::Error, "A mídia tem 5 MB e passa do limite de 5 MB para imagem.")
+    end
+  end
+
   describe "conta" do
     it "inscreve o app na WABA e lê os dados do número" do
       requests = stub_graph(graph_response(200, { "success" => true }),

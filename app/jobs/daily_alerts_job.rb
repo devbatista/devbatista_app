@@ -8,5 +8,6 @@ class DailyAlertsJob < ApplicationJob
     OperationAlertsJob.perform_now
     DomainAlertsJob.perform_now
     WhatsappTokenExpiryJob.perform_now
+    WhatsappTemplateSyncJob.enqueue_all
   end
 end
