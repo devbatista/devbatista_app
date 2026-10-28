@@ -101,6 +101,7 @@
   </div>
 
   <div class="stack">
+    <% if whatsapp_crm_visible? %><%= render "whatsapp_conversations/company_card", company: @company, contacts: @contacts %><% end %>
     <div class="card">
       <div class="card-head"><h2>Contatos</h2><%= link_to "Gerenciar", contacts_path(empresa: @company.id), style: "font-size:13px;font-weight:600" %></div>
       <% @contacts.each do |contact| %>

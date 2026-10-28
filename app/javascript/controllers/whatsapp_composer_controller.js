@@ -3,16 +3,16 @@ import { Controller } from "@hotwired/stimulus"
 // Campo de envio da conversa (docs/specs/whatsapp, Fase 6).
 // - Texto: Enter envia, Shift+Enter quebra a linha; anexo conferido pelo tipo e pelo tamanho antes
 //   de enviar (os mesmos limites do servidor); "Responder" cita a mensagem.
-// - Template (janela aberta ou fechada): campos para cada variável e prévia como o contato vê.
+// - Template (janela aberta ou fechada): os campos e a prévia ficam no controller
+//   whatsapp-template-fields, dentro do modo template.
 // O modo que não está em uso fica num fieldset desabilitado, que não vai no envio. O servidor
 // confere tudo de novo. Quando a janela fecha com a tela aberta, a conversa é recarregada.
-const escape = (text) => String(text).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]))
 const size = (bytes) => bytes >= 1048576 ? `${Math.round(bytes / 1048576)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`
 
 export default class extends Controller {
   static targets = [ "kind", "problem", "textMode", "closedMode", "templateMode", "replyChip", "replyText", "replyTo", "body", "counter",
-    "file", "fileChip", "fileName", "template", "variables", "headerFileField", "headerFile", "preview", "submit" ]
-  static values = { open: Boolean, closesAt: Number, templates: Array, types: Object, limits: Object, labels: Object }
+    "file", "fileChip", "fileName", "submit" ]
+  static values = { open: Boolean, closesAt: Number, types: Object, limits: Object, labels: Object }
 
   connect() {
     this.count()
@@ -83,7 +83,6 @@ export default class extends Controller {
 
   useTemplate() {
     this.mode("template")
-    this.pickTemplate()
   }
 
   useText() {
@@ -96,48 +95,6 @@ export default class extends Controller {
     this.textModeTarget.hidden = this.textModeTarget.disabled = name !== "text"
     this.templateModeTarget.hidden = this.templateModeTarget.disabled = name !== "template"
     if (this.hasClosedModeTarget) this.closedModeTarget.hidden = name !== "closed"
-  }
-
-  // ---------- Template ----------
-
-  get selected() {
-    return this.templatesValue.find((t) => String(t.id) === this.templateTarget.value)
-  }
-
-  pickTemplate() {
-    if (!this.hasTemplateTarget) return
-    const t = this.selected
-    const fields = []
-    if (t.header_text) fields.push(this.field("values[header][]", "Cabeçalho {{1}}"))
-    t.body_names.forEach((name) => fields.push(this.field("values[body][]", `{{${name}}}`)))
-    t.url_buttons.forEach((index) => fields.push(this.field(`values[buttons][${index}]`, `Fim do link: ${t.buttons[index].text}`)))
-    this.variablesTarget.innerHTML = fields.join("")
-    this.variablesTarget.querySelectorAll("input").forEach((input) => input.addEventListener("input", () => this.paint()))
-    this.headerFileFieldTarget.hidden = !t.header_media
-    this.headerFileTarget.required = !!t.header_media
-    this.headerFileTarget.accept = t.header_media ? this.typesValue[t.header_media].join(",") : ""
-    this.paint()
-  }
-
-  field(name, label) {
-    return `<div class="field"><label>${escape(label)} <span class="req">*</span></label><input class="input" name="${name}" required autocomplete="off"></div>`
-  }
-
-  paint() {
-    const t = this.selected
-    const values = [ ...this.variablesTarget.querySelectorAll("input[name='values[body][]']") ].map((input) => input.value)
-    const header = this.variablesTarget.querySelector("input[name='values[header][]']")?.value
-    const fill = (text, names, vals) => escape(text).replace(/\{\{\s*(\w+)\s*\}\}/g, (match, name) => {
-      const value = vals[names.indexOf(name)]
-      return `<mark>${escape(value || match)}</mark>`
-    })
-    let html = ""
-    if (t.header_media) html += `<div class="media-ph">${escape(this.labelsValue[t.header_media])} do cabeçalho</div>`
-    if (t.header_text) html += `<b>${fill(t.header_text, [ "1" ], [ header ])}</b>`
-    html += `<p>${fill(t.body, t.body_names, values)}</p>`
-    if (t.footer) html += `<div class="ft">${escape(t.footer)}</div>`
-    if (t.buttons.length) html += `<div class="tpl-btns">${t.buttons.map((b) => `<span>${escape(b.text)}</span>`).join("")}</div>`
-    this.previewTarget.innerHTML = html
   }
 
   // ---------- Envio ----------

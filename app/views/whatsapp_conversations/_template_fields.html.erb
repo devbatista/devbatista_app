@@ -1,0 +1,25 @@
+<%# Template aprovado: escolha, um campo por variável (com os valores sugeridos), a mídia do cabeçalho
+    e a prévia (controller whatsapp-template-fields). Usado no campo de envio e no "Iniciar conversa".
+    Locals: templates (TemplateFields#to_h), account, prefix (ids únicos), selected (id do template). %>
+<% if templates.empty? %>
+  <p class="caption">Nenhum template aprovado nesta conta. <%= link_to "Gerenciar templates", whatsapp_templates_path(conta: account.id), data: { turbo_frame: "_top" } %></p>
+<% else %>
+  <div class="tpl-grid" data-controller="whatsapp-template-fields" data-whatsapp-template-fields-templates-value="<%= templates.to_json %>"
+       data-whatsapp-template-fields-types-value="<%= WhatsappMessage::UPLOAD_TYPES.to_json %>" data-whatsapp-template-fields-labels-value="<%= Whatsapp::Client::MEDIA_LABELS.to_json %>">
+    <div class="form" style="gap:10px">
+      <div class="field">
+        <label for="tpl-<%= prefix %>">Template aprovado <span class="req">*</span></label>
+        <select class="select" name="template_id" id="tpl-<%= prefix %>" data-whatsapp-template-fields-target="template" data-action="whatsapp-template-fields#pick">
+          <% templates.each do |t| %><%= tag.option(t[:label], value: t[:id], selected: t[:id].to_s == local_assigns[:selected].to_s) %><% end %>
+        </select>
+        <span class="hint">Só os aprovados desta conta. <%= link_to "Gerenciar templates", whatsapp_templates_path(conta: account.id), data: { turbo_frame: "_top" } %></span>
+      </div>
+      <div class="tpl-vars" data-whatsapp-template-fields-target="variables"></div>
+      <div class="field" data-whatsapp-template-fields-target="headerFileField" hidden>
+        <label for="tpl-file-<%= prefix %>">Mídia do cabeçalho <span class="req">*</span></label>
+        <input type="file" name="header_file" id="tpl-file-<%= prefix %>" class="input" data-whatsapp-template-fields-target="headerFile">
+      </div>
+    </div>
+    <div><span class="eyebrow">Prévia</span><div class="wa-prev" data-whatsapp-template-fields-target="preview"></div></div>
+  </div>
+<% end %>

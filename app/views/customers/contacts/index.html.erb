@@ -30,6 +30,7 @@
 <% end %>
 
 <section class="card" aria-label="Lista de contatos">
+  <% wa_latest = whatsapp_crm_visible? ? whatsapp_latest_by_contact(@contacts) : nil %>
   <% if @contacts.any? %>
     <div class="table-wrap">
       <table class="table cards">
@@ -50,6 +51,11 @@
                   <% if policy(contact).update? && !contact.primary? %>
                     <%= button_to "Tornar principal", make_primary_contact_path(contact), method: :patch, class: "link-btn", form_class: "inline-form",
                           form: { data: { turbo_confirm: "Tornar #{contact.name} o contato principal de #{contact.company.trade_name}? O principal atual (#{contact.company.primary_contact&.name || 'nenhum'}) deixa de ser." } } %>
+                  <% end %>
+                  <% if wa_latest && (conversation = wa_latest[contact.id]) %>
+                    <%= link_to "WhatsApp", whatsapp_conversation_path(conversation), class: "link-btn", title: "Abrir a conversa" %>
+                  <% elsif wa_latest && whatsapp_can_start? %>
+                    <%= drawer_link_to "WhatsApp", whatsapp_start_path_for(contact), class: "link-btn", title: "Iniciar conversa no WhatsApp" %>
                   <% end %>
                   <% if policy(contact).edit? %><%= drawer_link_to "Editar", edit_contact_path(contact), class: "link-btn" %><% end %>
                 </span>

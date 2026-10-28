@@ -277,8 +277,11 @@ class WhatsappConversation < ApplicationRecord
     self.auto_link_blocked_at = nil
   end
 
-  # Telefone novo: a marca de desvinculada à mão cai e o vínculo automático pode tentar de novo.
+  # Telefone novo: a marca de desvinculada à mão cai e o vínculo automático pode tentar de novo. O
+  # mesmo número em outra forma (com ou sem o nono dígito, devolvido pela Meta) não é telefone novo.
   def phone_changed
+    return if Whatsapp::Phone.same_number?(wa_id_in_database, wa_id)
+
     self.auto_link_blocked_at = nil
     auto_link unless linked?
   end

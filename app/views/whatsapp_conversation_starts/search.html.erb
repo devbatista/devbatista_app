@@ -1,0 +1,35 @@
+<%# "Nova conversa": escolher o lead ou contato com WhatsApp cadastrado. A busca e a escolha ficam na gaveta. %>
+<% nav_location :wa, "Conversas" %>
+<% breadcrumb ["WhatsApp"], ["Conversas", whatsapp_conversations_path], ["Nova conversa"] %>
+<div class="form-page">
+  <%= render layout: "shared/drawer_form", locals: { title: "Nova conversa no WhatsApp", cancel_path: whatsapp_conversations_path } do %>
+    <div class="drawer-body form">
+      <%= form_with url: new_whatsapp_conversation_start_path, method: :get, class: "row", style: "gap:8px", data: { turbo_frame: "drawer-frame" } do %>
+        <label class="search-field" style="flex:1"><span class="sr-only">Buscar lead ou contato</span><%= icon(:search, size: 16, stroke: 1.8) %>
+          <%= search_field_tag :q, @term, class: "input", id: nil, style: "width:100%", placeholder: "Nome, empresa, e-mail ou telefone", autocomplete: "off" %></label>
+        <button class="btn" type="submit">Buscar</button>
+      <% end %>
+      <% if @leads.empty? && @contacts.empty? %>
+        <p class="caption" style="margin:0"><%= @term.present? ? "Nenhum lead ou contato com WhatsApp encontrado para “#{@term}”." : "Nenhum lead ou contato com WhatsApp cadastrado." %></p>
+      <% else %>
+        <span class="caption">Só aparecem leads e contatos com WhatsApp cadastrado. Para outro número, cadastre-o no lead ou no contato.</span>
+        <div class="results" aria-label="Para quem">
+          <% @leads.each do |lead| %>
+            <%= link_to new_whatsapp_conversation_start_path(lead_id: lead.id), class: "result-link", data: { turbo_frame: "drawer-frame" } do %>
+              <span><span class="strong"><%= lead.display_name %></span><span class="cell-sub"><%= [ (lead.name if lead.company_name.present?), lead.status_label, lead.whatsapp ].compact.join(" · ") %></span></span>
+              <span class="badge b-info sm-badge">Lead</span>
+            <% end %>
+          <% end %>
+          <% @contacts.each do |contact| %>
+            <%= link_to new_whatsapp_conversation_start_path(contact_id: contact.id), class: "result-link", data: { turbo_frame: "drawer-frame" } do %>
+              <span><span class="strong"><%= contact.name %></span><span class="cell-sub"><%= [ contact.company.trade_name, contact.whatsapp ].compact_blank.join(" · ") %></span></span>
+              <span class="badge b-good sm-badge">Contato</span>
+            <% end %>
+          <% end %>
+        </div>
+      <% end %>
+      <div class="callout"><span>Fora de uma conversa aberta, a primeira mensagem precisa ser um <b class="strong">template aprovado</b>. A janela de 24h para mensagens livres abre quando a pessoa responder.</span></div>
+    </div>
+    <div class="drawer-foot"><%= link_to "Cancelar", whatsapp_conversations_path, class: "btn", data: { close: true, turbo_frame: "_top" } %></div>
+  <% end %>
+</div>

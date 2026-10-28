@@ -34,6 +34,12 @@ class Lead < ApplicationRecord
     like = "%#{sanitize_sql_like(term.to_s.strip)}%"
     where("unaccent(leads.name) ILIKE unaccent(:q) OR unaccent(leads.company_name) ILIKE unaccent(:q) OR leads.email ILIKE :q", q: like)
   }
+  # Busca do WhatsApp (Vincular e Iniciar conversa): a de cima e, a partir de 4 dígitos, o telefone.
+  scope :whatsapp_search, lambda { |term|
+    digits = term.to_s.gsub(/\D/, "")
+    found = search(term)
+    digits.length >= 4 ? found.or(where("leads.whatsapp_digits LIKE :d OR leads.phone_digits LIKE :d", d: "%#{digits}%")) : found
+  }
 
   def lost? = status_lost?
   def open? = status.in?(OPEN_STATUSES)

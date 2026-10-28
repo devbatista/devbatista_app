@@ -95,12 +95,19 @@ class WhatsappSendJob < ApplicationJob
 
   # A Meta devolve o telefone e o BSUID do destinatário: completa o que faltar na conversa.
   def complete_recipient(conversation, sent)
-    attributes = { wa_id: (sent.wa_id if conversation.wa_id.nil?), bsuid: (sent.bsuid if conversation.bsuid.nil?) }.compact
+    attributes = { wa_id: (sent.wa_id if conversation.wa_id.nil? || meta_form?(conversation.wa_id, sent.wa_id)),
+                   bsuid: (sent.bsuid if conversation.bsuid.nil?) }.compact
     return if attributes.empty?
 
     conversation.update(attributes) || Rails.logger.info("[Whatsapp] conversa #{conversation.id} não completada: identificador já em outra conversa")
   rescue ActiveRecord::RecordNotUnique
     Rails.logger.info("[Whatsapp] conversa #{conversation.id} não completada: identificador já em outra conversa")
+  end
+
+  # A conversa iniciada pelo número do cadastro fica com a forma que a Meta usa (com ou sem o nono
+  # dígito), para os webhooks seguintes acharem a conversa pelo telefone.
+  def meta_form?(wa_id, returned)
+    returned.present? && returned != wa_id && Whatsapp::Phone.same_number?(wa_id, returned)
   end
 
   # Falha definitiva. Janela fechada (131047) fecha a janela na tela; BSUID recusado (131062)

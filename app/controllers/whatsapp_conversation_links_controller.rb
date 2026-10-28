@@ -9,7 +9,12 @@ class WhatsappConversationLinksController < ApplicationController
 
   def new
     @term = params[:q].to_s.strip
-    @leads, @contacts = @term.present? ? [ search_leads, search_contacts ] : [ policy_scope(@conversation.matching_leads), policy_scope(@conversation.matching_contacts) ]
+    @leads, @contacts =
+      if @term.present?
+        [ policy_scope(Lead).whatsapp_search(@term), policy_scope(Contact).whatsapp_search(@term) ]
+      else
+        [ policy_scope(@conversation.matching_leads), policy_scope(@conversation.matching_contacts) ]
+      end
     @leads = @leads.order(Arel.sql("CASE WHEN leads.status IN ('new', 'contacted', 'qualified') THEN 0 ELSE 1 END"), :name).limit(RESULTS)
     @contacts = @contacts.includes(:company).order(:name).limit(RESULTS)
   end
@@ -40,20 +45,6 @@ class WhatsappConversationLinksController < ApplicationController
     when "Contact" then policy_scope(Contact).find(id)
     else raise ActiveRecord::RecordNotFound
     end
-  end
-
-  def search_leads
-    scope = policy_scope(Lead)
-    found = scope.search(@term)
-    digits = @term.gsub(/\D/, "")
-    digits.length >= 4 ? found.or(scope.where("leads.whatsapp_digits LIKE :d OR leads.phone_digits LIKE :d", d: "%#{digits}%")) : found
-  end
-
-  def search_contacts
-    scope = policy_scope(Contact).joins(:company)
-    found = scope.search(@term).or(scope.where("unaccent(companies.trade_name) ILIKE unaccent(?)", "%#{Contact.sanitize_sql_like(@term)}%"))
-    digits = @term.gsub(/\D/, "")
-    digits.length >= 4 ? found.or(scope.where("contacts.whatsapp_digits LIKE :d OR contacts.phone_digits LIKE :d", d: "%#{digits}%")) : found
   end
 
   # O telefone da conversa vai para o WhatsApp do cadastro só quando ele está vazio.

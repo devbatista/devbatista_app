@@ -363,6 +363,13 @@ tr[data-href] { cursor: pointer; }
 .results label:first-child { border-top: 0; }
 .results label:hover { background: var(--surface-hover); }
 .results input { accent-color: var(--cyan); width: 16px; height: 16px; }
+.results .result-link { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 12px; border-top: 1px solid var(--rule); font-size: 13px; color: inherit; }
+.results .result-link:first-child { border-top: 0; }
+.results .result-link:hover { background: var(--surface-hover); }
+/* Card WhatsApp no lead, na empresa e no contato (Fase 7b) */
+.wa-card .tl { padding: 8px 20px; }
+.wa-card .tl i.out { background: var(--border-strong); }
+.wa-card .card-body p { margin: 0; }
 .bsuid { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; word-break: break-all; }
 /* Contador de não lidas no menu */
 .it:has(> .n) { display: flex; align-items: center; gap: 8px; }

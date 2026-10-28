@@ -21,6 +21,13 @@ class Contact < ApplicationRecord
     like = "%#{sanitize_sql_like(term.to_s.strip)}%"
     where("unaccent(contacts.name) ILIKE unaccent(:like) OR contacts.email ILIKE :like", like: like)
   }
+  # Busca do WhatsApp (Vincular e Iniciar conversa): nome, e-mail, empresa e, a partir de 4 dígitos, o telefone.
+  scope :whatsapp_search, lambda { |term|
+    digits = term.to_s.gsub(/\D/, "")
+    scope = joins(:company)
+    found = scope.search(term).or(scope.where("unaccent(companies.trade_name) ILIKE unaccent(?)", "%#{sanitize_sql_like(term.to_s.strip)}%"))
+    digits.length >= 4 ? found.or(scope.where("contacts.whatsapp_digits LIKE :d OR contacts.phone_digits LIKE :d", d: "%#{digits}%")) : found
+  }
 
   def initials
     name.to_s.split.values_at(0, -1).compact.uniq.map { |part| part[0] }.join.upcase

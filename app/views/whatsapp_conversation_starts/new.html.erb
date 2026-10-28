@@ -1,0 +1,54 @@
+<%# "Iniciar conversa no WhatsApp" (docs/design/assets/wa-iniciar.js): para quem, a conta, o template
+    aprovado com as variáveis preenchidas pelo cadastro e a prévia. Sem número no cadastro, pede o número. %>
+<% r = @recipient %>
+<% lead = r.is_a?(Lead) %>
+<% first = r.name.to_s.split.first %>
+<% org = lead ? r.company_name.presence : r.company.trade_name %>
+<% nav_location :wa, "Conversas" %>
+<% breadcrumb ["WhatsApp"], ["Conversas", whatsapp_conversations_path], ["Iniciar conversa"] %>
+<% back = lead ? lead_path(r) : company_path(r.company) %>
+<div class="form-page">
+  <%= render layout: "shared/drawer_form", locals: { title: "Iniciar conversa no WhatsApp", cancel_path: back } do %>
+    <%= form_with url: whatsapp_conversation_start_path, method: :post, multipart: true, class: "form", data: { turbo_frame: "_top" } do %>
+      <%= hidden_field_tag(lead ? :lead_id : :contact_id, r.id, id: nil) %>
+      <div class="drawer-body form">
+        <% if @error %><div class="callout crit" role="alert"><span><%= @error %></span></div><% end %>
+        <% if @needs_number %>
+          <div class="callout warn" role="status"><span><b class="strong"><%= first %> não tem WhatsApp cadastrado.</b> Informe o número para enviar o template.</span></div>
+          <div class="form-grid">
+            <div class="field"><label for="iw-num">WhatsApp de <%= first %> <span class="req">*</span></label>
+              <%= telephone_field_tag :numero, @number, id: "iw-num", class: "input mono", required: true, placeholder: "(11) 98765-4321", data: { mask: "phone" } %></div>
+            <% if policy(r).update? %>
+              <div class="field" style="justify-content:flex-end"><label class="check"><%= check_box_tag :salvar_numero, "1", params[:salvar_numero] != "0", id: nil %> Salvar no cadastro do <%= lead ? "lead" : "contato" %></label></div>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="callout"><span>Para <b class="strong"><%= r.name %></b><%= " · #{org}" if org %> · <span class="mono"><%= r.whatsapp %></span></span></div>
+        <% end %>
+        <% if @existing %>
+          <span class="caption">Já existe conversa com <%= first %> nesta conta. O template entra nela. <%= link_to "Abrir conversa", whatsapp_conversation_path(@existing), data: { turbo_frame: "_top" } %></span>
+        <% end %>
+        <% if @account.nil? %>
+          <div class="callout warn" role="status"><span>Nenhum número do WhatsApp conectado. <%= link_to "Conecte em Integrações → WhatsApp", whatsapp_accounts_path, data: { turbo_frame: "_top" } %>.</span></div>
+        <% else %>
+          <% if @accounts.size > 1 %>
+            <div class="field"><label for="iw-conta">Enviar pela conta</label>
+              <%= select_tag :conta, options_for_select(@accounts.map { |acc| [ whatsapp_account_label(acc), acc.id ] }, @account.id), id: "iw-conta", class: "select",
+                             data: { url: new_whatsapp_conversation_start_path((lead ? :lead_id : :contact_id) => r.id) },
+                             onchange: "Turbo.visit(`${this.dataset.url}&conta=${encodeURIComponent(this.value)}`, { frame: 'drawer-frame' })" %>
+              <span class="hint">Trocar a conta recarrega os templates dela.</span></div>
+          <% else %>
+            <%= hidden_field_tag :conta, @account.id, id: nil %>
+            <span class="caption">Enviar pela conta <b class="strong"><%= whatsapp_account_label(@account) %></b></span>
+          <% end %>
+          <%= render "whatsapp_conversations/template_fields", templates: @templates, account: @account, prefix: "start", selected: params[:template_id] %>
+          <span class="hint">A janela de 24h para mensagens livres abre quando <%= first %> responder. A conversa fica ligada a este <%= lead ? "lead" : "contato" %>.</span>
+        <% end %>
+      </div>
+      <div class="drawer-foot">
+        <%= link_to "Cancelar", back, class: "btn", data: { close: true, turbo_frame: "_top" } %>
+        <% if @account && @templates.any? %><button class="btn pri" type="submit"><%= icon(:send, size: 16) %>Enviar template</button><% end %>
+      </div>
+    <% end %>
+  <% end %>
+</div>

@@ -42,6 +42,7 @@
     <%= render "commercial/interactions/timeline", subject: @lead, interactions: @interactions, history: @history, created_label: "Lead criado · origem #{@lead.origin_label}" %>
   </div>
   <div class="stack">
+    <% if whatsapp_crm_visible? %><%= render "whatsapp_conversations/lead_card", lead: @lead %><% end %>
     <section class="card">
       <div class="card-head"><h2>Dados do lead</h2></div>
       <dl class="dl" style="grid-template-columns:1fr">

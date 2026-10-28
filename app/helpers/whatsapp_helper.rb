@@ -145,6 +145,55 @@ module WhatsappHelper
     ActiveStorage::Filename.new(name.presence || "arquivo").sanitized
   end
 
+  # ---------- Cards no lead, na empresa e no contato (Fase 7b) ----------
+
+  # O card aparece para quem lê as conversas; "Iniciar conversa", para quem envia e vincula.
+  def whatsapp_crm_visible?
+    policy(WhatsappConversation).index?
+  end
+
+  def whatsapp_can_start?
+    policy(WhatsappMessage).create? && policy(WhatsappConversation).link?
+  end
+
+  def whatsapp_start_path_for(record)
+    new_whatsapp_conversation_start_path(record.is_a?(Lead) ? { lead_id: record.id } : { contact_id: record.id })
+  end
+
+  # WhatsApp do cadastro que serve para enviar (com DDD).
+  def whatsapp_number?(record)
+    Whatsapp::Phone.wa_ids(record.whatsapp).any?
+  end
+
+  # Conversa mais recente (com mensagem) de cada contato, numa consulta: { contact_id => conversa }.
+  def whatsapp_latest_by_contact(contacts)
+    policy_scope(WhatsappConversation).with_messages.where(contact_id: contacts.map(&:id)).includes(:account)
+                                      .order(last_message_at: :desc).group_by(&:contact_id).transform_values(&:first)
+  end
+
+  def whatsapp_window_badge(conversation)
+    if conversation.window_open?
+      tag.span("Janela aberta · #{whatsapp_window_left(conversation)}", class: "badge #{whatsapp_window_soon?(conversation) ? 'b-warn' : 'b-good'} dot-l",
+                                                                        title: "Fecha em #{l(conversation.window_closes_at, format: '%d/%m %H:%M')}")
+    else
+      tag.span("Janela fechada", class: "badge b-mute")
+    end
+  end
+
+  # "hoje 10:42" ou "27/10 10:42".
+  def whatsapp_card_time(time)
+    time.to_date == Date.current ? "hoje #{l(time, format: '%H:%M')}" : l(time, format: "%d/%m %H:%M")
+  end
+
+  # Quem escreveu, quando e o status, na linha das últimas mensagens do card.
+  def whatsapp_card_meta(message, conversation)
+    who = if message.inbound? then conversation.display_name.split.first
+    elsif message.origin_phone? then "Pelo celular"
+    else message.user&.name.to_s.split.first || "Admin"
+    end
+    [ who, whatsapp_card_time(message.sent_at), (message.status_label if message.outbound?) ].compact.join(" · ")
+  end
+
   private
 
   def whatsapp_time(value)
