@@ -4,8 +4,33 @@ module Whatsapp
   # ao servidor (Whatsapp::Outbound) e ao campo de envio (to_h, em JSON para o Stimulus).
   #
   # Corpo posicional ({{1}}, {{2}}…) vai como lista; nomeado ({{nome}}), como parâmetros nomeados.
+  #
+  # Valores sugeridos (Fase 7b): o {{1}} do corpo e as variáveis nomeadas conhecidas (PREFILL) já vêm
+  # preenchidos com os dados do lead, do contato ou do perfil da conversa (person). O resto fica em
+  # branco para a pessoa preencher; tudo pode ser editado antes do envio.
   class TemplateFields
     VARIABLE = WhatsappTemplate::VARIABLE
+    PREFILL = {
+      "nome" => :first_name, "primeiro_nome" => :first_name, "first_name" => :first_name, "name" => :first_name,
+      "nome_completo" => :full_name, "full_name" => :full_name,
+      "empresa" => :company, "company" => :company, "company_name" => :company
+    }.freeze
+
+    # Primeiro nome, nome completo e empresa de quem vai receber: o lead ou o contato, ou, numa
+    # conversa sem vínculo, o nome da agenda ou do perfil (sem empresa).
+    def self.person(record)
+      case record
+      when Lead then person_data(record.name, record.company_name)
+      when Contact then person_data(record.name, record.company&.trade_name)
+      when WhatsappConversation then record.link ? person(record.link) : person_data(record.saved_name || record.profile_name, nil)
+      else {}
+      end
+    end
+
+    def self.person_data(name, company)
+      name = name.to_s.squish
+      { first_name: name.split.first, full_name: name.presence, company: company.to_s.squish.presence }.compact
+    end
 
     attr_reader :template
 
@@ -63,8 +88,16 @@ module Whatsapp
       named? ? body_names.zip(values).to_h : values
     end
 
-    def to_h
-      { id: template.id, name: template.name, language: template.language, label: "#{template.name} · #{template.category_label} · #{template.language_label}",
+    # Valores do corpo, do cabeçalho de texto e dos botões para os campos. values: os enviados (o
+    # formulário que voltou com erro), que valem mais que os sugeridos.
+    def defaults(person = {}, values: nil)
+      return { body: Array(values[:body]), header: Array(values[:header]), buttons: values[:buttons].to_h } if values
+
+      { body: body_names.map { |name| person[name == "1" ? :first_name : PREFILL[name.downcase]] }, header: [], buttons: {} }
+    end
+
+    def to_h(person: {}, values: nil)
+      { id: template.id, defaults: defaults(person, values: values), name: template.name, language: template.language, label: "#{template.name} · #{template.category_label} · #{template.language_label}",
         body: template.body_text, body_names: body_names, header_text: (header["text"] if header_count.positive?),
         header_media: header_media, footer: template.component("FOOTER")&.dig("text"),
         buttons: buttons.map { |button| { type: button["type"], text: button["text"] } }, url_buttons: url_button_indexes }

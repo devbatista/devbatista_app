@@ -19,6 +19,7 @@
         <% end %>
       <% end %>
       <% if policy(WhatsappTemplate).index? %><%= link_to "Templates", whatsapp_templates_path(conta: @account.id), class: "btn hide-sm" %><% end %>
+      <% if whatsapp_can_start? %><%= drawer_link_to new_whatsapp_conversation_start_path, class: "btn pri" do %><%= icon(:plus, size: 16) %>Nova conversa<% end %><% end %>
     </div>
   <% end %>
 </div>

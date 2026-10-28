@@ -9,13 +9,14 @@
       <%= link_to "Ir para Integrações → WhatsApp", whatsapp_accounts_path, data: { turbo_frame: "_top" } %></span></div>
   <% else %>
     <% open = c.window_open? %>
-    <% templates = c.account.templates.usable.map { |t| Whatsapp::TemplateFields.new(t).to_h } %>
+    <% person = Whatsapp::TemplateFields.person(c) %>
+    <% templates = c.account.templates.usable.map { |t| Whatsapp::TemplateFields.new(t).to_h(person: person) } %>
     <% limits = WhatsappMessage::UPLOAD_TYPES.keys.index_with { |kind| Whatsapp::Client::MEDIA_LIMITS.fetch(kind) } %>
     <p class="caption read-only-note">Você tem acesso só de leitura às conversas.</p>
     <%= form_with url: whatsapp_conversation_whatsapp_messages_path(c), multipart: true, class: "form composer-form", data: {
           send_only: true, controller: "whatsapp-composer", action: "whatsapp:reply@window->whatsapp-composer#reply turbo:submit-start->whatsapp-composer#sending turbo:submit-end->whatsapp-composer#sent",
           whatsapp_composer_open_value: open, whatsapp_composer_closes_at_value: (c.window_closes_at.to_i * 1000 if open),
-          whatsapp_composer_templates_value: templates.to_json, whatsapp_composer_types_value: WhatsappMessage::UPLOAD_TYPES.to_json,
+          whatsapp_composer_types_value: WhatsappMessage::UPLOAD_TYPES.to_json,
           whatsapp_composer_limits_value: limits.to_json, whatsapp_composer_labels_value: Whatsapp::Client::MEDIA_LABELS.to_json
         } do %>
       <%= hidden_field_tag :kind, "text", id: nil, data: { whatsapp_composer_target: "kind" } %>
@@ -56,27 +57,7 @@
       <% end %>
 
       <fieldset class="comp-mode" data-whatsapp-composer-target="templateMode" hidden disabled>
-        <% if templates.empty? %>
-          <p class="caption">Nenhum template aprovado nesta conta. <%= link_to "Gerenciar templates", whatsapp_templates_path(conta: c.whatsapp_account_id), data: { turbo_frame: "_top" } %></p>
-        <% else %>
-          <div class="tpl-grid">
-            <div class="form" style="gap:10px">
-              <div class="field">
-                <label for="tpl-<%= c.id %>">Template aprovado <span class="req">*</span></label>
-                <select class="select" name="template_id" id="tpl-<%= c.id %>" data-whatsapp-composer-target="template" data-action="whatsapp-composer#pickTemplate">
-                  <% templates.each do |t| %><option value="<%= t[:id] %>"><%= t[:label] %></option><% end %>
-                </select>
-                <span class="hint">Só os aprovados desta conta. <%= link_to "Gerenciar templates", whatsapp_templates_path(conta: c.whatsapp_account_id), data: { turbo_frame: "_top" } %></span>
-              </div>
-              <div class="tpl-vars" data-whatsapp-composer-target="variables"></div>
-              <div class="field" data-whatsapp-composer-target="headerFileField" hidden>
-                <label for="tpl-file-<%= c.id %>">Mídia do cabeçalho <span class="req">*</span></label>
-                <input type="file" name="header_file" id="tpl-file-<%= c.id %>" class="input" data-whatsapp-composer-target="headerFile">
-              </div>
-            </div>
-            <div><span class="eyebrow">Prévia</span><div class="wa-prev" data-whatsapp-composer-target="preview"></div></div>
-          </div>
-        <% end %>
+        <%= render "whatsapp_conversations/template_fields", templates: templates, account: c.account, prefix: c.id %>
         <div class="comp-actions">
           <button class="link-btn" type="button" data-action="whatsapp-composer#useText"><%= open ? "Voltar para mensagem livre" : "Recolher" %></button>
           <span class="spacer"></span>

@@ -30,6 +30,12 @@ module Whatsapp
       numbers(number).map { |n| "55#{ddd}#{n}" }
     end
 
+    # O mesmo número em outra forma: os dois wa_id do celular, com e sem o nono dígito.
+    def same_number?(wa_id, other)
+      digits = other.to_s.gsub(/\D/, "")
+      digits.present? && stored_forms(wa_id).include?(digits)
+    end
+
     # "(11) 99102-3344" para gravar no cadastro; fora do Brasil, "+" e os dígitos.
     def national_label(wa_id)
       digits = wa_id.to_s.gsub(/\D/, "")

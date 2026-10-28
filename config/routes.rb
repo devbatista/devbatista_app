@@ -99,7 +99,9 @@ Rails.application.routes.draw do
 
   # WhatsApp → Conversas (/whatsapp/conversations) e Templates (/whatsapp/templates).
   # Vínculo da conversa com o CRM: /conversations/:id/link (vincular e desvincular) e /lead (criar lead).
+  # Iniciar conversa com um lead ou contato, por template: /conversations/start/new e /conversations/start.
   scope "whatsapp" do
+    resource :whatsapp_conversation_start, path: "conversations/start", only: %i[new create]
     resources :whatsapp_conversations, path: "conversations", only: %i[index show] do
       member do
         get :messages

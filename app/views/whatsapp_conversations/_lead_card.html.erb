@@ -1,0 +1,29 @@
+<%# Card WhatsApp na ficha do lead (docs/design/comercial/lead.html): a conversa mais recente com as
+    últimas mensagens, ou "Iniciar conversa" (com ou sem WhatsApp cadastrado). %>
+<% conversation = policy_scope(WhatsappConversation).with_messages.where(lead: lead).includes(:account).order(last_message_at: :desc).first %>
+<% first = lead.name.to_s.split.first %>
+<section class="card wa-card" aria-labelledby="wa-card-t">
+  <% if conversation %>
+    <div class="card-head"><h2 id="wa-card-t">WhatsApp</h2><%= whatsapp_window_badge(conversation) %></div>
+    <%= render "whatsapp_conversations/card_messages", conversation: conversation %>
+    <div class="card-foot"><span><%= conversation.phone_label || "Telefone não compartilhado" %> · conta <%= whatsapp_account_label(conversation.account) %></span>
+      <%= link_to "Abrir conversa", whatsapp_conversation_path(conversation), class: "btn sm" %></div>
+  <% else %>
+    <% number = whatsapp_number?(lead) %>
+    <div class="card-head"><h2 id="wa-card-t">WhatsApp</h2><%= number ? tag.span("Sem conversa", class: "badge b-mute") : tag.span("Sem número", class: "badge b-warn") %></div>
+    <div class="card-body stack" style="padding-top:0;gap:12px">
+      <% if number %>
+        <p>Ainda não há conversa com <%= first %>. O primeiro contato precisa ser um <b class="strong">template aprovado</b>: a janela de 24h para mensagens livres só abre quando a pessoa responder.</p>
+        <span class="caption">WhatsApp do lead: <span class="mono strong"><%= lead.whatsapp %></span></span>
+      <% else %>
+        <p>Ainda não há conversa com <%= first %> e o lead não tem <b class="strong">WhatsApp cadastrado</b>. Informe o número ao iniciar; o primeiro contato é sempre por template aprovado.</p>
+      <% end %>
+      <% if whatsapp_can_start? %>
+        <div class="row wrap" style="gap:8px">
+          <%= drawer_link_to "Iniciar conversa no WhatsApp", whatsapp_start_path_for(lead), class: "btn sm pri" %>
+          <% if !number && policy(lead).update? %><%= drawer_link_to "Editar lead", edit_lead_path(lead), class: "btn sm" %><% end %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</section>

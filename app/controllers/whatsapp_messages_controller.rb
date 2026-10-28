@@ -4,6 +4,7 @@
 # substitui (o Turbo não duplica).
 class WhatsappMessagesController < ApplicationController
   include ActiveStorage::SetCurrent
+  include WhatsappDeliveryParams
 
   def create
     @conversation = WhatsappConversation.includes(:account).find(params[:whatsapp_conversation_id])
@@ -31,14 +32,8 @@ class WhatsappMessagesController < ApplicationController
 
   def delivery_params
     kind = params[:kind] == "template" ? "template" : "text"
-    values = params[:values].respond_to?(:permit) ? params[:values].permit(body: [], header: [], buttons: {}).to_h : {}
     { kind: kind, body: params[:body], file: upload(:file), reply_to: params[:reply_to].presence,
-      template_id: params[:template_id], values: values, header_file: upload(:header_file) }
-  end
-
-  def upload(name)
-    file = params[name]
-    file if file.respond_to?(:content_type)
+      template_id: params[:template_id], values: template_values, header_file: upload(:header_file) }
   end
 
   def respond(result, body: nil)

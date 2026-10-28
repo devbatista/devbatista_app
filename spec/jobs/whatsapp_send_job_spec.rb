@@ -25,6 +25,18 @@ RSpec.describe WhatsappSendJob do
     expect(conversation.reload.bsuid).to eq("BR.118034776612")
   end
 
+  it "fica com a forma do número que a Meta devolve (sem o nono dígito), sem trocar por outro número" do
+    reply = ->(wa_id) { graph_response(200, { "contacts" => [ { "input" => "5511991023344", "wa_id" => wa_id } ], "messages" => [ { "id" => "wamid.#{wa_id}" } ] }) }
+    conversation.update!(auto_link_blocked_at: 1.day.ago)
+    stub_graph(reply.call("551191023344"), reply.call("5511988887777"))
+
+    described_class.perform_now(outbound(body: "Oi"))
+    expect(conversation.reload).to have_attributes(wa_id: "551191023344", auto_link_blocked_at: be_present) # o mesmo número: a marca fica
+
+    described_class.perform_now(outbound(body: "Oi de novo"))
+    expect(conversation.reload.wa_id).to eq("551191023344")
+  end
+
   it "sobe a mídia e envia com legenda, guardando o ID da mídia" do
     message = outbound(kind: "document", body: "Segue o escopo", media_mime_type: "application/pdf", media_filename: "escopo.pdf")
     message.media.attach(io: StringIO.new("%PDF"), filename: "escopo.pdf", content_type: "application/pdf")

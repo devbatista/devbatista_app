@@ -1,0 +1,31 @@
+<%# Card WhatsApp na Visão 360º da empresa (docs/design/clientes/empresa.html): cada contato com a
+    conversa mais recente, ou "Iniciar conversa". Locals: company, contacts. %>
+<% latest = whatsapp_latest_by_contact(contacts) %>
+<div class="card wa-card">
+  <div class="card-head"><h2>WhatsApp</h2>
+    <%= latest.any? ? link_to("Conversas →", whatsapp_conversations_path, style: "font-size:13px;font-weight:600") : tag.span("Sem conversa", class: "badge b-mute") %></div>
+  <% if contacts.empty? %>
+    <div class="card-body" style="padding-top:0"><p class="caption">Cadastre um contato com WhatsApp para conversar com a <%= company.trade_name %>.</p></div>
+  <% elsif latest.empty? %>
+    <div class="card-body" style="padding-top:0"><p>Ainda não há conversa com os contatos da <%= company.trade_name %>. O primeiro contato precisa ser um <b class="strong">template aprovado</b>: a janela de 24h só abre quando a pessoa responder.</p></div>
+  <% end %>
+  <% contacts.each do |contact| %>
+    <% conversation = latest[contact.id] %>
+    <div class="contact">
+      <span class="avatar soft"><%= contact.initials %></span>
+      <div>
+        <div class="nm"><%= contact.name %>
+          <% if conversation&.unread_count&.positive? %><span class="badge b-info"><%= conversation.unread_count %> não lida<%= "s" if conversation.unread_count > 1 %></span><% end %>
+          <% if contact.primary? && conversation.nil? %><span class="badge b-info">Principal</span><% end %></div>
+        <% if conversation %>
+          <div class="ln"><%= conversation.preview %></div>
+          <div class="ln"><%= whatsapp_card_time(conversation.last_message_at) %> · <%= conversation.window_open? ? "janela aberta" : "janela fechada" %></div>
+          <%= link_to "Abrir conversa", whatsapp_conversation_path(conversation), class: "link-btn" %>
+        <% else %>
+          <div class="ln num"><%= contact.whatsapp.present? ? "WhatsApp #{contact.whatsapp}" : "Sem WhatsApp cadastrado" %></div>
+          <% if whatsapp_can_start? %><%= drawer_link_to "Iniciar conversa no WhatsApp", whatsapp_start_path_for(contact), class: "link-btn" %><% end %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>

@@ -1,0 +1,5 @@
+<%# As três últimas mensagens da conversa, no card WhatsApp do CRM (sem reações e avisos do sistema). %>
+<% messages = conversation.messages.timeline.where.not(kind: "system").reorder(sent_at: :desc, id: :desc).limit(3).includes(:user).to_a.reverse %>
+<% messages.each do |message| %>
+  <div class="tl"><%= tag.i(class: ("out" if message.outbound?)) %><div><%= message.preview_text %><small><%= whatsapp_card_meta(message, conversation) %></small></div></div>
+<% end %>
