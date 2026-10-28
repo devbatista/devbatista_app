@@ -1,0 +1,11 @@
+<%# Uma linha de botão do editor. Os cinco campos vão sempre, na mesma ordem, para o Rails agrupar
+    template[buttons][] por linha; o controller template-editor mostra só os do tipo escolhido. %>
+<% type = button["type"].presence || "quick_reply" %>
+<div class="btn-row" data-template-editor-target="buttonRow">
+  <%= select_tag "template[buttons][][type]", options_for_select(Whatsapp::TemplateBuilder::BUTTON_TYPES.invert, type), class: "select", "aria-label": "Tipo do botão", data: { role: "type" } %>
+  <input class="input" name="template[buttons][][text]" maxlength="25" aria-label="Texto do botão" placeholder="Texto do botão" value="<%= button["text"] %>" data-role="text">
+  <input class="input" name="template[buttons][][url]" aria-label="Link" placeholder="https://… (variável só no fim: {{1}})" value="<%= button["url"] %>" data-role="url">
+  <input class="input" name="template[buttons][][phone]" aria-label="Telefone" placeholder="+5511999998888" value="<%= button["phone"] %>" data-role="phone">
+  <button class="icon-btn ghost" type="button" aria-label="Remover botão" data-action="template-editor#removeButton"><%= icon(:x, size: 18, stroke: 1.8) %></button>
+  <input class="input ex-url" name="template[buttons][][url_example]" aria-label="Exemplo do link completo" placeholder="Exemplo do link completo: https://admin.devbatista.com/p/P-2026-029" value="<%= button["url_example"] %>" data-role="url_example">
+</div>

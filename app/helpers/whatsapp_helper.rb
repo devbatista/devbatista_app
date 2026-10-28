@@ -42,6 +42,40 @@ module WhatsappHelper
     account.verified_name.to_s.split.first(2).map { |word| word[0] }.join.upcase.presence || "WA"
   end
 
+  # ---------- Templates ----------
+
+  TEMPLATE_TONES = { "approved" => "good", "pending" => "warn", "rejected" => "crit", "disabled" => "crit", "in_appeal" => "warn" }.freeze
+  BUTTON_ICONS = { "url" => "↗ ", "phone" => "☎ " }.freeze
+
+  def whatsapp_template_badge(template)
+    status_badge(template.status_label, TEMPLATE_TONES.fetch(template.status, "mute"))
+  end
+
+  # Linha da lista: o motivo da rejeição, a explicação do status ou o início do corpo.
+  def whatsapp_template_note(template)
+    return "Motivo da Meta: #{template.rejection_label}." if template.status_rejected? && template.rejection_reason.present?
+
+    template.status_note || template.body_text.truncate(110)
+  end
+
+  def whatsapp_account_label(account)
+    [ account.verified_name.presence, account.display_phone_number.presence ].compact.join(" · ").presence || account.phone_number_id
+  end
+
+  # Texto da prévia, com os exemplos no lugar das variáveis ({{1}} → <mark>Beatriz</mark>).
+  # O texto é escapado antes; só o <mark> (com o exemplo escapado pelo tag) entra como HTML.
+  def whatsapp_preview_text(text, examples)
+    html = ERB::Util.html_escape(text.to_s).to_str.gsub(/\{\{\s*(\d+)\s*\}\}/) do
+      number = Regexp.last_match(1).to_i
+      tag.mark(examples[number - 1].presence || "{{#{number}}}").to_str
+    end
+    html.html_safe
+  end
+
+  def whatsapp_button_label(button)
+    "#{BUTTON_ICONS[button["type"]]}#{button["text"].presence || 'Botão'}"
+  end
+
   private
 
   def whatsapp_time(value)

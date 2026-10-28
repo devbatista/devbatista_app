@@ -238,6 +238,41 @@ tr[data-href] { cursor: pointer; }
 .flow li::before { counter-increment: f; content: counter(f); width: 28px; height: 28px; border-radius: 50%; background: var(--cyan-tint); color: var(--cyan-300); box-shadow: inset 0 0 0 1px var(--cyan-line); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; }
 .flow b { color: var(--text); }
 
+/* WhatsApp → Templates (docs/design/whatsapp/templates.html) */
+.tpl-name { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; color: var(--text); font-weight: 600; }
+.cell-sub.clip { max-width: 360px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.editor { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; align-items: start; }
+.preview-card { position: sticky; top: calc(var(--top-h) + 16px); }
+.phone { background: var(--bg); border: 1px solid var(--border); border-radius: 14px; padding: 16px; min-height: 280px; display: flex; flex-direction: column; justify-content: flex-end; }
+.wa-bubble { background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px 12px 12px 4px; padding: 10px 12px; font-size: 13px; color: var(--text-2); max-width: 290px; }
+.wa-bubble .hd { color: var(--white); font-weight: 700; margin-bottom: 6px; }
+.wa-bubble .media { height: 120px; border-radius: 8px; background: var(--surface-solid); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--muted); margin-bottom: 8px; font-size: 12px; gap: 6px; }
+.wa-bubble p { margin: 0; white-space: pre-line; overflow-wrap: anywhere; }
+.wa-bubble mark { background: var(--cyan-tint); color: var(--cyan-300); border-radius: 4px; padding: 0 3px; }
+.wa-bubble .ft { font-size: 12px; color: var(--muted); margin-top: 6px; }
+.wa-bubble .tm { font-size: 11px; color: var(--faint); text-align: right; margin-top: 4px; }
+.wa-btns { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; max-width: 290px; }
+.wa-btns span { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px; border-radius: 10px; background: var(--surface-2); border: 1px solid var(--border); color: var(--cyan); font-size: 13px; font-weight: 600; }
+.cat { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.cat label { display: flex; flex-direction: column; gap: 4px; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; font-size: 12px; color: var(--muted); }
+.cat label b { color: var(--text); font-size: 14px; display: flex; align-items: center; gap: 8px; }
+.cat input { accent-color: var(--cyan); margin: 0; }
+.cat label:has(input:checked) { border-color: var(--cyan); background: var(--cyan-tint); }
+.cat label:has(input:disabled) { cursor: not-allowed; opacity: .7; }
+.ta-tools { display: flex; align-items: center; gap: 8px; }
+.ta-tools .caption { margin-left: auto; }
+.ex-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.btn-row { display: grid; grid-template-columns: 170px minmax(0, 1fr) minmax(0, 1fr) 40px; gap: 8px; align-items: center; }
+.btn-row .icon-btn { width: 40px; grid-column: 4; grid-row: 1; }
+.btn-row .ex-url { grid-column: 2 / 4; }
+@media (max-width: 1100px) { .editor { grid-template-columns: minmax(0, 1fr); } .preview-card { position: static; } }
+@media (max-width: 960px) {
+  .cat, .ex-grid { grid-template-columns: minmax(0, 1fr); }
+  .btn-row { grid-template-columns: minmax(0, 1fr) 40px; }
+  .btn-row .input, .btn-row .select, .btn-row .ex-url { grid-column: 1 / 2; grid-row: auto; }
+  .btn-row .icon-btn { grid-column: 2; }
+}
+
 /* Produtos */
 .prod { display: flex; flex-direction: column; }
 .prod .card-head { align-items: flex-start; }

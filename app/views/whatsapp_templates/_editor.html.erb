@@ -1,0 +1,103 @@
+<%# Editor de template (criar e editar), com a prévia ao vivo do controller Stimulus template-editor. %>
+<% b = builder %>
+<% template = local_assigns[:template] %>
+<% editing = template.present? %>
+<% category_locked = editing && template.status_approved? %>
+<div class="editor" data-controller="template-editor">
+  <%= form_with url: editing ? whatsapp_template_path(template) : whatsapp_templates_path, method: editing ? :patch : :post, scope: :template,
+                class: "card card-body form", multipart: true, data: { action: "input->template-editor#refresh change->template-editor#refresh" } do |f| %>
+    <% if editing && template.status_rejected? %>
+      <div class="callout crit"><span><b class="strong">Rejeitado pela Meta:</b> <%= template.rejection_label || "sem motivo informado" %>. Corrija e envie de novo.</span></div>
+    <% elsif editing && template.status_approved? %>
+      <div class="callout warn"><span><b class="strong">Este template está aprovado.</b> Ao salvar, ele volta para a análise da Meta e fica indisponível no envio até ser aprovado de novo. A Meta aceita 1 edição por dia e 10 por mês.</span></div>
+    <% elsif editing && template.status_note %>
+      <div class="callout warn"><span><%= template.status_note %></span></div>
+    <% end %>
+    <%= render "shared/form_errors", record: b %>
+
+    <div class="form-grid">
+      <div class="field">
+        <label for="t-conta">Conta <span class="req">*</span></label>
+        <% if editing %>
+          <select class="select" id="t-conta" disabled><option><%= whatsapp_account_label(template.account) %></option></select>
+        <% else %>
+          <%= select_tag "template[account_id]", options_for_select(accounts.map { |acc| [ whatsapp_account_label(acc), acc.id ] }, account&.id), class: "select", id: "t-conta", required: true %>
+        <% end %>
+      </div>
+      <div class="field">
+        <label for="t-lang">Idioma <span class="req">*</span></label>
+        <%= f.select :language, WhatsappTemplate::LANGUAGES.map { |code, label| [ "#{label} · #{code}", code ] }, { selected: b.language }, class: "select", id: "t-lang", disabled: editing %>
+      </div>
+      <div class="field full">
+        <label for="t-nome">Nome <span class="req">*</span></label>
+        <%= f.text_field :name, value: b.name, class: "input mono", id: "t-nome", required: true, pattern: "[a-z0-9_]{1,512}", maxlength: 512, readonly: editing,
+                                placeholder: "lembrete_proposta", autocomplete: "off", title: "Letras minúsculas, números e _" %>
+        <span class="hint">Letras minúsculas, números e _ (sublinhado). Não muda depois de criado.</span>
+      </div>
+    </div>
+
+    <span class="fieldset-title">Categoria</span>
+    <div class="cat" role="radiogroup" aria-label="Categoria">
+      <label><b><%= f.radio_button :category, "marketing", checked: b.category == "marketing", disabled: category_locked %>Marketing</b>Ofertas, novidades, retomada de contato</label>
+      <label><b><%= f.radio_button :category, "utility", checked: b.category == "utility", disabled: category_locked %>Utilidade</b>Sobre algo em andamento: proposta, reunião, cobrança</label>
+    </div>
+    <% if category_locked %><span class="hint">A categoria de um template aprovado não muda.</span><% end %>
+
+    <span class="fieldset-title">Conteúdo</span>
+    <div class="form-grid">
+      <div class="field">
+        <label for="t-hd-tipo">Cabeçalho</label>
+        <%= f.select :header_type, Whatsapp::TemplateBuilder::HEADER_TYPES.map { |key, label| [ label, key ] }, { selected: b.header_type }, class: "select", id: "t-hd-tipo", data: { template_editor_target: "headerType" } %>
+      </div>
+      <div class="field" data-template-editor-target="headerTextField" hidden>
+        <label for="t-hd">Texto do cabeçalho</label>
+        <%= f.text_field :header_text, value: b.header_text, class: "input", id: "t-hd", maxlength: 60, placeholder: "Até 60 caracteres e 1 variável", data: { template_editor_target: "headerText" } %>
+      </div>
+      <div class="field" data-template-editor-target="headerExampleField" hidden>
+        <label for="t-hd-ex">Exemplo de {{1}} do cabeçalho <span class="req">*</span></label>
+        <%= f.text_field :header_example, value: b.header_example, class: "input", id: "t-hd-ex" %>
+      </div>
+      <div class="field" data-template-editor-target="headerMediaField" hidden>
+        <label for="t-hd-file">Mídia de exemplo<%= tag.span(" *", class: "req") if b.header_handle.blank? %></label>
+        <%= f.file_field :header_file, class: "input", id: "t-hd-file", accept: Whatsapp::TemplateBuilder::HEADER_MIME_TYPES.values.flatten.join(",") %>
+        <%= f.hidden_field :header_handle, value: b.header_handle %>
+        <span class="hint"><%= b.header_handle.present? ? "Já há um exemplo enviado; escolha outro só para trocar." : "Só para a análise da Meta: JPEG ou PNG, PDF, MP4. No envio você escolhe a mídia." %></span>
+      </div>
+      <div class="field full">
+        <label for="t-corpo">Corpo <span class="req">*</span></label>
+        <%= f.text_area :body, value: b.body, class: "textarea", id: "t-corpo", maxlength: 1024, required: true, style: "min-height:120px",
+                               placeholder: "Olá, {{1}}. …", data: { template_editor_target: "body" } %>
+        <div class="ta-tools"><button class="btn sm" type="button" data-action="template-editor#addVariable">+ Adicionar variável</button><span class="caption mono" data-template-editor-target="counter"><%= b.body.to_s.length %>/1024</span></div>
+        <span class="hint">Variáveis em ordem, {{1}}, {{2}}… Não comece nem termine o texto com uma variável, nem ponha duas seguidas.</span>
+      </div>
+    </div>
+    <div class="field" data-template-editor-target="examplesField"<%= " hidden" if b.body_variables.empty? %>>
+      <span class="label">Exemplos das variáveis <span class="req">*</span></span>
+      <div class="ex-grid" data-template-editor-target="examples">
+        <% (1..(b.body_variables.max || 0)).each do |n| %>
+          <div class="field"><label for="ex-<%= n %>">Exemplo de {{<%= n %>}}</label><input class="input" id="ex-<%= n %>" name="template[body_examples][]" data-n="<%= n %>" required value="<%= b.body_examples[n - 1] %>"></div>
+        <% end %>
+      </div>
+      <span class="hint">A Meta exige um exemplo para cada variável na análise.</span>
+    </div>
+    <div class="field">
+      <label for="t-rod">Rodapé</label>
+      <%= f.text_field :footer, value: b.footer, class: "input", id: "t-rod", maxlength: 60, placeholder: "Ex.: DevBatista · responda SAIR para não receber mensagens", data: { template_editor_target: "footer" } %>
+    </div>
+
+    <span class="fieldset-title">Botões</span>
+    <div class="stack" style="gap:8px" data-template-editor-target="buttons">
+      <% b.buttons.each do |button| %><%= render "button_row", button: button %><% end %>
+    </div>
+    <template data-template-editor-target="buttonTemplate"><%= render "button_row", button: {} %></template>
+    <div><button class="btn sm" type="button" data-action="template-editor#addButton">+ Adicionar botão</button> <span class="caption">Até 10: respostas rápidas, até 2 links e 1 telefone</span></div>
+
+    <div class="divider"></div>
+    <div class="row wrap" style="justify-content:flex-end">
+      <%= link_to "Cancelar", whatsapp_templates_path(conta: (template&.whatsapp_account_id || account&.id)), class: "btn" %>
+      <button class="btn pri" type="submit"><%= editing ? "Enviar alterações para análise" : "Enviar para análise" %></button>
+    </div>
+  <% end %>
+
+  <%= render "preview", builder: b %>
+</div>
