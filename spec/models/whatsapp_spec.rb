@@ -33,8 +33,20 @@ RSpec.describe "WhatsApp" do
     it "aceita conversa só com o BSUID, sem telefone nem @usuário" do
       conversation = build(:whatsapp_conversation, wa_id: nil, username: nil, profile_name: nil, bsuid: "BR.11803477661209384712")
       expect(conversation).to be_valid
-      expect(conversation.display_name).to eq("BR.11803477661209384712")
+      expect(conversation.display_name).to eq("Contato do WhatsApp")
       expect(conversation.recipient_params).to eq(recipient: "BR.11803477661209384712")
+    end
+
+    it "mostra o nome da agenda, depois o do perfil, o telefone e o @usuário" do
+      conversation = build(:whatsapp_conversation, saved_name: "Henrique (agenda)", profile_name: "Henrique", wa_id: "5511991023344", username: "henrique.d")
+      expect(conversation.display_name).to eq("Henrique (agenda)")
+      conversation.saved_name = nil
+      expect(conversation.display_name).to eq("Henrique")
+      conversation.profile_name = nil
+      expect(conversation.display_name).to eq("+55 11 99102-3344")
+      conversation.wa_id = nil
+      expect(conversation.display_name).to eq("@henrique.d")
+      expect(build(:whatsapp_conversation, wa_id: "14155550123").phone_label).to eq("+14155550123")
     end
 
     it "prefere o telefone como destinatário e guarda só os dígitos" do

@@ -1,0 +1,4 @@
+<turbo-frame id="whatsapp_inbox_after_<%= params[:cursor_id] %>">
+  <%= render partial: "whatsapp_conversations/inbox_item", collection: @conversations, as: :conversation %>
+  <%= render "next_page" if @next_cursor %>
+</turbo-frame>

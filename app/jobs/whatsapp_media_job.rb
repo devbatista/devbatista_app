@@ -21,6 +21,7 @@ class WhatsappMediaJob < ApplicationJob
 
     media = Whatsapp::Client.new(message.conversation.account).download_media(message.media_id)
     message.media.attach(io: media.file, filename: filename(message, media.mime_type), content_type: media.mime_type)
+    message.broadcast_message_later # o "baixando…" da conversa aberta vira a mídia
   rescue Whatsapp::Error => e
     raise if e.transient?
 

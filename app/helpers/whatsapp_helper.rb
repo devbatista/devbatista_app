@@ -76,6 +76,75 @@ module WhatsappHelper
     "#{BUTTON_ICONS[button["type"]]}#{button["text"].presence || 'Botão'}"
   end
 
+  # ---------- Conversas ----------
+
+  MESSAGE_STATUS = { "pending" => [ "", :clock, "Enviando" ], "sent" => [ "", :check, "Enviada" ], "delivered" => [ "", :dbl, "Entregue" ],
+                     "read" => [ " read", :dbl, "Lida" ], "failed" => [ " fail", :alert, "Falhou" ] }.freeze
+  URL_IN_TEXT = %r{https?://[^\s<>"]+}
+
+  def whatsapp_initials_for(name)
+    name.to_s.delete("@+").split.first(2).map { |word| word[0] }.join.upcase.presence || "WA"
+  end
+
+  # Hora na lista: hoje, a hora; ontem, "Ontem"; antes, o dia.
+  def whatsapp_time_label(time)
+    return "" unless time
+    return l(time, format: "%H:%M") if time.to_date == Date.current
+
+    time.to_date == Date.yesterday ? "Ontem" : l(time, format: "%d/%m")
+  end
+
+  def whatsapp_day_label(time)
+    date = time.to_date
+    return "Hoje" if date == Date.current
+    return "Ontem" if date == Date.yesterday
+
+    l(date, format: "%d/%m/%Y")
+  end
+
+  # Empresa do vínculo ou a identificação da pessoa (telefone, @usuário).
+  def whatsapp_identification(conversation)
+    conversation.contact&.company&.trade_name || conversation.lead&.company_name.presence || conversation.phone_label ||
+      (conversation.username && "@#{conversation.username.delete_prefix('@')}") || "ID do WhatsApp"
+  end
+
+  def whatsapp_link_badge(conversation)
+    return tag.span("Lead", class: "badge b-info") if conversation.lead_id
+    return tag.span("Cliente", class: "badge b-good") if conversation.contact_id
+
+    tag.span("Sem vínculo", class: "badge b-warn")
+  end
+
+  # Tempo até a janela fechar: "5h" ou "40 min". soon: menos de 2 horas.
+  def whatsapp_window_left(conversation)
+    seconds = (conversation.window_closes_at - Time.current).to_i
+    seconds >= 3600 ? "#{seconds / 3600}h" : "#{[ seconds / 60, 1 ].max} min"
+  end
+
+  def whatsapp_window_soon?(conversation)
+    conversation.window_open? && conversation.window_closes_at - Time.current < 2.hours
+  end
+
+  # Texto recebido ou enviado: escapado, com os links clicáveis (rel noopener noreferrer, nova aba).
+  def whatsapp_message_text(text)
+    html = ERB::Util.html_escape(text.to_s).to_str.gsub(URL_IN_TEXT) do |match|
+      url, trailing = match.match(/\A(.*?)([.,;:!?)]*)\z/).captures # pontuação no fim fica fora do link
+      href = CGI.unescapeHTML(url)
+      tag.a(href, href: href, rel: "noopener noreferrer", target: "_blank").to_str + trailing
+    end
+    sanitize(html, tags: %w[a], attributes: %w[href rel target])
+  end
+
+  def whatsapp_message_status(message)
+    css, icon_name, label = MESSAGE_STATUS.fetch(message.status) { return nil }
+    tag.span(class: "st#{css}") { safe_join([ icon(icon_name, size: 14, stroke: 2), label ]) }
+  end
+
+  def whatsapp_file_name(message)
+    name = message.media.attached? ? message.media.filename.to_s : message.media_filename
+    ActiveStorage::Filename.new(name.presence || "arquivo").sanitized
+  end
+
   private
 
   def whatsapp_time(value)

@@ -15,7 +15,12 @@
         </button>
         <div class="sub">
           <% group[:items].each do |(label, route, _area)| %>
-            <% if route %>
+            <% if route == :whatsapp_conversations_path %>
+              <%# Conversas não lidas (uma consulta), atualizadas pelo stream do contador. %>
+              <% current = nav_item_active?(group, label) %>
+              <%= turbo_stream_from :whatsapp_menu, channel: WhatsappStreamsChannel %>
+              <%= link_to public_send(route), class: "it#{' on' if current}", "aria-current": (current ? "page" : nil) do %><%= label %><%= render "whatsapp_conversations/menu_counter" %><% end %>
+            <% elsif route %>
               <% current = nav_item_active?(group, label) %>
               <%= link_to label, public_send(route), class: "it#{' on' if current}", "aria-current": (current ? "page" : nil) %>
             <% else %>

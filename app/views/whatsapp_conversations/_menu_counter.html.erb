@@ -1,0 +1,3 @@
+<%# Contador do menu (WhatsApp → Conversas): conversas com mensagem e não lidas. Redesenhado pelo broadcast. %>
+<% count = local_assigns.fetch(:count) { WhatsappConversation.menu_unread_count } %>
+<span id="whatsapp_menu_counter" class="n"<%= " hidden" if count.zero? %>><%= count %><span class="sr-only"> não lidas</span></span>

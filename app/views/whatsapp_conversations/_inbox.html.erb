@@ -1,0 +1,8 @@
+<%# Conteúdo da lista. Os itens novos entram no topo pelo broadcast (prepend no id da conta). %>
+<div id="<%= dom_id(@account, :inbox) %>">
+  <%= render partial: "whatsapp_conversations/inbox_item", collection: @conversations, as: :conversation %>
+</div>
+<%= render "next_page" if @next_cursor %>
+<% if @conversations.empty? %>
+  <div class="empty"><b class="strong">Nenhuma conversa</b><span><%= params[:q].present? || @filter != "todas" ? "Nenhuma conversa com esse filtro." : "As conversas aparecem quando alguém escrever para o número." %></span></div>
+<% end %>

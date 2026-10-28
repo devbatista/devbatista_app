@@ -1,0 +1,6 @@
+<%# O balão aparece na hora como "Enviando". O broadcast do mesmo balão chega depois com o mesmo id e
+    só o substitui: o Turbo não duplica. O campo de envio volta limpo (ou com o erro e o texto). %>
+<% if message %>
+  <%= turbo_stream.append dom_id(@conversation, :thread), partial: "whatsapp_messages/message", locals: { message: message } %>
+<% end %>
+<%= turbo_stream.replace dom_id(@conversation, :composer), partial: "whatsapp_conversations/composer", locals: { conversation: @conversation, error: error, body: body } %>

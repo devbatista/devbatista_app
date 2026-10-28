@@ -1,0 +1,88 @@
+<%# Campo de envio (controller whatsapp-composer). Também renderizado pelo broadcast quando a janela
+    abre ou fecha, sem sessão: o que é só de quem envia leva data-send-only e some por CSS para quem
+    só lê. O servidor confere a janela e a permissão de novo no envio. %>
+<% c = conversation %>
+<% error = local_assigns[:error] %>
+<div class="composer" id="<%= dom_id(c, :composer) %>">
+  <% if (reason = c.read_only_reason) %>
+    <div class="callout warn" role="status"><%= icon(:alert, size: 18) %><span><b class="strong">Conversa só para leitura.</b> <%= reason %>
+      <%= link_to "Ir para Integrações → WhatsApp", whatsapp_accounts_path, data: { turbo_frame: "_top" } %></span></div>
+  <% else %>
+    <% open = c.window_open? %>
+    <% templates = c.account.templates.usable.map { |t| Whatsapp::TemplateFields.new(t).to_h } %>
+    <% limits = WhatsappMessage::UPLOAD_TYPES.keys.index_with { |kind| Whatsapp::Client::MEDIA_LIMITS.fetch(kind) } %>
+    <p class="caption read-only-note">Você tem acesso só de leitura às conversas.</p>
+    <%= form_with url: whatsapp_conversation_whatsapp_messages_path(c), multipart: true, class: "form composer-form", data: {
+          send_only: true, controller: "whatsapp-composer", action: "whatsapp:reply@window->whatsapp-composer#reply turbo:submit-start->whatsapp-composer#sending turbo:submit-end->whatsapp-composer#sent",
+          whatsapp_composer_open_value: open, whatsapp_composer_closes_at_value: (c.window_closes_at.to_i * 1000 if open),
+          whatsapp_composer_templates_value: templates.to_json, whatsapp_composer_types_value: WhatsappMessage::UPLOAD_TYPES.to_json,
+          whatsapp_composer_limits_value: limits.to_json, whatsapp_composer_labels_value: Whatsapp::Client::MEDIA_LABELS.to_json
+        } do %>
+      <%= hidden_field_tag :kind, "text", id: nil, data: { whatsapp_composer_target: "kind" } %>
+      <% if error %><div class="callout crit" role="alert"><span><%= error %></span></div><% end %>
+      <p class="callout crit" role="alert" data-whatsapp-composer-target="problem" hidden></p>
+
+      <% if open %>
+        <div class="win-bar"><span class="badge <%= whatsapp_window_soon?(c) ? 'b-warn' : 'b-good' %> dot-l">Janela aberta</span><span>fecha em <%= whatsapp_window_left(c) %> (<%= l(c.window_closes_at, format: "%d/%m %H:%M") %>) · texto, anexos e templates</span></div>
+      <% else %>
+        <div class="callout warn" role="status"><%= icon(:clock, size: 18) %><span><b class="strong"><%= c.last_inbound_at ? "Janela de 24h fechada desde #{l(c.window_closes_at, format: '%d/%m %H:%M')}." : "Janela de 24h fechada." %></b>
+          Para retomar, envie um template aprovado. A janela reabre quando <%= c.display_name.split.first %> responder.</span></div>
+      <% end %>
+
+      <fieldset class="comp-mode" data-whatsapp-composer-target="textMode"<%= " hidden disabled" unless open %>>
+        <div class="attach reply-chip" data-whatsapp-composer-target="replyChip" hidden><%= icon(:reply, size: 14) %><span data-whatsapp-composer-target="replyText"></span>
+          <button type="button" aria-label="Cancelar resposta" data-action="whatsapp-composer#cancelReply"><%= icon(:x, size: 14) %></button></div>
+        <%= hidden_field_tag :reply_to, nil, id: nil, data: { whatsapp_composer_target: "replyTo" } %>
+        <label class="sr-only" for="msg-<%= c.id %>">Mensagem</label>
+        <%= text_area_tag :body, local_assigns[:body], id: "msg-#{c.id}", class: "textarea", maxlength: WhatsappMessage::TEXT_LIMIT,
+                          placeholder: "Mensagem para #{c.display_name.split.first}…  Enter envia, Shift+Enter quebra a linha",
+                          data: { whatsapp_composer_target: "body", action: "keydown->whatsapp-composer#keydown input->whatsapp-composer#count" } %>
+        <div class="attach" data-whatsapp-composer-target="fileChip" hidden><span data-whatsapp-composer-target="fileName"></span>
+          <button type="button" aria-label="Remover anexo" data-action="whatsapp-composer#removeFile"><%= icon(:x, size: 14) %></button></div>
+        <div class="comp-actions">
+          <label class="btn sm" for="file-<%= c.id %>" style="cursor:pointer"><%= icon(:clip, size: 16) %>Anexar</label>
+          <input type="file" name="file" id="file-<%= c.id %>" class="sr-only" accept="<%= WhatsappMessage::UPLOAD_TYPES.values.flatten.join(',') %>"
+                 data-whatsapp-composer-target="file" data-action="change->whatsapp-composer#pickFile">
+          <button class="link-btn" type="button" data-action="whatsapp-composer#useTemplate">Usar template</button>
+          <span class="spacer"></span>
+          <span class="caption mono" data-whatsapp-composer-target="counter">0/<%= WhatsappMessage::TEXT_LIMIT %></span>
+          <button class="btn pri sm" type="submit" data-whatsapp-composer-target="submit"><%= icon(:send, size: 16) %>Enviar</button>
+        </div>
+      </fieldset>
+
+      <% unless open %>
+        <div class="comp-actions" data-whatsapp-composer-target="closedMode"><span class="caption">Mensagem livre e anexo ficam bloqueados até a resposta.</span><span class="spacer"></span>
+          <button class="btn pri sm" type="button" data-action="whatsapp-composer#useTemplate"><%= icon(:send, size: 16) %>Responder com template</button></div>
+      <% end %>
+
+      <fieldset class="comp-mode" data-whatsapp-composer-target="templateMode" hidden disabled>
+        <% if templates.empty? %>
+          <p class="caption">Nenhum template aprovado nesta conta. <%= link_to "Gerenciar templates", whatsapp_templates_path(conta: c.whatsapp_account_id), data: { turbo_frame: "_top" } %></p>
+        <% else %>
+          <div class="tpl-grid">
+            <div class="form" style="gap:10px">
+              <div class="field">
+                <label for="tpl-<%= c.id %>">Template aprovado <span class="req">*</span></label>
+                <select class="select" name="template_id" id="tpl-<%= c.id %>" data-whatsapp-composer-target="template" data-action="whatsapp-composer#pickTemplate">
+                  <% templates.each do |t| %><option value="<%= t[:id] %>"><%= t[:label] %></option><% end %>
+                </select>
+                <span class="hint">Só os aprovados desta conta. <%= link_to "Gerenciar templates", whatsapp_templates_path(conta: c.whatsapp_account_id), data: { turbo_frame: "_top" } %></span>
+              </div>
+              <div class="tpl-vars" data-whatsapp-composer-target="variables"></div>
+              <div class="field" data-whatsapp-composer-target="headerFileField" hidden>
+                <label for="tpl-file-<%= c.id %>">Mídia do cabeçalho <span class="req">*</span></label>
+                <input type="file" name="header_file" id="tpl-file-<%= c.id %>" class="input" data-whatsapp-composer-target="headerFile">
+              </div>
+            </div>
+            <div><span class="eyebrow">Prévia</span><div class="wa-prev" data-whatsapp-composer-target="preview"></div></div>
+          </div>
+        <% end %>
+        <div class="comp-actions">
+          <button class="link-btn" type="button" data-action="whatsapp-composer#useText"><%= open ? "Voltar para mensagem livre" : "Recolher" %></button>
+          <span class="spacer"></span>
+          <% if templates.any? %><button class="btn pri sm" type="submit" data-whatsapp-composer-target="submit"><%= icon(:send, size: 16) %>Enviar template</button><% end %>
+        </div>
+      </fieldset>
+    <% end %>
+  <% end %>
+</div>

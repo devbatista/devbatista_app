@@ -1,0 +1,74 @@
+<%# Uma mensagem da linha do tempo. Também renderizada pelo broadcast (sem sessão); "Responder" e
+    "Tentar de novo" levam data-send-only e somem por CSS para quem só lê. O conteúdo recebido é
+    sempre escapado (whatsapp_message_text); links e nomes de arquivo, sanitizados. %>
+<% m = message %>
+<% c = m.conversation %>
+<% show_day = local_assigns.fetch(:show_day) { m.first_of_day? } %>
+<div id="<%= dom_id(m) %>" class="msg-row">
+  <% if show_day %><div class="day"><%= whatsapp_day_label(m.sent_at) %></div><% end %>
+  <% if m.kind_system? %>
+    <div class="sys"><%= icon(:info, size: 14) %><span><%= m.body.presence || "Aviso do WhatsApp" %> · <%= l(m.sent_at, format: "%H:%M") %></span></div>
+  <% else %>
+    <% author = m.inbound? ? c.display_name : (m.user&.name || (m.origin_phone? ? "Celular" : "Admin")) %>
+    <div class="msg <%= m.inbound? ? 'client' : 'out' %>">
+      <span class="avatar sm<%= ' soft' if m.inbound? %>" aria-hidden="true"><%= whatsapp_initials_for(author) %></span>
+      <div>
+        <div class="who">
+          <b><%= author %></b> · <%= l(m.sent_at, format: "%H:%M") %><%= " · pelo Admin" if m.origin_admin? %>
+          <% if m.origin_phone? %><span class="badge b-mute" title="Enviada pelo app WhatsApp Business no celular (coexistência)"><%= icon(:mobile, size: 12) %>Celular</span><% end %>
+          <% if m.kind_template? %><span class="badge b-blue">Template · <%= m.template_name %></span><% end %>
+          <% if m.from_history? %><span class="badge b-mute" title="Veio da sincronização do histórico do celular"><%= icon(:history, size: 12) %>Histórico</span><% end %>
+          <% if m.edited_at && !m.revoked_at %><span class="badge b-mute">editada</span><% end %>
+        </div>
+        <div class="bubble">
+          <% if m.revoked_at %>
+            <p class="muted"><em>Mensagem apagada</em></p>
+          <% else %>
+            <% if m.reply_to_wa_message_id %>
+              <% if (quoted = m.reply_to) %>
+                <a class="quote" href="#<%= dom_id(quoted) %>"><b><%= quoted.inbound? ? c.display_name : (quoted.user&.first_name || "Você") %></b><span><%= quoted.revoked_at ? "Mensagem apagada" : quoted.preview_text %></span></a>
+              <% else %>
+                <span class="quote"><span>Resposta a uma mensagem que não está no Admin</span></span>
+              <% end %>
+            <% end %>
+            <% if m.media? || (m.kind_template? && m.media.attached?) %>
+              <% if m.media.attached? %>
+                <% src = media_whatsapp_message_path(m) %>
+                <% case m.media.content_type.to_s.split("/").first %>
+                <% when "image" %>
+                  <a class="m-img<%= ' sticker' if m.kind_sticker? %>" href="<%= src %>" target="_blank" rel="noopener noreferrer" aria-label="Ampliar imagem"><img src="<%= src %>" alt="<%= m.kind_sticker? ? 'Figurinha' : 'Imagem' %>" loading="lazy"></a>
+                <% when "audio" %>
+                  <audio class="m-audio" controls preload="none" src="<%= src %>"></audio>
+                <% when "video" %>
+                  <video class="m-video" controls preload="metadata" src="<%= src %>"></video>
+                <% else %>
+                  <div class="m-doc"><span class="file-ic"><%= icon(:file, size: 18) %></span><span class="t"><b><%= whatsapp_file_name(m) %></b><span class="caption"><%= number_to_human_size(m.media.byte_size) %></span></span>
+                    <%= link_to "Baixar", media_whatsapp_message_path(m, baixar: 1), class: "link-btn", data: { turbo: false } %></div>
+                <% end %>
+              <% elsif m.media_id && m.created_at > 30.minutes.ago %>
+                <p class="caption"><%= icon(:clock, size: 14) %> <%= m.kind_label %>: baixando…</p>
+              <% else %>
+                <p class="caption"><%= m.kind_label %> indisponível (a Meta guarda a mídia por 7 dias).</p>
+              <% end %>
+            <% end %>
+            <% if m.body.present? %><p><%= whatsapp_message_text(m.body) %></p><% elsif !m.media? && !m.kind_template? %><p class="muted"><%= m.kind_label %></p><% end %>
+          <% end %>
+          <% reactions = m.visible_reactions %>
+          <% if reactions.any? %>
+            <div class="reactions" aria-label="Reações"><% reactions.map(&:reaction_emoji).tally.each do |emoji, count| %><span><%= emoji %><%= count if count > 1 %></span><% end %></div>
+          <% end %>
+          <div class="b-foot">
+            <% if m.wa_message_id && !m.revoked_at %>
+              <button class="link-btn reply-btn" type="button" data-send-only data-action="whatsapp-thread#reply" data-reply-id="<%= m.wa_message_id %>" data-reply-text="<%= m.preview_text %>"><%= icon(:reply, size: 14) %>Responder</button>
+            <% end %>
+            <% if m.outbound? %><%= whatsapp_message_status(m) %><% end %>
+            <% if m.status_failed? %>
+              <span class="err"><%= m.error_message.presence || "A Meta não entregou a mensagem." %><%= " (erro #{m.error_code})" if m.error_code.present? %></span>
+              <% if m.retryable? %><%= button_to "Tentar de novo", retry_whatsapp_message_path(m), class: "link-btn", form_class: "inline-form", form: { data: { send_only: true } } %><% end %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>

@@ -1,0 +1,5 @@
+<%# Próxima página da lista, carregada quando aparece na rolagem (cursor: última mensagem e id). %>
+<% cursor_params = { conta: @account.id, filtro: @filter, q: params[:q].presence, cursor_at: @next_cursor.last_message_at.iso8601(6), cursor_id: @next_cursor.id }.compact %>
+<turbo-frame id="whatsapp_inbox_after_<%= @next_cursor.id %>" src="<%= whatsapp_conversations_path(cursor_params) %>" loading="lazy">
+  <div class="caption" style="padding:12px 16px">Carregando mais conversas…</div>
+</turbo-frame>

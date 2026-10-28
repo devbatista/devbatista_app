@@ -1,7 +1,8 @@
 module Whatsapp
   # Falha numa chamada à Graph API, com o erro da Meta já separado:
   #   { "error": { "message", "type", "code", "error_subcode", "error_data": { "details" }, "fbtrace_id", "is_transient" } }
-  # Falha de rede ou timeout vira o mesmo erro, com code nil e transient? verdadeiro.
+  # Falha de rede ou timeout vira o mesmo erro, com code nil e transient? verdadeiro;
+  # delivery_uncertain? diz se o pedido pode ter sido processado pela Meta mesmo assim.
   class Error < StandardError
     # Códigos de limite de envio ou de chamadas: tentar de novo mais tarde.
     RATE_LIMIT_CODES = [ 4, 80_007, 130_429, 131_056 ].freeze
@@ -48,7 +49,7 @@ module Whatsapp
       new("HTTP #{response.code}", http_status: response.code.to_i)
     end
 
-    def initialize(message, code: nil, subcode: nil, details: nil, fbtrace_id: nil, http_status: nil, transient: nil, network: false)
+    def initialize(message, code: nil, subcode: nil, details: nil, fbtrace_id: nil, http_status: nil, transient: nil, network: false, uncertain: false)
       super(message)
       @code = code
       @subcode = subcode
@@ -57,10 +58,17 @@ module Whatsapp
       @http_status = http_status
       @transient = transient
       @network = network
+      @uncertain = network && uncertain
     end
 
     def network?
       @network
+    end
+
+    # Falha de rede depois que o pedido saiu (leitura que expirou, conexão interrompida, resposta
+    # inválida): a Meta pode ter processado. No envio de mensagem, tentar de novo pode duplicar.
+    def delivery_uncertain?
+      @uncertain
     end
 
     def token_invalid?

@@ -6,6 +6,11 @@
 # Mensagens enviadas pelo app do celular não abrem nem estendem a janela.
 class WhatsappConversation < ApplicationRecord
   WINDOW = 24.hours
+  # Filtros da caixa de entrada (docs/design/whatsapp/conversas.html).
+  FILTERS = { "todas" => "Todas", "nao-lidas" => "Não lidas", "leads" => "Leads", "clientes" => "Clientes",
+              "sem-vinculo" => "Sem vínculo", "janela" => "Janela aberta" }.freeze
+  # Mudanças que redesenham o item da lista (as outras não aparecem nela).
+  INBOX_ATTRIBUTES = %w[unread_count preview last_inbound_at saved_name profile_name username wa_id lead_id contact_id].freeze
 
   belongs_to :account, class_name: "WhatsappAccount", foreign_key: :whatsapp_account_id, inverse_of: :conversations
   belongs_to :lead, optional: true
@@ -28,6 +33,36 @@ class WhatsappConversation < ApplicationRecord
   scope :window_open, -> { where(last_inbound_at: WINDOW.ago..) }
   # A sincronização da agenda do celular cria conversas ainda sem mensagem; a caixa de entrada só mostra as outras.
   scope :with_messages, -> { where.not(last_message_at: nil) }
+  scope :inbox_order, -> { order(last_message_at: :desc, id: :desc) }
+  # Paginação por cursor da caixa de entrada: as conversas depois de `conversation` na ordem da lista.
+  scope :after_cursor, lambda { |conversation|
+    where("(whatsapp_conversations.last_message_at, whatsapp_conversations.id) < (?, ?)", conversation.last_message_at, conversation.id)
+  }
+  # Nome do perfil, nome salvo na agenda, telefone (só os dígitos) e @usuário.
+  scope :search, lambda { |term|
+    names = where("unaccent(whatsapp_conversations.profile_name) ILIKE unaccent(:q) OR unaccent(whatsapp_conversations.saved_name) ILIKE unaccent(:q) " \
+                  "OR unaccent(whatsapp_conversations.username) ILIKE unaccent(:q)", q: "%#{sanitize_sql_like(term.to_s.strip)}%")
+    digits = term.to_s.gsub(/\D/, "")
+    digits.length >= 3 ? names.or(where("whatsapp_conversations.wa_id LIKE ?", "%#{digits}%")) : names
+  }
+
+  after_commit :broadcast_inbox, on: %i[create update]
+
+  def self.filtered(key)
+    case key
+    when "nao-lidas" then unread
+    when "leads" then where.not(lead_id: nil)
+    when "clientes" then where.not(contact_id: nil)
+    when "sem-vinculo" then unlinked
+    when "janela" then window_open
+    else all
+    end
+  end
+
+  # Contador do menu: conversas com mensagem e não lidas, numa consulta só.
+  def self.menu_unread_count
+    with_messages.unread.count
+  end
 
   # Acha ou cria a conversa da pessoa que veio num webhook, pelo BSUID e pelo telefone, e
   # completa o que faltar. O BSUID é a identidade; o telefone pode passar a outra pessoa:
@@ -130,14 +165,63 @@ class WhatsappConversation < ApplicationRecord
 
   # O nome salvo na agenda do celular vem antes do nome do perfil, que a própria pessoa escolhe.
   def display_name
-    saved_name || profile_name || link&.name || username || (wa_id && "+#{wa_id}") || bsuid
+    saved_name || profile_name || phone_label || (username && "@#{username.delete_prefix('@')}") || "Contato do WhatsApp"
+  end
+
+  # +55 11 99102-3344 para celular e fixo do Brasil; os outros países, só com o +.
+  def phone_label
+    return unless wa_id
+
+    match = wa_id.match(/\A55(\d{2})(\d{4,5})(\d{4})\z/)
+    match ? "+55 #{match[1]} #{match[2]}-#{match[3]}" : "+#{wa_id}"
+  end
+
+  # Envio só com a conta conectada; desconectada ou com o token vencido, a conversa fica só leitura.
+  def sendable?
+    account.connected?
+  end
+
+  def read_only_reason
+    case account.status
+    when "connected" then nil
+    when "disconnected" then "O número está desconectado. Conecte de novo em Integrações → WhatsApp para voltar a enviar."
+    when "reconnect_required" then "O acesso à Meta venceu. Reconecte o número em Integrações → WhatsApp para voltar a enviar."
+    else "O número ainda está sendo conectado. O envio fica liberado quando a ativação terminar."
+    end
   end
 
   def to_s
     display_name
   end
 
+  # Redesenha o cabeçalho e o campo de envio da conversa aberta (janela que abriu ou fechou).
+  def broadcast_window_change
+    broadcast_replace_later_to self, :whatsapp, target: ActionView::RecordIdentifier.dom_id(self, :header),
+                                                partial: "whatsapp_conversations/header", locals: { conversation: self }
+    broadcast_replace_later_to self, :whatsapp, target: ActionView::RecordIdentifier.dom_id(self, :composer),
+                                                partial: "whatsapp_conversations/composer", locals: { conversation: self }
+  end
+
   private
+
+  # Caixa de entrada da conta e contador do menu. Nova mensagem leva o item ao topo (sai de onde
+  # estiver, inclusive das páginas carregadas depois); o resto só redesenha o item.
+  def broadcast_inbox
+    return if last_message_at.nil?
+
+    item = { partial: "whatsapp_conversations/inbox_item", locals: { conversation: self } }
+    if saved_change_to_last_message_at? || previously_new_record?
+      broadcast_remove_to account, :whatsapp_inbox, target: ActionView::RecordIdentifier.dom_id(self, :inbox)
+      broadcast_prepend_later_to account, :whatsapp_inbox, target: ActionView::RecordIdentifier.dom_id(account, :inbox), **item
+    elsif saved_changes.keys.intersect?(INBOX_ATTRIBUTES)
+      broadcast_replace_later_to account, :whatsapp_inbox, target: ActionView::RecordIdentifier.dom_id(self, :inbox), **item
+    end
+    if saved_change_to_unread_count? || saved_change_to_last_message_at?
+      broadcast_replace_later_to :whatsapp_menu, target: "whatsapp_menu_counter", partial: "whatsapp_conversations/menu_counter"
+    end
+    window_was_open = last_inbound_at_before_last_save.present? && last_inbound_at_before_last_save > WINDOW.ago
+    broadcast_window_change if saved_change_to_last_inbound_at? && window_was_open != window_open?
+  end
 
   def identified
     errors.add(:base, "Informe o ID do WhatsApp (BSUID) ou o telefone") if bsuid.blank? && wa_id.blank?
