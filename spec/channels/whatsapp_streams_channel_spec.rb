@@ -11,6 +11,12 @@ RSpec.describe "Tempo real do WhatsApp" do
       expect { connect "/cable", env: { "warden" => warden(create(:user, :admin, :inactive)) } }.to have_rejected_connection
     end
 
+    it "recusa sem exceção a sessão expirada (o Devise faz throw :warden)" do
+      proxy = instance_double(Warden::Proxy)
+      allow(proxy).to receive(:user) { throw :warden, scope: :user, message: :timeout }
+      expect { connect "/cable", env: { "warden" => proxy } }.to have_rejected_connection
+    end
+
     it "identifica o usuário pela sessão do Devise" do
       user = create(:user, :admin)
       connect "/cable", env: { "warden" => warden(user) }
