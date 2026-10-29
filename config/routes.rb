@@ -202,6 +202,8 @@ Rails.application.routes.draw do
   scope "webhooks", module: :webhooks, format: false do
     get "whatsapp", to: "whatsapp#verify", as: :whatsapp_webhook
     post "whatsapp", to: "whatsapp#receive", as: nil
+    # Leads do site (devbatista.com), com o token SITE_LEADS_TOKEN.
+    post "site-leads", to: "site_leads#create", as: :site_leads_webhook
   end
 
   get "up" => "rails/health#show", as: :rails_health_check

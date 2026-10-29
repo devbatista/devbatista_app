@@ -24,6 +24,8 @@ class Notification < ApplicationRecord
                            trigger: -> { "#{Setting[:domain_alert_days].to_sentence} dias antes do vencimento" } },
     "ticket_critical" => { label: "Chamados críticos", roles: %w[admin suporte desenvolvedor], area: "suporte",
                            trigger: -> { "Abertura ou mudança para prioridade Crítica (na hora)" } },
+    "site_lead" => { label: "Leads do site", roles: :owner, area: "comercial", email_default: false,
+                     trigger: -> { "Diagnóstico Tecnológico enviado pelo site (o site já manda e-mail dos mornos e quentes)" } },
     "whatsapp_message" => { label: "Mensagens do WhatsApp", roles: %w[admin], area: "whatsapp", area_readers: true, email_default: false,
                             audience: "quem vê as conversas", trigger: -> { "Mensagem recebida numa conversa (um aviso por conversa)" } },
     "whatsapp_token_expiring" => { label: "Acesso do WhatsApp vencendo", roles: %w[admin], area: "whatsapp",

@@ -57,6 +57,10 @@ module Devbatista
     config.x.whatsapp.webhook_verify_token = ENV["WHATSAPP_WEBHOOK_VERIFY_TOKEN"].presence
     config.x.whatsapp.graph_version = ENV.fetch("WHATSAPP_GRAPH_VERSION", "v26.0")
 
+    # Leads do site (devbatista.com), no lugar do HubSpot: token compartilhado com o api/config.php do
+    # site (crm_token). Sem ele, o webhook /webhooks/site-leads recusa tudo.
+    config.x.site_leads.token = ENV["SITE_LEADS_TOKEN"].presence
+
     # Active Record Encryption (token das contas do WhatsApp). As chaves vêm do ambiente; sem elas,
     # das credentials (active_record_encryption.*). Gere com bin/rails db:encryption:init.
     # Teste e desenvolvimento têm valores próprios (config/environments).
