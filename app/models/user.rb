@@ -53,9 +53,10 @@ class User < ApplicationRecord
     self.hourly_cost_cents = value.presence && (BigDecimal(value.to_s.tr(",", ".")) * 100).round
   end
 
-  # Preferência de e-mail por tipo de alerta; o padrão é receber.
+  # Preferência de e-mail por tipo de alerta; o padrão é receber, menos nos tipos com
+  # email_default: false (Notification::KINDS), como as mensagens do WhatsApp.
   def email_for?(kind)
-    email_preferences.fetch(kind.to_s, true)
+    email_preferences.fetch(kind.to_s) { Notification::KINDS.dig(kind.to_s, :email_default) != false }
   end
 
   def first_name

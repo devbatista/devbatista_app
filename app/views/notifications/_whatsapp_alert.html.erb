@@ -1,0 +1,6 @@
+<%# Aviso do navegador de uma mensagem recebida (Whatsapp::Notifier), acrescentado em #whatsapp_alerts
+    e lido e removido pelo controller whatsapp-alerts. Só o nome, a prévia e o endereço da conversa,
+    como na central. Locals: notification, message_id. %>
+<% conversation = notification.notifiable %>
+<%= tag.div data: { whatsapp_alerts_target: "alert", message_id: message_id, conversation_id: conversation.id, title: conversation.display_name,
+                    body: notification.body, url: notification.path } %>

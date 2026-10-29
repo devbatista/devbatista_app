@@ -1,0 +1,4 @@
+<%# Botão do sino com o ponto de não lidas. Também renderizado pelo broadcast (Notification.refresh_bell). Locals: user. %>
+<% unread_count = user.notifications.unread.count %>
+<button class="icon-btn" id="notifications_bell_button" type="button" aria-label="Notificações<%= ", #{unread_count} não lidas" if unread_count > 0 %>"
+        aria-haspopup="true" aria-expanded="false" data-popover-toggle="notificacoes-pop"><%= icon(:bell) %><% if unread_count > 0 %><span class="dot"></span><% end %></button>

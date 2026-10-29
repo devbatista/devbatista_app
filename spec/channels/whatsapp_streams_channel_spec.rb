@@ -41,4 +41,18 @@ RSpec.describe "Tempo real do WhatsApp" do
       expect(subscription).to be_rejected
     end
   end
+
+  describe NotificationsChannel, type: :channel do
+    let(:user) { create(:user, :admin) }
+
+    it "deixa assinar só o stream do próprio usuário" do
+      stub_connection current_user: user
+      subscribe(signed_stream_name: Turbo::StreamsChannel.signed_stream_name([ user, :notifications ]))
+      expect(subscription).to be_confirmed
+      expect(subscription).to have_stream_from("#{user.to_gid_param}:notifications")
+
+      subscribe(signed_stream_name: Turbo::StreamsChannel.signed_stream_name([ create(:user, :admin), :notifications ]))
+      expect(subscription).to be_rejected
+    end
+  end
 end

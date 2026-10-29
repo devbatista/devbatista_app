@@ -13,7 +13,7 @@ Outubro de 2026 · Integração com a **Cloud API da Meta** para conversar pelo 
 | Vínculo | Cada conversa liga a um lead **ou** a um contato, ou fica sem vínculo |
 | Usuários | Na v1, só o administrador (área `whatsapp` na matriz de permissões). Autor e responsável por usuário ficam prontos para liberar ao Comercial depois |
 | Desconexão | Em coexistência, feita no app do celular. O sistema reage ao `account_update` (`PARTNER_REMOVED`) |
-| Fora da v1 | Sugestão de resposta por IA (virá do agente SDR via MCP, que segue sem enviar nada ao cliente até revisão), grupos e chamadas |
+| Fora da v1 | Sugestão de resposta por IA (virá do agente SDR via MCP, que segue sem enviar nada ao cliente até revisão), grupos e chamadas; aviso com o Admin fechado (push com service worker) |
 
 ## O que a Meta mudou (confirmado na documentação em outubro de 2026)
 
@@ -405,11 +405,62 @@ O painel da conversa liga a conversa a um lead ou a um contato, mostra os dados 
 
 **Testes:** request specs de "Nova conversa", do "Iniciar conversa" (número novo, nono dígito, número de outro cadastro, sem número, erro no template, contato), dos valores sugeridos no campo de envio, dos cards e das permissões; `TemplateFields.person` e `#defaults`; `WhatsappSendJob` com o número na forma da Meta.
 
+## Avisos (Fase 8)
+
+**Central de notificações** (`Notification::KINDS`):
+
+| Tipo | Quem recebe | Quando | E-mail |
+| --- | --- | --- | --- |
+| `whatsapp_message` · Mensagens do WhatsApp | Administradores e quem vê a área WhatsApp (`area_readers`) | Mensagem recebida numa conversa | Desligado por padrão (`email_default: false`) |
+| `whatsapp_token_expiring` · Acesso do WhatsApp vencendo | Administradores | 7 dias antes e no dia do vencimento do token | Ligado por padrão, como os outros tipos |
+
+- **Um aviso por conversa, nunca um por mensagem** (`Whatsapp::Notifier`, chamado pelo processamento do webhook depois do commit):
+  - mensagem recebida (fora do histórico, sem reação nem aviso do sistema) cria o aviso da conversa para cada usuário que recebe o tipo e ainda não tem um aviso não lido dela;
+  - com um aviso não lido, ele é atualizado: "Henrique Duarte · 3 mensagens novas" (as não lidas da conversa), a prévia da última (`notifications.body`) e a data, que o leva ao topo da lista;
+  - o aviso aponta a conversa (`notifiable` e `path`);
+  - o índice único parcial `index_notifications_whatsapp_unread` garante um não lido por conversa e usuário, e o Notifier trabalha com a conversa travada;
+  - mensagem cuja conversa alguém já abriu (não lidas zeradas) antes do aviso sair não gera aviso.
+- **Lido:** abrir a conversa (`show` e `read`) e a resposta pelo celular (`smb_message_echoes`, que zera as não lidas) marcam como lidos os avisos daquela conversa, para todos os usuários. As não lidas que vão a zero disparam a marcação; abrir a conversa também marca o aviso que chegou depois de zeradas.
+- **E-mail:** segue `User#email_for?`, só na criação do aviso. A preferência das mensagens começa desligada; a tela de preferências mostra o tipo para quem recebe.
+- **Token vencendo** (`WhatsappTokenExpiryJob`, na rotina diária): atenção entre 7 e 1 dia antes (se a rotina falhar no 7º dia, avisa no seguinte) e crítico no dia, com `dedup_key` por conta, data de vencimento e etapa. Rodar duas vezes não repete; token renovado com outra data avisa de novo. O link leva a Tecnologia → Integrações → WhatsApp.
+
+**Sino do topo em tempo real:**
+- Stream por usuário, `[usuário, :notifications]`, pelo `NotificationsChannel`, que além do nome assinado confere que o stream é o do usuário conectado.
+- Criar, atualizar ou ler um aviso (callback `after_commit` e `Notification.refresh_bell` nas marcações em lote) redesenha o botão (`notifications_bell_button`, com o ponto de não lidas) e a lista (`notifications_bell_list`). A lista renderizada no broadcast marca como lida por `data-turbo-method="patch"`, com o token CSRF da página.
+- O stream fica num elemento permanente do layout (`#notifications_stream`, `data-turbo-permanent`), que não se reconecta a cada visita.
+
+**Aviso do navegador com som** (só front, Stimulus):
+- **Faixa** na tela de conversas (`whatsapp-notify-banner`), como no protótipo:
+  - "Ativar avisos" pede a permissão (`Notification.requestPermission()` só no clique) e mostra um aviso de confirmação;
+  - "Agora não" esconde a faixa para sempre;
+  - a escolha fica no `localStorage` (`wa-avisos`, com try/catch: sem storage, vale só na visita);
+  - com a permissão negada, sobra só a linha "Avisos do navegador bloqueados para este site…".
+- **Disparo** (`whatsapp-alerts`, no layout, em todas as telas do Admin para quem vê a área):
+  - o `Whatsapp::Notifier` acrescenta em `#whatsapp_alerts`, pelo stream do usuário, um alvo com o nome, a prévia (as mesmas da central), o id da conversa e da mensagem e o endereço. O controller lê e remove.
+  - Não avisa se a conversa está aberta e a aba visível.
+  - Várias abas: cada uma se candidata no `localStorage` (`wa-aviso-ultimo`, mensagem e aba), e só a que continua gravada depois de um instante avisa e toca.
+  - `new Notification(nome, { body: prévia, tag: "whatsapp-<conversa>" })`: o aviso novo da conversa substitui o anterior; o clique foca a janela e abre a conversa.
+- **Som:** `app/assets/sounds/whatsapp-aviso.wav` (dois toques curtos, gerado no projeto, sem dependência externa), tocado com `HTMLAudioElement` só depois da primeira interação com a página. "Som dos avisos do WhatsApp" no menu do usuário liga e desliga (`localStorage` `wa-som`); sem escolha, fica ligado para quem ativou os avisos.
+- **Fora da v1:** aviso com o Admin fechado (push com service worker).
+
+**Conferência manual do aviso do navegador e do som** (não há teste automatizado de navegador no projeto):
+1. Em Conversas, com a permissão do site em "Perguntar", a faixa aparece. "Agora não" a esconde e ela não volta ao recarregar; apague `wa-avisos` no `localStorage` para vê-la de novo.
+2. "Ativar avisos": o navegador pede a permissão. Ao permitir, chega o aviso "Avisos do WhatsApp ativados" e a faixa some. Ao bloquear, sobra a linha do cadeado.
+3. Clique em qualquer lugar do Admin (desbloqueia o som). Com a conversa aberta e a aba visível, peça para alguém mandar mensagem: nada de aviso nem som, só o balão.
+4. Abra outra conversa, ou outra tela (Dashboard, por exemplo), ou troque de aba: a mensagem gera o aviso com o nome e a prévia, e o som. Uma segunda mensagem da mesma conversa substitui o aviso anterior.
+5. Clique no aviso: a janela ganha foco e a conversa abre. O sino do topo mostra o aviso da conversa ("N mensagens novas") sem recarregar, e ele fica lido ao abrir a conversa.
+6. Com duas abas do Admin abertas, uma mensagem gera um aviso e um som só.
+7. No menu do usuário, "Som dos avisos do WhatsApp: desligado": a próxima mensagem avisa sem som.
+8. Responder pelo celular marca o aviso da conversa como lido no sino.
+
+**Testes:** `Whatsapp::Notifier` (criação, atualização sem duplicar, novo aviso depois de lido, histórico, reação, sistema e eco sem aviso, eco marcando como lido, e-mail, broadcast ao navegador sem conteúdo nos argumentos do job), abrir a conversa marcando os avisos de todos, `WhatsappTokenExpiryJob` (7 dias e no dia, sem repetir), sino em tempo real (criado, atualizado, lido e em lote), `NotificationsChannel` e as preferências.
+
 ## Permissões e auditoria
 
 - Área `whatsapp` em `Role::AREAS`. O Administrador tem nível "full"; os outros perfis começam sem acesso e podem ser liberados na tela de permissões.
 - Policies `WhatsappConversationPolicy`, `WhatsappMessagePolicy` e `WhatsappTemplatePolicy` seguem a matriz. `WhatsappAccountPolicy` exige nível "full" para conectar ou alterar um número.
 - Templates: quem só lê a área vê a lista, a prévia e os detalhes; criar, editar e sincronizar (`sync?`) exigem escrita; excluir exige "full".
+- Avisos (Fase 8): o aviso de mensagem vai para quem vê a área WhatsApp; o sino e os avisos do navegador vêm pelo stream do próprio usuário (`NotificationsChannel`).
 - Conversas: quem só lê a área vê as conversas e a mídia, e abrir marca como lida; enviar e "Tentar de novo" (`retry?`) exigem escrita. O canal do tempo real também exige a área.
 - Iniciar conversa (Fase 7b): exige enviar (`WhatsappMessage#create?`) e vincular (`link?`); o destinatário precisa ser legível (Comercial ou Clientes). Os cards no CRM aparecem para quem lê as conversas.
 - Vínculo (Fase 7a): vincular, criar lead e desvincular (`link?`) exigem escrita no WhatsApp; criar lead também exige criar no Comercial. O painel mostra os dados do lead só com leitura no Comercial e os do contato só com leitura em Clientes. "+ Registrar" segue a permissão de alterar o lead ou a oportunidade.
@@ -427,7 +478,7 @@ O painel da conversa liga a conversa a um lead ou a um contato, mostra os dados 
 7. **Ligação com o CRM**, em dois PRs:
    - 7a. ✅ **Vínculo**: vínculo automático pelo telefone (com e sem o nono dígito), painel com os dados do CRM, criar lead, vincular e desvincular, interação "WhatsApp" automática (uma por dia de conversa).
    - 7b. ✅ **Iniciar conversa**: diálogo com template, "Nova conversa", cards no lead, na empresa e no contato, preenchimento das variáveis do template com os dados do cadastro.
-8. **Avisos**: notificação por conversa (`Notification::KINDS`) e aviso do navegador com som.
+8. ✅ **Avisos**: aviso por conversa e do token vencendo na central (`Notification::KINDS`), sino em tempo real, aviso do navegador com som.
 
 ## Pontos em aberto
 
@@ -461,7 +512,7 @@ O painel da conversa liga a conversa a um lead ou a um contato, mostra os dados 
   - O `platform_type` de um número sem coexistência recém-conectado (esperado: diferente de `CLOUD_API`, para pedir o PIN).
   - Entre a conexão e a leitura do número (etapa 2 da ativação), a conta ainda não tem `display_phone_number`. Nesses segundos, `account_update` e os webhooks de número que trazem o telefone ficam só no log.
 - **Desconectar sem coexistência** (números de clientes): não há tela. Quando houver, usar `POST /<PHONE_NUMBER_ID>/deregister` e `unsubscribe_app`.
-- **Fase 8:** avisar o vencimento do token também pela central de notificações (hoje só na tela).
+- **Fase 8 (resolvido):** o vencimento do token também avisa pela central (7 dias antes e no dia).
 - **Fase 5 (resolvido):** a sincronização usa `WhatsappTemplate.attributes_from_meta`, como o webhook de status. O template criado direto no Gerenciador do WhatsApp entra na lista pela sincronização (botão ou rotina diária). Até lá, o status dele que chega pelo webhook fica só no log.
 - **Fase 6 (resolvido):**
   - o `wa_message_id` é gravado logo depois da resposta do envio, e o status que chegar antes é reprocessado pela Fase 3;
@@ -486,4 +537,8 @@ O painel da conversa liga a conversa a um lead ou a um contato, mostra os dados 
   - Que a Meta devolve em `contacts[].wa_id` a forma do número que ela usa (com ou sem o nono dígito) quando o envio vai pelo número digitado.
   - A lista de contatos e de leads da "Nova conversa" mostra até 10 de cada; acima disso, é pela busca.
   - Os cards no CRM não atualizam em tempo real: mostram a conversa ao abrir a página.
-- **Fase 8:** aviso do navegador e som para mensagem nova. O `whatsapp-thread` já sabe quando chega mensagem recebida com a aba escondida.
+- **Fase 8 (resolvido):** aviso do navegador e som para mensagem nova, em todas as telas do Admin.
+- **Fase 8, a conferir no uso real:**
+  - O roteiro de conferência manual do aviso do navegador e do som (seção "Avisos").
+  - Com a conversa aberta e a aba visível, o aviso da central é criado e marcado como lido logo em seguida (o servidor não sabe o que está na tela): o ponto do sino pode piscar.
+  - Navegadores que bloqueiam som mesmo depois da interação (Safari com restrições de mídia): o aviso aparece sem som.

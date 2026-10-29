@@ -26,6 +26,7 @@ class NotificationsController < ApplicationController
   def read_all
     authorize Notification, :index?
     policy_scope(Notification).unread.update_all(read_at: Time.current)
+    Notification.refresh_bell(current_user)
     redirect_back fallback_location: notifications_path, notice: "Todas as notificações foram marcadas como lidas."
   end
 end

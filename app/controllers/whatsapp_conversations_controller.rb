@@ -87,8 +87,9 @@ class WhatsappConversationsController < ApplicationController
     [ page.first(THREAD_PAGE).reverse, page.size > THREAD_PAGE ]
   end
 
+  # Também marca os avisos da conversa na central, inclusive o que chegou depois das não lidas zeradas.
   def mark_as_read
-    @conversation.update!(unread_count: 0) if @conversation.unread_count.positive?
+    @conversation.unread_count.positive? ? @conversation.update!(unread_count: 0) : Whatsapp::Notifier.conversation_read(@conversation)
     pending = @conversation.messages.inbound.where(from_history: false, read_at: nil).where.not(wa_message_id: nil)
     WhatsappReadJob.perform_later(@conversation) if @conversation.sendable? && pending.exists?
   end

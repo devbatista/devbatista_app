@@ -3,17 +3,12 @@
   <div class="crumb"><%= breadcrumb_html %></div>
   <button class="search-trigger" type="button" data-search-open aria-label="Busca global (⌘K)"><%= icon(:search, size: 16, stroke: 1.8) %><span>Buscar clientes, contatos, contratos…</span><span class="kbd">⌘K</span></button>
 
-  <% unread = current_user.notifications.unread %>
-  <% unread_count = unread.count %>
   <div class="user-menu notif-menu">
-    <button class="icon-btn" type="button" aria-label="Notificações<%= ", #{unread_count} não lidas" if unread_count > 0 %>" aria-haspopup="true" aria-expanded="false" data-popover-toggle="notificacoes-pop"><%= icon(:bell) %><% if unread_count > 0 %><span class="dot"></span><% end %></button>
+    <%# Sino em tempo real: o stream do usuário (NotificationsChannel) redesenha o botão e a lista. %>
+    <%= render "notifications/bell_button", user: current_user %>
     <div class="popover notif-pop" id="notificacoes-pop" role="dialog" aria-label="Notificações">
       <div class="card-head"><h2>Notificações</h2><%= link_to "Ver todas", notifications_path, style: "font-size:13px;font-weight:600" %></div>
-      <% recent = current_user.notifications.recent.limit(5).to_a %>
-      <% recent.each do |n| %>
-        <%= button_to notification_path(n), method: :patch, class: "notif notif-row", form_class: "inline-form", data: { turbo: false } do %><i class="<%= n.read? ? 'read' : n.level %>"></i><div><%= n.title %><small><%= datetime_br(n.created_at) %> · <%= n.kind_label %></small></div><% end %>
-      <% end %>
-      <% if recent.empty? %><div class="notif"><i class="read"></i><div>Nenhuma notificação por enquanto.</div></div><% end %>
+      <%= render "notifications/bell_list", user: current_user %>
     </div>
   </div>
 
@@ -26,6 +21,11 @@
           <span class="caption"><%= current_user.email %> · <%= current_user.role.name %></span>
         </div>
       </div>
+      <% if policy(WhatsappConversation).index? %>
+        <button class="notif signout" type="button" role="menuitemcheckbox" data-controller="whatsapp-sound-toggle" data-action="whatsapp-sound-toggle#toggle">
+          <%= icon(:bell, size: 16, stroke: 1.8) %><span>Som dos avisos do WhatsApp: <b data-whatsapp-sound-toggle-target="state">desligado</b></span>
+        </button>
+      <% end %>
       <%= link_to edit_account_password_path, class: "notif signout", role: "menuitem" do %>
         <%= icon(:lock, size: 16, stroke: 1.8) %><span>Alterar senha</span>
       <% end %>

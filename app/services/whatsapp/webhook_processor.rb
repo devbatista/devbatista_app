@@ -348,6 +348,7 @@ module Whatsapp
       created = conversation.messages.create!(data)
       conversation.record_message!(created)
       WhatsappMediaJob.perform_later(created) if created.media_id.present?
+      ActiveRecord.after_all_transactions_commit { Notifier.message_received(created) } if created.inbound? && !from_history
       created
     rescue ActiveRecord::RecordNotUnique
       nil # outro job gravou a mesma mensagem

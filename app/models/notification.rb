@@ -1,8 +1,12 @@
-# Alerta na central de notificações de um usuário (RF 5).
+# Alerta na central de notificações de um usuário (RF 5). O sino do topo acompanha em tempo real
+# (stream [usuário, :notifications], NotificationsChannel): criar, atualizar ou ler redesenha o
+# contador e a lista.
 class Notification < ApplicationRecord
   include LabeledEnums
 
   # Tipos de alerta, com o perfil que recebe (cap. 36). Cada fase acrescenta os seus.
+  # area_readers: recebe também quem pode ver a área. email_default: false deixa o e-mail desligado
+  # até a pessoa ligar nas preferências.
   KINDS = {
     "contract_expiring" => { label: "Contratos vencendo", roles: %w[admin comercial], area: "contratos",
                              trigger: -> { "#{Setting[:contract_alert_days].to_sentence} dias antes do término" } },
@@ -19,7 +23,11 @@ class Notification < ApplicationRecord
     "domain_expiring" => { label: "Domínios vencendo", roles: %w[admin desenvolvedor], area: "tecnologia",
                            trigger: -> { "#{Setting[:domain_alert_days].to_sentence} dias antes do vencimento" } },
     "ticket_critical" => { label: "Chamados críticos", roles: %w[admin suporte desenvolvedor], area: "suporte",
-                           trigger: -> { "Abertura ou mudança para prioridade Crítica (na hora)" } }
+                           trigger: -> { "Abertura ou mudança para prioridade Crítica (na hora)" } },
+    "whatsapp_message" => { label: "Mensagens do WhatsApp", roles: %w[admin], area: "whatsapp", area_readers: true, email_default: false,
+                            audience: "quem vê as conversas", trigger: -> { "Mensagem recebida numa conversa (um aviso por conversa)" } },
+    "whatsapp_token_expiring" => { label: "Acesso do WhatsApp vencendo", roles: %w[admin], area: "whatsapp",
+                                   trigger: -> { "7 dias antes e no dia do vencimento do token" } }
   }.freeze
 
   labeled_enum :level, { info: "Informativo", warn: "Atenção", crit: "Crítico" }, prefix: true
@@ -33,6 +41,8 @@ class Notification < ApplicationRecord
   scope :unread, -> { where(read_at: nil) }
   scope :recent, -> { order(created_at: :desc, id: :desc) }
 
+  after_commit :refresh_bell
+
   # Cria o alerta para cada usuário ativo dos perfis do tipo. Com dedup_key, não
   # repete o mesmo alerta se a rotina rodar duas vezes.
   # Alertas com roles: :owner vão só para o responsável do registro (users:).
@@ -45,9 +55,21 @@ class Notification < ApplicationRecord
 
       notification = create!(user: user, kind: kind, title: title, path: path, notifiable: notifiable,
                              level: level, area: config[:area], dedup_key: dedup_key)
-      NotificationMailer.alert(notification).deliver_later if user.email_for?(kind) && Setting[:email_enabled]
+      notification.email_later
       notification
     end
+  end
+
+  # Redesenha o sino do usuário (contador e lista). Para as marcações em lote (update_all), que não
+  # passam pelos callbacks.
+  def self.refresh_bell(user)
+    stream = [ user, :notifications ]
+    Turbo::StreamsChannel.broadcast_replace_later_to(stream, target: "notifications_bell_button", partial: "notifications/bell_button", locals: { user: user })
+    Turbo::StreamsChannel.broadcast_replace_later_to(stream, target: "notifications_bell_list", partial: "notifications/bell_list", locals: { user: user })
+  end
+
+  def email_later
+    NotificationMailer.alert(self).deliver_later if user.email_for?(kind) && Setting[:email_enabled]
   end
 
   def read?
@@ -60,7 +82,15 @@ class Notification < ApplicationRecord
 
   # Quem recebe o alerta, em texto (para a tela de preferências).
   def self.receives?(kind, user)
-    roles = KINDS.dig(kind, :roles)
-    roles == :owner ? user.can_read?(KINDS.dig(kind, :area)) : roles.include?(user.role.key)
+    config = KINDS.fetch(kind)
+    return user.can_read?(config[:area]) if config[:roles] == :owner || (config[:area_readers] && user.can_read?(config[:area]))
+
+    config[:roles].include?(user.role.key)
+  end
+
+  private
+
+  def refresh_bell
+    self.class.refresh_bell(user) if user
   end
 end
