@@ -50,6 +50,7 @@ Rails.application.configure do
   config.x.whatsapp.app_secret = "segredo-de-teste"
   config.x.whatsapp.embedded_signup_config_id = "config-de-teste"
   config.x.whatsapp.webhook_verify_token = "verificacao-de-teste"
+  config.x.site_leads.token = "token-do-site-de-teste"
   config.active_record.encryption.primary_key = "chave-primaria-de-teste-whatsapp-0001"
   config.active_record.encryption.deterministic_key = "chave-deterministica-de-teste-0001"
   config.active_record.encryption.key_derivation_salt = "sal-de-derivacao-de-teste-0001"
