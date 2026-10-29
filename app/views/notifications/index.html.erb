@@ -20,7 +20,7 @@
     <% @notifications.each do |n| %>
       <%= button_to notification_path(n), method: :patch, class: "notif notif-row#{' read' if n.read?}", form_class: "inline-form", data: { turbo: false } do %>
         <i class="<%= n.read? ? 'read' : n.level %>"></i>
-        <div><span class="<%= 'strong' unless n.read? %>"><%= n.title %></span><small><%= datetime_br(n.created_at) %> · <%= n.kind_label %></small></div>
+        <div><span class="<%= 'strong' unless n.read? %>"><%= n.title %></span><% if n.body.present? %><span class="cell-sub"><%= n.body %></span><% end %><small><%= datetime_br(n.created_at) %> · <%= n.kind_label %></small></div>
       <% end %>
     <% end %>
     <%= render "shared/pagination", pager: @pager %>

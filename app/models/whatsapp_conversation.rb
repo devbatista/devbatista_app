@@ -59,6 +59,8 @@ class WhatsappConversation < ApplicationRecord
   before_save :phone_changed, if: -> { will_save_change_to_wa_id? && wa_id }
   after_commit :broadcast_inbox, on: %i[create update]
   after_commit :link_changed, on: %i[create update], if: -> { saved_change_to_lead_id? || saved_change_to_contact_id? }
+  # Não lidas zeradas (conversa aberta ou resposta pelo celular): os avisos dela ficam lidos (Fase 8).
+  after_commit -> { Whatsapp::Notifier.conversation_read(self) }, on: :update, if: -> { saved_change_to_unread_count? && unread_count.zero? }
 
   def self.filtered(key)
     case key

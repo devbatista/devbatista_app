@@ -460,7 +460,8 @@ CREATE TABLE public.notifications (
     updated_at timestamp(6) without time zone NOT NULL,
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     user_id uuid NOT NULL,
-    notifiable_id uuid
+    notifiable_id uuid,
+    body character varying
 );
 
 
@@ -1963,6 +1964,13 @@ CREATE INDEX index_notifications_on_user_id_and_read_at ON public.notifications 
 
 
 --
+-- Name: index_notifications_whatsapp_unread; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_notifications_whatsapp_unread ON public.notifications USING btree (user_id, notifiable_id) WHERE (((kind)::text = 'whatsapp_message'::text) AND (read_at IS NULL));
+
+
+--
 -- Name: index_oauth_access_grants_on_application_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -3460,6 +3468,7 @@ ALTER TABLE ONLY public.leads
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261028200000'),
 ('20261028190000'),
 ('20261028180000'),
 ('20261028120000'),

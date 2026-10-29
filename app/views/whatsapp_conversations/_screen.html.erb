@@ -24,6 +24,17 @@
   <% end %>
 </div>
 
+<%# Aviso do navegador com som (Fase 8): a faixa some depois da escolha (whatsapp-notify-banner). %>
+<div data-controller="whatsapp-notify-banner" class="notify-wrap">
+  <div class="callout notify-bar" data-whatsapp-notify-banner-target="bar" hidden>
+    <%= icon(:bell, size: 20, stroke: 1.8) %>
+    <span>Quer um aviso com som quando chegar mensagem com o Admin aberto, mesmo em outra aba? O navegador vai pedir sua permissão.</span>
+    <button class="btn sm pri" type="button" data-action="whatsapp-notify-banner#enable">Ativar avisos</button>
+    <button class="btn sm" type="button" data-action="whatsapp-notify-banner#dismiss">Agora não</button>
+  </div>
+  <p class="caption notify-blocked" data-whatsapp-notify-banner-target="blocked" hidden><%= icon(:bell, size: 14, stroke: 1.8) %>Avisos do navegador bloqueados para este site. Para reativar, clique no cadeado ao lado do endereço e permita notificações.</p>
+</div>
+
 <% if @account.nil? %>
   <section class="card"><%= render "shared/empty", title: "Nenhum número conectado", text: "As conversas aparecem aqui depois de conectar o WhatsApp em Tecnologia → Integrações → WhatsApp." do %><% if policy(WhatsappAccount).index? %><%= link_to "Ir para a integração", whatsapp_accounts_path, class: "btn" %><% end %><% end %></section>
 <% else %>

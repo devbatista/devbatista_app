@@ -344,6 +344,12 @@ tr[data-href] { cursor: pointer; }
 .who-card .co-avatar { width: 44px; height: 44px; font-size: 15px; }
 .unlinked { padding: 24px 20px 8px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px; color: var(--muted); }
 .unlinked .ic { width: 48px; height: 48px; border-radius: 12px; background: var(--warn-bg); color: var(--warn); display: flex; align-items: center; justify-content: center; }
+/* Avisos do navegador (Fase 8) */
+.notify-wrap:has(> :not([hidden])) { margin-bottom: 16px; display: flex; flex-direction: column; gap: 8px; }
+.notify-bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.notify-bar > svg { flex: none; color: var(--cyan); }
+.notify-bar span { flex: 1; min-width: 220px; }
+.notify-blocked { margin: 0; display: flex; align-items: center; gap: 6px; }
 /* Painel: vínculo com o CRM (Fase 7a) */
 .unlinked .btn { width: 100%; }
 .unlinked form { width: 100%; }

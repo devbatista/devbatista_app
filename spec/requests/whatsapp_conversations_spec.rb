@@ -231,6 +231,26 @@ RSpec.describe "WhatsApp → Conversas" do
     end
   end
 
+  describe "avisos da central" do
+    it "abrir a conversa marca os avisos dela como lidos para todos, inclusive o que chegou depois das não lidas zeradas" do
+      conv = conversation(unread_count: 2, profile_name: "Henrique")
+      other = conversation(unread_count: 1)
+      notices = [ admin, reader ].map do |user|
+        Notification.create!(user: user, kind: "whatsapp_message", title: "Henrique · 2 mensagens novas", notifiable: conv, area: "whatsapp")
+      end
+      kept = Notification.create!(user: admin, kind: "whatsapp_message", title: "Outra", notifiable: other, area: "whatsapp")
+
+      sign_in admin
+      get whatsapp_conversation_path(conv)
+      expect(notices.map { |n| n.reload.read_at }).to all(be_present)
+      expect(kept.reload.read_at).to be_nil
+
+      late = Notification.create!(user: admin, kind: "whatsapp_message", title: "Henrique · 1 mensagem nova", notifiable: conv, area: "whatsapp")
+      post read_whatsapp_conversation_path(conv)
+      expect(late.reload.read_at).to be_present
+    end
+  end
+
   describe "permissões" do
     let(:conv) { conversation(last_inbound_at: 1.hour.ago) }
 

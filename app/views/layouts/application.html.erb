@@ -16,6 +16,14 @@
       </div>
     </div>
     <div class="overlay" data-overlay></div>
+    <%# Stream do usuário: o sino (Notification.refresh_bell) e os avisos do navegador do WhatsApp
+        (Whatsapp::Notifier). Permanente entre as visitas do Turbo, para não perder aviso nem o desbloqueio do som. %>
+    <div id="notifications_stream" data-turbo-permanent hidden>
+      <%= turbo_stream_from current_user, :notifications, channel: NotificationsChannel %>
+      <% if policy(WhatsappConversation).index? %>
+        <div id="whatsapp_alerts" data-controller="whatsapp-alerts" data-whatsapp-alerts-sound-value="<%= asset_path("whatsapp-aviso.wav") %>"></div>
+      <% end %>
+    </div>
     <%# Busca global (⌘K): consulta /busca.json enquanto a pessoa digita. %>
     <div class="palette" role="dialog" aria-label="Busca global" data-palette data-url="<%= search_path(format: :json) %>">
       <form class="palette-input" action="<%= search_path %>" method="get" data-turbo="false">

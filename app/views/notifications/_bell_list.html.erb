@@ -1,0 +1,11 @@
+<%# Últimas notificações no sino. Também renderizado pelo broadcast, sem sessão: o clique marca como
+    lida por PATCH com o token CSRF da página (data-turbo-method). Locals: user. %>
+<div id="notifications_bell_list">
+  <% recent = user.notifications.recent.limit(5).to_a %>
+  <% recent.each do |n| %>
+    <%= link_to notification_path(n), class: "notif notif-row", data: { turbo_method: :patch, turbo_frame: "_top" } do %>
+      <i class="<%= n.read? ? 'read' : n.level %>"></i><div><%= n.title %><% if n.body.present? %><span class="cell-sub"><%= n.body %></span><% end %><small><%= datetime_br(n.created_at) %> · <%= n.kind_label %></small></div>
+    <% end %>
+  <% end %>
+  <% if recent.empty? %><div class="notif"><i class="read"></i><div>Nenhuma notificação por enquanto.</div></div><% end %>
+</div>
