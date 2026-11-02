@@ -1,0 +1,26 @@
+<% c = connection %>
+<% back = billing_connections_path %>
+<%= render layout: "shared/drawer_form", locals: { title: c.new_record? ? "Nova conexão de cobrança" : "Editar conexão de cobrança", cancel_path: back } do %>
+  <%= form_with model: c, class: "form", data: { turbo_frame: "_top" } do |f| %>
+    <div class="drawer-body form">
+      <%= render "shared/form_errors", record: c %>
+      <div class="callout"><span>As chaves de API não são digitadas aqui: configure no Railway as variáveis
+        <% BillingConnection::PROVIDERS.each do |key, config| %><b class="strong"><%= config[:env].join(" e ") %></b> (<%= BillingConnection::PROVIDER_LABELS[key] %>)<%= key == BillingConnection::PROVIDERS.keys.last ? "." : "; " %><% end %>
+        Use credenciais só de leitura de faturamento.</span></div>
+      <div class="form-grid">
+        <div class="field"><%= f.label :provider do %>Fornecedor da API <span class="req">*</span><% end %><%= f.select :provider, BillingConnection.options_for_provider, {}, class: "select", disabled: c.persisted? %></div>
+        <div class="field"><%= f.label :name do %>Nome <span class="req">*</span><% end %><%= f.text_field :name, class: "input", required: true, placeholder: "Ex.: AWS DevBatista" %></div>
+        <div class="field full"><%= f.label :account_id do %>Conta <span class="req">*</span><% end %><%= f.text_field :account_id, class: "input mono", required: true, placeholder: "AWS: 12 dígitos · Cloudflare: Account ID" %><span class="hint">Não é segredo: AWS no canto superior direito do console; Cloudflare na página inicial da conta.</span></div>
+        <div class="field full"><%= f.label :supplier_id do %>Fornecedor <span class="req">*</span><% end %><%= f.collection_select :supplier_id, Supplier.active.or(Supplier.where(id: c.supplier_id)).by_name, :id, :name, { prompt: "Selecione" }, class: "select", required: true %><span class="hint">As despesas entram com a categoria do fornecedor</span></div>
+        <div class="field full"><%= f.label :cost_center_key do %>Centro de custo <span class="req">*</span><% end %><%= f.select :cost_center_key, grouped_options_for_select(BillingConnection.cost_center_options(c.company_id), c.cost_center_key), {}, class: "select" %></div>
+        <div class="field full"><label class="check"><%= f.check_box :auto_paid %> Cobrança automática no cartão</label><span class="hint">Marca a despesa como paga no vencimento da fatura, já que o fornecedor não informa o pagamento do cartão.</span></div>
+        <% if c.persisted? %><div class="field full"><label class="check"><%= f.check_box :active %> Sincronizar todo dia</label></div><% end %>
+      </div>
+    </div>
+    <div class="drawer-foot">
+      <% if c.persisted? && policy(c).destroy? %><%= link_to "Excluir", billing_connection_path(c), class: "btn danger", style: "margin-right:auto", data: { turbo_method: :delete, turbo_confirm: "Excluir a conexão #{c}? As despesas importadas continuam.", turbo_frame: "_top" } %><% end %>
+      <%= link_to "Cancelar", back, class: "btn", data: { close: true, turbo_frame: "_top" } %>
+      <%= f.submit c.new_record? ? "Salvar conexão" : "Salvar alterações", class: "btn pri" %>
+    </div>
+  <% end %>
+<% end %>

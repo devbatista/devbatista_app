@@ -6,6 +6,7 @@ class DailyAlertsJob < ApplicationJob
     ContractAlertsJob.perform_now
     ProposalAlertsJob.perform_now
     OperationAlertsJob.perform_now
+    DomainExpirySync.new.run
     DomainAlertsJob.perform_now
     WhatsappTokenExpiryJob.perform_now
     WhatsappTemplateSyncJob.enqueue_all

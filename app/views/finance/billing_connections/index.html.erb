@@ -1,0 +1,74 @@
+<% nav_location :fin, "Conexões de cobrança" %>
+<% breadcrumb ["Financeiro", finance_path], ["Conexões de cobrança"] %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Financeiro · faturas pela API</span>
+    <h1>Conexões de cobrança</h1>
+    <p class="lead">Fornecedores cujas faturas entram em Despesas sozinhas, todo dia às 05:30. O resto (HostGator, Google Workspace, Registro.br) segue como despesa recorrente.</p>
+  </div>
+  <% if policy(BillingConnection).create? %><div class="actions"><%= drawer_link_to new_billing_connection_path, class: "btn pri" do %><%= icon(:plus, size: 16, stroke: 2) %>Nova conexão<% end %></div><% end %>
+</div>
+
+<section class="card" aria-label="Conexões">
+  <% if @connections.any? %>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr><th>Conexão</th><th>Fornecedor</th><th>Centro de custo</th><th class="num">Mês atual</th><th>Em aberto</th><th>Última sincronização</th><th><span class="sr-only">Ações</span></th></tr></thead>
+        <tbody>
+          <% @connections.each do |c| %>
+            <tr class="<%= 'inactive' unless c.active? %>">
+              <td data-label="Conexão" class="strong"><%= c.name %><span class="cell-sub"><%= [ c.provider_label, "conta #{c.account_id}", ("pago no cartão" if c.auto_paid?), ("desativada" unless c.active?) ].compact.join(" · ") %></span></td>
+              <td data-label="Fornecedor"><%= c.supplier.name %></td>
+              <td data-label="Centro de custo"><%= c.cost_center_name %></td>
+              <td data-label="Mês atual" class="num nowrap"><%= brl(@month_cents[c.id].to_i) %></td>
+              <td data-label="Em aberto"><%= @open_counts[c.id].to_i.positive? ? link_to(pluralize(@open_counts[c.id], "despesa"), payables_path(fornecedor: c.supplier_id)) : "—" %></td>
+              <td data-label="Última sincronização">
+                <% if !c.configured? %>
+                  <span class="badge b-warn">Falta configurar</span><span class="cell-sub">Variáveis: <%= c.missing_env.join(", ") %></span>
+                <% elsif c.failing? %>
+                  <span class="badge b-crit">Falhou</span><span class="cell-sub"><%= c.last_error.truncate(140) %></span>
+                <% elsif c.last_synced_at %>
+                  <span class="mono"><%= l(c.last_synced_at, format: "%d/%m %H:%M") %></span>
+                <% else %>
+                  <span class="muted">Nunca</span>
+                <% end %>
+              </td>
+              <td data-label="" class="right">
+                <span class="row-actions">
+                  <% if policy(c).sync? && c.active? %><%= button_to "Sincronizar agora", sync_billing_connection_path(c), class: "link-btn", form: { style: "display:inline" } %><% end %>
+                  <% if policy(c).edit? %><%= drawer_link_to "Editar", edit_billing_connection_path(c), class: "link-btn" %><% end %>
+                </span>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <div class="card-foot"><span>Valores em R$; em moeda estrangeira, estimados pela PTAX do dia até o pagamento. "Pago no cartão": a despesa vira paga no vencimento da fatura.</span></div>
+  <% else %>
+    <%= render "shared/empty", title: "Nenhuma conexão de cobrança", text: "Conecte a AWS e a Cloudflare para as faturas entrarem em Despesas sem digitar. As chaves de API ficam nas variáveis de ambiente, nunca no banco." %>
+  <% end %>
+</section>
+
+<% if @recent.any? %>
+  <section class="card" aria-labelledby="recentes-t" style="margin-top:20px">
+    <div class="card-body"><div class="section-title"><h2 id="recentes-t">Últimas despesas importadas</h2></div></div>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr><th>Descrição</th><th>Competência</th><th>Vencimento</th><th class="num">Valor</th><th>Status</th></tr></thead>
+        <tbody>
+          <% @recent.each do |p| %>
+            <tr>
+              <td data-label="Descrição"><%= p.description %></td>
+              <td data-label="Competência"><%= p.competence_label %></td>
+              <td data-label="Vencimento" class="mono"><%= date_br(p.due_on) %></td>
+              <td data-label="Valor" class="num nowrap"><%= payable_amount(p) %></td>
+              <td data-label="Status"><%= title_badge(p) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+<% end %>
