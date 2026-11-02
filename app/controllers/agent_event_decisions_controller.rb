@@ -18,7 +18,7 @@ class AgentEventDecisionsController < ApplicationController
                                turbo_stream.replace(helpers.dom_id(agent, :log), partial: "agents/log", locals: { agent: agent }) ],
                status: (alert ? :unprocessable_content : :ok)
       end
-      format.html { redirect_to escritorio_path(agente: agent.key), notice: notice, alert: alert }
+      format.html { redirect_to office_path(agente: agent.key), notice: notice, alert: alert }
     end
   end
 end

@@ -5,7 +5,7 @@ class AgentsController < ApplicationController
   before_action :set_agent
 
   def show
-    return redirect_to escritorio_path(agente: @agent.key) unless turbo_frame_request?
+    return redirect_to office_path(agente: @agent.key) unless turbo_frame_request?
 
     render partial: "agents/panel", locals: { agent: @agent }
   end

@@ -21,5 +21,6 @@ O MVP é uma aplicação web responsiva: desenhada para desktop, utilizável no 
 | Logs | Acessos e erros registrados, sem dados sensíveis. |
 | Integração futura com HubSpot | Company, Contact, Lead e Opportunity têm o campo external_id desde a V1, para a sincronização da V1.1. |
 | Idioma e formato | Interface em português; código e entidades em inglês, no singular (convenção Rails). Moeda R$, datas dd/mm/aaaa, fuso America/Sao_Paulo. |
+| Rotas | Todo caminho de URL em inglês, no plural dos recursos e com hífen entre palavras (`/office/agents/:key`, `/customer-services`, `/webhooks/site-leads`), inclusive em módulos novos. Só o texto da tela fica em português. |
 | Acessibilidade | Contraste AA, navegação por teclado em listagens e formulários, foco visível. |
 | Desempenho | Meta proposta: listagens e Visão 360º abrem em menos de 1 s com 5 anos de dados; os indicadores do dashboard podem usar cache de até 15 min. Ainda não validada. |

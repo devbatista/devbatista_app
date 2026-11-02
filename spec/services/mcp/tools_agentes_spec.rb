@@ -25,7 +25,7 @@ RSpec.describe "Tools do escritório de agentes no MCP" do
       expect(event).to have_attributes(status: "done", title: "Leads qualificados", summary: "3 de 5 qualificados.",
                                        needs_approval: false, payload: { "qualificados" => 3 })
       expect(data).to include("id" => event.id, "agente" => "sol", "status" => "done", "status_rotulo" => "Concluído", "decisao" => nil)
-      expect(data["link"]).to end_with("/escritorio?agente=sol")
+      expect(data["link"]).to end_with("/office?agente=sol")
       expect(AuditLog.where(auditable: event, action: "create", user: admin, area: "agentes")).to exist
     end
 

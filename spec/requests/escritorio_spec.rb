@@ -17,7 +17,7 @@ RSpec.describe "Agentes IA → Escritório e Eventos" do
       create(:agent_event, agent: agent("ops"), title: "Checando backups")
       create(:agent_event, :approval, agent: agent("leo"), title: "Subir a verba", summary: "CPL abaixo da meta.")
 
-      get escritorio_path
+      get office_path
 
       body = response.body
       expect(body.scan('id="desk_agent_').size).to eq(5)
@@ -29,20 +29,20 @@ RSpec.describe "Agentes IA → Escritório e Eventos" do
     end
 
     it "abre o agente da URL" do
-      get escritorio_path(agente: "fin")
+      get office_path(agente: "fin")
       expect(response.body).to include("Painel de Fin", "Nenhum evento ainda")
     end
 
     it "menu com o grupo Agentes IA, Rotinas em breve" do
-      get escritorio_path
+      get office_path
       menu = response.body[/<aside class="side".*?<\/aside>/m]
-      expect(menu).to include("Agentes IA", %(href="#{escritorio_path}"), %(href="#{agent_events_path}"))
+      expect(menu).to include("Agentes IA", %(href="#{office_path}"), %(href="#{agent_events_path}"))
       expect(menu).to match(/Rotinas<small>em breve<\/small>/)
     end
 
     it "sem agentes ativos, explica" do
       Agent.update_all(active: false)
-      get escritorio_path
+      get office_path
       expect(response.body).to include("Nenhum agente ativo")
     end
   end
@@ -66,7 +66,7 @@ RSpec.describe "Agentes IA → Escritório e Eventos" do
 
     it "fora do frame, leva ao escritório com o agente aberto" do
       get agent_path(agent("sol"))
-      expect(response).to redirect_to(escritorio_path(agente: "sol"))
+      expect(response).to redirect_to(office_path(agente: "sol"))
     end
 
     it "as partes ao vivo, que o tempo real recarrega" do
@@ -102,7 +102,7 @@ RSpec.describe "Agentes IA → Escritório e Eventos" do
     it "sem Turbo, volta ao escritório com o aviso" do
       sign_in admin
       post agent_event_decision_path(event), params: { decisao: "rejected" }
-      expect(response).to redirect_to(escritorio_path(agente: "sol"))
+      expect(response).to redirect_to(office_path(agente: "sol"))
       expect(flash[:notice]).to eq("Rejeitado · Enviar follow-up")
     end
 
@@ -135,7 +135,7 @@ RSpec.describe "Agentes IA → Escritório e Eventos" do
 
     it "quem só lê não deixa ordem nem vê o campo" do
       sign_in leitor
-      get escritorio_path
+      get office_path
       expect(response.body).not_to include("Deixar uma ordem")
       post agent_agent_orders_path(agent("sol")), params: { agent_order: { body: "x" } }
       expect(response).to have_http_status(:forbidden)
@@ -170,7 +170,7 @@ RSpec.describe "Agentes IA → Escritório e Eventos" do
   it "perfil sem a área recebe 403 em todas as telas" do
     sign_in create(:user, :comercial)
     event = create(:agent_event, :approval, agent: agent("sol"))
-    [ escritorio_path, agent_events_path, agent_path(agent("sol")), live_agent_path(agent("sol")), log_agent_path(agent("sol")) ].each do |path|
+    [ office_path, agent_events_path, agent_path(agent("sol")), live_agent_path(agent("sol")), log_agent_path(agent("sol")) ].each do |path|
       get path
       expect(response).to have_http_status(:forbidden), path
     end

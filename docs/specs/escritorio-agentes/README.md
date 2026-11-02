@@ -20,7 +20,7 @@ Novembro de 2026 · Página do Admin em que os agentes do Claude que trabalham p
 O escritório é uma caixa de correio entre o administrador e os agentes:
 
 ```
-Claude (rotina agendada) ──MCP──▶ registrar_evento ──▶ AgentEvent ──broadcast──▶ /escritorio
+Claude (rotina agendada) ──MCP──▶ registrar_evento ──▶ AgentEvent ──broadcast──▶ /office
                                                                                     │
 Claude (próxima execução) ◀──MCP── ler_pendencias ◀── AgentOrder / decisão ◀──── Rafael
 ```
@@ -74,9 +74,9 @@ No padrão das existentes (`Mcp::Tools::Base`, respostas em JSON com chaves em p
 
 **Menu:** grupo novo **Agentes IA** (`NavigationHelper::NAV`, ícone próprio), com Escritório, Rotinas ("em breve") e Eventos.
 
-**Escritório** (`/escritorio`, `EscritorioController#show`):
+**Escritório** (`/office`, `OfficeController#show`):
 - **Planta** à esquerda. Na Fase 1, um cartão por sala (`--radius`), na ordem de `position`: nome, cargo, sala, chip de status e o título do último evento. Clicar abre o agente no painel.
-- **Painel** à direita (Turbo Frame `agent_panel`, `/escritorio/agentes/:key`):
+- **Painel** à direita (Turbo Frame `agent_panel`, `/office/agents/:key`):
   - nome, cargo, sala e chip de status;
   - última tarefa (título e resumo do último evento) e há quanto tempo;
   - pedidos de aprovação pendentes, cada um com Aprovar, Rejeitar e observação opcional;
@@ -86,13 +86,13 @@ No padrão das existentes (`Mcp::Tools::Base`, respostas em JSON com chaves em p
 - **Chips de status:** Trabalhando em ciano, Concluído em `--good`, Aguardando aprovação em `--warn`, Erro em `--crit`, Ocioso neutro.
 - Telas estreitas: a planta em cima, o painel embaixo.
 
-**Eventos** (`/escritorio/eventos`): listagem com filtros (agente, status, aprovação, período), ordenação por data e paginação. Cada linha abre o agente no escritório.
+**Eventos** (`/office/events`): listagem com filtros (agente, status, aprovação, período), ordenação por data e paginação. Cada linha abre o agente no escritório.
 
 **Tempo real:**
 - `turbo_stream_from :escritorio, channel: EscritorioStreamsChannel`. O canal exige leitura na área `agentes`, como o `WhatsappStreamsChannel`.
 - `AgentEvent` e `AgentOrder`, na criação e na alteração (`after_commit on: %i[create update]`), chamam `Agent#broadcast_office`, que faz `broadcast_replace_later_to :escritorio`:
   - redesenha o cartão do agente na planta (`dom_id(agent, :desk)`);
-  - troca as duas partes do painel daquele agente, `dom_id(agent, :panel)` (status, última tarefa e aprovações, em `/escritorio/agentes/:key/ao-vivo`) e `dom_id(agent, :log)` (ordens e linha do tempo, em `/registro`), por turbo-frames com `src`, que buscam de novo com a sessão de quem vê (os botões dependem da permissão);
+  - troca as duas partes do painel daquele agente, `dom_id(agent, :panel)` (status, última tarefa e aprovações, em `/office/agents/:key/live`) e `dom_id(agent, :log)` (ordens e linha do tempo, em `/log`), por turbo-frames com `src`, que buscam de novo com a sessão de quem vê (os botões dependem da permissão);
   - o campo "Deixar uma ordem" fica entre as duas partes, fora do que o broadcast troca, para não perder o texto digitado.
 - Um callback só para criação e alteração: `after_create_commit` e `after_update_commit` com o mesmo método ficariam só com o último (comportamento do Rails).
 - `ler_pendencias` grava as leituras com `update_all` e chama o broadcast uma vez.
