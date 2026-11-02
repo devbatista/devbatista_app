@@ -42,5 +42,13 @@ FactoryBot.define do
     amount_cents { 380_000 }
   end
 
+  factory :billing_connection do
+    supplier
+    provider { "aws" }
+    sequence(:name) { |n| "AWS #{n}" }
+    sequence(:account_id) { |n| format("%012d", 123_456_789_000 + n) }
+    cost_center { "Infraestrutura interna" }
+  end
+
   sequence(:invoice_number) { |n| format("%06d", 400 + n) }
 end

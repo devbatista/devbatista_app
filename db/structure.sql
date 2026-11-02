@@ -218,6 +218,28 @@ CREATE TABLE public.audit_logs (
 
 
 --
+-- Name: billing_connections; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.billing_connections (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    supplier_id uuid NOT NULL,
+    company_id uuid,
+    provider character varying NOT NULL,
+    name character varying NOT NULL,
+    account_id character varying,
+    cost_center character varying,
+    auto_paid boolean DEFAULT true NOT NULL,
+    active boolean DEFAULT true NOT NULL,
+    last_synced_at timestamp(6) without time zone,
+    last_error text,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL,
+    CONSTRAINT billing_connections_cost_center_present CHECK (((company_id IS NOT NULL) OR (cost_center IS NOT NULL)))
+);
+
+
+--
 -- Name: companies; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -375,7 +397,8 @@ CREATE TABLE public.domains (
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL,
     id uuid DEFAULT gen_random_uuid() NOT NULL,
-    company_id uuid NOT NULL
+    company_id uuid NOT NULL,
+    rdap_checked_at timestamp(6) without time zone
 );
 
 
@@ -633,6 +656,8 @@ CREATE TABLE public.payables (
     external_service_id uuid,
     supplier_id uuid NOT NULL,
     company_id uuid,
+    billing_connection_id uuid,
+    external_id character varying,
     CONSTRAINT payables_amount_positive CHECK ((amount_cents >= 0)),
     CONSTRAINT payables_cost_center_present CHECK (((company_id IS NOT NULL) OR (cost_center IS NOT NULL)))
 );
@@ -1258,6 +1283,14 @@ ALTER TABLE ONLY public.audit_logs
 
 
 --
+-- Name: billing_connections billing_connections_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.billing_connections
+    ADD CONSTRAINT billing_connections_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: companies companies_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1784,6 +1817,20 @@ CREATE INDEX index_audit_logs_on_user_id ON public.audit_logs USING btree (user_
 
 
 --
+-- Name: index_billing_connections_on_company_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_billing_connections_on_company_id ON public.billing_connections USING btree (company_id);
+
+
+--
+-- Name: index_billing_connections_on_supplier_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_billing_connections_on_supplier_id ON public.billing_connections USING btree (supplier_id);
+
+
+--
 -- Name: index_companies_on_cnpj; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2257,6 +2304,13 @@ CREATE INDEX index_payables_on_status ON public.payables USING btree (status);
 --
 
 CREATE INDEX index_payables_on_supplier_id ON public.payables USING btree (supplier_id);
+
+
+--
+-- Name: index_payables_once_per_billing_charge; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_payables_once_per_billing_charge ON public.payables USING btree (billing_connection_id, external_id) WHERE (billing_connection_id IS NOT NULL);
 
 
 --
@@ -3252,6 +3306,14 @@ ALTER TABLE ONLY public.opportunities
 
 
 --
+-- Name: billing_connections fk_rails_72e75e84ed; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.billing_connections
+    ADD CONSTRAINT fk_rails_72e75e84ed FOREIGN KEY (company_id) REFERENCES public.companies(id);
+
+
+--
 -- Name: payables fk_rails_731b1d001f; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3313,6 +3375,14 @@ ALTER TABLE ONLY public.documents
 
 ALTER TABLE ONLY public.projects
     ADD CONSTRAINT fk_rails_88157d0fea FOREIGN KEY (proposal_id) REFERENCES public.proposals(id);
+
+
+--
+-- Name: payables fk_rails_8d9124f3c4; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.payables
+    ADD CONSTRAINT fk_rails_8d9124f3c4 FOREIGN KEY (billing_connection_id) REFERENCES public.billing_connections(id) ON DELETE SET NULL;
 
 
 --
@@ -3588,6 +3658,14 @@ ALTER TABLE ONLY public.proposal_items
 
 
 --
+-- Name: billing_connections fk_rails_f11412032c; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.billing_connections
+    ADD CONSTRAINT fk_rails_f11412032c FOREIGN KEY (supplier_id) REFERENCES public.suppliers(id);
+
+
+--
 -- Name: time_entries fk_rails_f493b0c8e1; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3642,6 +3720,7 @@ ALTER TABLE ONLY public.leads
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261102180000'),
 ('20261102120000'),
 ('20261028200000'),
 ('20261028190000'),

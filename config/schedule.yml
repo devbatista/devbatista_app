@@ -5,6 +5,11 @@ alertas_diarios:
   class: "DailyAlertsJob"
   description: "Vencimentos e alertas da central de notificações"
 
+cobrancas:
+  cron: "30 5 * * * America/Sao_Paulo"
+  class: "BillingSyncJob"
+  description: "Puxa as faturas da AWS e da Cloudflare para Despesas"
+
 recorrencias:
   cron: "0 6 * * * America/Sao_Paulo"
   class: "RecurrenceJob"

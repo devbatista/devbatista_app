@@ -14,6 +14,8 @@ class Payable < ApplicationRecord
   belongs_to :supplier
   belongs_to :recurring_expense, optional: true
   belongs_to :external_service, optional: true
+  # Importada da API do fornecedor (BillingConnection); external_id é o id da cobrança lá.
+  belongs_to :billing_connection, optional: true
 
   validates :currency, inclusion: { in: ExchangeRate::CURRENCIES.keys }
   validates :original_amount_cents, presence: { message: "é obrigatório em moeda estrangeira" }, if: :foreign?
@@ -36,6 +38,8 @@ class Payable < ApplicationRecord
   def estimated? = foreign? && !paid?
 
   def recurring? = recurring_expense_id.present?
+
+  def imported? = billing_connection_id.present?
 
   def currency_symbol = ExchangeRate::SYMBOLS[currency]
 

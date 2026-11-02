@@ -20,6 +20,8 @@ class Notification < ApplicationRecord
                               trigger: -> { "Dia seguinte ao vencimento de um título a receber sem pagamento" } },
     "payable_overdue" => { label: "Contas a pagar vencidas", roles: %w[admin financeiro], area: "financeiro",
                            trigger: -> { "Dia seguinte ao vencimento de uma conta a pagar sem pagamento" } },
+    "billing_sync_failed" => { label: "Falha ao puxar faturas", roles: %w[admin financeiro], area: "financeiro",
+                               trigger: -> { "Erro na sincronização diária com a API de um fornecedor (AWS, Cloudflare)" } },
     "domain_expiring" => { label: "Domínios vencendo", roles: %w[admin desenvolvedor], area: "tecnologia",
                            trigger: -> { "#{Setting[:domain_alert_days].to_sentence} dias antes do vencimento" } },
     "ticket_critical" => { label: "Chamados críticos", roles: %w[admin suporte desenvolvedor], area: "suporte",

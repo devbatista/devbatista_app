@@ -50,6 +50,9 @@ gem "sidekiq-cron", "~> 2.0"
 
 # Arquivos no S3 (Active Storage)
 gem "aws-sdk-s3", require: false
+# Faturas da AWS para Despesas (Billing::Aws)
+gem "aws-sdk-costexplorer", require: false
+gem "aws-sdk-invoicing", require: false
 
 # PDF da proposta, em Ruby puro (sem Chrome na imagem)
 gem "prawn", "~> 2.5"

@@ -1,0 +1,3 @@
+<% nav_location :fin, "Conexões de cobrança" %>
+<% breadcrumb ["Financeiro", finance_path], ["Conexões de cobrança", billing_connections_path], [@connection.name] %>
+<div class="form-page"><%= render "form", connection: @connection %></div>

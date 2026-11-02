@@ -92,6 +92,9 @@ Rails.application.routes.draw do
     resources :recurring_expenses, path: "recurring-expenses", only: %i[edit update] do
       patch :finish, on: :member
     end
+    resources :billing_connections, path: "billing-connections", except: :show do
+      post :sync, on: :member
+    end
     resources :invoices, except: :show do
       get :file, on: :member, path: "file/:file_id"
     end
