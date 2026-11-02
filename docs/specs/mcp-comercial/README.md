@@ -50,6 +50,16 @@ Cada chamada de tool roda **como um usuário real**: o token resolve o `User`, q
 | `criar_proposta` | Só como rascunho, com itens |
 | `gerar_pdf_proposta` | Links para abrir e baixar o PDF (gerado na hora; pedem login no sistema) |
 
+### Escritório de agentes
+
+Para as rotinas agendadas do Claude que trabalham como agentes da DevBatista (área `agentes`). Regras em [Escritório de agentes de IA](../escritorio-agentes/README.md).
+
+| Tool | O que faz |
+| --- | --- |
+| `registrar_evento` | O agente (pela chave) registra status, título, resumo e, se for o caso, o pedido de aprovação |
+| `ler_pendencias` | Ordens pendentes e decisões não lidas do agente; marca as decisões como lidas |
+| `concluir_pendencia` | Conclui uma ordem do agente, com a resposta |
+
 ### Fora do MCP
 
 Exclusões; enviar proposta ao cliente (`deliver`); aprovar ou recusar proposta (`ProposalApproval` gera contrato e recebíveis); qualquer área fora do Comercial; administração.

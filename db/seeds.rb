@@ -32,6 +32,10 @@ unless Rails.env.production?
   load Rails.root.join("db/seeds/tecnologia.rb")
 end
 
+# Agentes do escritório em todos os ambientes; os eventos de exemplo só fora de produção.
+Agent.seed_defaults!
+load Rails.root.join("db/seeds/agentes.rb") unless Rails.env.production?
+
 puts "Perfis: #{Role.count} · Usuários: #{User.count}"
 puts "Empresas: #{Company.count} · Contatos: #{Contact.count} · Contratos: #{Contract.count} · " \
      "Serviços contratados: #{CustomerService.count} · MRR: R$ #{CustomerService.active.sum(:mrr_cents) / 100}" unless Rails.env.production?

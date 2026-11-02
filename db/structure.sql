@@ -101,6 +101,68 @@ CREATE TABLE public.activities (
 
 
 --
+-- Name: agent_events; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.agent_events (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    agent_id uuid NOT NULL,
+    status character varying NOT NULL,
+    title character varying NOT NULL,
+    summary text,
+    needs_approval boolean DEFAULT false NOT NULL,
+    decision character varying,
+    decided_at timestamp(6) without time zone,
+    decided_by_id uuid,
+    decision_note text,
+    decision_read_at timestamp(6) without time zone,
+    payload jsonb,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL,
+    CONSTRAINT agent_events_approval_decision CHECK ((needs_approval = (decision IS NOT NULL))),
+    CONSTRAINT agent_events_approval_status CHECK ((needs_approval = ((status)::text = 'awaiting_approval'::text)))
+);
+
+
+--
+-- Name: agent_orders; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.agent_orders (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    agent_id uuid NOT NULL,
+    user_id uuid NOT NULL,
+    body text NOT NULL,
+    status character varying DEFAULT 'pending'::character varying NOT NULL,
+    response text,
+    delivered_at timestamp(6) without time zone,
+    completed_at timestamp(6) without time zone,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: agents; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.agents (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    key character varying NOT NULL,
+    name character varying NOT NULL,
+    title character varying NOT NULL,
+    room character varying NOT NULL,
+    "position" integer DEFAULT 0 NOT NULL,
+    outfit_color character varying NOT NULL,
+    hair_color character varying NOT NULL,
+    skin_color character varying NOT NULL,
+    active boolean DEFAULT true NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
 -- Name: apps; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1148,6 +1210,30 @@ ALTER TABLE ONLY public.activities
 
 
 --
+-- Name: agent_events agent_events_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.agent_events
+    ADD CONSTRAINT agent_events_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: agent_orders agent_orders_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.agent_orders
+    ADD CONSTRAINT agent_orders_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: agents agents_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.agents
+    ADD CONSTRAINT agents_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: apps apps_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1569,6 +1655,62 @@ CREATE INDEX index_activities_on_subject_type_and_subject_id ON public.activitie
 --
 
 CREATE INDEX index_activities_on_user_id ON public.activities USING btree (user_id);
+
+
+--
+-- Name: index_agent_events_on_agent_id_and_created_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_agent_events_on_agent_id_and_created_at ON public.agent_events USING btree (agent_id, created_at DESC);
+
+
+--
+-- Name: index_agent_events_on_decided_by_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_agent_events_on_decided_by_id ON public.agent_events USING btree (decided_by_id);
+
+
+--
+-- Name: index_agent_events_pending_decision; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_agent_events_pending_decision ON public.agent_events USING btree (agent_id) WHERE ((decision)::text = 'pending'::text);
+
+
+--
+-- Name: index_agent_events_unread_decision; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_agent_events_unread_decision ON public.agent_events USING btree (agent_id) WHERE (((decision)::text = ANY ((ARRAY['approved'::character varying, 'rejected'::character varying])::text[])) AND (decision_read_at IS NULL));
+
+
+--
+-- Name: index_agent_orders_on_agent_id_and_created_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_agent_orders_on_agent_id_and_created_at ON public.agent_orders USING btree (agent_id, created_at);
+
+
+--
+-- Name: index_agent_orders_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_agent_orders_on_user_id ON public.agent_orders USING btree (user_id);
+
+
+--
+-- Name: index_agent_orders_pending; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_agent_orders_pending ON public.agent_orders USING btree (agent_id) WHERE ((status)::text = 'pending'::text);
+
+
+--
+-- Name: index_agents_on_key; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_agents_on_key ON public.agents USING btree (key);
 
 
 --
@@ -2790,6 +2932,14 @@ ALTER TABLE ONLY public.recurrence_runs
 
 
 --
+-- Name: agent_orders fk_rails_1cacdfb3af; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.agent_orders
+    ADD CONSTRAINT fk_rails_1cacdfb3af FOREIGN KEY (agent_id) REFERENCES public.agents(id);
+
+
+--
 -- Name: leads fk_rails_1d08b36969; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2998,6 +3148,14 @@ ALTER TABLE ONLY public.whatsapp_templates
 
 
 --
+-- Name: agent_events fk_rails_5442c29784; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.agent_events
+    ADD CONSTRAINT fk_rails_5442c29784 FOREIGN KEY (agent_id) REFERENCES public.agents(id);
+
+
+--
 -- Name: time_entries fk_rails_55dd5dcf98; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3067,6 +3225,14 @@ ALTER TABLE ONLY public.interactions
 
 ALTER TABLE ONLY public.whatsapp_conversations
     ADD CONSTRAINT fk_rails_6a55ee705b FOREIGN KEY (contact_id) REFERENCES public.contacts(id);
+
+
+--
+-- Name: agent_orders fk_rails_6bfac15d26; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.agent_orders
+    ADD CONSTRAINT fk_rails_6bfac15d26 FOREIGN KEY (user_id) REFERENCES public.users(id);
 
 
 --
@@ -3243,6 +3409,14 @@ ALTER TABLE ONLY public.whatsapp_messages
 
 ALTER TABLE ONLY public.tickets
     ADD CONSTRAINT fk_rails_af94b68228 FOREIGN KEY (app_id) REFERENCES public.apps(id);
+
+
+--
+-- Name: agent_events fk_rails_b040639541; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.agent_events
+    ADD CONSTRAINT fk_rails_b040639541 FOREIGN KEY (decided_by_id) REFERENCES public.users(id);
 
 
 --
@@ -3468,6 +3642,7 @@ ALTER TABLE ONLY public.leads
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261102120000'),
 ('20261028200000'),
 ('20261028190000'),
 ('20261028180000'),

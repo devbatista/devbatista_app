@@ -1,0 +1,18 @@
+<%# Sala do agente na planta. Também renderizada no broadcast (sem sessão): nada aqui depende de quem vê.
+    data-agent-key e data-agent-status são a fonte dos personagens da Fase 2. %>
+<% event = agent.latest_event %>
+<% pending = local_assigns.fetch(:pending) { agent.pending_approvals.count } %>
+<%# selected: a sala do agente aberto no painel ao carregar; depois, o controller escritorio marca. %>
+<%= link_to agent_path(agent), id: dom_id(agent, :desk), class: [ "desk", ("on" if local_assigns[:selected]) ],
+            "aria-current": (local_assigns[:selected] ? "true" : nil),
+            style: "--outfit:#{agent.outfit_color};--hair:#{agent.hair_color};--skin:#{agent.skin_color}",
+            data: { turbo_frame: "agent_panel", turbo_action: "advance", escritorio_target: "desk", action: "escritorio#select",
+                    agent_key: agent.key, agent_status: agent.status } do %>
+  <span class="eyebrow">Sala · <%= agent.room %></span>
+  <span class="desk-who">
+    <%= render "agents/face", agent: agent %>
+    <span><b><%= agent.name %></b><small><%= agent.title %></small></span>
+  </span>
+  <span class="desk-status"><%= agent_status_badge(agent.status) %><% if pending.positive? %><span class="badge b-warn"><%= pending == 1 ? "1 aprovação" : "#{pending} aprovações" %></span><% end %></span>
+  <span class="desk-task"><%= event ? event.title : "Nenhum evento ainda" %><span class="cell-sub"><%= agent_time(event&.created_at) %></span></span>
+<% end %>

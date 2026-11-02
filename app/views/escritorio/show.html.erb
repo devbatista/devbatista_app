@@ -1,0 +1,28 @@
+<% nav_location :ia, "Escritório" %>
+<% breadcrumb ["Agentes IA"], ["Escritório"] %>
+<%= turbo_stream_from :escritorio, channel: EscritorioStreamsChannel %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Agentes IA</span>
+    <h1>Escritório</h1>
+    <p class="lead">Os agentes do Claude que trabalham para a DevBatista. Eles contam o que fazem pelo MCP e leem as suas ordens e decisões na próxima execução.</p>
+  </div>
+  <div class="actions"><%= link_to "Ver eventos", agent_events_path, class: "btn" %></div>
+</div>
+
+<% if @agents.empty? %>
+  <section class="card"><%= render "shared/empty", title: "Nenhum agente ativo", text: "Os agentes iniciais entram pela seed (bin/rails db:seed).", icon_name: :ia %></section>
+<% else %>
+  <div class="office" data-controller="escritorio" data-escritorio-selected-value="<%= @agent.key %>">
+    <section class="card" aria-label="Planta do escritório">
+      <div class="card-head"><div><h2>Planta</h2><span class="caption">Uma sala por agente. Clique para abrir o painel.</span></div></div>
+      <div class="card-body office-rooms">
+        <% @agents.each do |agent| %>
+          <%= render "agents/desk", agent: agent, pending: @pending[agent.id].to_i, selected: agent == @agent %>
+        <% end %>
+      </div>
+    </section>
+    <%= render "agents/panel", agent: @agent %>
+  </div>
+<% end %>

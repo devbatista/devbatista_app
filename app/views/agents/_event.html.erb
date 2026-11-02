@@ -1,0 +1,10 @@
+<div class="tl" id="<%= dom_id(event) %>">
+  <i class="st-<%= event.status %>"></i>
+  <div>
+    <span class="strong"><%= event.title %></span>
+    <small><%= l(event.created_at, format: "%H:%M") %> · <%= event.status_label %><% if event.decided_at %> · <%= event.decision_label %> por <%= event.decided_by&.first_name %> às <%= l(event.decided_at, format: "%H:%M") %><% end %></small>
+    <% if event.summary.present? %><p class="agent-text"><%= event.summary %></p><% end %>
+    <% if event.decision_note.present? %><p class="agent-reply"><b>Observação:</b> <%= event.decision_note %></p><% end %>
+    <%= render "agents/payload", event: event %>
+  </div>
+</div>

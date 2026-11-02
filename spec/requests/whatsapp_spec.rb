@@ -9,7 +9,8 @@ RSpec.describe "WhatsApp" do
     get root_path
     menu = response.body[/<aside class="side".*?<\/aside>/m]
     expect(menu).to include("WhatsApp", "Conversas", "Templates", %(href="/whatsapp/conversations"), %(id="whatsapp_menu_counter" class="n">1<))
-    expect(menu).to include('channel="WhatsappStreamsChannel"').and(exclude("em breve"))
+    expect(menu).to include('channel="WhatsappStreamsChannel"')
+    expect(menu[/WhatsApp<span class="chev">.*?<\/div>/m]).to exclude("em breve")
 
     sign_out :user
     sign_in create(:user, :comercial)

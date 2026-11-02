@@ -1,0 +1,47 @@
+<%# Status, última tarefa e pedidos de aprovação. Renderizado com a sessão de quem vê (os botões seguem
+    a permissão); o broadcast manda só o turbo-frame que busca esta parte de novo (panel_frame). %>
+<% event = agent.latest_event %>
+<% approvals = agent.pending_approvals.to_a %>
+<turbo-frame id="<%= dom_id(agent, :panel) %>" class="office-frame">
+  <% if local_assigns[:alert] %><div class="callout crit" role="alert" style="margin:16px 20px 0"><span><%= alert %></span></div><% end %>
+  <div class="kv"><span>Status</span><%= agent_status_badge(agent.status) %></div>
+  <div class="pblock">
+    <h3 class="eyebrow">Última tarefa</h3>
+    <% if event %>
+      <p class="pblock-title"><%= event.title %></p>
+      <% if event.in?(approvals) %>
+        <span class="caption">Pedido de aprovação, logo abaixo · <%= agent_time(event.created_at) %></span>
+      <% else %>
+        <% if event.summary.present? %><p class="agent-text"><%= event.summary %></p><% end %>
+        <span class="caption"><%= event.status_label %> · <%= agent_time(event.created_at) %></span>
+      <% end %>
+    <% else %>
+      <p class="caption" style="margin:0">Nenhum evento ainda. O agente registra pelo MCP (registrar_evento).</p>
+    <% end %>
+  </div>
+
+  <% if approvals.any? %>
+    <div class="pblock">
+      <h3 class="eyebrow" style="color:var(--warn)">Aguardando sua aprovação</h3>
+      <% approvals.each do |approval| %>
+        <div class="approval" id="<%= dom_id(approval, :approval) %>">
+          <p class="pblock-title"><%= approval.title %></p>
+          <% if approval.summary.present? %><p class="agent-text"><%= approval.summary %></p><% end %>
+          <span class="caption">Pedido <%= agent_time(approval.created_at) %></span>
+          <%= render "agents/payload", event: approval %>
+          <% if policy(approval).decide? %>
+            <%= form_with url: agent_event_decision_path(approval), class: "approval-form" do %>
+              <label class="sr-only" for="<%= dom_id(approval, :note) %>">Observação para o agente</label>
+              <%= text_area_tag :observacao, nil, id: dom_id(approval, :note), class: "textarea", rows: 2, maxlength: 5000,
+                                                  placeholder: "Observação para o agente (opcional)" %>
+              <div class="approval-actions">
+                <%= button_tag "Rejeitar", type: "submit", name: "decisao", value: "rejected", class: "btn sm danger" %>
+                <%= button_tag type: "submit", name: "decisao", value: "approved", class: "btn sm pri" do %><%= icon(:check, size: 16, stroke: 2) %>Aprovar<% end %>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</turbo-frame>

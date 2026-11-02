@@ -1,0 +1,7 @@
+<%= form_with model: order, url: agent_agent_orders_path(agent), id: dom_id(agent, :order_form), class: "pblock order-form" do |f| %>
+  <%= f.label :body, "Deixar uma ordem", class: "eyebrow" %>
+  <%= f.text_area :body, class: "textarea", rows: 3, maxlength: 5000, required: true,
+                         placeholder: "#{agent.name} lê na próxima execução. Ex.: priorize os leads do site desta semana." %>
+  <% if order.errors[:body].any? %><span class="error"><%= order.errors.full_messages_for(:body).to_sentence %></span><% end %>
+  <div class="approval-actions"><%= f.button type: "submit", class: "btn sm" do %><%= icon(:send, size: 16) %>Enviar ordem<% end %></div>
+<% end %>

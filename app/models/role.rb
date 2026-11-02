@@ -9,6 +9,7 @@ class Role < ApplicationRecord
     "dashboard" => "Dashboard",
     "comercial" => "Comercial",
     "whatsapp" => "WhatsApp",
+    "agentes" => "Agentes IA",
     "clientes" => "Clientes e contatos",
     "contratos" => "Contratos e serviços contratados",
     "projetos" => "Projetos e tarefas",

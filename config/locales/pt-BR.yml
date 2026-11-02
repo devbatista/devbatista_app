@@ -109,6 +109,15 @@ pt-BR:
       subscription:
         one: Assinatura
         other: Assinaturas
+      agent:
+        one: Agente
+        other: Agentes
+      agent_event:
+        one: Evento do agente
+        other: Eventos dos agentes
+      agent_order:
+        one: Ordem ao agente
+        other: Ordens aos agentes
     attributes:
       user:
         name: Nome
@@ -536,6 +545,30 @@ pt-BR:
         notes: Observações
         files: Arquivos
         receivables: Receitas
+      agent:
+        key: Chave
+        name: Nome
+        title: Cargo
+        room: Sala
+        position: Posição
+        outfit_color: Cor da roupa
+        hair_color: Cor do cabelo
+        skin_color: Cor da pele
+        active: Ativo
+      agent_event:
+        agent: Agente
+        status: Status
+        title: Título
+        summary: Resumo
+        needs_approval: Precisa de aprovação
+        decision: Decisão
+        decision_note: Observação
+        payload: Dados
+      agent_order:
+        agent: Agente
+        body: Ordem
+        status: Status
+        response: Resposta
     errors:
       models:
         user:

@@ -123,6 +123,24 @@ Rails.application.routes.draw do
     end
   end
 
+  # Agentes IA → Escritório (/escritorio, ?agente=ops abre o painel do agente) e Eventos (/escritorio/eventos).
+  # O painel é um Turbo Frame em /escritorio/agentes/:key. As partes que o tempo real recarrega: /ao-vivo
+  # (status, última tarefa e aprovações) e /registro (ordens e linha do tempo do dia).
+  # Aprovar ou rejeitar em /escritorio/eventos/:id/decisao.
+  get "escritorio", to: "escritorio#show", as: :escritorio
+  scope "escritorio" do
+    resources :agents, path: "agentes", only: :show do
+      member do
+        get :live, path: "ao-vivo"
+        get :log, path: "registro"
+      end
+      resources :agent_orders, path: "ordens", only: :create
+    end
+    resources :agent_events, path: "eventos", only: :index do
+      resource :decision, path: "decisao", only: :create, controller: "agent_event_decisions"
+    end
+  end
+
   scope module: :technology, path: "technology" do
     resources :apps
     resources :servers, except: :show

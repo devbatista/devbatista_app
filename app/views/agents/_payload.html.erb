@@ -1,0 +1,4 @@
+<%# Dados estruturados do evento (payload), como JSON formatado e escapado: nunca como HTML. %>
+<% if event.payload.present? %>
+  <details class="agent-payload"><summary>Dados</summary><pre><%= JSON.pretty_generate(event.payload) %></pre></details>
+<% end %>

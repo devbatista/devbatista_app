@@ -4,6 +4,7 @@ module NavigationHelper
     dash: "M4 4h7v7H4zM13 4h7v4h-7zM13 10h7v10h-7zM4 13h7v7H4z",
     com: "M3 5h18l-7 8v5l-4 2v-7z",
     wa: "M4 20l1.4-4.2A8 8 0 1112 20a8 8 0 01-3.8-1z",
+    ia: "M5 8h14v11H5zM12 4v4M9 13h.01M15 13h.01M9 16h6M2 12v3M22 12v3",
     cli: "M4 20V6l8-3v17M12 9h8v11M2 20h20M7 8h2M7 12h2M7 16h2M15 13h2M15 16h2",
     op: "M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01",
     fin: "M4 20V12M10 20V6M16 20v-9M21 20H3",
@@ -63,6 +64,9 @@ module NavigationHelper
     ] },
     { key: :wa, label: "WhatsApp", items: [
       [ "Conversas", :whatsapp_conversations_path, "whatsapp" ], [ "Templates", :whatsapp_templates_path, "whatsapp" ]
+    ] },
+    { key: :ia, label: "Agentes IA", items: [
+      [ "Escritório", :escritorio_path, "agentes" ], [ "Rotinas", nil, "agentes" ], [ "Eventos", :agent_events_path, "agentes" ]
     ] },
     { key: :cli, label: "Clientes", items: [
       [ "Empresas", :companies_path, "clientes" ], [ "Contatos", :contacts_path, "clientes" ],

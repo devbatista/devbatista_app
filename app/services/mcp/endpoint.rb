@@ -27,13 +27,19 @@ module Mcp
       Tools::CriarOportunidade,
       Tools::AtualizarOportunidade,
       Tools::MoverOportunidade,
-      Tools::CriarProposta
+      Tools::CriarProposta,
+      Tools::RegistrarEvento,
+      Tools::LerPendencias,
+      Tools::ConcluirPendencia
     ].freeze
 
     INSTRUCTIONS = <<~TEXT.squish
       Admin DevBatista é o sistema de gestão da DevBatista, uma software house. Este servidor dá acesso ao
       Comercial: leads, pipeline, oportunidades, propostas e interações. Valores em reais, datas em AAAA-MM-DD,
       ids em UUID. Antes de criar ou alterar registros, consulte opcoes_comerciais para usar as chaves aceitas.
+      Se você é um agente do escritório (ops, sol, mia, leo, fin), em cada execução: ler_pendencias no começo,
+      registrar_evento ao começar e ao terminar o trabalho (com precisa_aprovacao quando a ação exigir o aval do
+      administrador) e concluir_pendencia para cada ordem atendida.
     TEXT
 
     def self.call(env)
