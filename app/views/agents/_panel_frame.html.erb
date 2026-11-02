@@ -1,0 +1,4 @@
+<%# Parte do painel no broadcast (sem sessão): o turbo-frame busca de novo com a permissão de quem vê. %>
+<turbo-frame id="<%= dom_id(agent, part) %>" class="office-frame" src="<%= part.to_sym == :log ? log_agent_path(agent) : live_agent_path(agent) %>">
+  <p class="caption" style="padding:12px 20px;margin:0">Atualizando…</p>
+</turbo-frame>

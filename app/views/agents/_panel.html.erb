@@ -1,0 +1,17 @@
+<%# Painel do agente selecionado (Turbo Frame "agent_panel"). As partes live e log se atualizam pelo
+    stream "escritorio"; o campo da ordem fica entre elas, fora do que o broadcast troca. %>
+<turbo-frame id="agent_panel" class="office-frame">
+  <aside class="card office-panel" aria-label="Painel de <%= agent.name %>">
+    <div class="card-head" style="border-bottom:1px solid var(--rule)">
+      <div class="desk-who">
+        <%= render "agents/face", agent: agent %>
+        <div><h2><%= agent.name %></h2><small><%= agent.title %> · Sala <%= agent.room %></small></div>
+      </div>
+    </div>
+    <%= render "agents/live", agent: agent %>
+    <% if policy(AgentOrder).create? %>
+      <%= render "agents/order_form", agent: agent, order: agent.orders.new %>
+    <% end %>
+    <%= render "agents/log", agent: agent %>
+  </aside>
+</turbo-frame>

@@ -1,0 +1,31 @@
+<%# Ordens (pendentes e concluídas hoje) e a linha do tempo dos eventos de hoje. %>
+<turbo-frame id="<%= dom_id(agent, :log) %>" class="office-frame">
+  <% orders = agent.panel_orders.to_a %>
+  <% if orders.any? %>
+    <div class="pblock flush">
+      <h3 class="eyebrow">Ordens</h3>
+      <% orders.each do |order| %>
+        <div class="tl" id="<%= dom_id(order) %>">
+          <i class="<%= order.status_completed? ? 'done' : 'wait' %>"></i>
+          <div>
+            <span class="agent-text"><%= order.body %></span>
+            <small>
+              <%= order.status_label %> · <%= order.user.first_name %>, <%= agent_time(order.created_at) %>
+              <%= order.delivered_at ? "· #{agent.name} já leu" : "· ainda não lida" %>
+            </small>
+            <% if order.response.present? %><p class="agent-reply"><b><%= agent.name %>:</b> <%= order.response %></p><% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+  <div class="pblock flush">
+    <h3 class="eyebrow">Hoje</h3>
+    <% events = agent.events.today.includes(:decided_by).recent.to_a %>
+    <% if events.any? %>
+      <%= render partial: "agents/event", collection: events %>
+    <% else %>
+      <p class="caption" style="margin:0">Nenhum evento hoje.</p>
+    <% end %>
+  </div>
+</turbo-frame>

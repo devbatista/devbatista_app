@@ -1,0 +1,53 @@
+<% nav_location :ia, "Eventos" %>
+<% breadcrumb ["Agentes IA"], ["Eventos"] %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Agentes IA</span>
+    <h1>Eventos</h1>
+    <p class="lead">Tudo o que os agentes registraram pelo MCP: o que fizeram, os pedidos de aprovação e as suas decisões.</p>
+  </div>
+  <div class="actions"><%= link_to "Abrir o escritório", escritorio_path, class: "btn" %></div>
+</div>
+
+<%= form_with url: agent_events_path, method: :get, class: "toolbar" do %>
+  <%= status_filter :status, [ [ "todos", "Todos", @counts.values.sum ] ] + AgentEvent::STATUS_LABELS.map { |k, v| [ k, v, @counts[k].to_i ] } %>
+  <span class="spacer"></span>
+  <%= hidden_field_tag :status, params[:status], id: nil if params[:status].present? %>
+  <label class="sr-only" for="f-agente">Agente</label>
+  <%= select_tag :agente, options_for_select(@agents.map { |a| [ a.name, a.key ] }, params[:agente]), include_blank: "Todos os agentes", class: "select", id: "f-agente", onchange: "this.form.requestSubmit()" %>
+  <label class="sr-only" for="f-aprovacao">Aprovação</label>
+  <%= select_tag :aprovacao, options_for_select(AgentEvent.options_for_decision + [ [ "Sem aprovação", "sem" ] ], params[:aprovacao]), include_blank: "Com e sem aprovação", class: "select", id: "f-aprovacao", onchange: "this.form.requestSubmit()" %>
+  <label class="sr-only" for="f-periodo">Período</label>
+  <%= select_tag :periodo, options_for_select([ [ "Hoje", "hoje" ], [ "Últimos 7 dias", "7d" ], [ "Últimos 30 dias", "30d" ] ], params[:periodo]), include_blank: "Todo o período", class: "select", id: "f-periodo", onchange: "this.form.requestSubmit()" %>
+  <%= render "shared/sort_select" %>
+<% end %>
+
+<section class="card" aria-label="Eventos dos agentes">
+  <% if @events.any? %>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr><th>Data e hora</th><th>Agente</th><th>Evento</th><th>Status</th><th>Aprovação</th></tr></thead>
+        <tbody>
+          <% @events.each do |event| %>
+            <tr data-href="<%= escritorio_path(agente: event.agent.key) %>">
+              <td data-label="Data e hora" class="mono nowrap"><%= datetime_br(event.created_at) %></td>
+              <td data-label="Agente"><div class="desk-who"><%= render "agents/face", agent: event.agent %><span><%= link_to event.agent.name, escritorio_path(agente: event.agent.key), class: "strong" %><span class="cell-sub"><%= event.agent.title %></span></span></div></td>
+              <td data-label="Evento"><span class="strong"><%= event.title %></span><% if event.summary.present? %><span class="cell-sub"><%= event.summary.truncate(140) %></span><% end %></td>
+              <td data-label="Status"><%= agent_status_badge(event.status) %></td>
+              <td data-label="Aprovação">
+                <% if event.needs_approval? %>
+                  <%= agent_decision_badge(event) %>
+                  <% if event.decided_at %><span class="cell-sub"><%= event.decided_by&.first_name %>, <%= datetime_br(event.decided_at) %></span><% end %>
+                <% else %>—<% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <%= render "shared/pagination", pager: @pager %>
+  <% else %>
+    <%= render "shared/empty", title: "Nenhum evento encontrado", text: "Ajuste os filtros. Os eventos chegam quando os agentes registram pelo MCP (registrar_evento)." %>
+  <% end %>
+</section>

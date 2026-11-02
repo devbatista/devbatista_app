@@ -483,3 +483,51 @@ tr[data-href] { cursor: pointer; }
   .show-m { display: inline-flex; }
 }
 .note > svg { flex: none; margin-top: 1px; }
+
+/* Escritório de agentes de IA (docs/specs/escritorio-agentes). A planta em cartões é da Fase 1. */
+.office { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr) 400px; align-items: start; }
+.office-frame { display: block; }
+.office-rooms { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); }
+.desk { display: flex; flex-direction: column; gap: 10px; padding: 16px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface-2); color: var(--text-2); }
+.desk:hover { border-color: var(--border-hover); color: var(--text-2); }
+.desk.on { border-color: var(--cyan); box-shadow: inset 0 0 0 1px var(--cyan); }
+.desk[data-agent-status="awaiting_approval"] { border-color: var(--warn-line); }
+.desk[data-agent-status="error"] { border-color: var(--crit-line); }
+.desk-who { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.desk-who b, .desk-who h2 { display: block; color: var(--text); font-weight: 600; }
+.desk-who h2 { margin: 0; font-size: 16px; }
+.desk-who small { display: block; font-size: 12px; color: var(--muted); }
+.desk-status { display: flex; gap: 6px; flex-wrap: wrap; }
+.desk-task { font-size: 13px; color: var(--text); }
+.agent-face { position: relative; flex: none; width: 36px; height: 36px; border-radius: 10px; overflow: hidden; background: var(--skin); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08); }
+.agent-face::before { content: ""; position: absolute; inset: 0 0 auto; height: 11px; background: var(--hair); }
+.agent-face::after { content: ""; position: absolute; inset: auto 0 0; height: 10px; background: var(--outfit); }
+.agent-face i { position: absolute; top: 17px; left: 11px; width: 4px; height: 4px; background: var(--bg); box-shadow: 10px 0 0 var(--bg); }
+.office-panel { position: sticky; top: calc(var(--top-h) + 16px); max-height: calc(100vh - var(--top-h) - 32px); overflow-y: auto; }
+.office-panel .kv:first-child { border-top: 0; }
+.office-panel .pblock { display: flex; flex-direction: column; gap: 6px; padding: 16px 20px; }
+.office-panel .pblock.flush { padding: 16px 0 8px; }
+.office-panel .pblock.flush > .eyebrow, .office-panel .pblock.flush > .caption { padding: 0 20px; }
+.office-panel .pblock .tl { padding: 10px 20px; border-top: 0; }
+.office-panel h3.eyebrow { margin: 0; }
+.pblock-title { margin: 0; color: var(--text); font-weight: 600; }
+.agent-text { display: block; margin: 4px 0 0; font-size: 13px; color: var(--text-2); white-space: pre-line; overflow-wrap: anywhere; }
+.agent-reply { margin: 6px 0 0; padding: 8px 10px; border-radius: var(--radius-sm); background: var(--surface-2); font-size: 13px; white-space: pre-line; overflow-wrap: anywhere; }
+.approval { display: flex; flex-direction: column; gap: 6px; padding: 12px; border-radius: 12px; background: var(--warn-bg); box-shadow: inset 0 0 0 1px var(--warn-line); }
+.approval + .approval { margin-top: 8px; }
+.approval-form { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+.approval-form .textarea, .order-form .textarea { width: 100%; min-height: 0; }
+.approval-actions { display: flex; justify-content: flex-end; gap: 8px; }
+.order-form .error { font-size: 12px; color: var(--crit); }
+.tl i.st-working { background: var(--cyan); }
+.tl i.st-idle, .tl i.wait { background: var(--border-strong); }
+.tl i.st-awaiting_approval { background: var(--warn); }
+.tl i.st-done, .tl i.done { background: var(--good); }
+.tl i.st-error { background: var(--crit-dot); }
+.agent-payload { margin-top: 6px; font-size: 12px; }
+.agent-payload summary { cursor: pointer; color: var(--muted); font-weight: 600; }
+.agent-payload pre { margin: 6px 0 0; padding: 10px; max-height: 240px; overflow: auto; border-radius: var(--radius-sm); background: var(--surface-solid); border: 1px solid var(--border); color: var(--text-2); font-size: 12px; white-space: pre-wrap; overflow-wrap: anywhere; }
+@media (max-width: 1100px) {
+  .office { grid-template-columns: minmax(0, 1fr); }
+  .office-panel { position: static; max-height: none; }
+}

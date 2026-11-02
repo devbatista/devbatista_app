@@ -277,3 +277,19 @@ Evolução do **RF 10 · Propostas**: o sistema gera o documento que vai para o 
   - [x] Link inválido ou de proposta sem envio responde 404
 - [x] Testes (PDF, envio, link), preview do e-mail, rubocop e brakeman
 - [x] Spec do RF 10 atualizada (envio pelo sistema e visualização automática)
+
+## Extra · Escritório de agentes de IA
+
+Página em que os agentes do Claude (rotinas agendadas que acessam o Admin pelo MCP) aparecem cada um na sua sala, com aprovação e ordens. Ver a [spec](specs/escritorio-agentes/README.md).
+
+- [x] **Fase 1 · Base**
+  - [x] Tabelas `agents`, `agent_events` e `agent_orders`; status atual = último evento (pedido já decidido volta a Ocioso)
+  - [x] Pedir aprovação e Aguardando aprovação andam juntos (check constraint); decisão uma vez só, com quem, quando e observação
+  - [x] Tools `registrar_evento`, `ler_pendencias` e `concluir_pendencia`, com o agente identificado pela chave
+  - [x] Área `agentes` (só o administrador) e grupo Agentes IA no menu: Escritório, Rotinas (em breve) e Eventos
+  - [x] Escritório: planta em cartões e painel (status, última tarefa, aprovar ou rejeitar, deixar uma ordem, linha do tempo do dia)
+  - [x] Eventos: filtros por agente, status, aprovação e período, ordenação e paginação
+  - [x] Tempo real pelo stream `escritorio` (`EscritorioStreamsChannel`, exige a área)
+  - [x] Auditoria (`AuditLog`, sem `Activity`), seeds (5 agentes em todo ambiente; um dia de exemplo fora de produção)
+  - [x] Testes, rubocop e brakeman
+- [ ] **Fase 2 · Planta em pixel art** (canvas, tiles, sprites, BFS, comportamento por status, zoom, `prefers-reduced-motion`)
