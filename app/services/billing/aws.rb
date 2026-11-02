@@ -45,7 +45,8 @@ module Billing
       return unless amount && Billing.to_cents(amount.total_amount).positive?
 
       competence = Date.new(summary.billing_period.year, summary.billing_period.month)
-      due_on = (summary.due_date || summary.issued_date).to_date
+      # A AWS manda a data como meia-noite UTC; no fuso local ela cairia no dia anterior.
+      due_on = (summary.due_date || summary.issued_date).utc.to_date
       Charge.new(external_id: "invoice:#{summary.invoice_id}", competence: competence, due_on: due_on,
                  description: "AWS — fatura #{summary.invoice_id} (#{month_label(competence)})",
                  currency: amount.currency_code, amount_cents: Billing.to_cents(amount.total_amount),
