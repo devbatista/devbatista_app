@@ -7,7 +7,7 @@
     <h1>Eventos</h1>
     <p class="lead">Tudo o que os agentes registraram pelo MCP: o que fizeram, os pedidos de aprovação e as suas decisões.</p>
   </div>
-  <div class="actions"><%= link_to "Abrir o escritório", escritorio_path, class: "btn" %></div>
+  <div class="actions"><%= link_to "Abrir o escritório", office_path, class: "btn" %></div>
 </div>
 
 <%= form_with url: agent_events_path, method: :get, class: "toolbar" do %>
@@ -30,9 +30,9 @@
         <thead><tr><th>Data e hora</th><th>Agente</th><th>Evento</th><th>Status</th><th>Aprovação</th></tr></thead>
         <tbody>
           <% @events.each do |event| %>
-            <tr data-href="<%= escritorio_path(agente: event.agent.key) %>">
+            <tr data-href="<%= office_path(agente: event.agent.key) %>">
               <td data-label="Data e hora" class="mono nowrap"><%= datetime_br(event.created_at) %></td>
-              <td data-label="Agente"><div class="desk-who"><%= render "agents/face", agent: event.agent %><span><%= link_to event.agent.name, escritorio_path(agente: event.agent.key), class: "strong" %><span class="cell-sub"><%= event.agent.title %></span></span></div></td>
+              <td data-label="Agente"><div class="desk-who"><%= render "agents/face", agent: event.agent %><span><%= link_to event.agent.name, office_path(agente: event.agent.key), class: "strong" %><span class="cell-sub"><%= event.agent.title %></span></span></div></td>
               <td data-label="Evento"><span class="strong"><%= event.title %></span><% if event.summary.present? %><span class="cell-sub"><%= event.summary.truncate(140) %></span><% end %></td>
               <td data-label="Status"><%= agent_status_badge(event.status) %></td>
               <td data-label="Aprovação">

@@ -1,6 +1,6 @@
 # Agentes IA → Escritório (docs/specs/escritorio-agentes): a planta com uma sala por agente e o
 # painel do agente selecionado. Sem agente na URL, abre o primeiro com aprovação pendente.
-class EscritorioController < ApplicationController
+class OfficeController < ApplicationController
   def show
     authorize Agent, :index?
     @agents = Agent.preload_latest_events(policy_scope(Agent).active.ordered.to_a)

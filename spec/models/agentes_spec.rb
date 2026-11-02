@@ -112,8 +112,8 @@ RSpec.describe "Escritório de agentes de IA" do
       expect(targets).to eq([ ActionView::RecordIdentifier.dom_id(agent, :desk), ActionView::RecordIdentifier.dom_id(agent, :panel),
                               ActionView::RecordIdentifier.dom_id(agent, :log) ])
       expect(streams.first.to_html).to include("Enviar follow-up", "Aguardando aprovação", %(data-agent-status="awaiting_approval"))
-      expect(streams.second.to_html).to include(%(src="/escritorio/agentes/sol/ao-vivo"))
-      expect(streams.third.to_html).to include(%(src="/escritorio/agentes/sol/registro"))
+      expect(streams.second.to_html).to include(%(src="/office/agents/sol/live"))
+      expect(streams.third.to_html).to include(%(src="/office/agents/sol/log"))
 
       decided = capture_turbo_stream_broadcasts(:escritorio) do
         perform_enqueued_jobs(only: Turbo::Streams::ActionBroadcastJob) { event.decide!("approved", by: admin) }

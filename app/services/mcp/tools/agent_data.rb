@@ -35,7 +35,7 @@ module Mcp
       end
 
       def office_link(agent)
-        link(:escritorio, agente: agent.key)
+        link(:office, agente: agent.key)
       end
     end
   end

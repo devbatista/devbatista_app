@@ -66,7 +66,7 @@ module NavigationHelper
       [ "Conversas", :whatsapp_conversations_path, "whatsapp" ], [ "Templates", :whatsapp_templates_path, "whatsapp" ]
     ] },
     { key: :ia, label: "Agentes IA", items: [
-      [ "Escritório", :escritorio_path, "agentes" ], [ "Rotinas", nil, "agentes" ], [ "Eventos", :agent_events_path, "agentes" ]
+      [ "Escritório", :office_path, "agentes" ], [ "Rotinas", nil, "agentes" ], [ "Eventos", :agent_events_path, "agentes" ]
     ] },
     { key: :cli, label: "Clientes", items: [
       [ "Empresas", :companies_path, "clientes" ], [ "Contatos", :contacts_path, "clientes" ],

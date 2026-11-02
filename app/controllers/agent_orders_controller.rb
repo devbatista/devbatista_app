@@ -7,12 +7,12 @@ class AgentOrdersController < ApplicationController
     if order.save
       respond_to do |format|
         format.turbo_stream { render turbo_stream: refreshed(agent, agent.orders.new) }
-        format.html { redirect_to escritorio_path(agente: agent.key), notice: "Ordem deixada para #{agent.name}." }
+        format.html { redirect_to office_path(agente: agent.key), notice: "Ordem deixada para #{agent.name}." }
       end
     else
       respond_to do |format|
         format.turbo_stream { render turbo_stream: refreshed(agent, order).first, status: :unprocessable_content }
-        format.html { redirect_to escritorio_path(agente: agent.key), alert: order.errors.full_messages.to_sentence }
+        format.html { redirect_to office_path(agente: agent.key), alert: order.errors.full_messages.to_sentence }
       end
     end
   end
