@@ -1,5 +1,5 @@
 # Faturas de fornecedores puxadas pela API (BillingConnection). Cada cliente de API
-# (Billing::Aws, Billing::Cloudflare) devolve as cobranças como Billing::Charge, e o
+# (Billing::Aws, Billing::Cloudflare, Billing::Railway) devolve as cobranças como Billing::Charge, e o
 # Billing::Sync as transforma em despesas (Payable), igual para todos os fornecedores.
 module Billing
   class Error < StandardError; end
