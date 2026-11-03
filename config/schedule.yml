@@ -8,7 +8,7 @@ alertas_diarios:
 cobrancas:
   cron: "30 5 * * * America/Sao_Paulo"
   class: "BillingSyncJob"
-  description: "Puxa as faturas da AWS e da Cloudflare para Despesas"
+  description: "Puxa as faturas da AWS, da Cloudflare e do Railway para Despesas"
 
 recorrencias:
   cron: "0 6 * * * America/Sao_Paulo"

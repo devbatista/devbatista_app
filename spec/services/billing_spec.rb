@@ -163,6 +163,64 @@ RSpec.describe "Faturas de fornecedores pela API" do
     end
   end
 
+  describe Billing::Railway do
+    let(:connection) { create(:billing_connection, provider: "railway", account_id: "0b5e8f6a-1c2d-4e3f-9a8b-7c6d5e4f3a2b") }
+    let(:client) { described_class.new(connection, env: { "BILLING_RAILWAY_API_TOKEN" => "rw-token" }) }
+    let(:cycle) { { "start" => "2026-10-18T16:10:38.000Z", "end" => "2026-11-18T16:10:38.000Z" } }
+
+    def customer(invoices:, usage: 10.33)
+      graph_response(200, { "data" => { "workspace" => { "customer" => { "currentUsage" => usage, "billingPeriod" => cycle,
+                                                                         "invoices" => invoices } } } })
+    end
+
+    def invoice(id, total:, status:, from:, to:, reissued_of: nil)
+      { "invoiceId" => id, "total" => total, "status" => status, "periodStart" => from, "periodEnd" => to, "reissuedInvoiceOf" => reissued_of }
+    end
+
+    it "lê as faturas do workspace e a estimativa do ciclo corrente" do
+      requests = stub_graph(customer(invoices: [
+        invoice("in_1", total: 1_373, status: "paid", from: "2026-09-18T16:10:38.000Z", to: "2026-10-18T16:10:38.000Z"),
+        invoice("in_3", total: 1_200, status: "open", from: Time.utc(2026, 8, 18, 16, 10).to_i.to_s, to: Time.utc(2026, 9, 18, 16, 10).to_i.to_s,
+                        reissued_of: "in_0"),
+        invoice("in_v", total: 999, status: "void", from: "2026-07-18T16:10:38.000Z", to: "2026-08-18T16:10:38.000Z"),
+        invoice("in_z", total: 0, status: "paid", from: "2026-06-18T16:10:38.000Z", to: "2026-07-18T16:10:38.000Z")
+      ]))
+
+      paid, reissued, estimate, *rest = client.charges(today)
+      expect(rest).to be_empty
+      expect(paid).to have_attributes(external_id: "invoice:in_1", competence: Date.new(2026, 9), due_on: Date.new(2026, 10, 18),
+                                      currency: "USD", amount_cents: 1_373, status: :paid, paid_on: Date.new(2026, 10, 18),
+                                      replaces: [ "estimate:2026-09-18" ], description: "Railway — fatura de 18/09 a 18/10/2026")
+      expect(reissued).to have_attributes(status: :pending, due_on: Date.new(2026, 9, 18), replaces: [ "estimate:2026-08-18", "invoice:in_0" ])
+      expect(estimate).to have_attributes(external_id: "estimate:2026-10-18", status: :forecast, amount_cents: 1_033,
+                                          competence: Date.new(2026, 10), due_on: Date.new(2026, 11, 18))
+      expect(requests.first["Authorization"]).to eq("Bearer rw-token")
+      expect(json_body(requests.first)["variables"]).to eq("id" => connection.account_id)
+    end
+
+    it "não lança estimativa quando a fatura do ciclo já fechou" do
+      stub_graph(customer(invoices: [ invoice("in_9", total: 2_000, status: "open", from: cycle["start"], to: cycle["end"]) ]))
+      expect(client.charges(today).map(&:external_id)).to eq([ "invoice:in_9" ])
+    end
+
+    it "tenta o cabeçalho Team-Access-Token quando o Bearer não é aceito" do
+      requests = stub_graph(graph_response(200, { "errors" => [ { "message" => "Workspace not found" } ] }), customer(invoices: []))
+      expect(client.charges(today).map(&:external_id)).to eq([ "estimate:2026-10-18" ])
+      expect(requests.last["Team-Access-Token"]).to eq("rw-token")
+    end
+
+    it "explica o erro devolvido pela API, o do Authorization quando os dois cabeçalhos falham" do
+      stub_graph(graph_response(200, { "errors" => [ { "message" => "Workspace not found" } ] }),
+                 graph_response(200, { "errors" => [ { "message" => "Not Authorized" } ] }))
+      expect { client.charges(today) }.to raise_error(Billing::Error, "Railway respondeu: Workspace not found")
+    end
+
+    it "exige o ID do workspace" do
+      expect(build(:billing_connection, provider: "railway", account_id: "Rafael Batista's Projects")).not_to be_valid
+      expect(connection).to be_valid
+    end
+  end
+
   describe DomainExpirySync do
     it "registra a renovação vista no RDAP e não volta o vencimento" do
       renewed = create(:domain, name: "devbatista.com.br", expires_on: today + 10)

@@ -1,4 +1,4 @@
-# Conexão de cobrança: um fornecedor cujas faturas a DevBatista puxa pela API (AWS, Cloudflare)
+# Conexão de cobrança: um fornecedor cujas faturas a DevBatista puxa pela API (AWS, Cloudflare, Railway)
 # e lança em Despesas, sem digitar. A rotina diária (BillingSyncJob) cria ou atualiza uma despesa
 # por cobrança, pelo id da cobrança no fornecedor (Payable#external_id).
 #
@@ -15,11 +15,13 @@ class BillingConnection < ApplicationRecord
     "aws" => { client: "Billing::Aws", env: %w[BILLING_AWS_ACCESS_KEY_ID BILLING_AWS_SECRET_ACCESS_KEY],
                account_label: "ID da conta AWS (12 dígitos)" },
     "cloudflare" => { client: "Billing::Cloudflare", env: %w[BILLING_CLOUDFLARE_API_TOKEN],
-                      account_label: "Account ID da Cloudflare" }
+                      account_label: "Account ID da Cloudflare" },
+    "railway" => { client: "Billing::Railway", env: %w[BILLING_RAILWAY_API_TOKEN],
+                   account_label: "ID do workspace do Railway" }
   }.freeze
 
   audited area: "financeiro", ignore: %w[last_synced_at last_error]
-  labeled_enum :provider, aws: "AWS", cloudflare: "Cloudflare"
+  labeled_enum :provider, aws: "AWS", cloudflare: "Cloudflare", railway: "Railway"
 
   belongs_to :supplier
   has_many :payables, dependent: :nullify
@@ -28,6 +30,8 @@ class BillingConnection < ApplicationRecord
 
   validates :name, :account_id, presence: true
   validates :account_id, format: { with: /\A\d{12}\z/, message: "precisa ter os 12 dígitos da conta" }, if: :aws?
+  validates :account_id, format: { with: /\A\h{8}-\h{4}-\h{4}-\h{4}-\h{12}\z/, message: "precisa ser o ID do workspace (UUID)" },
+                         if: :railway?
   validates :account_id, uniqueness: { scope: :provider, message: "já tem uma conexão" }
 
   scope :active, -> { where(active: true) }

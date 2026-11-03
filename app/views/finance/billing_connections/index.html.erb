@@ -47,7 +47,7 @@
     </div>
     <div class="card-foot"><span>Valores em R$; em moeda estrangeira, estimados pela PTAX do dia até o pagamento. "Pago no cartão": a despesa vira paga no vencimento da fatura.</span></div>
   <% else %>
-    <%= render "shared/empty", title: "Nenhuma conexão de cobrança", text: "Conecte a AWS e a Cloudflare para as faturas entrarem em Despesas sem digitar. As chaves de API ficam nas variáveis de ambiente, nunca no banco." %>
+    <%= render "shared/empty", title: "Nenhuma conexão de cobrança", text: "Conecte a AWS, a Cloudflare e o Railway para as faturas entrarem em Despesas sem digitar. As chaves de API ficam nas variáveis de ambiente, nunca no banco." %>
   <% end %>
 </section>
 
