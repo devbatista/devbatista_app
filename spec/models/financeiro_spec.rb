@@ -155,6 +155,34 @@ RSpec.describe "Financeiro" do
       expect(amounts).to eq([ 300_000, 350_000, 350_000, 350_000 ])
     end
 
+    it "usa a receita lançada à mão do mesmo serviço e competência em vez de gerar outra" do
+      company = customer_service.company
+      manual = create(:receivable, company: company, service: service, description: "Consultoria de TI", amount_cents: 300_000,
+                                   competence: Date.new(2026, 10, 1), due_on: Date.new(2026, 10, 10))
+      by_category = create(:receivable, company: company, category: "Consultoria de TI", amount_cents: 300_000,
+                                        competence: Date.new(2026, 11, 1), due_on: Date.new(2026, 11, 10))
+      other_company = create(:receivable, service: service, competence: Date.new(2026, 10, 1), due_on: Date.new(2026, 10, 10))
+      run = described_class.new(today).run!
+      expect(run.generated_count).to eq(2)
+      october = customer_service.receivables.where(competence: Date.new(2026, 10, 1))
+      expect(october).to contain_exactly(manual)
+      expect(customer_service.receivables.where(competence: Date.new(2026, 11, 1))).to contain_exactly(by_category)
+      expect(other_company.reload.customer_service_id).to be_nil
+      expect(Receivable.where(company: company).not_cancelled.sum(:amount_cents)).to eq(4 * 300_000)
+    end
+
+    it "não deixa lançar à mão a receita que a recorrência já gerou na competência" do
+      described_class.new(today).run!
+      company = customer_service.company
+      duplicate = build(:receivable, company: company, service: service, competence: Date.new(2026, 10, 1), due_on: Date.new(2026, 10, 10))
+      expect(duplicate).not_to be_valid
+      expect(duplicate.errors[:base].first).to include("Consultoria de TI — Outubro/2026")
+      expect(build(:receivable, company: company, category: "Consultoria de TI", competence: Date.new(2026, 10, 1), due_on: Date.new(2026, 10, 10))).not_to be_valid
+      expect(build(:receivable, company: company, category: "Outros", competence: Date.new(2026, 10, 1), due_on: Date.new(2026, 10, 10))).to be_valid
+      customer_service.receivables.find_by(competence: Date.new(2026, 10, 1)).cancel!
+      expect(duplicate).to be_valid
+    end
+
     it "cancela os títulos posteriores ao encerramento do serviço" do
       described_class.new(today).run!
       customer_service.update!(status: "ended", ended_on: Date.new(2026, 10, 31))

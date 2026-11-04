@@ -60,6 +60,7 @@ class RecurrenceRoutine
       self.class.due_dates(cs.start_date, months, cs.due_day, window.first, window.last).count do |due_on|
         competence = due_on.beginning_of_month
         next false if Receivable.exists?(customer_service_id: cs.id, competence: competence)
+        next false if adopt_manual_receivable(cs, competence)
 
         Receivable.create!(customer_service: cs, company: cs.company, description: "#{cs.service.name} — #{month_label(due_on)}",
                            category: cs.service.name, amount_cents: cs.price_cents, competence: competence, due_on: due_on, status: "forecast")
@@ -67,6 +68,14 @@ class RecurrenceRoutine
         false
       end
     end
+  end
+
+  # Receita lançada à mão para o mesmo cliente, serviço e competência passa a ser a da recorrência,
+  # em vez de a rotina gerar outra e duplicar o recebimento do mês. Valor e vencimento ficam os digitados.
+  def adopt_manual_receivable(cs, competence)
+    manual = Receivable.where(company_id: cs.company_id, competence: competence, customer_service_id: nil)
+                       .where.not(status: "cancelled").for_service(cs.service).order(:created_at).first
+    manual&.update!(customer_service: cs)
   end
 
   def generate_payables(warnings)
