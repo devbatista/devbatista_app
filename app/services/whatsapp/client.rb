@@ -41,9 +41,13 @@ module Whatsapp
     attr_reader :phone_number_id, :waba_id
 
     # Troca o code do Embedded Signup (vale 30 segundos) pelo token de acesso da conta do cliente.
+    # O code vem do FB.login do SDK JavaScript, que não usa redirect_uri: a troca manda o
+    # redirect_uri vazio. Sem ele, a Meta pode recusar com "Error validating verification code.
+    # Please make sure your redirect_uri is identical…".
     def self.exchange_code(code)
       app_id, app_secret = app_credentials
-      new.send(:request, :get, "oauth/access_token", auth: false, query: { client_id: app_id, client_secret: app_secret, code: code })
+      new.send(:request, :get, "oauth/access_token", auth: false,
+                                                     query: { client_id: app_id, client_secret: app_secret, redirect_uri: "", code: code })
          .fetch("access_token")
     end
 

@@ -290,7 +290,8 @@ RSpec.describe Whatsapp::Client do
       requests = stub_graph(graph_response(200, { "access_token" => "EAAG-novo-token", "token_type" => "bearer" }))
       expect(described_class.exchange_code("CODE-30S")).to eq("EAAG-novo-token")
       expect(requests.first.path).to start_with("/v26.0/oauth/access_token?")
-      expect(Rack::Utils.parse_query(requests.first.uri.query)).to eq("client_id" => "app-de-teste", "client_secret" => "segredo-de-teste", "code" => "CODE-30S")
+      expect(Rack::Utils.parse_query(requests.first.uri.query)).to eq("client_id" => "app-de-teste", "client_secret" => "segredo-de-teste", "redirect_uri" => "",
+                                                                     "code" => "CODE-30S")
       expect(requests.first["Authorization"]).to be_nil
     end
 

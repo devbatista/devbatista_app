@@ -45,7 +45,7 @@ RSpec.describe "Integrações → WhatsApp" do
       expect(account).to have_attributes(waba_id: waba_id, business_id: "106724254821671", coexistence: true, status: "pending",
                                          connected_by: admin, connected_at: Time.current, access_token: token,
                                          token_expires_at: 60.days.from_now, display_phone_number: nil)
-      expect(requests.map(&:path)).to eq([ "/v26.0/oauth/access_token?client_id=app-de-teste&client_secret=segredo-de-teste&code=#{code}",
+      expect(requests.map(&:path)).to eq([ "/v26.0/oauth/access_token?client_id=app-de-teste&client_secret=segredo-de-teste&redirect_uri=&code=#{code}",
                                            "/v26.0/debug_token?input_token=#{token}&access_token=app-de-teste%7Csegredo-de-teste" ])
       expect(requests.map { |request| request["Authorization"] }).to all(be_nil)
 
