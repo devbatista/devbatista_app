@@ -17,10 +17,16 @@ class Receivable < ApplicationRecord
   belongs_to :invoice, optional: true
 
   validate :links_from_same_company
+  validate :not_duplicating_recurring, on: :create
 
   before_validation :fill_from_customer_service
   before_validation :suggest_contact
   before_validation { self.category = service&.name if category.blank? }
+
+  # Receitas de um serviço: pelo vínculo com o catálogo ou, sem ele, pela categoria com o nome do serviço.
+  scope :for_service, lambda { |service|
+    where("receivables.service_id = :id OR (receivables.service_id IS NULL AND receivables.category = :name)", id: service.id, name: service.name)
+  }
 
   scope :search, lambda { |term|
     joins(:company).where("unaccent(receivables.description) ILIKE unaccent(:q) OR unaccent(companies.trade_name) ILIKE unaccent(:q)",
@@ -82,6 +88,18 @@ class Receivable < ApplicationRecord
   # O contato principal da empresa é sugerido por padrão nas cobranças (RF 13).
   def suggest_contact
     self.contact ||= company&.primary_contact
+  end
+
+  # Lançar à mão a cobrança que a recorrência já gerou duplicaria o recebimento do mês.
+  def not_duplicating_recurring
+    return if recurring? || company_id.nil? || competence.nil?
+
+    existing = Receivable.where(company_id: company_id, competence: competence).where.not(customer_service_id: nil).where.not(status: "cancelled")
+    existing = service_id ? existing.where(service_id: service_id) : existing.where(category: category)
+    return unless (duplicate = existing.first)
+
+    errors.add(:base, "já existe a receita recorrente “#{duplicate.description}” deste serviço em #{competence_label}: " \
+                      "use essa receita (registre o pagamento nela) em vez de lançar outra")
   end
 
   def links_from_same_company
