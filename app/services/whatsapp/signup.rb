@@ -14,14 +14,17 @@ module Whatsapp
     # As WABAs liberadas ficam nos target_ids destes escopos.
     SCOPES = %w[whatsapp_business_management whatsapp_business_messaging].freeze
 
-    def initialize(code:, user:, session: {})
+    # redirect_uris: URLs da página que abriu a janela da Meta, candidatas na troca do code
+    # (Client.exchange_code).
+    def initialize(code:, user:, session: {}, redirect_uris: [])
       @code = code
       @user = user
+      @redirect_uris = redirect_uris
       @session = session.to_h.symbolize_keys.reject { |_key, value| value.nil? || value == "" } # false fica (is_on_biz_app)
     end
 
     def call
-      token = Client.exchange_code(@code)
+      token = Client.exchange_code(@code, redirect_uris: @redirect_uris)
       info = Client.debug_token(token)
       check!(info)
       wabas = granted_wabas(info)

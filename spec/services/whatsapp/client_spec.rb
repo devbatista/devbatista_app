@@ -290,9 +290,32 @@ RSpec.describe Whatsapp::Client do
       requests = stub_graph(graph_response(200, { "access_token" => "EAAG-novo-token", "token_type" => "bearer" }))
       expect(described_class.exchange_code("CODE-30S")).to eq("EAAG-novo-token")
       expect(requests.first.path).to start_with("/v26.0/oauth/access_token?")
-      expect(Rack::Utils.parse_query(requests.first.uri.query)).to eq("client_id" => "app-de-teste", "client_secret" => "segredo-de-teste", "redirect_uri" => "",
-                                                                     "code" => "CODE-30S")
+      expect(Rack::Utils.parse_query(requests.first.uri.query)).to eq("client_id" => "app-de-teste", "client_secret" => "segredo-de-teste", "code" => "CODE-30S")
       expect(requests.first["Authorization"]).to be_nil
+    end
+
+    context "quando a Meta diz que o redirect_uri não confere" do
+      let(:mismatch) do
+        graph_error(400, 100, "Error validating verification code. Please make sure your redirect_uri is identical to the one you used in the OAuth dialog request")
+      end
+      let(:page) { "https://admin.devbatista.com/technology/integrations/whatsapp" }
+
+      it "tenta sem redirect_uri, vazio e as URLs da página, até a Meta aceitar" do
+        requests = stub_graph(mismatch, mismatch, mismatch, graph_response(200, { "access_token" => "EAAG-novo-token" }))
+        expect(described_class.exchange_code("CODE-30S", redirect_uris: [ page, "#{page}/" ])).to eq("EAAG-novo-token")
+        expect(requests.map { |request| Rack::Utils.parse_query(request.uri.query)["redirect_uri"] }).to eq([ nil, "", page, "#{page}/" ])
+        expect(requests.map { |request| Rack::Utils.parse_query(request.uri.query)["code"] }).to all(eq("CODE-30S"))
+      end
+
+      it "desiste depois do último candidato, com o erro da Meta" do
+        stub_graph(mismatch, mismatch, mismatch)
+        expect { described_class.exchange_code("CODE-30S", redirect_uris: [ page ]) }.to raise_error(Whatsapp::Error, /redirect_uri is identical/)
+      end
+
+      it "não tenta de novo com outro erro, como code vencido" do
+        stub_graph(graph_error(400, 100, "This authorization code has expired."))
+        expect { described_class.exchange_code("CODE-30S", redirect_uris: [ page ]) }.to raise_error(Whatsapp::Error, /expired/)
+      end
     end
 
     it "não troca o code sem o app configurado" do
