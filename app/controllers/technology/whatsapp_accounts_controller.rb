@@ -25,11 +25,11 @@ module Technology
       missing = Whatsapp.missing_signup_configuration
       return render_error("Faltam variáveis de ambiente: #{missing.to_sentence}.") if missing.any?
 
-      signup = params.permit(:code, :phone_number_id, :waba_id, :business_id, :is_on_biz_app)
+      signup = params.permit(:code, :phone_number_id, :waba_id, :business_id, :is_on_biz_app, redirect_uris: [])
       return render_error("A Meta não devolveu a autorização. Tente conectar de novo.") if signup[:code].blank?
 
-      account = Whatsapp::Signup.new(code: signup[:code], user: current_user, session: signup.except(:code).to_h,
-                                     redirect_uris: signup_redirect_uris).call
+      account = Whatsapp::Signup.new(code: signup[:code], user: current_user, session: signup.except(:code, :redirect_uris).to_h,
+                                     redirect_uris: signup_redirect_uris(signup[:redirect_uris])).call
       render json: { message: "#{account} autorizado. Ativando o número…", url: whatsapp_accounts_path }
     rescue Whatsapp::Error => e
       render_error("Não foi possível conectar: #{e.user_message}")
@@ -77,10 +77,23 @@ module Technology
       @account = authorize WhatsappAccount.find(params[:id]), :update?
     end
 
-    # A página que abre a janela da Meta (esta tela), com e sem barra no fim, e a raiz do Admin:
-    # candidatas a redirect_uri na troca do code (Whatsapp::Client.exchange_code).
-    def signup_redirect_uris
-      [ whatsapp_accounts_url, "#{whatsapp_accounts_url}/", "#{request.base_url}/" ]
+    # Candidatos a redirect_uri na troca do code (Whatsapp::Client.exchange_code), na ordem:
+    #   1. os que o navegador leu na URL da janela da Meta (controller Stimulus whatsapp-signup),
+    #      só https em facebook.com ou neste Admin, no máximo 2;
+    #   2. sem o parâmetro e vazio;
+    #   3. esta tela, com e sem barra no fim, e a raiz do Admin.
+    def signup_redirect_uris(from_browser)
+      from_dialog = Array(from_browser).grep(String).select { |uri| dialog_redirect_uri?(uri) }.first(2)
+      Rails.logger.info("[Whatsapp] redirect_uri da janela: #{from_dialog.presence&.join(' | ') || '(nenhum)'}")
+      [ *from_dialog, nil, "", whatsapp_accounts_url, "#{whatsapp_accounts_url}/", "#{request.base_url}/" ]
+    end
+
+    def dialog_redirect_uri?(value)
+      uri = URI.parse(value)
+      value.size <= 2048 && uri.is_a?(URI::HTTPS) &&
+        (uri.host == request.host || uri.host == "facebook.com" || uri.host.to_s.end_with?(".facebook.com"))
+    rescue URI::InvalidURIError
+      false
     end
 
     def render_error(message)

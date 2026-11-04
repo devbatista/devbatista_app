@@ -300,16 +300,16 @@ RSpec.describe Whatsapp::Client do
       end
       let(:page) { "https://admin.devbatista.com/technology/integrations/whatsapp" }
 
-      it "tenta sem redirect_uri, vazio e as URLs da página, até a Meta aceitar" do
+      it "tenta os candidatos na ordem (nil: sem o parâmetro), até a Meta aceitar" do
         requests = stub_graph(mismatch, mismatch, mismatch, graph_response(200, { "access_token" => "EAAG-novo-token" }))
-        expect(described_class.exchange_code("CODE-30S", redirect_uris: [ page, "#{page}/" ])).to eq("EAAG-novo-token")
+        expect(described_class.exchange_code("CODE-30S", redirect_uris: [ nil, "", page, "#{page}/" ])).to eq("EAAG-novo-token")
         expect(requests.map { |request| Rack::Utils.parse_query(request.uri.query)["redirect_uri"] }).to eq([ nil, "", page, "#{page}/" ])
         expect(requests.map { |request| Rack::Utils.parse_query(request.uri.query)["code"] }).to all(eq("CODE-30S"))
       end
 
       it "desiste depois do último candidato, com o erro da Meta" do
         stub_graph(mismatch, mismatch, mismatch)
-        expect { described_class.exchange_code("CODE-30S", redirect_uris: [ page ]) }.to raise_error(Whatsapp::Error, /redirect_uri is identical/)
+        expect { described_class.exchange_code("CODE-30S", redirect_uris: [ nil, "", page ]) }.to raise_error(Whatsapp::Error, /redirect_uri is identical/)
       end
 
       it "não tenta de novo com outro erro, como code vencido" do
