@@ -67,12 +67,37 @@ export default class extends Controller {
     this.submitting = false
     this.buttonTarget.disabled = true
     this.show("Conclua as etapas na janela da Meta…")
-    window.FB.login((response) => this.onLogin(response), {
-      config_id: this.configIdValue,
-      response_type: "code",
-      override_default_response_type: true,
-      extras: { version: "v5" }
-    })
+    this.redirectUris = []
+    // O FB.login abre a janela com window.open, de forma síncrona. O redirect_uri da URL dessa
+    // janela é o que a Meta exige na troca do code: guarda para mandar ao servidor.
+    const open = window.open
+    window.open = (url, ...rest) => {
+      this.captureRedirectUris(url)
+      return open.call(window, url, ...rest)
+    }
+    try {
+      window.FB.login((response) => this.onLogin(response), {
+        config_id: this.configIdValue,
+        response_type: "code",
+        override_default_response_type: true,
+        extras: { version: "v5" }
+      })
+    } finally {
+      window.open = open
+    }
+  }
+
+  // redirect_uri e fallback_redirect_uri da janela de login da Meta (facebook.com por https).
+  captureRedirectUris(url) {
+    try {
+      const dialog = new URL(url, window.location.href)
+      if (!fromFacebook(dialog.origin)) return
+      this.redirectUris = [ "redirect_uri", "fallback_redirect_uri" ]
+        .map((name) => dialog.searchParams.get(name))
+        .filter((value) => value)
+    } catch {
+      // URL que não dá para ler: a troca segue com os candidatos do servidor.
+    }
   }
 
   onLogin(response) {
@@ -124,7 +149,7 @@ export default class extends Controller {
     this.code = null
     this.show("Conectando…")
     try {
-      const response = await this.post(this.connectUrlValue, { code, ...this.session })
+      const response = await this.post(this.connectUrlValue, { code, ...this.session, redirect_uris: this.redirectUris })
       const body = await response.json().catch(() => ({}))
       if (!response.ok) throw new Error(body.error || "Não foi possível conectar. Tente de novo.")
 

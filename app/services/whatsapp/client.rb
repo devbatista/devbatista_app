@@ -42,14 +42,13 @@ module Whatsapp
 
     # Troca o code do Embedded Signup (vale 30 segundos) pelo token de acesso da conta do cliente.
     #
-    # O FB.login do SDK JavaScript amarra o code a um redirect_uri que a Meta não informa. Se a
-    # Meta responde que o redirect_uri não confere ("Error validating verification code…"), a
-    # troca tenta o próximo candidato: sem redirect_uri, vazio e as URLs da página que abriu a
-    # janela (redirect_uris). Qualquer outro erro para na hora. O log diz qual candidato a Meta
-    # aceitou, para a lista encolher depois.
-    def self.exchange_code(code, redirect_uris: [])
+    # O FB.login do SDK JavaScript amarra o code ao redirect_uri da janela da Meta. Se a Meta
+    # responde que o redirect_uri não confere ("Error validating verification code…"), a troca
+    # tenta o próximo de redirect_uris, na ordem (nil: sem o parâmetro). Qualquer outro erro para
+    # na hora. O log diz qual candidato a Meta aceitou, para a lista encolher depois.
+    def self.exchange_code(code, redirect_uris: [ nil, "" ])
       app_id, app_secret = app_credentials
-      candidates = [ nil, "", *redirect_uris ].uniq
+      candidates = redirect_uris.uniq.presence || [ nil ]
       candidates.each_with_index do |redirect_uri, index|
         query = { client_id: app_id, client_secret: app_secret, redirect_uri: redirect_uri, code: code }.compact
         token = new.send(:request, :get, "oauth/access_token", auth: false, query: query).fetch("access_token")

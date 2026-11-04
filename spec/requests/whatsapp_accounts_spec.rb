@@ -56,17 +56,38 @@ RSpec.describe "Integrações → WhatsApp" do
       expect(account.inspect).not_to include(token)
     end
 
-    it "com redirect_uri recusado, tenta as URLs desta tela na troca do code" do
-      mismatch = graph_error(400, 100, "Error validating verification code. Please make sure your redirect_uri is identical to the one you used in the OAuth dialog request")
-      requests = stub_graph(mismatch, mismatch, exchange, debug_token)
+    context "com o redirect_uri da janela da Meta" do
+      let(:mismatch) do
+        graph_error(400, 100, "Error validating verification code. Please make sure your redirect_uri is identical to the one you used in the OAuth dialog request")
+      end
+      let(:dialog) { "https://staticxx.facebook.com/x/connect/xd_arbiter/?version=46#cb=f1a2&domain=www.example.com&relation=opener" }
 
-      connect(code: code, **session_info)
+      def redirect_uris(requests)
+        requests.map { |request| Rack::Utils.parse_query(request.uri.query) }.select { |query| query.key?("code") }.map { |query| query["redirect_uri"] }
+      end
 
-      expect(response).to have_http_status(:ok)
-      redirect_uris = requests.first(3).map { |request| Rack::Utils.parse_query(request.uri.query)["redirect_uri"] }
-      expect(redirect_uris).to eq([ nil, "", whatsapp_accounts_url ])
-      expect(log.string).to include("[Whatsapp] code trocado com redirect_uri=#{whatsapp_accounts_url.inspect} (tentativa 3 de 5)")
-      expect(log.string).not_to include(code, token)
+      it "tenta primeiro o que o navegador leu na janela" do
+        requests = stub_graph(exchange, debug_token)
+
+        connect(code: code, **session_info, redirect_uris: [ dialog, "https://www.example.com/technology/integrations/whatsapp" ])
+
+        expect(response).to have_http_status(:ok)
+        expect(redirect_uris(requests)).to eq([ dialog ])
+        expect(log.string).to include("[Whatsapp] redirect_uri da janela: #{dialog} | https://www.example.com/technology/integrations/whatsapp",
+                                      "[Whatsapp] code trocado com redirect_uri=#{dialog.inspect} (tentativa 1 de 7)")
+        expect(log.string).not_to include(code, token, "Unpermitted parameter")
+      end
+
+      it "descarta o que não é https em facebook.com ou neste Admin e segue com os outros candidatos" do
+        requests = stub_graph(mismatch, mismatch, exchange, debug_token)
+
+        connect(code: code, **session_info, redirect_uris: [ "https://evil.example/cb", "http://www.facebook.com/x", "javascript:alert(1)", "https://notfacebook.com/x" ])
+
+        expect(response).to have_http_status(:ok)
+        expect(redirect_uris(requests)).to eq([ nil, "", whatsapp_accounts_url ])
+        expect(log.string).to include("[Whatsapp] redirect_uri da janela: (nenhum)",
+                                      "[Whatsapp] code trocado com redirect_uri=#{whatsapp_accounts_url.inspect} (tentativa 3 de 5)")
+      end
     end
 
     it "sem o session info, descobre a WABA no debug_token e o número em /<WABA>/phone_numbers" do
