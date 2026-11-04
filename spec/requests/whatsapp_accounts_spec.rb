@@ -45,7 +45,7 @@ RSpec.describe "Integrações → WhatsApp" do
       expect(account).to have_attributes(waba_id: waba_id, business_id: "106724254821671", coexistence: true, status: "pending",
                                          connected_by: admin, connected_at: Time.current, access_token: token,
                                          token_expires_at: 60.days.from_now, display_phone_number: nil)
-      expect(requests.map(&:path)).to eq([ "/v26.0/oauth/access_token?client_id=app-de-teste&client_secret=segredo-de-teste&redirect_uri=&code=#{code}",
+      expect(requests.map(&:path)).to eq([ "/v26.0/oauth/access_token?client_id=app-de-teste&client_secret=segredo-de-teste&code=#{code}",
                                            "/v26.0/debug_token?input_token=#{token}&access_token=app-de-teste%7Csegredo-de-teste" ])
       expect(requests.map { |request| request["Authorization"] }).to all(be_nil)
 
@@ -54,6 +54,19 @@ RSpec.describe "Integrações → WhatsApp" do
       expect(log.string).to include("[Whatsapp] número conectado", "[FILTERED]")
       expect(log.string).not_to include(code, token)
       expect(account.inspect).not_to include(token)
+    end
+
+    it "com redirect_uri recusado, tenta as URLs desta tela na troca do code" do
+      mismatch = graph_error(400, 100, "Error validating verification code. Please make sure your redirect_uri is identical to the one you used in the OAuth dialog request")
+      requests = stub_graph(mismatch, mismatch, exchange, debug_token)
+
+      connect(code: code, **session_info)
+
+      expect(response).to have_http_status(:ok)
+      redirect_uris = requests.first(3).map { |request| Rack::Utils.parse_query(request.uri.query)["redirect_uri"] }
+      expect(redirect_uris).to eq([ nil, "", whatsapp_accounts_url ])
+      expect(log.string).to include("[Whatsapp] code trocado com redirect_uri=#{whatsapp_accounts_url.inspect} (tentativa 3 de 5)")
+      expect(log.string).not_to include(code, token)
     end
 
     it "sem o session info, descobre a WABA no debug_token e o número em /<WABA>/phone_numbers" do

@@ -28,7 +28,8 @@ module Technology
       signup = params.permit(:code, :phone_number_id, :waba_id, :business_id, :is_on_biz_app)
       return render_error("A Meta não devolveu a autorização. Tente conectar de novo.") if signup[:code].blank?
 
-      account = Whatsapp::Signup.new(code: signup[:code], user: current_user, session: signup.except(:code).to_h).call
+      account = Whatsapp::Signup.new(code: signup[:code], user: current_user, session: signup.except(:code).to_h,
+                                     redirect_uris: signup_redirect_uris).call
       render json: { message: "#{account} autorizado. Ativando o número…", url: whatsapp_accounts_path }
     rescue Whatsapp::Error => e
       render_error("Não foi possível conectar: #{e.user_message}")
@@ -74,6 +75,12 @@ module Technology
 
     def set_account
       @account = authorize WhatsappAccount.find(params[:id]), :update?
+    end
+
+    # A página que abre a janela da Meta (esta tela), com e sem barra no fim, e a raiz do Admin:
+    # candidatas a redirect_uri na troca do code (Whatsapp::Client.exchange_code).
+    def signup_redirect_uris
+      [ whatsapp_accounts_url, "#{whatsapp_accounts_url}/", "#{request.base_url}/" ]
     end
 
     def render_error(message)

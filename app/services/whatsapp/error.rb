@@ -79,6 +79,11 @@ module Whatsapp
       code == 131_047
     end
 
+    # Troca do code do Embedded Signup com redirect_uri diferente do da janela (subcódigo 36008).
+    def redirect_mismatch?
+      code == 100 && (subcode == 36_008 || message.include?("redirect_uri"))
+    end
+
     def rate_limited?
       RATE_LIMIT_CODES.include?(code)
     end

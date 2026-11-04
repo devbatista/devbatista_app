@@ -41,14 +41,24 @@ module Whatsapp
     attr_reader :phone_number_id, :waba_id
 
     # Troca o code do Embedded Signup (vale 30 segundos) pelo token de acesso da conta do cliente.
-    # O code vem do FB.login do SDK JavaScript, que não usa redirect_uri: a troca manda o
-    # redirect_uri vazio. Sem ele, a Meta pode recusar com "Error validating verification code.
-    # Please make sure your redirect_uri is identical…".
-    def self.exchange_code(code)
+    #
+    # O FB.login do SDK JavaScript amarra o code a um redirect_uri que a Meta não informa. Se a
+    # Meta responde que o redirect_uri não confere ("Error validating verification code…"), a
+    # troca tenta o próximo candidato: sem redirect_uri, vazio e as URLs da página que abriu a
+    # janela (redirect_uris). Qualquer outro erro para na hora. O log diz qual candidato a Meta
+    # aceitou, para a lista encolher depois.
+    def self.exchange_code(code, redirect_uris: [])
       app_id, app_secret = app_credentials
-      new.send(:request, :get, "oauth/access_token", auth: false,
-                                                     query: { client_id: app_id, client_secret: app_secret, redirect_uri: "", code: code })
-         .fetch("access_token")
+      candidates = [ nil, "", *redirect_uris ].uniq
+      candidates.each_with_index do |redirect_uri, index|
+        query = { client_id: app_id, client_secret: app_secret, redirect_uri: redirect_uri, code: code }.compact
+        token = new.send(:request, :get, "oauth/access_token", auth: false, query: query).fetch("access_token")
+        Rails.logger.info("[Whatsapp] code trocado com redirect_uri=#{redirect_uri.nil? ? '(sem)' : redirect_uri.inspect} " \
+                          "(tentativa #{index + 1} de #{candidates.size})")
+        return token
+      rescue Error => e
+        raise unless e.redirect_mismatch? && index < candidates.size - 1
+      end
     end
 
     # Dados do token (GET /debug_token, com o token do app app_id|app_secret): app_id, is_valid,
