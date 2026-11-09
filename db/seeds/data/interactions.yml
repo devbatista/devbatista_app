@@ -10,7 +10,7 @@
 
 - subject_type: Lead
   subject: Henrique Duarte
-  user: rafael@devbatista.com.br
+  user: rafael@devbatista.com
   kind: call
   occurred_on: "2026-09-16"
   notes: >-
@@ -19,7 +19,7 @@
 
 - subject_type: Lead
   subject: Henrique Duarte
-  user: rafael@devbatista.com.br
+  user: rafael@devbatista.com
   kind: email
   occurred_on: "2026-09-12"
   notes: >-
@@ -28,7 +28,7 @@
 
 - subject_type: Lead
   subject: Henrique Duarte
-  user: rafael@devbatista.com.br
+  user: rafael@devbatista.com
   kind: meeting
   occurred_on: "2026-09-10"
   notes: >-
@@ -37,7 +37,7 @@
 
 - subject_type: Lead
   subject: Henrique Duarte
-  user: rafael@devbatista.com.br
+  user: rafael@devbatista.com
   kind: whatsapp
   occurred_on: "2026-09-04"
   notes: Primeiro contato; diagnóstico agendado para 10/09.

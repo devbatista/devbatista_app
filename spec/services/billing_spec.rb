@@ -223,9 +223,9 @@ RSpec.describe "Faturas de fornecedores pela API" do
 
   describe DomainExpirySync do
     it "registra a renovação vista no RDAP e não volta o vencimento" do
-      renewed = create(:domain, name: "devbatista.com.br", expires_on: today + 10)
+      renewed = create(:domain, name: "devbatista.com", expires_on: today + 10)
       odd = create(:domain, name: "outro.com", expires_on: today + 100)
-      dates = { "devbatista.com.br" => today + 375, "outro.com" => today + 5 }
+      dates = { "devbatista.com" => today + 375, "outro.com" => today + 5 }
       expect(described_class.new(today, lookup: dates.method(:[])).run).to eq([ renewed ])
       expect(renewed.reload).to have_attributes(expires_on: today + 375, rdap_checked_at: be_present)
       expect(renewed.notes).to include("Renovação detectada no RDAP")

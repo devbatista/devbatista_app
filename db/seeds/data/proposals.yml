@@ -31,7 +31,7 @@
   lead: null
   opportunity: Portal de Pedidos
   contact: null
-  user: ana.souza@devbatista.com.br
+  user: ana.souza@devbatista.com
   status: sent
   description: |-
     Portal web para que os revendedores da Empresa XYZ façam pedidos diretamente, sem depender de WhatsApp e planilhas.
@@ -81,7 +81,7 @@
   lead: null
   opportunity: Integração ERP
   contact: null
-  user: ana.souza@devbatista.com.br
+  user: ana.souza@devbatista.com
   status: viewed
   description: null
   payment_terms: null
@@ -108,7 +108,7 @@
   lead: null
   opportunity: Novo site institucional
   contact: null
-  user: ana.souza@devbatista.com.br
+  user: ana.souza@devbatista.com
   status: sent
   description: null
   payment_terms: null
@@ -135,7 +135,7 @@
   lead: null
   opportunity: Automação de notas e pedidos
   contact: null
-  user: ana.souza@devbatista.com.br
+  user: ana.souza@devbatista.com
   status: viewed
   description: null
   payment_terms: null
@@ -162,7 +162,7 @@
   lead: null
   opportunity: Gestão de infraestrutura AWS
   contact: null
-  user: rafael@devbatista.com.br
+  user: rafael@devbatista.com
   status: viewed
   description: null
   payment_terms: null
@@ -189,7 +189,7 @@
   lead: Henrique Duarte
   opportunity: Sistema de roteirização
   contact: null
-  user: rafael@devbatista.com.br
+  user: rafael@devbatista.com
   status: draft
   description: null
   payment_terms: null
@@ -221,7 +221,7 @@
   lead: Tiago Moreira
   opportunity: Sistema de controle de estoque
   contact: null
-  user: ana.souza@devbatista.com.br
+  user: ana.souza@devbatista.com
   status: approved
   description: null
   payment_terms: null
@@ -248,7 +248,7 @@
   lead: Eduardo Matos
   opportunity: null
   contact: null
-  user: rafael@devbatista.com.br
+  user: rafael@devbatista.com
   status: rejected
   description: null
   payment_terms: null
@@ -275,7 +275,7 @@
   lead: null
   opportunity: null
   contact: null
-  user: rafael@devbatista.com.br
+  user: rafael@devbatista.com
   status: expired
   description: null
   payment_terms: null

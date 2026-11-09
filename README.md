@@ -29,7 +29,7 @@ Na primeira vez, crie os perfis e a equipe de exemplo:
 docker compose run --rm web bin/rails db:seed
 ```
 
-Entre com `rafael@devbatista.com.br` e a senha `devbatista123`. Os outros usuários de exemplo (um por perfil) estão em [`db/seeds.rb`](db/seeds.rb).
+Entre com `rafael@devbatista.com` e a senha `devbatista123`. Os outros usuários de exemplo (um por perfil) estão em [`db/seeds.rb`](db/seeds.rb).
 
 Para mudar as portas: `APP_PORT=4000 DB_PORT_HOST=5500 docker compose up`.
 

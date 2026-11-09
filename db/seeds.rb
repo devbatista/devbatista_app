@@ -5,12 +5,12 @@ Role.seed_defaults!
 password = ENV.fetch("SEED_PASSWORD") { Rails.env.production? ? raise("Defina SEED_PASSWORD") : "devbatista123" }
 
 team = [
-  [ "Rafael Batista", "rafael@devbatista.com.br", "admin", nil ],
-  [ "Ana Souza", "ana.souza@devbatista.com.br", "comercial", nil ],
-  [ "Bruno Lima", "bruno.lima@devbatista.com.br", "financeiro", 70 ],
-  [ "Carla Mendes", "carla.mendes@devbatista.com.br", "suporte", 65 ],
-  [ "Diego Rocha", "diego.rocha@devbatista.com.br", "desenvolvedor", 95 ],
-  [ "Elisa Prado", "elisa.prado@devbatista.com.br", "desenvolvedor", 90 ]
+  [ "Rafael Batista", "rafael@devbatista.com", "admin", nil ],
+  [ "Ana Souza", "ana.souza@devbatista.com", "comercial", nil ],
+  [ "Bruno Lima", "bruno.lima@devbatista.com", "financeiro", 70 ],
+  [ "Carla Mendes", "carla.mendes@devbatista.com", "suporte", 65 ],
+  [ "Diego Rocha", "diego.rocha@devbatista.com", "desenvolvedor", 95 ],
+  [ "Elisa Prado", "elisa.prado@devbatista.com", "desenvolvedor", 90 ]
 ]
 team = team.first(1) if Rails.env.production?
 

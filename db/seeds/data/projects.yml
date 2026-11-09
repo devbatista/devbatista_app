@@ -20,7 +20,7 @@
 
 - name: ERP Cliente C
   company: Cliente C
-  user: elisa.prado@devbatista.com.br
+  user: elisa.prado@devbatista.com
   status: in_progress
   start_date: "2026-06-02"
   due_date: "2026-09-10"
@@ -34,7 +34,7 @@
 
 - name: Portal ACME — Fase 2
   company: Empresa ACME
-  user: diego.rocha@devbatista.com.br
+  user: diego.rocha@devbatista.com
   status: in_progress
   start_date: "2026-08-03"
   due_date: "2026-10-30"
@@ -51,7 +51,7 @@
 
 - name: Painel de indicadores
   company: Cliente A
-  user: elisa.prado@devbatista.com.br
+  user: elisa.prado@devbatista.com
   status: in_progress
   start_date: "2026-08-17"
   due_date: "2026-10-16"
@@ -65,7 +65,7 @@
 
 - name: Portal de Pedidos
   company: Empresa XYZ
-  user: diego.rocha@devbatista.com.br
+  user: diego.rocha@devbatista.com
   status: waiting_client
   start_date: null
   due_date: "2026-12-15"
@@ -80,7 +80,7 @@
 
 - name: Automação de NF Delta
   company: Empresa Delta
-  user: elisa.prado@devbatista.com.br
+  user: elisa.prado@devbatista.com
   status: planning
   start_date: "2026-10-01"
   due_date: "2026-11-30"
@@ -96,7 +96,7 @@
 
 - name: App Orion
   company: Empresa Orion
-  user: diego.rocha@devbatista.com.br
+  user: diego.rocha@devbatista.com
   status: paused
   start_date: "2026-05-04"
   due_date: "2026-11-30"
@@ -112,7 +112,7 @@
 
 - name: Site institucional Cliente D
   company: Cliente D
-  user: diego.rocha@devbatista.com.br
+  user: diego.rocha@devbatista.com
   status: done
   start_date: "2026-07-06"
   due_date: "2026-08-31"
@@ -129,7 +129,7 @@
 
 - name: Chatbot de atendimento
   company: Cliente B
-  user: elisa.prado@devbatista.com.br
+  user: elisa.prado@devbatista.com
   status: cancelled
   start_date: "2026-07-01"
   due_date: "2026-09-30"

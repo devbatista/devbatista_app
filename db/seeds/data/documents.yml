@@ -11,7 +11,7 @@
   kind: contract
   company: Empresa ACME
   contract: 104
-  uploaded_by: ana.souza@devbatista.com.br
+  uploaded_by: ana.souza@devbatista.com
   uploaded_at: "2026-03-10"
   notes: Contrato #104 — Consultoria de TI (assinado).
 
@@ -19,7 +19,7 @@
   kind: contract
   company: Empresa ACME
   contract: 104
-  uploaded_by: rafael@devbatista.com.br
+  uploaded_by: rafael@devbatista.com
   uploaded_at: "2026-09-17"
   notes: Aditivo — reajuste do contrato #104 (R$ 2.500 para R$ 3.000).
 
@@ -27,7 +27,7 @@
   kind: contract
   company: Empresa ACME
   contract: 103
-  uploaded_by: ana.souza@devbatista.com.br
+  uploaded_by: ana.souza@devbatista.com
   uploaded_at: "2026-03-11"
   notes: Contrato #103 — Diagnóstico de infraestrutura (assinado).
 
@@ -35,7 +35,7 @@
   kind: invoice
   company: Empresa ACME
   contract: null
-  uploaded_by: bruno.lima@devbatista.com.br
+  uploaded_by: bruno.lima@devbatista.com
   uploaded_at: "2026-09-10"
   notes: NF 1.248 — competência Set/2026, R$ 3.800.
 
@@ -43,7 +43,7 @@
   kind: technical
   company: Empresa ACME
   contract: null
-  uploaded_by: elisa.prado@devbatista.com.br
+  uploaded_by: elisa.prado@devbatista.com
   uploaded_at: "2026-08-05"
   notes: Arquitetura da aplicação API de Integração ACME.
 
@@ -51,7 +51,7 @@
   kind: contract
   company: Empresa XYZ
   contract: 98
-  uploaded_by: rafael@devbatista.com.br
+  uploaded_by: rafael@devbatista.com
   uploaded_at: "2025-10-17"
   notes: Contrato #098 — Manutenção (assinado).
 
@@ -59,7 +59,7 @@
   kind: technical
   company: Empresa Delta
   contract: null
-  uploaded_by: carla.mendes@devbatista.com.br
+  uploaded_by: carla.mendes@devbatista.com
   uploaded_at: "2026-09-17"
   notes: Relatório de incidente — chamado #2394.
 
@@ -67,6 +67,6 @@
   kind: briefing
   company: Grupo Norte Logística
   contract: null
-  uploaded_by: ana.souza@devbatista.com.br
+  uploaded_by: ana.souza@devbatista.com
   uploaded_at: "2026-07-29"
   notes: Levantamento inicial — roteirização de entregas.
