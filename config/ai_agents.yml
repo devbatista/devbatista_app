@@ -47,6 +47,58 @@ agents:
     company: Apple
     kind: training
 
+  # Da lista de bloqueio do .htaccess do site: aparecem como tentativas bloqueadas.
+  anthropic-ai:
+    pattern: anthropic-ai
+    name: anthropic-ai
+    company: Anthropic
+    kind: training
+  facebookbot:
+    pattern: FacebookBot
+    name: FacebookBot
+    company: Meta
+    kind: training
+  cohere-training-data-crawler:
+    pattern: cohere-training-data-crawler
+    name: cohere-training-data-crawler
+    company: Cohere
+    kind: training
+  cohere-ai:
+    pattern: cohere-ai
+    name: cohere-ai
+    company: Cohere
+    kind: user
+  ai2bot:
+    pattern: AI2Bot
+    name: AI2Bot
+    company: Ai2
+    kind: training
+  diffbot:
+    pattern: Diffbot
+    name: Diffbot
+    company: Diffbot
+    kind: training
+  imagesiftbot:
+    pattern: ImagesiftBot
+    name: ImagesiftBot
+    company: ImageSift
+    kind: training
+  omgilibot:
+    pattern: Omgilibot
+    name: Omgilibot
+    company: Webz.io
+    kind: training
+  timpibot:
+    pattern: Timpibot
+    name: Timpibot
+    company: Timpi
+    kind: training
+  pangubot:
+    pattern: PanguBot
+    name: PanguBot
+    company: Huawei
+    kind: training
+
   oai-searchbot:
     pattern: OAI-SearchBot
     name: OAI-SearchBot
@@ -69,6 +121,11 @@ agents:
     name: DuckAssistBot
     company: DuckDuckGo
     kind: search
+  youbot:
+    pattern: YouBot
+    name: YouBot
+    company: You.com
+    kind: search
 
   chatgpt-user:
     pattern: ChatGPT-User
@@ -79,6 +136,11 @@ agents:
   claude-user:
     pattern: Claude-User
     name: Claude-User
+    company: Anthropic
+    kind: user
+  claude-web:
+    pattern: Claude-Web
+    name: Claude-Web
     company: Anthropic
     kind: user
   perplexity-user:

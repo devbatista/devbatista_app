@@ -25,9 +25,10 @@ module SiteVisits
       @now = Time.current
     end
 
+    # O leave não traz URL: só liga o tempo à página vista pelo id.
     def track
       validate!
-      return :ignored unless self.class.hosts.include?(@uri.host.to_s.downcase)
+      return :ignored if @uri && !self.class.hosts.include?(@uri.host.to_s.downcase)
 
       agent = AiAgentClassifier.new(@headers, ip).classify
       return record_ai_hit(agent) if agent && type == "server_hit"
@@ -47,6 +48,7 @@ module SiteVisits
       raise Invalid, "type desconhecido" unless TYPES.include?(type)
       raise Invalid, "ip ausente" if ip.blank?
       raise Invalid, "id ausente ou inválido" if type != "server_hit" && !client_id.match?(/\A[\w-]{8,64}\z/)
+      return if type == "leave"
 
       @uri = URI(@payload["url"].to_s)
       raise Invalid, "url ausente ou inválida" unless @uri.is_a?(URI::HTTP) && @uri.host.present?
@@ -59,8 +61,9 @@ module SiteVisits
       UserAgent.new(user_agent).bot? || [ @headers["sec-purpose"], @headers["purpose"] ].join.include?("prefetch")
     end
 
+    # blocked: o .htaccess do site barrou o robô (403) e o api/agente.php só contou a tentativa.
     def record_ai_hit(agent)
-      AiHit.create!(agent.to_h.merge(path: path, occurred_at: @now))
+      AiHit.create!(agent.to_h.merge(path: path, blocked: @payload["blocked"] == true, occurred_at: @now))
       :ai_hit
     end
 

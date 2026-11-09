@@ -54,6 +54,8 @@ class CreateSiteVisitTables < ActiveRecord::Migration[8.1]
       t.string :signature_agent
       t.string :path, null: false
       t.boolean :accepts_markdown, null: false, default: false
+      # Robô de treino barrado pelo .htaccess do site (403): a tentativa é contada, a página não foi entregue.
+      t.boolean :blocked, null: false, default: false
       t.datetime :occurred_at, null: false
       t.timestamps
     end

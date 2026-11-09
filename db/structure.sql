@@ -176,6 +176,7 @@ CREATE TABLE public.ai_hits (
     signature_agent character varying,
     path character varying NOT NULL,
     accepts_markdown boolean DEFAULT false NOT NULL,
+    blocked boolean DEFAULT false NOT NULL,
     occurred_at timestamp(6) without time zone NOT NULL,
     created_at timestamp(6) without time zone NOT NULL,
     updated_at timestamp(6) without time zone NOT NULL

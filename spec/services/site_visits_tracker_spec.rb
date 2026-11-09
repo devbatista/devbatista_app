@@ -4,9 +4,11 @@ RSpec.describe SiteVisits::Tracker do
   let(:iphone) { "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1" }
   let(:chrome) { "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36" }
 
+  # Como o js/visitas.js manda: o leave vai sem url.
   def track(type: "pageview", id: SecureRandom.uuid, url: "https://www.devbatista.com/", ip: "200.1.2.3", ua: iphone, headers: {}, **extra)
-    described_class.new({ "type" => type, "id" => id, "url" => url, "ip" => ip,
-                          "headers" => { "user-agent" => ua }.merge(headers), **extra.stringify_keys }).track
+    payload = { "type" => type, "id" => id, "ip" => ip, "headers" => { "user-agent" => ua }.merge(headers), **extra.stringify_keys }
+    payload["url"] = url unless type == "leave"
+    described_class.new(payload).track
   end
 
   around { |example| travel_to(Time.zone.local(2026, 11, 9, 14, 0)) { example.run } }
@@ -120,6 +122,16 @@ RSpec.describe SiteVisits::Tracker do
       expect(track(type: "server_hit", id: nil, ua: "Mozilla/5.0 (compatible; bingbot/2.0)")).to eq(:ignored)
       expect(AiHit.count).to eq(1)
       expect(SiteVisit.count).to eq(0)
+    end
+
+    it "conta como bloqueada a tentativa que o .htaccess barrou, inclusive de robô da lista de bloqueio" do
+      track(type: "server_hit", id: nil, url: "https://www.devbatista.com/solucoes", blocked: true,
+            ua: "Mozilla/5.0 (compatible; GPTBot/1.2; +https://openai.com/gptbot)")
+      track(type: "server_hit", id: nil, url: "https://www.devbatista.com/", blocked: true, ua: "Mozilla/5.0 (compatible; anthropic-ai/1.0)")
+      track(type: "server_hit", id: nil, url: "https://www.devbatista.com/", blocked: "true", ua: "Mozilla/5.0 (compatible; AI2Bot/1.0)")
+
+      expect(AiHit.order(:created_at).pluck(:agent, :blocked)).to eq([ [ "gptbot", true ], [ "anthropic-ai", true ], [ "ai2bot", false ] ])
+      expect(AiHit.blocked.count).to eq(2)
     end
   end
 

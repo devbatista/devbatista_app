@@ -11,4 +11,7 @@ class AiHit < ApplicationRecord
   validates :agent, :agent_name, :company, :path, :occurred_at, presence: true
 
   scope :genuine, -> { where.not(verification: "spoofed") }
+  # Barrados pelo .htaccess do site (403): a tentativa conta, mas a página não foi entregue.
+  scope :blocked, -> { where(blocked: true) }
+  scope :served, -> { where(blocked: false) }
 end

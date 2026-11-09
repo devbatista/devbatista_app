@@ -119,9 +119,11 @@ Robôs e agentes de IA que buscam páginas do site. Não são visitas de pessoas
 
 | Tipo | Agentes |
 | --- | --- |
-| `training` Treino | GPTBot (OpenAI), ClaudeBot (Anthropic), CCBot (Common Crawl), Meta-ExternalAgent (Meta), Bytespider (ByteDance), Amazonbot (Amazon), Applebot (Apple) |
-| `search` Busca com IA | OAI-SearchBot (OpenAI), Claude-SearchBot (Anthropic), PerplexityBot (Perplexity), DuckAssistBot (DuckDuckGo) |
-| `user` A pedido de alguém | ChatGPT-User (OpenAI), Claude-User (Anthropic), Perplexity-User (Perplexity), Meta-ExternalFetcher (Meta), MistralAI-User (Mistral) |
+| `training` Treino | GPTBot (OpenAI), ClaudeBot e anthropic-ai (Anthropic), CCBot (Common Crawl), Meta-ExternalAgent e FacebookBot (Meta), Bytespider (ByteDance), Amazonbot (Amazon), Applebot (Apple), cohere-training-data-crawler (Cohere), AI2Bot (Ai2), Diffbot, ImagesiftBot, Omgilibot (Webz.io), Timpibot, PanguBot (Huawei) |
+| `search` Busca com IA | OAI-SearchBot (OpenAI), Claude-SearchBot (Anthropic), PerplexityBot (Perplexity), DuckAssistBot (DuckDuckGo), YouBot (You.com) |
+| `user` A pedido de alguém | ChatGPT-User (OpenAI), Claude-User e Claude-Web (Anthropic), Perplexity-User (Perplexity), Meta-ExternalFetcher (Meta), MistralAI-User (Mistral), cohere-ai (Cohere) |
+
+**Bloqueados.** O `.htaccess` do site já barrava com 403 os robôs de treino (regra 0a: GPTBot, ClaudeBot, anthropic-ai, CCBot, Bytespider, Amazonbot, Meta, Cohere, Diffbot e outros). O bloqueio continua igual, mas os pedidos de página desses robôs passam pelo `api/agente.php`, que responde o mesmo 403 e manda o `server_hit` com `blocked: true`. O acesso entra com `ai_hits.blocked`: a tentativa conta, a página não foi entregue. Imagens, CSS e arquivos continuam barrados direto pelo Apache, sem contar. Todos os robôs da regra 0a estão no catálogo, para nenhuma tentativa ser descartada como robô desconhecido.
 | `agent` Navegação autônoma | Requisições assinadas com `Signature-Agent` (ex.: `https://chatgpt.com`) |
 
 O tipo `user` é o sinal mais útil: alguém perguntou algo a uma IA e ela abriu a página do site para responder. A lista muda com frequência e deve ser revista a cada poucos meses.
@@ -150,7 +152,7 @@ O tipo `user` é o sinal mais útil: alguém perguntou algo a uma IA e ela abriu
 | --- | --- |
 | `site_visits` | `visitor_hash`, `started_at`, `last_seen_at`, `pageviews_count`, `duration_seconds`, `entry_path`, `exit_path`, `referrer_host`, `utm_source`, `utm_medium`, `utm_campaign`, `utm_content`, `utm_term`, `channel`, `ai_assistant`, `device_type`, `browser`, `os` |
 | `site_pageviews` | `site_visit_id`, `client_id` (o `id` do navegador, único), `path`, `occurred_at`, `duration_seconds` |
-| `ai_hits` | `agent` (a chave do catálogo, ou `signed:<domínio>`), `agent_name` e `company` (copiados do catálogo na hora, para o histórico não mudar com ele), `kind`, `verification`, `signature_agent`, `path`, `accepts_markdown`, `occurred_at` |
+| `ai_hits` | `agent` (a chave do catálogo, ou `signed:<domínio>`), `agent_name` e `company` (copiados do catálogo na hora, para o histórico não mudar com ele), `kind`, `verification`, `signature_agent`, `path`, `accepts_markdown`, `blocked` (barrado pelo `.htaccess` do site), `occurred_at` |
 | `site_visit_salts` | `day` (único), `salt` |
 
 **Regras:**
@@ -205,7 +207,7 @@ No padrão do [MCP do Admin](../mcp-comercial/README.md): `Mcp::Tools::Base`, `r
 | Tool | O que faz |
 | --- | --- |
 | `visitas_resumo` | Os seis indicadores da tela (visitantes únicos, visitas, páginas vistas, páginas por visita, taxa de rejeição em %, duração média em segundos), o valor no período anterior e a variação em %. Traz também a série por dia (por hora em `hoje`/`ontem`, por mês em `12m`), com zero nos dias sem visita, e a data da primeira visita registrada, para o Claude saber quando os dados começam |
-| `acessos_ia` | Acessos de robôs e agentes de IA no período, agrupados por `agrupar` (`empresa` (padrão), `agente`, `tipo`, `pagina` ou `dia`), com o total por tipo e por verificação. Os falsos ficam fora dos totais e aparecem numa contagem à parte. Para comparar, traz também as visitas de pessoas do canal Assistentes de IA no mesmo período (quem a IA leu × quem a IA mandou). Filtros: `empresa`, `tipo`, `verificacao`, `pagina` |
+| `acessos_ia` | Acessos de robôs e agentes de IA no período, agrupados por `agrupar` (`empresa` (padrão), `agente`, `tipo`, `pagina` ou `dia`), com o total por tipo e por verificação, separando os servidos dos bloqueados pelo site. Os falsos ficam fora dos totais e aparecem numa contagem à parte. Para comparar, traz também as visitas de pessoas do canal Assistentes de IA no mesmo período (quem a IA leu × quem a IA mandou). Filtros: `empresa`, `tipo`, `verificacao`, `pagina` |
 | `visitas_por_dimensao` | Agrupa o período por `dimensao`: `canal`, `assistente_ia`, `origem`, `utm_source`, `utm_medium`, `utm_campaign`, `pagina`, `pagina_entrada`, `pagina_saida`, `dispositivo`, `navegador`, `sistema`, `dia_da_semana` ou `hora`. Cada linha traz visitantes, visitas, páginas vistas, % do total, taxa de rejeição e duração média, ordenada por visitas, até `limite` linhas (padrão 25, até 50), mais o total fora das linhas devolvidas ("outros") |
 
 **Exemplo:** "o Instagram trouxe mais gente esse mês?" vira `visitas_resumo(periodo: "este_mes", origem: "instagram.com")`. "Que páginas quem vem do Google mais vê?" vira `visitas_por_dimensao(dimensao: "pagina", origem: "google.com")`. "Que IAs estão lendo o site, e quais páginas?" vira `acessos_ia(periodo: "30d", agrupar: "pagina", tipo: "user")`.
