@@ -30,7 +30,10 @@ module Mcp
       Tools::CriarProposta,
       Tools::RegistrarEvento,
       Tools::LerPendencias,
-      Tools::ConcluirPendencia
+      Tools::ConcluirPendencia,
+      Tools::VisitasResumo,
+      Tools::VisitasPorDimensao,
+      Tools::AcessosIa
     ].freeze
 
     INSTRUCTIONS = <<~TEXT.squish
@@ -39,7 +42,9 @@ module Mcp
       ids em UUID. Antes de criar ou alterar registros, consulte opcoes_comerciais para usar as chaves aceitas.
       Se você é um agente do escritório (ops, sol, mia, leo, fin), em cada execução: ler_pendencias no começo,
       registrar_evento ao começar e ao terminar o trabalho (com precisa_aprovacao quando a ação exigir o aval do
-      administrador) e concluir_pendencia para cada ordem atendida.
+      administrador) e concluir_pendencia para cada ordem atendida. Visitas do site devbatista.com (só leitura,
+      números agregados): visitas_resumo, visitas_por_dimensao e acessos_ia. O visitante único é contado por dia,
+      não há dados antes de primeira_visita, e acesso de robô ou agente de IA não é visita de pessoa.
     TEXT
 
     def self.call(env)

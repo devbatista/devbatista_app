@@ -60,9 +60,19 @@ Para as rotinas agendadas do Claude que trabalham como agentes da DevBatista (á
 | `ler_pendencias` | Ordens pendentes e decisões não lidas do agente; marca as decisões como lidas |
 | `concluir_pendencia` | Conclui uma ordem do agente, com a resposta |
 
+### Visitas do site
+
+Só leitura, com números agregados das visitas ao devbatista.com (área `marketing`). Regras em [Visitas do site](../visitas-do-site/README.md).
+
+| Tool | O que faz |
+| --- | --- |
+| `visitas_resumo` | Indicadores do período (visitantes, visitas, páginas vistas, rejeição, duração), comparação com o período anterior e série por dia, hora ou mês |
+| `acessos_ia` | Robôs e agentes de IA que leram o site (treino, busca, a pedido de alguém), por empresa, agente, tipo, página ou dia, com a verificação de cada acesso |
+| `visitas_por_dimensao` | Visitas agrupadas por canal (inclusive Assistentes de IA), origem, UTM, página, página de entrada ou de saída, dispositivo, navegador, sistema, dia da semana ou hora |
+
 ### Fora do MCP
 
-Exclusões; enviar proposta ao cliente (`deliver`); aprovar ou recusar proposta (`ProposalApproval` gera contrato e recebíveis); qualquer área fora do Comercial; administração.
+Exclusões; enviar proposta ao cliente (`deliver`); aprovar ou recusar proposta (`ProposalApproval` gera contrato e recebíveis); qualquer área fora do Comercial, do Escritório e das visitas do site; administração.
 
 ## Arquitetura
 

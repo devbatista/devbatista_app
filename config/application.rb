@@ -61,6 +61,12 @@ module Devbatista
     # site (crm_token). Sem ele, o webhook /webhooks/site-leads recusa tudo.
     config.x.site_leads.token = ENV["SITE_LEADS_TOKEN"].presence
 
+    # Visitas do site (docs/specs/visitas-do-site): token compartilhado com o api/config.php do site
+    # (visits_token), separado do de leads. Sem ele, o webhook /webhooks/site-visits recusa tudo.
+    # Hosts aceitos na URL da página; em desenvolvimento, SITE_VISITS_HOSTS acrescenta o local.
+    config.x.site_visits.token = ENV["SITE_VISITS_TOKEN"].presence
+    config.x.site_visits.hosts = [ "www.devbatista.com", "devbatista.com", *ENV["SITE_VISITS_HOSTS"].to_s.split(",").map(&:strip) ].compact_blank
+
     # Active Record Encryption (token das contas do WhatsApp). As chaves vêm do ambiente; sem elas,
     # das credentials (active_record_encryption.*). Gere com bin/rails db:encryption:init.
     # Teste e desenvolvimento têm valores próprios (config/environments).

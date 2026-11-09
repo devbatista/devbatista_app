@@ -163,6 +163,27 @@ CREATE TABLE public.agents (
 
 
 --
+-- Name: ai_hits; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.ai_hits (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    agent character varying NOT NULL,
+    agent_name character varying NOT NULL,
+    company character varying NOT NULL,
+    kind character varying NOT NULL,
+    verification character varying NOT NULL,
+    signature_agent character varying,
+    path character varying NOT NULL,
+    accepts_markdown boolean DEFAULT false NOT NULL,
+    blocked boolean DEFAULT false NOT NULL,
+    occurred_at timestamp(6) without time zone NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
 -- Name: apps; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -917,6 +938,64 @@ CREATE TABLE public.settings (
 
 
 --
+-- Name: site_pageviews; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.site_pageviews (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    site_visit_id uuid NOT NULL,
+    client_id character varying NOT NULL,
+    path character varying NOT NULL,
+    occurred_at timestamp(6) without time zone NOT NULL,
+    duration_seconds integer,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: site_visit_salts; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.site_visit_salts (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    day date NOT NULL,
+    salt character varying NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: site_visits; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.site_visits (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    visitor_hash character varying NOT NULL,
+    started_at timestamp(6) without time zone NOT NULL,
+    last_seen_at timestamp(6) without time zone NOT NULL,
+    pageviews_count integer DEFAULT 0 NOT NULL,
+    duration_seconds integer DEFAULT 0 NOT NULL,
+    entry_path character varying NOT NULL,
+    exit_path character varying NOT NULL,
+    referrer_host character varying,
+    utm_source character varying,
+    utm_medium character varying,
+    utm_campaign character varying,
+    utm_content character varying,
+    utm_term character varying,
+    channel character varying NOT NULL,
+    ai_assistant character varying,
+    device_type character varying NOT NULL,
+    browser character varying,
+    os character varying,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
 -- Name: subscriptions; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1259,6 +1338,14 @@ ALTER TABLE ONLY public.agents
 
 
 --
+-- Name: ai_hits ai_hits_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.ai_hits
+    ADD CONSTRAINT ai_hits_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: apps apps_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1547,6 +1634,30 @@ ALTER TABLE ONLY public.settings
 
 
 --
+-- Name: site_pageviews site_pageviews_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.site_pageviews
+    ADD CONSTRAINT site_pageviews_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: site_visit_salts site_visit_salts_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.site_visit_salts
+    ADD CONSTRAINT site_visit_salts_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: site_visits site_visits_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.site_visits
+    ADD CONSTRAINT site_visits_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: subscriptions subscriptions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1744,6 +1855,13 @@ CREATE INDEX index_agent_orders_pending ON public.agent_orders USING btree (agen
 --
 
 CREATE UNIQUE INDEX index_agents_on_key ON public.agents USING btree (key);
+
+
+--
+-- Name: index_ai_hits_on_occurred_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_ai_hits_on_occurred_at ON public.ai_hits USING btree (occurred_at);
 
 
 --
@@ -2591,6 +2709,48 @@ CREATE UNIQUE INDEX index_services_on_name ON public.services USING btree (name)
 --
 
 CREATE UNIQUE INDEX index_settings_on_key ON public.settings USING btree (key);
+
+
+--
+-- Name: index_site_pageviews_on_client_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_site_pageviews_on_client_id ON public.site_pageviews USING btree (client_id);
+
+
+--
+-- Name: index_site_pageviews_on_occurred_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_site_pageviews_on_occurred_at ON public.site_pageviews USING btree (occurred_at);
+
+
+--
+-- Name: index_site_pageviews_on_site_visit_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_site_pageviews_on_site_visit_id ON public.site_pageviews USING btree (site_visit_id);
+
+
+--
+-- Name: index_site_visit_salts_on_day; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_site_visit_salts_on_day ON public.site_visit_salts USING btree (day);
+
+
+--
+-- Name: index_site_visits_on_started_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_site_visits_on_started_at ON public.site_visits USING btree (started_at);
+
+
+--
+-- Name: index_site_visits_on_visitor_hash_and_last_seen_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_site_visits_on_visitor_hash_and_last_seen_at ON public.site_visits USING btree (visitor_hash, last_seen_at DESC);
 
 
 --
@@ -3442,6 +3602,14 @@ ALTER TABLE ONLY public.receivables
 
 
 --
+-- Name: site_pageviews fk_rails_ab8fdc5c3b; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.site_pageviews
+    ADD CONSTRAINT fk_rails_ab8fdc5c3b FOREIGN KEY (site_visit_id) REFERENCES public.site_visits(id) ON DELETE CASCADE;
+
+
+--
 -- Name: servers fk_rails_abd7b47675; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3720,6 +3888,7 @@ ALTER TABLE ONLY public.leads
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261109120000'),
 ('20261102180000'),
 ('20261102120000'),
 ('20261028200000'),

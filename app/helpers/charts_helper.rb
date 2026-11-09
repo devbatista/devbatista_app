@@ -62,6 +62,59 @@ module ChartsHelper
     end
   end
 
+  # Colunas das visitas do site (SiteVisits::Stats#series): uma por hora, dia ou mês, com visitantes e
+  # páginas vistas na dica. A última coluna (o intervalo atual) fica em ciano e com rótulo; o eixo
+  # mostra no máximo uns 8 rótulos, para não encavalar em 30 dias.
+  #   points = [{ "inicio" => "2026-11-09", "visitas" => 12, "visitantes" => 9, "paginas_vistas" => 30 }]
+  def visits_bar_chart(points, bucket:, title:)
+    points = points.map(&:stringify_keys)
+    max = [ points.map { |p| p["visitas"] }.max.to_i, 1 ].max
+    gap = points.size > 14 ? 3 : 12
+    names = points.map { |p| visits_bucket_label(p["inicio"], bucket) }
+    every = (points.size / 8.0).ceil
+    summary = points.zip(names).map { |p, name| "#{name} #{p['visitas']}" }.join(", ")
+
+    bars = tag.div(class: "bars", style: "gap:#{gap}px", role: "img", "aria-label": "#{title}: #{summary}") do
+      safe_join(points.zip(names).each_with_index.map do |(point, name), i|
+        last = i == points.size - 1
+        visits = point["visitas"].to_i
+        height = visits.positive? ? (visits * 88.0 / max).round.clamp(2, 88) : 0
+        tip = "#{name}: #{pluralize(visits, 'visita')} · #{pluralize(point['visitantes'].to_i, 'visitante')} · " \
+              "#{pluralize(point['paginas_vistas'].to_i, 'página vista', plural: 'páginas vistas')}"
+        tag.div(class: "col", title: tip) do
+          safe_join([ (tag.span(count_br(visits), class: "lbl") if last), tag.div(class: "bar#{' cur' if last}", style: "height:#{height}%") ].compact)
+        end
+      end)
+    end
+    axis = tag.div(class: "axis", style: "gap:#{gap}px", "aria-hidden": "true") do
+      # Contados a partir do último, que sempre aparece: o espaçamento fica igual até o fim.
+      safe_join(names.each_with_index.map { |name, i| tag.span(((names.size - 1 - i) % every).zero? ? name : "") })
+    end
+    safe_join([ bars, axis ])
+  end
+
+  def visits_bucket_label(start, bucket)
+    case bucket.to_sym
+    when :hour then "#{Time.zone.parse(start).strftime('%H')}h"
+    when :month then month_abbr(Date.parse(start))
+    else Date.parse(start).strftime("%d/%m")
+    end
+  end
+
+  # 12.345 → "12.345"
+  def count_br(value)
+    number_with_delimiter(value.to_i, delimiter: ".")
+  end
+
+  # Segundos → "2 min 15 s", "45 s", "1 h 05 min".
+  def duration_br(seconds)
+    seconds = seconds.to_i
+    if seconds < 60 then "#{seconds} s"
+    elsif seconds < 3600 then "#{seconds / 60} min#{format(' %02d s', seconds % 60) unless (seconds % 60).zero?}"
+    else "#{seconds / 3600} h #{format('%02d', (seconds % 3600) / 60)} min"
+    end
+  end
+
   def month_abbr(date)
     l(date, format: "%b").capitalize.delete(".")
   end
