@@ -225,6 +225,8 @@ Rails.application.routes.draw do
     post "whatsapp", to: "whatsapp#receive", as: nil
     # Leads do site (devbatista.com), com o token SITE_LEADS_TOKEN.
     post "site-leads", to: "site_leads#create", as: :site_leads_webhook
+    # Visitas e acessos de IA do site (docs/specs/visitas-do-site), com o token SITE_VISITS_TOKEN.
+    post "site-visits", to: "site_visits#create", as: :site_visits_webhook
   end
 
   get "up" => "rails/health#show", as: :rails_health_check

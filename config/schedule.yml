@@ -10,6 +10,16 @@ cobrancas:
   class: "BillingSyncJob"
   description: "Puxa as faturas da AWS, da Cloudflare e do Railway para Despesas"
 
+sal_das_visitas:
+  cron: "10 0 * * * America/Sao_Paulo"
+  class: "SiteVisitSaltCleanupJob"
+  description: "Apaga o sal do hash dos visitantes dos dias anteriores (visitas do site)"
+
+faixas_ip_ia:
+  cron: "0 4 * * * America/Sao_Paulo"
+  class: "AiAgentIpRangesJob"
+  description: "Baixa as faixas de IP oficiais dos robôs de IA (acessos de IA do site)"
+
 recorrencias:
   cron: "0 6 * * * America/Sao_Paulo"
   class: "RecurrenceJob"

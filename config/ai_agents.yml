@@ -1,0 +1,116 @@
+# Catálogo dos robôs e agentes de IA (docs/specs/visitas-do-site, seção Acessos de IA).
+# Lido pelo AiAgentClassifier. A lista muda com frequência: revise a cada poucos meses.
+#
+# agents: um por user agent declarado. `pattern` é procurado no User-Agent como palavra inteira,
+#   sem diferenciar maiúsculas. `kind`: training (treino), search (busca com IA), user (a pedido
+#   de alguém). `ip_ranges_url`: JSON oficial no formato { prefixes: [{ ipv4Prefix | ipv6Prefix }] };
+#   sem ele, o acesso fica como "declarado".
+# signature_agents: domínios que assinam as requisições (Web Bot Auth, header Signature-Agent).
+# assistants: de onde vêm as pessoas que clicam num link dentro de um assistente de IA (canal
+#   Assistentes de IA), pela referência ou pelo utm_source.
+
+agents:
+  gptbot:
+    pattern: GPTBot
+    name: GPTBot
+    company: OpenAI
+    kind: training
+    ip_ranges_url: https://openai.com/gptbot.json
+  claudebot:
+    pattern: ClaudeBot
+    name: ClaudeBot
+    company: Anthropic
+    kind: training
+  ccbot:
+    pattern: CCBot
+    name: CCBot
+    company: Common Crawl
+    kind: training
+  meta-externalagent:
+    pattern: meta-externalagent
+    name: Meta-ExternalAgent
+    company: Meta
+    kind: training
+  bytespider:
+    pattern: Bytespider
+    name: Bytespider
+    company: ByteDance
+    kind: training
+  amazonbot:
+    pattern: Amazonbot
+    name: Amazonbot
+    company: Amazon
+    kind: training
+  applebot:
+    pattern: Applebot
+    name: Applebot
+    company: Apple
+    kind: training
+
+  oai-searchbot:
+    pattern: OAI-SearchBot
+    name: OAI-SearchBot
+    company: OpenAI
+    kind: search
+    ip_ranges_url: https://openai.com/searchbot.json
+  claude-searchbot:
+    pattern: Claude-SearchBot
+    name: Claude-SearchBot
+    company: Anthropic
+    kind: search
+  perplexitybot:
+    pattern: PerplexityBot
+    name: PerplexityBot
+    company: Perplexity
+    kind: search
+    ip_ranges_url: https://www.perplexity.com/perplexitybot.json
+  duckassistbot:
+    pattern: DuckAssistBot
+    name: DuckAssistBot
+    company: DuckDuckGo
+    kind: search
+
+  chatgpt-user:
+    pattern: ChatGPT-User
+    name: ChatGPT-User
+    company: OpenAI
+    kind: user
+    ip_ranges_url: https://openai.com/chatgpt-user.json
+  claude-user:
+    pattern: Claude-User
+    name: Claude-User
+    company: Anthropic
+    kind: user
+  perplexity-user:
+    pattern: Perplexity-User
+    name: Perplexity-User
+    company: Perplexity
+    kind: user
+    ip_ranges_url: https://www.perplexity.com/perplexity-user.json
+  meta-externalfetcher:
+    pattern: meta-externalfetcher
+    name: Meta-ExternalFetcher
+    company: Meta
+    kind: user
+  mistralai-user:
+    pattern: MistralAI-User
+    name: MistralAI-User
+    company: Mistral
+    kind: user
+
+signature_agents:
+  chatgpt.com:
+    name: ChatGPT agent
+    company: OpenAI
+
+assistants:
+  chatgpt.com: ChatGPT
+  chat.openai.com: ChatGPT
+  perplexity.ai: Perplexity
+  claude.ai: Claude
+  gemini.google.com: Gemini
+  copilot.microsoft.com: Copilot
+  meta.ai: Meta AI
+  chat.deepseek.com: DeepSeek
+  grok.com: Grok
+  chat.mistral.ai: Le Chat
