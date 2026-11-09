@@ -21,7 +21,7 @@ module Seeds
     def self.run
       return if AgentEvent.exists?
 
-      rafael = User.find_by!(email: "rafael@devbatista.com.br")
+      rafael = User.find_by!(email: "rafael@devbatista.com")
       agents = Agent.all.index_by(&:key)
       EVENTS.each do |key, minutes, status, title, summary, payload|
         AgentEvent.create!(agent: agents.fetch(key), status: status, title: title, summary: summary, payload: payload,

@@ -22,7 +22,7 @@
   category: infrastructure
   priority: critical
   status: in_progress
-  user: carla.mendes@devbatista.com.br
+  user: carla.mendes@devbatista.com
   opened_at: "2026-09-17T08:47:00-03:00"
   description: >-
     Desde as 08:30 a API está retornando erro 502 e o aplicativo de pedidos dos representantes
@@ -32,11 +32,11 @@
     analyzing: "2026-09-17T08:55:00-03:00"
     in_progress: "2026-09-17T09:20:00-03:00"
   messages:
-    - { at: "2026-09-17T08:55:00-03:00", kind: reply, user: carla.mendes@devbatista.com.br, body: "Marcos, recebido. Classificamos o chamado como crítico e o Diego já está verificando o servidor da API na AWS. Retorno em até 30 minutos com o diagnóstico." }
-    - { at: "2026-09-17T09:20:00-03:00", kind: note, user: diego.rocha@devbatista.com.br, body: "Instância da API Delta com disco 100% ocupado por logs de acesso sem rotação. Liberei espaço, configurei a rotação diária e reiniciei o serviço. Credenciais de acesso usadas conforme referência no cofre de senhas. Sigo monitorando." }
-    - { at: "2026-09-17T09:41:00-03:00", kind: reply, user: carla.mendes@devbatista.com.br, body: "A API voltou a responder às 09:34. Pode confirmar se o aplicativo de pedidos já está normal aí?" }
-    - { at: "2026-09-17T09:58:00-03:00", kind: client, user: carla.mendes@devbatista.com.br, contact: Marcos Teixeira, channel: E-mail, body: "Confirmado, voltou. Mas os pedidos enviados entre 08:30 e 09:30 não aparecem no sistema." }
-    - { at: "2026-09-17T10:06:00-03:00", kind: reply, user: carla.mendes@devbatista.com.br, body: "Abrimos o chamado #2395 para tratar a sincronização desses pedidos. Mantemos este em atendimento até confirmarmos a estabilidade e ativarmos o alerta de disco no servidor." }
+    - { at: "2026-09-17T08:55:00-03:00", kind: reply, user: carla.mendes@devbatista.com, body: "Marcos, recebido. Classificamos o chamado como crítico e o Diego já está verificando o servidor da API na AWS. Retorno em até 30 minutos com o diagnóstico." }
+    - { at: "2026-09-17T09:20:00-03:00", kind: note, user: diego.rocha@devbatista.com, body: "Instância da API Delta com disco 100% ocupado por logs de acesso sem rotação. Liberei espaço, configurei a rotação diária e reiniciei o serviço. Credenciais de acesso usadas conforme referência no cofre de senhas. Sigo monitorando." }
+    - { at: "2026-09-17T09:41:00-03:00", kind: reply, user: carla.mendes@devbatista.com, body: "A API voltou a responder às 09:34. Pode confirmar se o aplicativo de pedidos já está normal aí?" }
+    - { at: "2026-09-17T09:58:00-03:00", kind: client, user: carla.mendes@devbatista.com, contact: Marcos Teixeira, channel: E-mail, body: "Confirmado, voltou. Mas os pedidos enviados entre 08:30 e 09:30 não aparecem no sistema." }
+    - { at: "2026-09-17T10:06:00-03:00", kind: reply, user: carla.mendes@devbatista.com, body: "Abrimos o chamado #2395 para tratar a sincronização desses pedidos. Mantemos este em atendimento até confirmarmos a estabilidade e ativarmos o alerta de disco no servidor." }
 
 - number: 2399
   company: Cliente A
@@ -44,7 +44,7 @@
   category: access
   priority: normal
   status: open
-  user: carla.mendes@devbatista.com.br
+  user: carla.mendes@devbatista.com
   opened_at: "2026-09-17T11:52:00-03:00"
   description: Um usuário do comercial do Cliente A não consegue entrar no painel desde a troca de senha.
 
@@ -54,7 +54,7 @@
   category: bug
   priority: high
   status: open
-  user: diego.rocha@devbatista.com.br
+  user: diego.rocha@devbatista.com
   opened_at: "2026-09-17T11:15:00-03:00"
   description: A emissão de pedidos no Sistema ERP está levando mais de um minuto por pedido desde a manhã.
 
@@ -64,7 +64,7 @@
   category: improvement
   priority: low
   status: analyzing
-  user: diego.rocha@devbatista.com.br
+  user: diego.rocha@devbatista.com
   opened_at: "2026-09-17T10:40:00-03:00"
   description: O financeiro da ACME pediu um filtro por período no relatório de pedidos do portal.
 
@@ -74,7 +74,7 @@
   category: infrastructure
   priority: normal
   status: waiting_client
-  user: carla.mendes@devbatista.com.br
+  user: carla.mendes@devbatista.com
   opened_at: "2026-09-17T10:05:00-03:00"
   description: O certificado SSL do aplicativo vence este mês. Aguardando acesso ao DNS de orion.app para validar o domínio.
 
@@ -85,7 +85,7 @@
   category: bug
   priority: high
   status: analyzing
-  user: diego.rocha@devbatista.com.br
+  user: diego.rocha@devbatista.com
   opened_at: "2026-09-17T09:58:00-03:00"
   description: Relacionado ao #2394. Os pedidos enviados pelo aplicativo entre 08:30 e 09:30 não aparecem no sistema.
 
@@ -95,7 +95,7 @@
   category: question
   priority: normal
   status: in_progress
-  user: elisa.prado@devbatista.com.br
+  user: elisa.prado@devbatista.com
   opened_at: "2026-09-16T15:30:00-03:00"
   description: O Cliente C quer entender como o custo médio é calculado no fechamento mensal de estoque.
 
@@ -105,7 +105,7 @@
   category: access
   priority: low
   status: resolved
-  user: carla.mendes@devbatista.com.br
+  user: carla.mendes@devbatista.com
   opened_at: "2026-09-16T10:12:00-03:00"
   resolved_at: "2026-09-16T11:05:00-03:00"
   description: Criar acesso ao Sistema ERP para a nova analista do financeiro da XYZ.
@@ -116,7 +116,7 @@
   category: infrastructure
   priority: normal
   status: waiting_client
-  user: carla.mendes@devbatista.com.br
+  user: carla.mendes@devbatista.com
   opened_at: "2026-09-15T14:20:00-03:00"
   description: O Cliente D pediu a restauração de um backup do banco de março. Aguardando confirmação da data exata.
 
@@ -126,7 +126,7 @@
   category: improvement
   priority: low
   status: analyzing
-  user: diego.rocha@devbatista.com.br
+  user: diego.rocha@devbatista.com
   opened_at: "2026-09-14T09:35:00-03:00"
   description: Incluir o logotipo e o CNPJ da ACME no comprovante de pedido gerado pelo portal.
 
@@ -136,7 +136,7 @@
   category: bug
   priority: high
   status: closed
-  user: diego.rocha@devbatista.com.br
+  user: diego.rocha@devbatista.com
   opened_at: "2026-09-11T16:48:00-03:00"
   resolved_at: "2026-09-12T10:30:00-03:00"
   description: Usuários do aplicativo Orion recebem erro ao entrar depois da atualização da versão 2.3.
@@ -148,7 +148,7 @@
   category: bug
   priority: normal
   status: resolved
-  user: diego.rocha@devbatista.com.br
+  user: diego.rocha@devbatista.com
   opened_at: "2026-09-08T10:02:00-03:00"
   resolved_at: "2026-09-17T11:45:00-03:00"
   description: O relatório gerencial de pedidos do portal retorna erro ao filtrar mais de 90 dias.
@@ -160,7 +160,7 @@
   category: question
   priority: low
   status: closed
-  user: carla.mendes@devbatista.com.br
+  user: carla.mendes@devbatista.com
   opened_at: "2026-08-12T09:10:00-03:00"
   resolved_at: "2026-08-13T10:00:00-03:00"
   description: Juliana perguntou como exportar a lista de pedidos do portal para Excel.

@@ -25,7 +25,7 @@
   email: paulo@transporteslima.com.br
   origin: whatsapp
   service: Automação/RPA
-  user: ana.souza@devbatista.com.br
+  user: ana.souza@devbatista.com
   status: new
   entered_on: "2026-09-17"
   notes: null
@@ -42,7 +42,7 @@
   email: contato@clinicabemestar.com.br
   origin: site
   service: Desenvolvimento de sites
-  user: ana.souza@devbatista.com.br
+  user: ana.souza@devbatista.com
   status: new
   entered_on: "2026-09-16"
   notes: null
@@ -59,7 +59,7 @@
   email: marcia.tavares@colegiohorizonte.com.br
   origin: referral
   service: Desenvolvimento de sistemas
-  user: rafael@devbatista.com.br
+  user: rafael@devbatista.com
   status: new
   entered_on: "2026-09-15"
   notes: null
@@ -77,7 +77,7 @@
   email: rodrigo@agrocampos.com.br
   origin: meta_ads
   service: Integrações
-  user: ana.souza@devbatista.com.br
+  user: ana.souza@devbatista.com
   status: contacted
   entered_on: "2026-09-11"
   notes: null
@@ -94,7 +94,7 @@
   email: juliana@oticavisaoclara.com.br
   origin: linkedin
   service: Desenvolvimento de sites
-  user: ana.souza@devbatista.com.br
+  user: ana.souza@devbatista.com
   status: contacted
   entered_on: "2026-09-09"
   notes: null
@@ -112,7 +112,7 @@
   email: sergio@trigobom.com.br
   origin: google_ads
   service: Hospedagem
-  user: ana.souza@devbatista.com.br
+  user: ana.souza@devbatista.com
   status: qualified
   entered_on: "2026-09-05"
   notes: null
@@ -129,7 +129,7 @@
   email: henrique.duarte@gruponorte.com.br
   origin: diagnosis
   service: Consultoria de TI
-  user: rafael@devbatista.com.br
+  user: rafael@devbatista.com
   status: qualified
   entered_on: "2026-09-03"
   notes: >-
@@ -151,7 +151,7 @@
   email: tiago@clientee.com.br
   origin: referral
   service: Desenvolvimento de sistemas
-  user: ana.souza@devbatista.com.br
+  user: ana.souza@devbatista.com
   status: converted
   entered_on: "2026-08-12"
   notes: Convertido em 08/09/2026 na oportunidade "Sistema de controle de estoque" (ganha).
@@ -169,7 +169,7 @@
   email: vanessa@visaoclara.com.br
   origin: google_ads
   service: Desenvolvimento de sites
-  user: ana.souza@devbatista.com.br
+  user: ana.souza@devbatista.com
   status: lost
   entered_on: "2026-09-02"
   notes: null
@@ -186,7 +186,7 @@
   email: eduardo.matos@alicerce.eng.br
   origin: outbound
   service: Gestão de infraestrutura
-  user: rafael@devbatista.com.br
+  user: rafael@devbatista.com
   status: lost
   entered_on: "2026-08-21"
   notes: null

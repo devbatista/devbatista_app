@@ -22,7 +22,7 @@ servers:
   - { name: xyz-files-01, company: Empresa XYZ, supplier: AWS, host: arquivos.xyz.com.br, environment: production, os: Debian 12, instance_type: EC2 t3.small + 200 GB, monthly_cost: 160 }
 
 new_suppliers:
-  - { name: Sentry, category: Software, website: sentry.io, email: infra@devbatista.com.br }
+  - { name: Sentry, category: Software, website: sentry.io, email: infra@devbatista.com }
   - { name: Twilio, category: Software, website: console.twilio.com }
   - { name: Apple, category: Software, website: developer.apple.com }
 
@@ -50,7 +50,7 @@ apps:
     hosting: railway-acme
     project: Portal ACME — Fase 2
     contract: 104
-    user: diego.rocha@devbatista.com.br
+    user: diego.rocha@devbatista.com
     vault_reference: "Cofre DevBatista › Clientes › ACME › Portal ACME (produção)"
     tickets: [2381, 2390, 2397]
     databases:

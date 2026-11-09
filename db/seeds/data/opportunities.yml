@@ -16,7 +16,7 @@
   company: Empresa XYZ
   lead: null
   service: Desenvolvimento de sistemas
-  user: ana.souza@devbatista.com.br
+  user: ana.souza@devbatista.com
   stage: proposal
   estimated_value: 14000
   probability: 60
@@ -32,7 +32,7 @@
   company: Agro Campos
   lead: null
   service: Automação/RPA
-  user: ana.souza@devbatista.com.br
+  user: ana.souza@devbatista.com
   stage: negotiation
   estimated_value: 9000
   probability: 75
@@ -48,7 +48,7 @@
   company: Studio Arq
   lead: null
   service: Desenvolvimento de sites
-  user: ana.souza@devbatista.com.br
+  user: ana.souza@devbatista.com
   stage: negotiation
   estimated_value: 4000
   probability: 80
@@ -64,7 +64,7 @@
   company: Empresa Delta
   lead: null
   service: Gestão de infraestrutura
-  user: rafael@devbatista.com.br
+  user: rafael@devbatista.com
   stage: proposal
   estimated_value: 6500
   probability: 50
@@ -80,7 +80,7 @@
   company: Cliente C
   lead: null
   service: Integrações
-  user: ana.souza@devbatista.com.br
+  user: ana.souza@devbatista.com
   stage: proposal
   estimated_value: 4500
   probability: 40
@@ -96,7 +96,7 @@
   company: Grupo Norte Logística
   lead: Henrique Duarte
   service: Desenvolvimento de sistemas
-  user: rafael@devbatista.com.br
+  user: rafael@devbatista.com
   stage: meeting
   estimated_value: 12000
   probability: 30
@@ -112,7 +112,7 @@
   company: Empresa Orion
   lead: null
   service: Inteligência Artificial
-  user: rafael@devbatista.com.br
+  user: rafael@devbatista.com
   stage: meeting
   estimated_value: 6000
   probability: 30
@@ -128,7 +128,7 @@
   company: Cliente E
   lead: Tiago Moreira
   service: Desenvolvimento de sistemas
-  user: ana.souza@devbatista.com.br
+  user: ana.souza@devbatista.com
   stage: won
   estimated_value: 7200
   probability: 100
