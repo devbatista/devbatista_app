@@ -45,6 +45,11 @@ Rails.application.routes.draw do
     get "pipeline", to: "pipeline#show", as: :pipeline
   end
 
+  # Marketing → Visitas do site (/marketing/site-visits, docs/specs/visitas-do-site), só leitura.
+  scope module: :marketing, path: "marketing" do
+    resources :site_visits, path: "site-visits", only: :index
+  end
+
   scope module: :customers, path: "customers" do
     resources :companies, except: :destroy
     resources :contacts, except: :show do

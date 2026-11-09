@@ -8,6 +8,7 @@ class Role < ApplicationRecord
   AREAS = {
     "dashboard" => "Dashboard",
     "comercial" => "Comercial",
+    "marketing" => "Marketing",
     "whatsapp" => "WhatsApp",
     "agentes" => "Agentes IA",
     "clientes" => "Clientes e contatos",

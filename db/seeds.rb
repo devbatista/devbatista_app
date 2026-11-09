@@ -36,6 +36,9 @@ end
 Agent.seed_defaults!
 load Rails.root.join("db/seeds/agentes.rb") unless Rails.env.production?
 
+# Visitas do site e acessos de IA de exemplo, só fora de produção.
+load Rails.root.join("db/seeds/visitas.rb") unless Rails.env.production?
+
 puts "Perfis: #{Role.count} · Usuários: #{User.count}"
 puts "Empresas: #{Company.count} · Contatos: #{Contact.count} · Contratos: #{Contract.count} · " \
      "Serviços contratados: #{CustomerService.count} · MRR: R$ #{CustomerService.active.sum(:mrr_cents) / 100}" unless Rails.env.production?

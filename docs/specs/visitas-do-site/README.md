@@ -169,12 +169,12 @@ O tipo `user` é o sinal mais útil: alguém perguntou algo a uma IA e ela abriu
 
 **Visitas do site** (`/marketing/site-visits`, `Marketing::SiteVisitsController#index`):
 
-- **Período** no topo (`?periodo=`): Hoje, Ontem, Últimos 7 dias (padrão), Últimos 30 dias, Este mês, Mês passado e Últimos 12 meses. Concern próprio, no estilo do `FinancePeriod`. O período anterior, para comparar, tem o mesmo tamanho e termina onde o atual começa.
+- **Período** no topo (`?periodo=`): Hoje, Ontem, Últimos 7 dias (padrão), Últimos 30 dias, Este mês, Mês passado e Últimos 12 meses. O período sai de `SiteVisits::Stats.period`, o mesmo das tools. O anterior volta pelo calendário até a mesma hora: hoje × ontem, 7 dias × os 7 anteriores (os mesmos dias da semana), 30 dias × os 30 anteriores, este mês × o mês anterior até o mesmo dia, mês passado × o mês antes dele, 12 meses × os 12 anteriores. O intervalo livre do MCP (`de`/`ate`) compara com o de mesmo tamanho que termina onde ele começa.
 - **Indicadores** (`grid-kpi`, um card por número, com o `variation_badge` em relação ao período anterior):
 
 | Card | Cálculo |
 | --- | --- |
-| Visitantes únicos | Soma, dia a dia, dos `visitor_hash` distintos (como o sal muda todo dia, o mesmo visitante em dois dias conta duas vezes; a nota do card diz isso) |
+| Visitantes únicos | `visitor_hash` distintos do período. Como o sal muda todo dia, cada hash pertence a um dia só, e o número é a soma dos visitantes de cada dia: o mesmo visitante em dois dias conta duas vezes (a nota da tela e a definição do card dizem isso) |
 | Visitas | Visitas iniciadas no período |
 | Páginas vistas | Páginas vistas no período |
 | Páginas por visita | Páginas vistas ÷ visitas |
@@ -228,7 +228,7 @@ No padrão do [MCP do Admin](../mcp-comercial/README.md): `Mcp::Tools::Base`, `r
 ## Fases
 
 1. ✅ **Coleta**: tabelas, `SiteVisits::Tracker`, webhook, sal do dia e job de limpeza, filtro de robôs, `SiteVisits::UserAgent`, `SiteVisits::Channel`, `SiteVisits::AiAgentClassifier` com o catálogo, `SiteVisits::AiAgentIpRanges` e o `AiAgentIpRangesJob`, script, proxy e captura no servidor do site, `SITE_VISITS_TOKEN`. Fica coletando enquanto a tela é feita.
-2. **Visão geral e MCP**: `SiteVisits::Stats`, área `marketing`, policy, as tools `visitas_resumo`, `visitas_por_dimensao` e `acessos_ia`, grupo Marketing, período, indicadores, gráfico, estado vazio, seeds de visitas fora de produção. As tools podem ir para produção antes da tela, já que usam o mesmo serviço.
+2. ✅ **Visão geral e MCP**: `SiteVisits::Stats`, área `marketing`, `SiteVisitPolicy`, as tools `visitas_resumo`, `visitas_por_dimensao` e `acessos_ia`, grupo Marketing, período, indicadores (com o card de indicador da tela de Indicadores), gráfico de colunas (`ChartsHelper#visits_bar_chart`), estado vazio com o passo a passo, aviso das tools do Claude, seeds de 400 dias de visitas e acessos de IA fora de produção (`db/seeds/visitas.rb`). A variação da taxa de rejeição sai em pontos percentuais, as outras em %.
 3. **Próximas** (cada uma é uma seção nova na mesma tela, sem coleta nova): acessos de IA, conferência criptográfica da assinatura do Web Bot Auth (Ed25519), contagem de `robots.txt`, `sitemap.xml` e `llms.txt` via `.htaccess`, origem do tráfego (canal, referência e UTM), páginas (mais vistas, de entrada e de saída), dispositivos e o funil visita → quiz → lead. O funil exige o `site_visit` no payload do `/webhooks/site-leads`, e quando existir entra no MCP como a dimensão `convertidas` ou como a tool `visitas_funil`.
 
 ## Testes

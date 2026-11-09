@@ -1,0 +1,70 @@
+<% nav_location :mkt, "Visitas do site" %>
+<% breadcrumb ["Marketing"], ["Visitas do site"] %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Marketing · <%= @period.label %></span>
+    <h1>Visitas do site</h1>
+    <p class="lead">Pessoas que visitaram o devbatista.com<%= ", comparadas com o período anterior" unless @empty %>. Robôs e agentes de IA não entram nestes números.</p>
+  </div>
+  <% unless @empty %>
+    <%= form_with url: site_visits_path, method: :get, class: "actions" do %>
+      <label class="sr-only" for="periodo">Período</label>
+      <%= select_tag :periodo, options_for_select(@periods, @period.key), class: "select", id: "periodo", onchange: "this.form.requestSubmit()" %>
+    <% end %>
+  <% end %>
+</div>
+
+<% if @empty %>
+  <%= render "shared/empty", icon_name: :mkt, title: "Nenhuma visita registrada ainda",
+                             text: "A contagem começa quando o site mandar a primeira página vista para o Admin." do %>
+    <ol class="caption" style="text-align:left;margin:8px 0 0;max-width:440px;line-height:1.7">
+      <li>Gere o token: <code>openssl rand -hex 32</code>.</li>
+      <li>No Admin, defina <code>SITE_VISITS_TOKEN</code> com esse valor.</li>
+      <li>No repositório do site, crie o secret <code>SITE_VISITS_TOKEN</code> com o mesmo valor e faça o deploy.</li>
+      <li>Abra o site uma vez com <code>?nao-contar=1</code>, para não contar as suas visitas.</li>
+    </ol>
+  <% end %>
+<% else %>
+  <% s = @summary %>
+  <% k = s[:indicadores] %>
+  <% b = s[:anterior] %>
+  <% previous = "#{l(Date.parse(s[:periodo][:anterior][:de]), format: '%d/%m')} a #{l(Date.parse(s[:periodo][:anterior][:ate]), format: '%d/%m')}" %>
+  <% kpi = ->(label, value, foot, definition) { render("management/indicators/kpi", label: label, value: value, foot: foot, definition: definition) } %>
+  <% foot = ->(badge, before) { safe_join([ badge, "anterior: #{before}" ].compact, " ") } %>
+
+  <div class="note">
+    <%= icon(:info) %>
+    <span><b>Medição própria, sem cookie e sem guardar IP.</b> O visitante é anônimo e muda todo dia: quem volta no dia seguinte conta de novo como visitante único. Dados desde <%= l(Date.parse(s[:primeira_visita])) %>. Comparação com <%= previous %>. Atualizado em <%= l(s[:generated_at], format: "%d/%m/%Y às %H:%M") %><%= " (cache de até 15 minutos)" unless Marketing::SiteVisitsController::LIVE_PERIODS.include?(@period.key) %>.</span>
+  </div>
+
+  <section class="stack" aria-label="Indicadores de visitas">
+    <div class="grid-kpi g3">
+      <%= kpi.call("Visitantes únicos", count_br(k[:visitantes]), foot.call(variation_badge(k[:visitantes], b[:visitantes]), count_br(b[:visitantes])),
+                   "Pessoas diferentes no período, contadas por dia: quem volta em outro dia conta de novo.") %>
+      <%= kpi.call("Visitas", count_br(k[:visitas]), foot.call(variation_badge(k[:visitas], b[:visitas]), count_br(b[:visitas])),
+                   "Sequências de páginas da mesma pessoa, com no máximo 30 minutos entre uma e outra.") %>
+      <%= kpi.call("Páginas vistas", count_br(k[:paginas_vistas]), foot.call(variation_badge(k[:paginas_vistas], b[:paginas_vistas]), count_br(b[:paginas_vistas])),
+                   "Todas as páginas abertas nas visitas do período.") %>
+      <%= kpi.call("Páginas por visita", number_with_precision(k[:paginas_por_visita], precision: 1, separator: ","),
+                   foot.call(variation_badge(k[:paginas_por_visita], b[:paginas_por_visita]), number_with_precision(b[:paginas_por_visita], precision: 1, separator: ",")),
+                   "Páginas vistas ÷ visitas.") %>
+      <%= kpi.call("Taxa de rejeição", percent_br(k[:taxa_rejeicao]), foot.call(points_badge(k[:taxa_rejeicao], b[:taxa_rejeicao], inverse: true), percent_br(b[:taxa_rejeicao])),
+                   "Visitas de uma página só e com menos de 10 segundos ÷ visitas. Quanto menor, melhor.") %>
+      <%= kpi.call("Duração média", duration_br(k[:duracao_media]), foot.call(variation_badge(k[:duracao_media], b[:duracao_media]), duration_br(b[:duracao_media])),
+                   "Tempo médio de uma visita, somando o tempo em que cada página ficou visível na tela.") %>
+    </div>
+  </section>
+
+  <% unit = { hour: "hora", day: "dia", month: "mês" }.fetch(@period.bucket) %>
+  <section class="card card-body stack" aria-label="Visitas por <%= unit %>">
+    <div class="section-title"><h2>Visitas por <%= unit %></h2><span class="unit">VISITAS · <%= @period.label.upcase %></span></div>
+    <%= visits_bar_chart(s[:serie], bucket: @period.bucket, title: "Visitas por #{unit}") %>
+    <% peak = s[:serie].max_by { |p| p[:visitas] } %>
+    <span class="caption">Passe o mouse numa coluna para ver visitantes e páginas vistas.<% if peak && peak[:visitas].positive? %> Pico: <%= visits_bucket_label(peak[:inicio], @period.bucket) %>, com <%= pluralize(peak[:visitas], "visita") %>.<% end %></span>
+  </section>
+
+  <div class="callout">
+    <span><b>Mais detalhes pelo Claude.</b> No conector do Admin, peça por exemplo "de onde vieram as visitas este mês?", "quais páginas quem vem do Google mais vê?" ou "que IAs leram o site?". As tools <code>visitas_resumo</code>, <code>visitas_por_dimensao</code> e <code>acessos_ia</code> usam os mesmos números desta tela.</span>
+  </div>
+<% end %>
