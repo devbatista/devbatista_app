@@ -243,6 +243,8 @@ tr[data-href] { cursor: pointer; }
 .content:has(> .wa) { height: calc(100vh - var(--top-h)); height: calc(100dvh - var(--top-h)); min-height: 600px; padding-bottom: 24px; gap: 16px; }
 .wa { flex: 1; min-height: 0; display: grid; grid-template-columns: 300px minmax(0, 1fr) 320px; gap: 16px; }
 .wa > turbo-frame, .wa-frame { display: contents; }
+/* O turbo_stream_from vira um elemento vazio que, dentro do frame com display: contents, ocuparia uma coluna do grid. */
+.wa turbo-cable-stream-source { display: none; }
 .wa .card.list, .wa .card.conv, .wa .card.panel { display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
 .wa .conv-empty { grid-column: span 2; justify-content: center; }
 .wa .col-head { padding: 14px 16px; border-bottom: 1px solid var(--rule); display: flex; flex-direction: column; gap: 10px; }
