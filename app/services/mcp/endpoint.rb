@@ -23,6 +23,7 @@ module Mcp
       Tools::MoverLead,
       Tools::ConverterLead,
       Tools::RegistrarInteracao,
+      Tools::EnviarWhatsapp,
       Tools::MarcarPerdido,
       Tools::CriarOportunidade,
       Tools::AtualizarOportunidade,
@@ -40,6 +41,8 @@ module Mcp
       Admin DevBatista é o sistema de gestão da DevBatista, uma software house. Este servidor dá acesso ao
       Comercial: leads, pipeline, oportunidades, propostas e interações. Valores em reais, datas em AAAA-MM-DD,
       ids em UUID. Antes de criar ou alterar registros, consulte opcoes_comerciais para usar as chaves aceitas.
+      enviar_whatsapp manda mensagem real ao lead: chame antes com simular: true, mostre a prévia ao usuário e só
+      envie o texto exato que ele aprovou no chat.
       Se você é um agente do escritório (ops, sol, mia, leo, fin), em cada execução: ler_pendencias no começo,
       registrar_evento ao começar e ao terminar o trabalho (com precisa_aprovacao quando a ação exigir o aval do
       administrador) e concluir_pendencia para cada ordem atendida. Visitas do site devbatista.com (só leitura,

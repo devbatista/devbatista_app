@@ -55,6 +55,12 @@ module Mcp
           annotations(read_only_hint: false, destructive_hint: false, open_world_hint: false)
         end
 
+        # Sai do sistema e chega a outra pessoa (mensagem real, sem volta): o cliente do Claude
+        # pede confirmação antes de cada uso.
+        def sends_out(title:)
+          annotations(read_only_hint: false, destructive_hint: true, idempotent_hint: false, open_world_hint: true, title: title)
+        end
+
         private
 
         def respond(data)

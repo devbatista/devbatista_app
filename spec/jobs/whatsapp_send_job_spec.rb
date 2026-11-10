@@ -163,6 +163,35 @@ RSpec.describe WhatsappSendJob do
     end
   end
 
+  describe ".deliver_now (envio na hora, fora da fila)" do
+    it "envia, grava o wamid e não devolve erro" do
+      message = outbound(body: "Oi")
+      stub_graph(accepted)
+
+      expect(described_class.deliver_now(message)).to be_nil
+      expect(message.reload.wa_message_id).to eq("wamid.ENVIADA1")
+    end
+
+    it "não tenta de novo a falha transitória: ela fica na mensagem e volta como erro" do
+      message = outbound(body: "Oi")
+      stub_graph(graph_error(503, 2, "Service temporarily unavailable"))
+
+      error = nil
+      expect { error = described_class.deliver_now(message) }.not_to have_enqueued_job(described_class)
+      expect(error).to have_attributes(code: 2, message: "Service temporarily unavailable")
+      expect(message.reload).to have_attributes(status: "failed", error_code: "2")
+    end
+
+    it "devolve o erro definitivo da Meta e o sem confirmação" do
+      definitive, uncertain = outbound(body: "Oi"), outbound(body: "Oi de novo")
+      stub_graph(graph_error(400, 131_026, "(#131026) Message undeliverable"), Net::ReadTimeout)
+
+      expect(described_class.deliver_now(definitive).code).to eq(131_026)
+      expect(described_class.deliver_now(uncertain)).to be_delivery_uncertain
+      expect(uncertain.reload.error_message).to eq(described_class::UNCERTAIN)
+    end
+  end
+
   it "não leva o corpo, o telefone nem o nome para o log do Active Job (os broadcasts levam só IDs)" do
     log = StringIO.new
     original = ActiveJob::Base.logger
