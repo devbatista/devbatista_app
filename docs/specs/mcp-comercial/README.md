@@ -7,7 +7,7 @@ Outubro de 2026 · Servidor MCP (Model Context Protocol) dentro do próprio app,
 | Tema | Decisão |
 | --- | --- |
 | Áreas na v1 | Só **Comercial**: leads, pipeline, oportunidades, propostas e interações |
-| Escrita | Leitura + criação e alteração. **Sem exclusão**, sem enviar nada ao cliente, sem mexer em dinheiro |
+| Escrita | Leitura + criação e alteração. **Sem exclusão**, sem mexer em dinheiro. Para fora, só o texto de WhatsApp a lead (`enviar_whatsapp`), com aprovação a cada envio; proposta continua sem envio pelo MCP |
 | Autenticação | **OAuth 2.1** (Doorkeeper) já na v1, para funcionar como conector no claude.ai |
 | Usuários | Só o administrador. A tela de autorização recusa outros perfis |
 | Auditoria | As ações pelo MCP gravam `ip_address` como `mcp:<ip>` no `AuditLog`, para separar o que veio do Claude |
@@ -50,6 +50,24 @@ Cada chamada de tool roda **como um usuário real**: o token resolve o `User`, q
 | `criar_proposta` | Só como rascunho, com itens |
 | `gerar_pdf_proposta` | Links para abrir e baixar o PDF (gerado na hora; pedem login no sistema) |
 
+### Envio ao contato
+
+| Tool | O que faz |
+| --- | --- |
+| `enviar_whatsapp` | Texto ao WhatsApp de um lead em aberto, pelo número da DevBatista, com modo `simular`. Exige escrita na área WhatsApp |
+
+Regras de `enviar_whatsapp`:
+
+- **Aprovação**: annotations `destructiveHint: true`, `openWorldHint: true`, `idempotentHint: false`, título "Enviar WhatsApp (requer aprovação)"; a descrição manda simular, mostrar a prévia e só enviar o texto exato que o usuário aprovou. No claude.ai, deixar a tool em "sempre perguntar" nas permissões do conector: as annotations são só dicas para o cliente.
+- **Número**: o campo WhatsApp do lead (`Whatsapp::Phone.wa_ids`, com e sem o nono dígito) acha a conversa da conta conectada; o envio vai para o número da conversa, na forma que a Meta usa. Número na conversa de outro cadastro é recusado.
+- **Janela de 24h**: `WhatsappConversation#window_open?`, a mesma regra da tela (`last_inbound_at`, gravado pelo webhook a cada mensagem recebida, inclusive resposta automática do contato). Fechada: erro "fora da janela de 24h, precisa de template aprovado", com a data da última mensagem recebida.
+- **Lead perdido ou convertido**: recusado.
+- **Duplicidade**: o mesmo texto na conversa nos últimos 2 minutos é recusado, conferido com a conversa travada. O envio sem confirmação da Meta conta como enviado.
+- **Envio**: `Whatsapp::Outbound#deliver_now` → `WhatsappSendJob.deliver_now`, na hora e sem novas tentativas, com o token e o `phone_number_id` do `WhatsappAccount`. A mensagem aparece na conversa do Admin como as outras.
+- **Sucesso**: liga a conversa ao lead e grava a interação "WhatsApp" no lead com o texto e o wamid (além da automática do dia, que só leva as contagens). Devolve `{enviado, wamid, para, enviado_em}`.
+- **Erro da Meta**: a mensagem fica "Falhou" na conversa, sem interação; volta o código, a mensagem em português e a original da Meta.
+- **Segunda etapa**: `enviar_whatsapp_template` (primeiro contato fora da janela) e a lista dos templates aprovados.
+
 ### Escritório de agentes
 
 Para as rotinas agendadas do Claude que trabalham como agentes da DevBatista (área `agentes`). Regras em [Escritório de agentes de IA](../escritorio-agentes/README.md).
@@ -72,7 +90,7 @@ Só leitura, com números agregados das visitas ao devbatista.com (área `market
 
 ### Fora do MCP
 
-Exclusões; enviar proposta ao cliente (`deliver`); aprovar ou recusar proposta (`ProposalApproval` gera contrato e recebíveis); qualquer área fora do Comercial, do Escritório e das visitas do site; administração.
+Exclusões; enviar proposta ao cliente (`deliver`); WhatsApp com mídia ou template (por enquanto); aprovar ou recusar proposta (`ProposalApproval` gera contrato e recebíveis); qualquer área fora do Comercial, do Escritório e das visitas do site; administração.
 
 ## Arquitetura
 

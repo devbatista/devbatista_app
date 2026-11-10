@@ -22,28 +22,45 @@ class WhatsappSendJob < ApplicationJob
     job.send(:fail!, job.arguments.first, error)
   end
 
+  # Envio na hora, fora da fila e sem novas tentativas, para quem precisa da resposta da Meta na
+  # mesma chamada (tool enviar_whatsapp do MCP). A falha transitória também fica na mensagem.
+  # Devolve o Whatsapp::Error da falha, ou nil quando a Meta aceitou (wa_message_id gravado).
+  def self.deliver_now(message)
+    new.send(:attempt, message, retry_transient: false)
+  end
+
   def perform(message)
+    attempt(message, retry_transient: true)
+  end
+
+  private
+
+  def attempt(message, retry_transient:)
     return if message.wa_message_id.present? || !message.status_pending?
 
     conversation = message.conversation
-    return message.fail_send!(conversation.read_only_reason) unless conversation.sendable?
+    unless conversation.sendable?
+      message.fail_send!(conversation.read_only_reason)
+      return Whatsapp::Error.new(conversation.read_only_reason)
+    end
 
     sent = deliver(Whatsapp::Client.new(conversation.account), message, conversation)
     # Sem callbacks, para nada entre a resposta da Meta e a gravação do ID fazer o job falhar e repetir o envio.
     message.update_columns(wa_message_id: sent.wa_message_id, updated_at: Time.current)
     complete_recipient(conversation, sent)
     Rails.logger.info("[Whatsapp] mensagem enviada: message=#{message.id} wamid=#{sent.wa_message_id}")
+    nil
   rescue Whatsapp::Error => e
     if @posting && e.delivery_uncertain?
       message.fail_send!(UNCERTAIN)
-      return Rails.logger.warn("[Whatsapp] envio sem confirmação da Meta: message=#{message.id}, sem nova tentativa")
+      Rails.logger.warn("[Whatsapp] envio sem confirmação da Meta: message=#{message.id}, sem nova tentativa")
+      return e
     end
-    raise if e.transient?
+    raise if retry_transient && e.transient?
 
     fail!(message, e)
+    e
   end
-
-  private
 
   # O POST /messages: daqui em diante, falha de rede incerta não tem nova tentativa.
   def post
