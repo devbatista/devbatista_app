@@ -282,6 +282,11 @@ tr[data-href] { cursor: pointer; }
 .thread, .thread .older { display: flex; flex-direction: column; gap: 14px; }
 .msg-row { display: flex; flex-direction: column; gap: 14px; }
 .msg-row > .msg > div { max-width: 640px; }
+/* Enviadas (pelo Admin ou pelo celular) à direita, com o avatar depois do balão. */
+.thread .msg.out { grid-template-columns: minmax(0, 1fr) 36px; }
+.thread .msg.out > .avatar { grid-column: 2; grid-row: 1; }
+.thread .msg.out > div { grid-column: 1; grid-row: 1; justify-self: end; }
+.thread .msg.out .who { text-align: right; }
 .msg .bubble p { margin: 0; white-space: pre-line; overflow-wrap: anywhere; }
 .msg .bubble a { color: var(--cyan-300); }
 .msg .who .badge { margin-left: 6px; vertical-align: 1px; }
@@ -400,7 +405,7 @@ tr[data-href] { cursor: pointer; }
   .back-btn { display: inline-flex !important; }
   .thread-wrap { padding: 14px 12px; }
   .msg { grid-template-columns: 28px minmax(0, 1fr); gap: 8px; }
-  .msg.out { grid-template-columns: minmax(0, 1fr) 28px; }
+  .msg.out, .thread .msg.out { grid-template-columns: minmax(0, 1fr) 28px; }
   .msg > .avatar { width: 28px; height: 28px; font-size: 11px; }
   .tpl-grid, .tpl-vars { grid-template-columns: minmax(0, 1fr); }
   .conv-head .badge { display: none; }

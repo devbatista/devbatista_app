@@ -49,6 +49,15 @@ RSpec.describe "WhatsApp" do
       expect(build(:whatsapp_conversation, wa_id: "14155550123").phone_label).to eq("+14155550123")
     end
 
+    it "usa o nome do lead ou do contato vinculado antes do nome do WhatsApp" do
+      conversation = build(:whatsapp_conversation, saved_name: "Rô (agenda)", profile_name: "Rô", wa_id: "5511974952730",
+                                                   lead: build(:lead, name: "Romulo"))
+      expect(conversation.display_name).to eq("Romulo")
+      conversation.lead = nil
+      conversation.contact = build(:contact, name: "Romulo Contato")
+      expect(conversation.display_name).to eq("Romulo Contato")
+    end
+
     it "prefere o telefone como destinatário e guarda só os dígitos" do
       conversation = build(:whatsapp_conversation, wa_id: "+55 (11) 99102-3344")
       expect(conversation.wa_id).to eq("5511991023344")

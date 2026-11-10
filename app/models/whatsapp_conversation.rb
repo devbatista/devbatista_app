@@ -232,9 +232,10 @@ class WhatsappConversation < ApplicationRecord
     wa_id ? { to: wa_id } : { recipient: bsuid }
   end
 
-  # O nome salvo na agenda do celular vem antes do nome do perfil, que a própria pessoa escolhe.
+  # O nome do cadastro no CRM (lead ou contato vinculado) vem primeiro; depois, o nome salvo na
+  # agenda do celular e o nome do perfil, que a própria pessoa escolhe.
   def display_name
-    saved_name || profile_name || phone_label || (username && "@#{username.delete_prefix('@')}") || "Contato do WhatsApp"
+    lead&.name.presence || contact&.name.presence || saved_name || profile_name || phone_label || (username && "@#{username.delete_prefix('@')}") || "Contato do WhatsApp"
   end
 
   # +55 11 99102-3344 para celular e fixo do Brasil; os outros países, só com o +.
