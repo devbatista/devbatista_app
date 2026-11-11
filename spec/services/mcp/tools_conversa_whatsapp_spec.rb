@@ -109,6 +109,24 @@ RSpec.describe "Conversa do WhatsApp pelo MCP" do
         expect(mensagens.second).to include("status" => "Falhou", "erro" => "Fora da janela de 24h")
       end
 
+      # Payload como o da Meta em produção (resposta automática do contato, na coexistência): sem conteúdo.
+      it "explica a mensagem que a Meta não repassou à API (131060), em vez de 'não suportada'" do
+        payload = { "id" => "wamid.INDISPONIVEL", "from" => "5511991023344", "timestamp" => (now - 1.hour).to_i.to_s, "type" => "unsupported",
+                    "unsupported" => { "type" => "unknown", "raw_type" => "unknown" },
+                    "errors" => [ { "code" => 131060, "title" => "This message is unavailable.",
+                                    "error_data" => { "details" => "This message is currently unavailable." } } ] }
+        conversation.messages.create!(Whatsapp::MessageAttributes.call(payload).merge(direction: "inbound", origin: "contact", status: "received"))
+        message(conversation, now - 30.minutes, kind: "unsupported", body: nil)
+
+        mensagens = tool_data(described_class, admin, lead_id: lead.id)["mensagens"]
+
+        expect(mensagens.first).to include(
+          "direcao" => "recebida", "tipo" => "unsupported", "erro" => "This message is currently unavailable.",
+          "texto" => "[mensagem indisponível: a Meta não enviou o conteúdo à API (código 131060). Leia no app do WhatsApp Business]"
+        )
+        expect(mensagens.second).to include("texto" => "[mensagem não suportada]").and(exclude("erro"))
+      end
+
       it "filtra desde o início do dia e limita às mais recentes, contando as omitidas" do
         message(conversation, Time.zone.local(2026, 11, 9, 23, 59), body: "anteontem")
         message(conversation, Time.zone.local(2026, 11, 10, 0, 1), body: "ontem cedo")
