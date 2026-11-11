@@ -1,5 +1,5 @@
 # Conversas seguem a matriz da área WhatsApp: quem lê abre a conversa (o que também a marca como
-# lida), pagina as mensagens e vê o painel. Vincular, criar lead e desvincular exigem escrita; os
+# lida), pagina as mensagens e vê o painel. Vincular, criar lead, desvincular e arquivar exigem escrita; os
 # dados do CRM no painel seguem a área de cada cadastro (Comercial e Clientes).
 class WhatsappConversationPolicy < ApplicationPolicy
   area "whatsapp"
@@ -17,6 +17,10 @@ class WhatsappConversationPolicy < ApplicationPolicy
   end
 
   def link?
+    update?
+  end
+
+  def archive?
     update?
   end
 end

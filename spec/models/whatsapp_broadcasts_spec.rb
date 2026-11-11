@@ -65,6 +65,29 @@ RSpec.describe "Broadcasts do WhatsApp" do
     expect(thread.map { |s| s["target"] }).to eq([ ActionView::RecordIdentifier.dom_id(conversation, :header), ActionView::RecordIdentifier.dom_id(conversation, :composer) ])
     expect(thread.last.to_html).to include("Responder com template")
   end
+
+  it "arquivar tira a conversa da lista e redesenha o cabeçalho e o painel; mensagem nova a traz de volta ao topo" do
+    conversation = create(:whatsapp_conversation, account: account, last_message_at: Time.zone.parse("2026-10-20 09:00"),
+                                                  wa_id: WhatsappWebhookHelpers::CONTACT_PHONE, bsuid: WhatsappWebhookHelpers::CONTACT_BSUID)
+    clear_enqueued_jobs
+
+    thread = nil
+    inbox = capture_turbo_stream_broadcasts([ account, :whatsapp_inbox ]) do
+      thread = captured(conversation, :whatsapp) { conversation.archive!(create(:user, :admin)) }
+    end
+    expect(inbox.map { |s| [ s["action"], s["target"] ] }).to eq([ [ "remove", ActionView::RecordIdentifier.dom_id(conversation, :inbox) ] ])
+    expect(thread.map { |s| s["target"] }).to eq([ ActionView::RecordIdentifier.dom_id(conversation, :header), ActionView::RecordIdentifier.dom_id(conversation, :panel) ])
+    expect(thread.first.to_html).to include("Arquivada")
+    expect(thread.last.to_html).to include(%(src="#{Rails.application.routes.url_helpers.panel_whatsapp_conversation_path(conversation)}"))
+
+    inbox = capture_turbo_stream_broadcasts([ account, :whatsapp_inbox ]) do
+      perform_enqueued_jobs(only: Turbo::Streams::ActionBroadcastJob) do
+        process_webhook(account, "messages", contacts: [ wa_contact ], messages: [ wa_message("wamid.A1", "Voltei") ])
+      end
+    end
+    expect(conversation.reload.archived_at).to be_nil
+    expect(inbox.map { |s| s["action"] }).to eq(%w[remove prepend])
+  end
 end
 
 RSpec.describe WhatsappReadJob do

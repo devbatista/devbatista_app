@@ -67,13 +67,13 @@ class WhatsappConversationsController < ApplicationController
     @next_cursor = @conversations.last if page.size > INBOX_PAGE
   end
 
-  # Contagem de cada filtro numa consulta só.
+  # Contagem de cada filtro numa consulta só, na ordem de FILTERS. As arquivadas só contam em "Arquivadas".
   def filter_counts(scope)
     window = WhatsappConversation.sanitize_sql([ "last_inbound_at > ?", WhatsappConversation::WINDOW.ago ])
-    values = scope.pick(Arel.sql("count(*), count(*) FILTER (WHERE unread_count > 0), count(*) FILTER (WHERE lead_id IS NOT NULL), " \
-                                 "count(*) FILTER (WHERE contact_id IS NOT NULL), count(*) FILTER (WHERE lead_id IS NULL AND contact_id IS NULL), " \
-                                 "count(*) FILTER (WHERE #{window})"))
-    WhatsappConversation::FILTERS.keys.zip(values).to_h
+    conditions = [ "TRUE", "unread_count > 0", "lead_id IS NOT NULL", "contact_id IS NOT NULL", "lead_id IS NULL AND contact_id IS NULL", window ]
+    columns = conditions.map { |condition| "count(*) FILTER (WHERE archived_at IS NULL AND #{condition})" } <<
+              "count(*) FILTER (WHERE archived_at IS NOT NULL)"
+    WhatsappConversation::FILTERS.keys.zip(scope.pick(Arel.sql(columns.join(", ")))).to_h
   end
 
   def cursor
