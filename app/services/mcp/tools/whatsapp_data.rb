@@ -18,6 +18,7 @@ module Mcp
       def message_text(message)
         return "[mensagem apagada]" if message.revoked_at
         return message.body.to_s if PLAIN_KINDS.include?(message.kind)
+        return unavailable_text(message) if message.kind_unsupported? && message.error_code.present?
 
         tag = message.kind_template? ? "template #{message.template_name}" : MEDIA_LABELS.fetch(message.kind, message.kind_label.downcase)
         tag = "#{tag}: #{message.media_filename}" if message.kind_document? && message.media_filename.present?
@@ -29,9 +30,16 @@ module Mcp
           direcao: message.inbound? ? "recebida" : "enviada", horario: message.sent_at.iso8601, tipo: message.kind,
           texto: message_text(message), origem: message.origin_label.downcase,
           enviada_por: message.user&.name, status: (message.status_label if message.outbound?),
-          erro: (message.error_message if message.status_failed?), editada: (true if message.edited_at),
+          erro: (message.error_message if message.status_failed? || message.error_code.present?), editada: (true if message.edited_at),
           do_historico: (true if message.from_history?), wamid: message.wa_message_id
         }.compact
+      end
+
+      # A Meta avisou que não repassa o conteúdo à Cloud API (131060: mensagem indisponível, comum na
+      # coexistência com aparelho vinculado não suportado; 131051: tipo não suportado). O texto não
+      # existe do lado do Admin: só no app do WhatsApp Business.
+      def unavailable_text(message)
+        "[mensagem indisponível: a Meta não enviou o conteúdo à API (código #{message.error_code}). Leia no app do WhatsApp Business]"
       end
 
       # Mensagens que o contato mandou a partir do dia (início do dia, no fuso do sistema).
