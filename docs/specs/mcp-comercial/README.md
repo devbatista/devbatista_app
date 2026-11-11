@@ -30,7 +30,7 @@ Cada chamada de tool roda **como um usuário real**: o token resolve o `User`, q
 | Tool | O que faz |
 | --- | --- |
 | `buscar_leads` | Filtros: termo, status, origem, responsável, só abertos e `com_resposta_whatsapp_desde` (abaixo) |
-| `ver_lead` | Dados, interações, oportunidades e propostas |
+| `ver_lead` | Dados, interações, oportunidades e propostas. Com leitura na área WhatsApp: `janela_whatsapp_aberta_ate` no topo (quando a janela de 24h está aberta) e, em cada interação "Conversa do dia", as `mensagens` daquele dia no formato do `ver_conversa_whatsapp` (as 30 mais recentes do lead, somando os dias; `mensagens_omitidas` conta as do dia que ficaram de fora) |
 | `ver_conversa_whatsapp` | Mensagens do WhatsApp do lead em ordem cronológica e a janela de 24h (abaixo). Exige leitura na área WhatsApp |
 | `pipeline` | Leads e oportunidades por etapa, com quantidade e valor estimado |
 | `buscar_oportunidades` / `ver_oportunidade` | Lista e detalhe |
