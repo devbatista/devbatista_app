@@ -231,6 +231,78 @@ RSpec.describe "WhatsApp → Conversas" do
     end
   end
 
+  describe "arquivar" do
+    before { sign_in admin }
+
+    it "tira da lista e das contagens, zera as não lidas e marca os avisos como lidos, sem marcar como lida na Meta" do
+      conv = conversation(profile_name: "Henrique", unread_count: 2, last_inbound_at: 1.hour.ago)
+      message(conv)
+      conversation(profile_name: "Juliana")
+      notice = Notification.create!(user: admin, kind: "whatsapp_message", title: "2 mensagens novas", notifiable: conv, area: "whatsapp")
+
+      expect { post whatsapp_conversation_archive_path(conv) }.not_to have_enqueued_job(WhatsappReadJob)
+      expect(response).to redirect_to(whatsapp_conversations_path(conta: account.id))
+      expect(conv.reload).to have_attributes(archived_at: now, archived_by: admin, unread_count: 0)
+      expect(notice.reload.read_at).to be_present
+
+      get whatsapp_conversations_path
+      expect(response.body).to match(/Todas <span class="c">1/).and match(/Janela aberta <span class="c">0/).and match(/Arquivadas <span class="c">1/)
+      get whatsapp_conversations_path, headers: { "Turbo-Frame" => "whatsapp_inbox" }
+      expect(response.body).to include("Juliana").and(exclude("Henrique"))
+      get whatsapp_conversations_path(filtro: "arquivadas"), headers: { "Turbo-Frame" => "whatsapp_inbox" }
+      expect(response.body).to include("Henrique").and(exclude("Juliana"))
+      get whatsapp_conversations_path(filtro: "janela"), headers: { "Turbo-Frame" => "whatsapp_inbox" }
+      expect(response.body).to include("Nenhuma conversa")
+    end
+
+    it "a arquivada abre normalmente, mostra quem arquivou e desarquiva pelo painel" do
+      conv = conversation(profile_name: "Henrique")
+      get whatsapp_conversation_path(conv)
+      expect(response.body).to include("Arquivar conversa", whatsapp_conversation_archive_path(conv))
+
+      conv.archive!(admin)
+      get whatsapp_conversation_path(conv)
+      expect(response.body).to include(">Arquivada</span>", "Arquivada por Rafael Batista em 28/10/2026", "Desarquivar conversa").and(exclude("Arquivar conversa"))
+
+      delete whatsapp_conversation_archive_path(conv)
+      expect(response).to redirect_to(whatsapp_conversation_path(conv))
+      expect(conv.reload).to have_attributes(archived_at: nil, archived_by: nil)
+    end
+
+    it "mensagem nova da conversa de agora desarquiva; histórico, reação e aviso do sistema não" do
+      conv = conversation
+      conv.archive!(admin)
+
+      [ message(conv, from_history: true), message(conv, :reaction), message(conv, kind: "system") ].each do |kept|
+        conv.record_message!(kept)
+        expect(conv.reload.archived_at).to be_present
+      end
+
+      conv.record_message!(message(conv, :outbound, origin: "phone", status: "sent"))
+      expect(conv.reload.archived_at).to be_nil
+
+      conv.archive!(admin)
+      conv.record_message!(message(conv))
+      expect(conv.reload).to have_attributes(archived_at: nil, unread_count: 1)
+    end
+
+    it "quem só lê vê que está arquivada, mas não arquiva nem desarquiva" do
+      conv = conversation
+      sign_in reader
+      get whatsapp_conversation_path(conv)
+      expect(response.body).not_to include("Arquivar conversa")
+      post whatsapp_conversation_archive_path(conv)
+      expect(response).to have_http_status(:forbidden)
+
+      conv.archive!(admin)
+      get whatsapp_conversation_path(conv)
+      expect(response.body).to include("Arquivada por Rafael Batista").and(exclude("Desarquivar conversa"))
+      delete whatsapp_conversation_archive_path(conv)
+      expect(response).to have_http_status(:forbidden)
+      expect(conv.reload.archived_at).to be_present
+    end
+  end
+
   describe "avisos da central" do
     it "abrir a conversa marca os avisos dela como lidos para todos, inclusive o que chegou depois das não lidas zeradas" do
       conv = conversation(unread_count: 2, profile_name: "Henrique")

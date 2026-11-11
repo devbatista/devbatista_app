@@ -37,6 +37,22 @@
           </div>
         </div>
       <% end %>
+      <% if c.archived? || policy(c).archive? %>
+        <div class="pblock">
+          <div class="pbody" style="padding-top:12px">
+            <% if c.archived? %>
+              <span class="caption">Arquivada<%= " por #{c.archived_by.name}" if c.archived_by %> em <%= datetime_br(c.archived_at) %>. Volta para a lista quando chegar mensagem nova.</span>
+              <% if policy(c).archive? %>
+                <%= button_to "Desarquivar conversa", whatsapp_conversation_archive_path(c), method: :delete, class: "link-btn", style: "color:var(--muted);padding:0",
+                              form_class: "inline-form", form: { data: { turbo_frame: "_top" } } %>
+              <% end %>
+            <% else %>
+              <%= button_to "Arquivar conversa", whatsapp_conversation_archive_path(c), class: "link-btn", style: "color:var(--muted);padding:0",
+                            form_class: "inline-form", form: { data: { turbo_frame: "_top", turbo_confirm: "Arquivar a conversa? Ela sai da lista, mas as mensagens continuam no sistema e no cadastro. Volta sozinha quando chegar mensagem nova." } } %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
     </div>
   </aside>
 </turbo-frame>

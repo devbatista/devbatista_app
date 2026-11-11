@@ -52,7 +52,7 @@ Os valores ficam em `Rails.configuration.x.whatsapp`.
 | Tabela | Conteúdo |
 | --- | --- |
 | `whatsapp_accounts` | Portfólio, WABA, `phone_number_id` (único), número exibido (vazio até a ativação ler o número), nome verificado, token criptografado e validade (`token_expires_at`), status (Conectando, Aguardando registro, Conectado, Reconectar necessário, Desconectado), erro da ativação (`activation_error`), coexistência, qualidade e limite de envio, quem conectou, datas de conexão, inscrição do app, registro (`registered_at`) e desconexão, pedidos e datas das sincronizações, último webhook, andamento da sincronização de templates (`templates_sync_requested_at`, `templates_synced_at`, `templates_sync_error`) |
-| `whatsapp_conversations` | Conta, `bsuid` e `parent_bsuid`, `wa_id` e @usuário opcionais, nome do perfil, nome salvo na agenda do celular (`saved_name`), lead **ou** contato, quando e quem vinculou (`linked_at`, `linked_by_id`; vazio é o vínculo automático), quando foi desvinculada à mão (`auto_link_blocked_at`), última mensagem recebida (janela de 24h), não lidas e prévia |
+| `whatsapp_conversations` | Conta, `bsuid` e `parent_bsuid`, `wa_id` e @usuário opcionais, nome do perfil, nome salvo na agenda do celular (`saved_name`), lead **ou** contato, quando e quem vinculou (`linked_at`, `linked_by_id`; vazio é o vínculo automático), quando foi desvinculada à mão (`auto_link_blocked_at`), quando e quem arquivou (`archived_at`, `archived_by_id`), última mensagem recebida (janela de 24h), não lidas e prévia |
 | `whatsapp_messages` | Direção, tipo, origem (Admin, Celular, Contato), corpo, `wa_message_id` único, status (Enviando, Enviada, Entregue, Lida, Falhou, Recebida), erro, template e parâmetros, mídia (Active Storage e o ID da mídia na Meta), mensagem citada (`reply_to_wa_message_id`), reação (`reaction_to_wa_message_id` e `reaction_emoji`), autor, se veio do histórico, datas de envio, entrega, leitura, edição e exclusão, payload bruto |
 | CRM (Fase 7a) | Leads e contatos ganham `whatsapp_digits` e `phone_digits` (colunas geradas, só os dígitos, com índice). A interação ganha `whatsapp_conversation_id`: a automática, única por conversa, cadastro e dia |
 | `whatsapp_templates` | Conta, ID na Meta, nome, idioma, categoria, status, componentes (formato da Graph API), nº de variáveis do cabeçalho e do corpo, motivo de rejeição, última sincronização. O excluído fica no banco com status `deleted`; nome e idioma são únicos por conta só entre os não excluídos |
@@ -270,7 +270,7 @@ WhatsApp → **Conversas** (`/whatsapp/conversations`, `WhatsappConversationsCon
 - **Lista:**
   - seletor de conta quando há mais de uma;
   - busca por nome do perfil, nome da agenda, telefone (dígitos) e @usuário;
-  - filtros Todas, Não lidas, Leads, Clientes, Sem vínculo e Janela aberta, com a contagem numa consulta só;
+  - filtros Todas, Não lidas, Leads, Clientes, Sem vínculo, Janela aberta e Arquivadas, com a contagem numa consulta só (as arquivadas só entram em Arquivadas);
   - sempre `with_messages`, ordenada pela última mensagem;
   - paginação por cursor (última mensagem + id) num turbo-frame lazy, sem pular nem repetir.
 - **Nome:** agenda > perfil > telefone (+55 11 99102-3344) > @usuário > "Contato do WhatsApp" (`WhatsappConversation#display_name`).
@@ -455,6 +455,19 @@ O painel da conversa liga a conversa a um lead ou a um contato, mostra os dados 
 
 **Testes:** `Whatsapp::Notifier` (criação, atualização sem duplicar, novo aviso depois de lido, histórico, reação, sistema e eco sem aviso, eco marcando como lido, e-mail, broadcast ao navegador sem conteúdo nos argumentos do job), abrir a conversa marcando os avisos de todos, `WhatsappTokenExpiryJob` (7 dias e no dia, sem repetir), sino em tempo real (criado, atualizado, lido e em lote), `NotificationsChannel` e as preferências.
 
+## Arquivar conversa
+
+**Por quê.** A conversa apagada no app do celular (coexistência) continua no Admin: a Meta não manda webhook quando o chat é apagado ou arquivado no app (`smb_app_state_sync` traz só a agenda). O Admin é o registro do CRM: a conversa sustenta as interações "WhatsApp" do lead e da oportunidade e o MCP (`ver_lead`, `ver_conversa_whatsapp`). Por isso, apagar no celular não apaga aqui. Para limpar a caixa de entrada, a conversa é arquivada à mão.
+
+**Regras** (`WhatsappConversation#archive!` e `#unarchive!`, `WhatsappConversationArchivesController`, `POST` e `DELETE /whatsapp/conversations/:id/archive`):
+- Arquivada, a conversa sai de todos os filtros e contagens da lista, menos "Arquivadas". Continua abrindo pelo link, nos cards do lead, da empresa e do contato, no MCP e nas contagens de Integrações → WhatsApp.
+- Arquivar zera as não lidas, o que marca os avisos da conversa como lidos. Não marca como lida na Meta: o contato não vê o tique azul.
+- Mensagem nova da conversa de agora, recebida ou enviada (Admin ou celular), desarquiva (`record_message!`). Mensagem do histórico, reação e aviso do sistema não desarquivam.
+- Painel: "Arquivar conversa" (com confirmação) leva de volta à lista; arquivada, o painel mostra quem arquivou e quando e oferece "Desarquivar conversa". O cabeçalho mostra o selo "Arquivada".
+- Tempo real: arquivar ou desarquivar à mão tira o item da lista aberta (ele aparece na outra ao recarregar) e redesenha o cabeçalho e o painel (pelo frame, com a permissão de quem vê). A mensagem que desarquiva leva o item ao topo, como qualquer mensagem nova.
+
+**Fora desta versão:** excluir de vez. Fica para o pedido de exclusão de dados (LGPD), com nível "full", confirmação, `AuditLog` e remoção das mensagens e da mídia; as interações ficam (a chave estrangeira solta a conversa).
+
 ## Permissões e auditoria
 
 - Área `whatsapp` em `Role::AREAS`. O Administrador tem nível "full"; os outros perfis começam sem acesso e podem ser liberados na tela de permissões.
@@ -463,6 +476,7 @@ O painel da conversa liga a conversa a um lead ou a um contato, mostra os dados 
 - Avisos (Fase 8): o aviso de mensagem vai para quem vê a área WhatsApp; o sino e os avisos do navegador vêm pelo stream do próprio usuário (`NotificationsChannel`).
 - Conversas: quem só lê a área vê as conversas e a mídia, e abrir marca como lida; enviar e "Tentar de novo" (`retry?`) exigem escrita. O canal do tempo real também exige a área.
 - Iniciar conversa (Fase 7b): exige enviar (`WhatsappMessage#create?`) e vincular (`link?`); o destinatário precisa ser legível (Comercial ou Clientes). Os cards no CRM aparecem para quem lê as conversas.
+- Arquivar e desarquivar (`archive?`) exigem escrita no WhatsApp. Quem só lê vê que a conversa está arquivada e por quem.
 - Vínculo (Fase 7a): vincular, criar lead e desvincular (`link?`) exigem escrita no WhatsApp; criar lead também exige criar no Comercial. O painel mostra os dados do lead só com leitura no Comercial e os do contato só com leitura em Clientes. "+ Registrar" segue a permissão de alterar o lead ou a oportunidade.
 - `AuditLog` na conta (conexão, status) e nos templates, sem o token, sem o erro da ativação e sem os campos que a Meta atualiza sozinha. As conexões aparecem também nas atividades.
 

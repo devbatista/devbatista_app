@@ -1218,6 +1218,8 @@ CREATE TABLE public.whatsapp_conversations (
     linked_at timestamp(6) without time zone,
     auto_link_blocked_at timestamp(6) without time zone,
     linked_by_id uuid,
+    archived_at timestamp(6) without time zone,
+    archived_by_id uuid,
     CONSTRAINT whatsapp_conversations_identified CHECK (((bsuid IS NOT NULL) OR (wa_id IS NOT NULL))),
     CONSTRAINT whatsapp_conversations_single_link CHECK (((lead_id IS NULL) OR (contact_id IS NULL)))
 );
@@ -3738,6 +3740,14 @@ ALTER TABLE ONLY public.active_storage_attachments
 
 
 --
+-- Name: whatsapp_conversations fk_rails_c961bfa308; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.whatsapp_conversations
+    ADD CONSTRAINT fk_rails_c961bfa308 FOREIGN KEY (archived_by_id) REFERENCES public.users(id) ON DELETE SET NULL;
+
+
+--
 -- Name: databases fk_rails_ca21348b41; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3888,6 +3898,7 @@ ALTER TABLE ONLY public.leads
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261111120000'),
 ('20261109120000'),
 ('20261102180000'),
 ('20261102120000'),

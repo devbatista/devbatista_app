@@ -10,11 +10,15 @@
 #
 # Janela de 24h: mensagem livre só até 24h depois da última mensagem recebida da pessoa.
 # Mensagens enviadas pelo app do celular não abrem nem estendem a janela.
+#
+# Arquivada: sai da caixa de entrada (fica no filtro "Arquivadas"), sem apagar nada; continua no
+# lead, no contato e no MCP. Mensagem nova da conversa de agora, recebida ou enviada, desarquiva.
+# Serve para limpar a lista, inclusive das conversas apagadas no app do celular, que a Meta não avisa.
 class WhatsappConversation < ApplicationRecord
   WINDOW = 24.hours
-  # Filtros da caixa de entrada (docs/design/whatsapp/conversas.html).
+  # Filtros da caixa de entrada (docs/design/whatsapp/conversas.html). Só "Arquivadas" mostra as arquivadas.
   FILTERS = { "todas" => "Todas", "nao-lidas" => "Não lidas", "leads" => "Leads", "clientes" => "Clientes",
-              "sem-vinculo" => "Sem vínculo", "janela" => "Janela aberta" }.freeze
+              "sem-vinculo" => "Sem vínculo", "janela" => "Janela aberta", "arquivadas" => "Arquivadas" }.freeze
   # Mudanças que redesenham o item da lista (as outras não aparecem nela).
   INBOX_ATTRIBUTES = %w[unread_count preview last_inbound_at saved_name profile_name username wa_id lead_id contact_id].freeze
 
@@ -22,6 +26,7 @@ class WhatsappConversation < ApplicationRecord
   belongs_to :lead, optional: true
   belongs_to :contact, optional: true
   belongs_to :linked_by, class_name: "User", optional: true
+  belongs_to :archived_by, class_name: "User", optional: true
   has_many :interactions, dependent: nil # a chave estrangeira solta as interações (on delete set null)
   has_many :messages, -> { order(:sent_at, :created_at) }, class_name: "WhatsappMessage",
                                                           foreign_key: :whatsapp_conversation_id, inverse_of: :conversation, dependent: :destroy
@@ -41,6 +46,8 @@ class WhatsappConversation < ApplicationRecord
   # Sem vínculo e sem a marca de desvinculada à mão: o vínculo automático pode ligar.
   scope :auto_linkable, -> { unlinked.where(auto_link_blocked_at: nil) }
   scope :window_open, -> { where(last_inbound_at: WINDOW.ago..) }
+  scope :archived, -> { where.not(archived_at: nil) }
+  scope :not_archived, -> { where(archived_at: nil) }
   # A sincronização da agenda do celular cria conversas ainda sem mensagem; a caixa de entrada só mostra as outras.
   scope :with_messages, -> { where.not(last_message_at: nil) }
   scope :inbox_order, -> { order(last_message_at: :desc, id: :desc) }
@@ -63,13 +70,16 @@ class WhatsappConversation < ApplicationRecord
   after_commit -> { Whatsapp::Notifier.conversation_read(self) }, on: :update, if: -> { saved_change_to_unread_count? && unread_count.zero? }
 
   def self.filtered(key)
+    return archived if key == "arquivadas"
+
+    scope = not_archived
     case key
-    when "nao-lidas" then unread
-    when "leads" then where.not(lead_id: nil)
-    when "clientes" then where.not(contact_id: nil)
-    when "sem-vinculo" then unlinked
-    when "janela" then window_open
-    else all
+    when "nao-lidas" then scope.unread
+    when "leads" then scope.where.not(lead_id: nil)
+    when "clientes" then scope.where.not(contact_id: nil)
+    when "sem-vinculo" then scope.unlinked
+    when "janela" then scope.window_open
+    else scope
     end
   end
 
@@ -143,10 +153,12 @@ class WhatsappConversation < ApplicationRecord
   # Atualiza a conversa com uma mensagem que acabou de entrar:
   # - prévia e data da última mensagem, se ela for a mais nova (reações e avisos de sistema não contam);
   # - recebida do contato, fora do histórico: abre a janela de 24h e soma às não lidas;
-  # - enviada pelo celular: zera as não lidas (quem respondeu no app já leu), sem mexer na janela.
+  # - enviada pelo celular: zera as não lidas (quem respondeu no app já leu), sem mexer na janela;
+  # - fora do histórico, recebida ou enviada: desarquiva.
   def record_message!(message)
     with_lock do
       unless message.kind_reaction? || message.kind_system?
+        self.archived_at = self.archived_by = nil unless message.from_history?
         if last_message_at.nil? || message.sent_at >= last_message_at
           self.last_message_at = message.sent_at
           self.preview = message.preview_text
@@ -193,6 +205,20 @@ class WhatsappConversation < ApplicationRecord
 
   def auto_link_blocked?
     auto_link_blocked_at.present?
+  end
+
+  # Tira da caixa de entrada e zera as não lidas (os avisos dela ficam lidos), sem marcar como lida
+  # na Meta: o contato não vê o tique azul.
+  def archive!(user)
+    update!(archived_at: Time.current, archived_by: user, unread_count: 0)
+  end
+
+  def unarchive!
+    update!(archived_at: nil, archived_by: nil)
+  end
+
+  def archived?
+    archived_at.present?
   end
 
   # Leads e contatos com o telefone da conversa, no WhatsApp ou no telefone do cadastro.
@@ -315,7 +341,8 @@ class WhatsappConversation < ApplicationRecord
   end
 
   # Caixa de entrada da conta e contador do menu. Nova mensagem leva o item ao topo (sai de onde
-  # estiver, inclusive das páginas carregadas depois); o resto só redesenha o item.
+  # estiver, inclusive das páginas carregadas depois); arquivar ou desarquivar à mão tira o item da
+  # lista aberta (ele aparece na outra ao recarregar); o resto só redesenha o item.
   def broadcast_inbox
     return if last_message_at.nil?
 
@@ -323,6 +350,8 @@ class WhatsappConversation < ApplicationRecord
     if saved_change_to_last_message_at? || previously_new_record?
       broadcast_remove_to account, :whatsapp_inbox, target: ActionView::RecordIdentifier.dom_id(self, :inbox)
       broadcast_prepend_later_to account, :whatsapp_inbox, target: ActionView::RecordIdentifier.dom_id(account, :inbox), **item
+    elsif saved_change_to_archived_at?
+      broadcast_remove_to account, :whatsapp_inbox, target: ActionView::RecordIdentifier.dom_id(self, :inbox)
     elsif saved_changes.keys.intersect?(INBOX_ATTRIBUTES)
       broadcast_replace_later_to account, :whatsapp_inbox, target: ActionView::RecordIdentifier.dom_id(self, :inbox), **item
     end
@@ -331,6 +360,15 @@ class WhatsappConversation < ApplicationRecord
     end
     window_was_open = last_inbound_at_before_last_save.present? && last_inbound_at_before_last_save > WINDOW.ago
     broadcast_window_change if saved_change_to_last_inbound_at? && window_was_open != window_open?
+    broadcast_archive_change if saved_change_to_archived_at?
+  end
+
+  # Conversa aberta: o selo "Arquivada" no cabeçalho e o botão do painel (pelo frame, com a permissão de quem vê).
+  def broadcast_archive_change
+    broadcast_replace_later_to self, :whatsapp, target: ActionView::RecordIdentifier.dom_id(self, :header),
+                                                partial: "whatsapp_conversations/header", locals: { conversation: self }
+    broadcast_replace_later_to self, :whatsapp, target: ActionView::RecordIdentifier.dom_id(self, :panel),
+                                                partial: "whatsapp_conversations/panel_frame", locals: { conversation: self }
   end
 
   def identified

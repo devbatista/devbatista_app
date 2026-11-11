@@ -1,4 +1,4 @@
-<%# Cabeçalho da conversa. Redesenhado pelo broadcast quando a janela abre ou fecha. %>
+<%# Cabeçalho da conversa. Redesenhado pelo broadcast quando a janela abre ou fecha e quando a conversa é arquivada ou desarquivada. %>
 <% c = conversation %>
 <div class="conv-head" id="<%= dom_id(c, :header) %>">
   <button class="icon-btn ghost back-btn" type="button" aria-label="Voltar para a lista" data-action="whatsapp-screen#back"><%= icon(:back, size: 20) %></button>
@@ -14,6 +14,7 @@
       <% if c.username %><span aria-hidden="true">·</span><span>@<%= c.username.delete_prefix("@") %></span><% end %>
     </div>
   </div>
+  <% if c.archived? %><span class="badge b-mute" title="Fora da lista de conversas até chegar mensagem nova">Arquivada</span><% end %>
   <% if c.window_open? %>
     <span class="badge <%= whatsapp_window_soon?(c) ? 'b-warn' : 'b-good' %> dot-l" title="A pessoa escreveu nas últimas 24h: texto, anexos e templates">Janela aberta · fecha em <%= whatsapp_window_left(c) %> (até <%= l(c.window_closes_at, format: "%d/%m %H:%M") %>)</span>
   <% elsif c.last_inbound_at %>
