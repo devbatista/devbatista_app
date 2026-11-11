@@ -35,27 +35,18 @@ module Mcp
         authorize(WhatsappConversation, :index?)
         since = parse_day(desde, "desde") if desde.present?
 
-        conversations = policy_scope(WhatsappConversation).with_messages.where(lead: lead).includes(:account)
-                                                          .order(last_message_at: :desc).to_a
+        conversations = lead_conversations(lead)
         return no_conversation(lead) if conversations.empty?
 
         scope = WhatsappMessage.timeline.where(conversation: conversations)
         scope = scope.where(sent_at: since.in_time_zone.beginning_of_day..) if since
-        total = scope.count
-        messages = scope.includes(:user).reorder(sent_at: :desc, id: :desc).limit((limite || LIMIT).clamp(1, MAX_LIMIT)).to_a.reverse
+        messages, total = latest_messages(scope, (limite || LIMIT).clamp(1, MAX_LIMIT))
 
-        { lead: lead_ref(lead), **window(conversations), conversas: conversations.map { |conversation| conversation_ref(conversation) },
+        { lead: lead_ref(lead), **whatsapp_window(conversations), conversas: conversations.map { |conversation| conversation_ref(conversation) },
           mensagens: messages.map { |message| message_data(message) }, total: total, omitidas: total - messages.size }
       end
 
       private
-
-      # A janela vale pela conversa que recebeu por último (é por ela que enviar_whatsapp responde).
-      def window(conversations)
-        latest = conversations.select(&:last_inbound_at).max_by(&:last_inbound_at)
-        { janela_aberta: latest&.window_open? || false, janela_fecha_em: (latest.window_closes_at.iso8601 if latest&.window_open?),
-          ultima_recebida_em: latest&.last_inbound_at&.iso8601 }
-      end
 
       def no_conversation(lead)
         { lead: lead_ref(lead), janela_aberta: false, janela_fecha_em: nil, ultima_recebida_em: nil, conversas: [],

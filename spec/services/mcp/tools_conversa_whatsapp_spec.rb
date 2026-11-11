@@ -156,6 +156,93 @@ RSpec.describe "Conversa do WhatsApp pelo MCP" do
     end
   end
 
+  describe Mcp::Tools::VerLead, "com o WhatsApp" do
+    let(:lead) { create(:lead, name: "Val Pereira", whatsapp: "(11) 99630-5486") }
+
+    def daily(conversation, day, notes)
+      create(:interaction, subject: lead, user: admin, kind: "whatsapp", notes: notes, occurred_on: day, whatsapp_conversation: conversation)
+    end
+
+    it "mantém o inputSchema" do
+      expect(described_class.input_schema.to_h[:properties].keys).to eq([ :id ])
+    end
+
+    context "com o lead sem conversa" do
+      it "devolve as interações como antes, sem mensagens nem janela" do
+        create(:interaction, subject: lead, user: admin, kind: "call", notes: "Ligou pedindo orçamento")
+
+        data = tool_data(described_class, admin, id: lead.id)
+
+        expect(data).not_to have_key("janela_whatsapp_aberta_ate")
+        expect(data["interacoes"].sole).to eq("tipo" => "call", "tipo_rotulo" => "Ligação", "data" => Date.current.iso8601,
+                                              "notas" => "Ligou pedindo orçamento", "por" => "Rafael")
+      end
+    end
+
+    context "com conversa" do
+      let!(:conversation) { conversation_for(lead, last_inbound_at: now - 5.hours, wa_id: "5511996305486") }
+      let(:today) { now.to_date }
+      let(:yesterday) { today - 1 }
+
+      before do
+        message(conversation, Time.zone.local(2026, 11, 10, 18), :outbound, body: "Oi, tudo bem?")
+        message(conversation, Time.zone.local(2026, 11, 10, 19), kind: "audio", body: nil, media_id: "m1")
+        message(conversation, now - 6.hours, :outbound, origin: "phone", user: nil, body: "Sou o Rafael, da DevBatista.")
+        message(conversation, now - 5.hours, kind: "unsupported", body: nil, error_code: "131060",
+                                             error_message: "This message is currently unavailable.")
+        message(conversation, now - 4.hours, kind: "image", body: "Nossa agenda", media_id: "m2")
+        daily(conversation, yesterday, "Conversa do dia · 1 recebida, 1 enviada")
+        daily(conversation, today, "Conversa do dia · 2 recebidas, 1 enviada")
+        create(:interaction, subject: lead, user: admin, kind: "note", notes: "Nota à mão", occurred_on: today)
+      end
+
+      it "traz as mensagens de cada dia na Conversa do dia e a janela no topo" do
+        data = tool_data(described_class, admin, id: lead.id)
+
+        expect(data.keys.first).to eq("janela_whatsapp_aberta_ate")
+        expect(data["janela_whatsapp_aberta_ate"]).to eq((now + 19.hours).iso8601)
+        by_notes = data["interacoes"].index_by { |interaction| interaction["notas"] }
+        hoje = by_notes.fetch("Conversa do dia · 2 recebidas, 1 enviada")
+        ontem = by_notes.fetch("Conversa do dia · 1 recebida, 1 enviada")
+        nota = by_notes.fetch("Nota à mão")
+
+        expect(hoje["mensagens"]).to match([
+          include("direcao" => "enviada", "horario" => (now - 6.hours).iso8601, "texto" => "Sou o Rafael, da DevBatista.", "origem" => "celular"),
+          include("direcao" => "recebida", "erro" => "This message is currently unavailable.",
+                  "texto" => "[mensagem indisponível: a Meta não enviou o conteúdo à API (código 131060). Leia no app do WhatsApp Business]"),
+          include("direcao" => "recebida", "texto" => "[imagem] Nossa agenda")
+        ])
+        expect(ontem["mensagens"].pluck("texto")).to eq([ "Oi, tudo bem?", "[áudio]" ])
+        expect(nota).not_to have_key("mensagens")
+        expect(hoje).not_to have_key("mensagens_omitidas")
+      end
+
+      it "limita às 30 mensagens mais recentes do lead, contando as omitidas de cada dia" do
+        stub_const("Mcp::Tools::VerLead::WHATSAPP_MESSAGES", 4)
+
+        interacoes = tool_data(described_class, admin, id: lead.id)["interacoes"]
+        ontem = interacoes.find { |i| i["data"] == yesterday.iso8601 && i.key?("mensagens") }
+
+        expect(ontem["mensagens"].pluck("texto")).to eq([ "[áudio]" ])
+        expect(ontem["mensagens_omitidas"]).to eq(1)
+        expect(interacoes.find { |i| i["data"] == today.iso8601 && i.key?("mensagens") }["mensagens"].size).to eq(3)
+      end
+
+      it "não mostra mensagens nem a janela a quem não lê a área WhatsApp" do
+        data = tool_data(described_class, comercial, id: lead.id)
+
+        expect(data).not_to have_key("janela_whatsapp_aberta_ate")
+        expect(data["interacoes"]).to all(satisfy { |interaction| !interaction.key?("mensagens") })
+        expect(data["interacoes"].size).to eq(3)
+      end
+
+      it "deixa a janela de fora quando ela está fechada" do
+        conversation.update!(last_inbound_at: now - 30.hours)
+        expect(tool_data(described_class, admin, id: lead.id)).not_to have_key("janela_whatsapp_aberta_ate")
+      end
+    end
+  end
+
   describe Mcp::Tools::BuscarLeads, "com com_resposta_whatsapp_desde" do
     let(:respondeu) { create(:lead, name: "Respondeu hoje") }
     let(:ontem) { create(:lead, name: "Respondeu ontem") }
