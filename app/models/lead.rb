@@ -4,6 +4,7 @@ class Lead < ApplicationRecord
   include Auditable
   include LabeledEnums
   include Losable
+  include NextStepSchedulable
   include WhatsappLinkable
 
   audited area: "comercial"

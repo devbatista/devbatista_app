@@ -1,0 +1,46 @@
+<%# "Feito" na gaveta: registra a interação e define o próximo passo ou marca como perdido (NextStepCompletion). %>
+<% record = @completion.record %>
+<% nav_location :com, "Próximos passos" %>
+<% breadcrumb ["Comercial"], ["Próximos passos", next_steps_path(list_filters)], ["Feito"] %>
+<% back = back_path %>
+<div class="form-page">
+  <%= render layout: "shared/drawer_form", locals: { title: "Marcar como feito", cancel_path: back } do %>
+    <%= form_with model: @completion, scope: :completion, url: next_step_action_path(:done, record, **list_filters), method: :post, class: "form",
+                  data: { turbo_frame: "_top", controller: "next-step-outcome" } do |f| %>
+      <div class="drawer-body form">
+        <%= render "shared/form_errors", record: @completion %>
+        <%= render "record_callout", record: record %>
+
+        <span class="fieldset-title">O que foi feito</span>
+        <div class="form-grid">
+          <div class="field"><%= f.label :kind do %>Tipo de interação <span class="req">*</span><% end %><%= f.select :kind, Interaction.options_for_kind, {}, class: "select", required: true %></div>
+          <div class="field full"><%= f.label :notes do %>O que foi feito <span class="req">*</span><% end %><%= f.text_area :notes, class: "textarea", required: true, placeholder: "Ex.: liguei, ele pediu a proposta por e-mail" %><span class="hint">Entra no histórico como interação de hoje.</span></div>
+        </div>
+
+        <span class="fieldset-title">E agora?</span>
+        <div class="row wrap" style="gap:20px">
+          <label class="check"><%= f.radio_button :outcome, "next_step", data: { action: "next-step-outcome#toggle" } %> Definir o próximo passo</label>
+          <label class="check"><%= f.radio_button :outcome, "lost", data: { action: "next-step-outcome#toggle" } %> Marcar como perdido</label>
+        </div>
+
+        <div class="form-grid" data-next-step-outcome-target="panel" data-outcome="next_step">
+          <div class="field full"><%= f.label :next_step do %>Próximo passo <span class="req">*</span><% end %><%= f.text_field :next_step, class: "input", required: true, placeholder: "Ex.: enviar proposta, ligar para confirmar reunião" %></div>
+          <div class="field"><%= f.label :next_step_on do %>Data e hora <span class="req">*</span><% end %><%= f.datetime_local_field :next_step_on, class: "input", required: true %><span class="hint">Horário de Brasília</span></div>
+        </div>
+
+        <div class="form-grid" data-next-step-outcome-target="panel" data-outcome="lost">
+          <div class="field full">
+            <%= f.label :lost_reason do %>Motivo da perda <span class="req">*</span><% end %>
+            <%= f.select :lost_reason, Setting[:loss_reasons], { prompt: "Selecione" }, class: "select", required: true %>
+            <span class="hint">Lista editável em Administração → Configurações</span>
+          </div>
+          <div class="field full"><%= f.label :lost_details, "Detalhes" %><%= f.text_area :lost_details, class: "textarea", placeholder: "O que aconteceu? Vale tentar de novo em algum momento?" %></div>
+        </div>
+      </div>
+      <div class="drawer-foot">
+        <%= link_to "Cancelar", back, class: "btn", data: { close: true, turbo_frame: "_top" } %>
+        <%= f.submit "Salvar", class: "btn pri" %>
+      </div>
+    <% end %>
+  <% end %>
+</div>

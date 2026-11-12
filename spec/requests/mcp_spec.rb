@@ -60,6 +60,22 @@ RSpec.describe "Servidor MCP" do
     expect(tool_result["isError"]).to be(true)
   end
 
+  it "aceita proximo_passo_em com data e hora ou só a data, e recusa outro formato pelo schema" do
+    travel_to Time.zone.local(2026, 11, 11, 10)
+    lead = create(:lead)
+    mcp("tools/call", { name: "atualizar_lead", arguments: { id: lead.id, proximo_passo_em: "2026-11-12T08:15" } })
+    expect(tool_result["isError"]).to be(false)
+    mcp("tools/call", { name: "atualizar_lead", arguments: { id: lead.id, proximo_passo_em: "2026-11-13" } })
+    expect(tool_result["isError"]).to be(false)
+    expect(lead.reload.next_step_on).to eq(Time.zone.local(2026, 11, 13, 9))
+    mcp("tools/call", { name: "atualizar_lead", arguments: { id: lead.id, proximo_passo_em: "13/11/2026" } })
+    expect(tool_result["isError"]).to be(true)
+
+    mcp("tools/call", { name: "proximos_passos", arguments: { de: "2026-11-13", incluir_atrasados: false } })
+    expect(tool_result["isError"]).to be(false)
+    expect(JSON.parse(tool_result.dig("content", 0, "text"))["proximos_passos"].pluck("id")).to eq([ lead.id ])
+  end
+
   describe Mcp::Tools::Base do
     it "responde sem permissão quando o perfil não acessa a área" do
       response = call_tool(Mcp::Tools::OpcoesComerciais, create(:user, :desenvolvedor))

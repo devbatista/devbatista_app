@@ -5,6 +5,7 @@ class Opportunity < ApplicationRecord
   include LabeledEnums
   include Losable
   include MoneyAttributes
+  include NextStepSchedulable
 
   # Probabilidade sugerida pela etapa (premissa adotada; editável em cada oportunidade).
   STAGE_PROBABILITY = { "meeting" => 25, "proposal" => 50, "negotiation" => 75, "won" => 100, "lost" => 0 }.freeze

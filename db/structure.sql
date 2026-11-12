@@ -532,7 +532,7 @@ CREATE TABLE public.leads (
     entered_on date NOT NULL,
     notes text,
     next_step character varying,
-    next_step_on date,
+    next_step_on timestamp(6) without time zone,
     lost_reason character varying,
     lost_details text,
     lost_at timestamp(6) without time zone,
@@ -637,7 +637,7 @@ CREATE TABLE public.opportunities (
     expected_close_on date,
     notes text,
     next_step character varying,
-    next_step_on date,
+    next_step_on timestamp(6) without time zone,
     lost_reason character varying,
     lost_details text,
     closed_on date,
@@ -2210,6 +2210,13 @@ CREATE UNIQUE INDEX index_leads_on_external_id ON public.leads USING btree (exte
 
 
 --
+-- Name: index_leads_on_next_step_on; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_leads_on_next_step_on ON public.leads USING btree (next_step_on);
+
+
+--
 -- Name: index_leads_on_phone_digits; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2354,6 +2361,13 @@ CREATE UNIQUE INDEX index_opportunities_on_external_id ON public.opportunities U
 --
 
 CREATE INDEX index_opportunities_on_lead_id ON public.opportunities USING btree (lead_id);
+
+
+--
+-- Name: index_opportunities_on_next_step_on; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_opportunities_on_next_step_on ON public.opportunities USING btree (next_step_on);
 
 
 --
@@ -3898,6 +3912,7 @@ ALTER TABLE ONLY public.leads
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261111150000'),
 ('20261111120000'),
 ('20261109120000'),
 ('20261102180000'),

@@ -17,7 +17,7 @@
           <div class="field"><%= f.label :status do %>Status <span class="req">*</span><% end %><%= f.select :status, Lead::OPEN_STATUSES.map { |s| [ Lead::STATUS_LABELS[s], s ] }, {}, class: "select" %><span class="hint">De Reunião em diante, converta em oportunidade</span></div>
         <% end %>
         <div class="field"><%= f.label :entered_on, "Data de entrada" %><%= f.date_field :entered_on, class: "input" %></div>
-        <div class="field"><%= f.label :next_step_on, "Próximo passo em" %><%= f.date_field :next_step_on, class: "input" %></div>
+        <div class="field"><%= f.label :next_step_on, "Próximo passo em" %><%= f.datetime_local_field :next_step_on, class: "input" %><span class="hint">Data e hora, horário de Brasília</span></div>
         <div class="field full"><%= f.label :next_step, "Próximo passo" %><%= f.text_field :next_step, class: "input", placeholder: "Ex.: enviar diagnóstico, agendar reunião" %></div>
       </div>
       <div class="field"><%= f.label :notes, "Observações" %><%= f.text_area :notes, class: "textarea", placeholder: "Contexto e histórico resumido" %></div>

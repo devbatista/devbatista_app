@@ -224,7 +224,7 @@ pt-BR:
         entered_on: Data de entrada
         notes: Observações
         next_step: Próximo passo
-        next_step_on: Data do próximo passo
+        next_step_on: Data e hora do próximo passo
         lost_reason: Motivo da perda
         lost_details: Detalhes da perda
         company: Empresa
@@ -244,7 +244,7 @@ pt-BR:
         expected_close_on: Previsão de fechamento
         notes: Observações
         next_step: Próximo passo
-        next_step_on: Data do próximo passo
+        next_step_on: Data e hora do próximo passo
         lost_reason: Motivo da perda
         lost_details: Detalhes da perda
         closed_on: Data de fechamento

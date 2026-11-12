@@ -13,6 +13,17 @@ Rails.application.routes.draw do
   # o prefixo (leads_path, form_with model: @lead). Os parâmetros de query continuam em português.
 
   scope module: :commercial, path: "commercial" do
+    # "Feito" e "Adiar" da lista Próximos passos: /commercial/leads/:lead_id/next-step/done e /postpone.
+    concern :next_step do
+      resource :next_step, path: "next-step", only: [] do
+        get :done, action: :new_completion
+        post :done, action: :complete
+        get :postpone, action: :new_postponement
+        patch :postpone
+      end
+    end
+
+    get "next-steps", to: "next_steps#index", as: :next_steps
     resources :leads do
       member do
         patch :move, path: "stage"
@@ -21,6 +32,7 @@ Rails.application.routes.draw do
       end
       resource :conversion, only: %i[new create], controller: "lead_conversions"
       resources :interactions, only: %i[new create]
+      concerns :next_step
     end
     resources :opportunities, except: :show do
       member do
@@ -29,6 +41,7 @@ Rails.application.routes.draw do
         patch :lose
       end
       resources :interactions, only: %i[new create]
+      concerns :next_step
     end
     resources :proposals do
       member do

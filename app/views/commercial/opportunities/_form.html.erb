@@ -19,7 +19,7 @@
         </div>
         <div class="field"><%= f.label :expected_close_on do %>Previsão de fechamento <span class="req">*</span><% end %><%= f.date_field :expected_close_on, class: "input", required: true %></div>
         <div class="field"><%= f.label :user_id do %>Responsável <span class="req">*</span><% end %><%= f.collection_select :user_id, User.active.by_name, :id, :name, {}, class: "select" %></div>
-        <div class="field"><%= f.label :next_step_on, "Próximo passo em" %><%= f.date_field :next_step_on, class: "input" %></div>
+        <div class="field"><%= f.label :next_step_on, "Próximo passo em" %><%= f.datetime_local_field :next_step_on, class: "input" %><span class="hint">Data e hora, horário de Brasília</span></div>
         <div class="field full"><%= f.label :next_step, "Próximo passo" %><%= f.text_field :next_step, class: "input" %></div>
       </div>
       <div class="field"><%= f.label :notes, "Observações" %><%= f.text_area :notes, class: "textarea", placeholder: "Notas da negociação" %></div>
