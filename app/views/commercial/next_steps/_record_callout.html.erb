@@ -1,0 +1,8 @@
+<%# Qual registro e qual o próximo passo atual, no topo das gavetas "Feito" e "Adiar". %>
+<% lead = record.is_a?(Lead) %>
+<div class="callout">
+  <span>
+    <b class="strong"><%= lead ? "Lead · #{record.display_name}" : "Oportunidade · #{record.title} · #{record.company.trade_name}" %></b>
+    <br><span class="caption">Agora: <%= record.next_step.presence || "sem ação definida" %><%= " · #{l(record.next_step_on, format: '%d/%m às %H:%M')}" if record.next_step_on %></span>
+  </span>
+</div>

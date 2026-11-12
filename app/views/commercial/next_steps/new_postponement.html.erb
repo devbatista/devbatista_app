@@ -1,0 +1,34 @@
+<%# "Adiar" na gaveta: atalhos (+1h, amanhã 9h, próxima segunda 9h) ou uma data e hora escolhida. %>
+<% nav_location :com, "Próximos passos" %>
+<% breadcrumb ["Comercial"], ["Próximos passos", next_steps_path(list_filters)], ["Adiar"] %>
+<% back = back_path %>
+<% path = next_step_action_path(:postpone, @record, **list_filters) %>
+<div class="form-page">
+  <%= render layout: "shared/drawer_form", locals: { title: "Adiar próximo passo", cancel_path: back } do %>
+    <div class="drawer-body form">
+      <% if @error %><div class="callout crit" role="alert"><span><%= @error %>.</span></div><% end %>
+      <%= render "record_callout", record: @record %>
+
+      <span class="fieldset-title">Adiar para</span>
+      <div class="stack" style="gap:8px">
+        <% NextStepSchedulable::POSTPONE_OPTIONS.each do |key, label| %>
+          <%= button_to path, method: :patch, params: { para: key }, class: "btn", style: "width:100%;justify-content:space-between", form: { data: { turbo_frame: "_top" } } do %>
+            <span><%= label %></span><span class="caption mono"><%= l(NextStepSchedulable.postpone_time(key), format: "%a, %d/%m %H:%M") %></span>
+          <% end %>
+        <% end %>
+      </div>
+
+      <%= form_with url: path, method: :patch, class: "form", data: { turbo_frame: "_top" } do %>
+        <%= hidden_field_tag :para, "escolher", id: nil %>
+        <span class="fieldset-title">Ou escolha a data e hora</span>
+        <div class="row" style="gap:8px;align-items:flex-end">
+          <div class="field" style="flex:1"><label for="adiar-em">Data e hora</label><%= datetime_local_field_tag :em, params[:em], class: "input", id: "adiar-em", required: true %></div>
+          <%= submit_tag "Adiar", class: "btn pri", name: nil %>
+        </div>
+      <% end %>
+    </div>
+    <div class="drawer-foot">
+      <%= link_to "Cancelar", back, class: "btn", data: { close: true, turbo_frame: "_top" } %>
+    </div>
+  <% end %>
+</div>

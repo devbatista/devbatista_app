@@ -60,6 +60,7 @@ module NavigationHelper
   NAV = [
     { key: :dash, label: "Dashboard", area: "dashboard", route: :root_path },
     { key: :com, label: "Comercial", items: [
+      [ "Próximos passos", :next_steps_path, "comercial" ],
       [ "Leads", :leads_path, "comercial" ], [ "Oportunidades", :opportunities_path, "comercial" ],
       [ "Propostas", :proposals_path, "comercial" ], [ "Pipeline", :pipeline_path, "comercial" ]
     ] },

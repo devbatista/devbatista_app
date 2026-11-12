@@ -1,0 +1,77 @@
+<% nav_location :com, "Próximos passos" %>
+<% breadcrumb ["Comercial"], ["Próximos passos"] %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Comercial</span>
+    <h1>Próximos passos</h1>
+    <p class="lead">Leads e oportunidades em aberto numa lista só, pela data e hora da próxima ação. Nenhum item sai daqui sem um novo próximo passo ou sem ser marcado como perdido.</p>
+  </div>
+  <div class="actions">
+    <%= link_to "Ver pipeline", pipeline_path, class: "btn" %>
+  </div>
+</div>
+
+<div class="grid-kpi g4">
+  <div class="card kpi"><span class="eyebrow">Atrasados</span><span class="v"<%= ' style="color:var(--crit)"'.html_safe if @counts["atrasados"].positive? %>><%= @counts["atrasados"] %></span><span class="f">data e hora já passaram</span></div>
+  <div class="card kpi"><span class="eyebrow">Hoje</span><span class="v"><%= @counts["hoje"] %></span><span class="f"><%= l(@now.to_date, format: "%A, %d/%m") %></span></div>
+  <div class="card kpi"><span class="eyebrow">Próximos 7 dias</span><span class="v"><%= @counts["amanha"] + @counts["proximos_7_dias"] %></span><span class="f">de amanhã até <%= l(@now.to_date + 7, format: "%d/%m") %></span></div>
+  <div class="card kpi"><span class="eyebrow">Sem próximo passo</span><span class="v"><%= @counts["sem_data"] %></span><span class="f">em aberto, sem data</span></div>
+</div>
+
+<%= form_with url: next_steps_path, method: :get, class: "toolbar" do %>
+  <%= status_filter :periodo, [ [ "todos", "Todos", @counts.values.sum ] ] + NextStepList::GROUPS.map { |k, v| [ k, v, @counts[k] ] }, label: "Filtrar por período" %>
+  <span class="spacer"></span>
+  <%= hidden_field_tag :periodo, params[:periodo], id: nil if params[:periodo].present? %>
+  <label class="sr-only" for="f-tipo">Tipo</label>
+  <%= select_tag :tipo, options_for_select([ [ "Leads", "lead" ], [ "Oportunidades", "oportunidade" ] ], params[:tipo]), include_blank: "Leads e oportunidades", class: "select", id: "f-tipo", onchange: "this.form.requestSubmit()" %>
+  <label class="sr-only" for="f-origem">Origem</label>
+  <%= select_tag :origem, options_for_select(Lead.options_for_origin, params[:origem]), include_blank: "Todas as origens", class: "select", id: "f-origem", onchange: "this.form.requestSubmit()", title: "Na oportunidade, vale a origem do lead de onde ela veio" %>
+  <label class="sr-only" for="f-resp">Responsável</label>
+  <%= select_tag :responsavel, options_from_collection_for_select(@users, :id, :name, params[:responsavel]), include_blank: "Todos os responsáveis", class: "select", id: "f-resp", onchange: "this.form.requestSubmit()" %>
+<% end %>
+
+<% if @groups.values.all?(&:empty?) %>
+  <section class="card">
+    <%= render "shared/empty", title: "Nenhum próximo passo aqui", text: "Ajuste os filtros. Leads e oportunidades em aberto aparecem nesta lista." %>
+  </section>
+<% end %>
+
+<% @groups.each do |group, items| %>
+  <% next if items.empty? %>
+  <section class="card" aria-label="<%= NextStepList::GROUPS[group] %>">
+    <div class="card-head"><h2><%= NextStepList::GROUPS[group] %> <span class="caption"><%= items.size %></span></h2></div>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr><th><%= group == "sem_data" ? "Entrada" : "Quando" %></th><th>Nome</th><th>Ação</th><th>Tipo</th><th>Status</th><th>WhatsApp</th><th><span class="sr-only">Ações</span></th></tr></thead>
+        <tbody>
+          <% items.each do |item| %>
+            <tr class="<%= 'late' if group == 'atrasados' %>">
+              <td data-label="Quando" class="mono nowrap">
+                <% if item.at %>
+                  <span class="strong"><%= next_step_when(item.at, group) %></span>
+                  <% if group == "atrasados" %><span class="cell-sub" style="color:var(--crit)">há <%= distance_of_time_in_words(item.at, @now) %></span><% end %>
+                <% else %>
+                  <%= date_br(item.lead? ? item.record.entered_on : item.record.created_at) %>
+                <% end %>
+              </td>
+              <td data-label="Nome"><%= next_step_record_link(item, class: "strong") %><% if item.company.present? && item.company != item.name %><span class="cell-sub"><%= item.company %></span><% end %></td>
+              <td data-label="Ação"><%= item.action.presence || tag.span("Sem ação definida", class: "caption") %></td>
+              <td data-label="Tipo"><%= status_badge(item.kind_label, item.lead? ? "mute" : "blue") %></td>
+              <td data-label="Status"><%= next_step_status_badge(item) %><span class="cell-sub"><%= item.record.user.first_name %></span></td>
+              <td data-label="WhatsApp" class="nowrap"><%= next_step_whatsapp_link(item.whatsapp) %></td>
+              <td data-label="" class="right">
+                <% if policy(item.record).update? %>
+                  <span class="row-actions">
+                    <% if item.at %><%= drawer_link_to "Adiar", next_step_action_path(:postpone, item.record, **list_filters), class: "link-btn" %><% end %>
+                    <%= drawer_link_to next_step_action_path(:done, item.record, **list_filters), class: "btn sm pri" do %><%= icon(:check, size: 14, stroke: 2) %>Feito<% end %>
+                  </span>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+<% end %>

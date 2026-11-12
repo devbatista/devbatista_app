@@ -11,6 +11,7 @@ module Mcp
       Tools::OpcoesComerciais,
       Tools::BuscarEmpresas,
       Tools::Pipeline,
+      Tools::ProximosPassos,
       Tools::BuscarLeads,
       Tools::VerLead,
       Tools::VerConversaWhatsapp,
@@ -26,6 +27,7 @@ module Mcp
       Tools::RegistrarInteracao,
       Tools::EnviarWhatsapp,
       Tools::MarcarPerdido,
+      Tools::ConcluirPasso,
       Tools::CriarOportunidade,
       Tools::AtualizarOportunidade,
       Tools::MoverOportunidade,
@@ -41,7 +43,10 @@ module Mcp
     INSTRUCTIONS = <<~TEXT.squish
       Admin DevBatista é o sistema de gestão da DevBatista, uma software house. Este servidor dá acesso ao
       Comercial: leads, pipeline, oportunidades, propostas e interações. Valores em reais, datas em AAAA-MM-DD,
-      ids em UUID. Antes de criar ou alterar registros, consulte opcoes_comerciais para usar as chaves aceitas.
+      ids em UUID. O próximo passo de lead e oportunidade (proximo_passo_em) tem data e hora: AAAA-MM-DDTHH:MM,
+      horário de Brasília (-03:00); só a data vale às 09:00. Antes de criar ou alterar registros, consulte
+      opcoes_comerciais para usar as chaves aceitas. No começo de uma sessão comercial, chame proximos_passos;
+      ao concluir uma ação, use concluir_passo.
       enviar_whatsapp manda mensagem real ao lead: chame antes com simular: true, mostre a prévia ao usuário e só
       envie o texto exato que ele aprovou no chat. Para ler o que o lead respondeu, use ver_conversa_whatsapp; para
       achar quem respondeu num dia, buscar_leads com com_resposta_whatsapp_desde.

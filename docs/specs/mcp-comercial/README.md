@@ -33,6 +33,7 @@ Cada chamada de tool roda **como um usuário real**: o token resolve o `User`, q
 | `ver_lead` | Dados, interações, oportunidades e propostas. Com leitura na área WhatsApp: `janela_whatsapp_aberta_ate` no topo (quando a janela de 24h está aberta) e, em cada interação "Conversa do dia", as `mensagens` daquele dia no formato do `ver_conversa_whatsapp` (as 30 mais recentes do lead, somando os dias; `mensagens_omitidas` conta as do dia que ficaram de fora) |
 | `ver_conversa_whatsapp` | Mensagens do WhatsApp do lead em ordem cronológica e a janela de 24h (abaixo). Exige leitura na área WhatsApp |
 | `pipeline` | Leads e oportunidades por etapa, com quantidade e valor estimado |
+| `proximos_passos` | Mesma lista da tela Comercial → Próximos passos: leads e oportunidades em aberto pela data e hora do próximo passo, do mais antigo ao mais novo. Parâmetros: `de`/`ate` (só a data = o dia inteiro), `incluir_atrasados` (padrão true, entram mesmo antes de `de`), `incluir_sem_data` (padrão false), `tipo` (lead/oportunidade/todos) e `limite` (padrão 50, até 200). Cada item: `tipo`, `id`, `nome`, `empresa`, `acao`, `quando` (ISO 8601, -03:00), `atrasado`, `grupo`, `status`, `whatsapp`, `link` e `ultima_interacao` (data, tipo e texto curto). As instruções do servidor pedem para chamar no começo de cada sessão comercial |
 | `buscar_oportunidades` / `ver_oportunidade` | Lista e detalhe |
 | `buscar_propostas` / `ver_proposta` | Itens, total, validade e status |
 
@@ -48,13 +49,14 @@ Leitura do WhatsApp (`Mcp::Tools::WhatsappData` dá o formato às duas tools):
 | Tool | O que faz |
 | --- | --- |
 | `criar_leads` | Lote, com checagem de duplicados e modo `simular`. Substituiu a skill `adicionar-leads`, removida depois do conector em produção |
-| `atualizar_lead` | Dados e próximo passo |
+| `atualizar_lead` | Dados e próximo passo. `proximo_passo_em` em `AAAA-MM-DDTHH:MM` (Brasília); só a data vale às 09:00, como em `criar_leads`, `criar_oportunidade` e `atualizar_oportunidade` |
 | `mover_lead` | Novo → Contato realizado → Qualificado |
 | `converter_lead` | Via `LeadConversion` |
 | `criar_oportunidade` / `atualizar_oportunidade` | Criação e alteração de valor, probabilidade, previsão, próximo passo |
 | `mover_oportunidade` | Reunião, Proposta, Negociação ou Fechado. Fechado só registra data e 100%; não cria contrato |
 | `marcar_perdido` | Lead ou oportunidade, com motivo da lista configurável |
 | `registrar_interacao` | Ligação, WhatsApp, e-mail, reunião ou nota |
+| `concluir_passo` | "Feito" da lista Próximos passos (`NextStepCompletion`, a mesma regra da tela): grava `o_que_foi_feito` como interação de hoje (`tipo_interacao`) e define o novo `proximo_passo` + `proximo_passo_em` **ou** `marcar_perdido` + `motivo`. Sem um dos dois, ou com os dois, é erro: nenhum item sai da lista sem próximo passo ou sem ser marcado como perdido |
 | `criar_proposta` | Só como rascunho, com itens |
 | `gerar_pdf_proposta` | Links para abrir e baixar o PDF (gerado na hora; pedem login no sistema) |
 

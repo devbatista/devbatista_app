@@ -18,6 +18,12 @@ module Mcp
 
       TEXT = { type: [ "string", "null" ] }.freeze
       DATE = { type: [ "string", "null" ], format: "date", description: "AAAA-MM-DD" }.freeze
+      # Data e hora do próximo passo. Só a data (como antes) vale às 09:00 (NextStepSchedulable).
+      DATE_TIME_PATTERN = "^\\d{4}-\\d{2}-\\d{2}([T ]\\d{2}:\\d{2}(:\\d{2})?(Z|[+-]\\d{2}:?\\d{2})?)?$"
+      NEXT_STEP_AT = {
+        type: [ "string", "null" ], pattern: DATE_TIME_PATTERN,
+        description: "AAAA-MM-DDTHH:MM, horário de Brasília; só a data (AAAA-MM-DD) vale às 09:00"
+      }.freeze
 
       LEAD_PROPERTIES = {
         nome: { type: "string", description: "Pessoa de contato. Sem pessoa, use o nome da empresa" },
@@ -26,7 +32,7 @@ module Mcp
         servico_id: TEXT.merge(description: "Serviço de interesse (opcoes_comerciais); vazio = a definir"),
         responsavel_id: { type: "string", description: "Usuário responsável (opcoes_comerciais); padrão: você" },
         entrada: DATE.merge(description: "Data de entrada, AAAA-MM-DD; padrão: hoje"),
-        observacoes: TEXT, proximo_passo: TEXT, proximo_passo_em: DATE
+        observacoes: TEXT, proximo_passo: TEXT, proximo_passo_em: NEXT_STEP_AT
       }.freeze
 
       OPPORTUNITY_PROPERTIES = {
@@ -36,13 +42,26 @@ module Mcp
         responsavel_id: { type: "string", description: "Usuário responsável; padrão: você" },
         valor_estimado: { type: "number", minimum: 0, description: "Em reais" },
         probabilidade: { type: "integer", minimum: 0, maximum: 100, description: "Em %; padrão: o sugerido pela etapa" },
-        previsao_fechamento: DATE, observacoes: TEXT, proximo_passo: TEXT, proximo_passo_em: DATE
+        previsao_fechamento: DATE, observacoes: TEXT, proximo_passo: TEXT, proximo_passo_em: NEXT_STEP_AT
       }.freeze
 
       private
 
       def attributes_from(args, fields)
+        next_step_time!(args[:proximo_passo_em]) if args.key?(:proximo_passo_em)
         args.slice(*fields.keys).transform_keys(fields)
+      end
+
+      # proximo_passo_em → horário em Brasília; recusa texto que não seja data ou data e hora.
+      def next_step_time!(value)
+        return nil if value.blank?
+
+        NextStepSchedulable.cast(value) || fail!("proximo_passo_em inválido (#{value}): use AAAA-MM-DD ou AAAA-MM-DDTHH:MM.")
+      end
+
+      # Horário em ISO 8601 com o fuso de Brasília (2026-11-12T14:30:00-03:00).
+      def iso_time(time)
+        time&.in_time_zone&.iso8601
       end
 
       def lead_data(lead)
@@ -51,7 +70,7 @@ module Mcp
           whatsapp: lead.whatsapp, origem: lead.origin, origem_rotulo: lead.origin_label,
           status: lead.status, status_rotulo: lead.status_label, servico: lead.service&.name,
           responsavel: lead.user.name, entrada: lead.entered_on,
-          proximo_passo: lead.next_step, proximo_passo_em: lead.next_step_on, link: link(:lead, lead)
+          proximo_passo: lead.next_step, proximo_passo_em: iso_time(lead.next_step_on), link: link(:lead, lead)
         }
       end
 
@@ -71,7 +90,7 @@ module Mcp
           valor_estimado: reais(opportunity.estimated_value_cents), probabilidade: opportunity.probability,
           valor_ponderado: reais(opportunity.weighted_cents), previsao_fechamento: opportunity.expected_close_on,
           servico: opportunity.service&.name, responsavel: opportunity.user.name,
-          proximo_passo: opportunity.next_step, proximo_passo_em: opportunity.next_step_on,
+          proximo_passo: opportunity.next_step, proximo_passo_em: iso_time(opportunity.next_step_on),
           link: link(:edit_opportunity, opportunity)
         }
       end

@@ -58,7 +58,8 @@
     </section>
     <section class="card">
       <div class="card-head"><h2>Próximo passo</h2></div>
-      <div class="card-body"><% if @lead.next_step.present? %><b class="strong"><%= @lead.next_step %></b><span class="cell-sub"><%= @lead.next_step_on ? "até #{date_br(@lead.next_step_on)}" : "sem data" %></span><% else %><span class="caption">Nenhum próximo passo definido.</span><% end %></div>
+      <div class="card-body"><% if @lead.next_step.present? %><b class="strong"><%= @lead.next_step %></b><span class="cell-sub"><%= @lead.next_step_on ? "em #{datetime_br(@lead.next_step_on)}" : "sem data" %></span><% else %><span class="caption">Nenhum próximo passo definido.</span><% end %>
+        <% if @lead.open? && policy(@lead).update? %><div class="row" style="gap:12px;margin-top:10px"><%= drawer_link_to "Feito", done_lead_next_step_path(@lead, voltar: "ficha"), class: "btn sm pri" %><% if @lead.next_step_on %><%= drawer_link_to "Adiar", postpone_lead_next_step_path(@lead, voltar: "ficha"), class: "link-btn" %><% end %></div><% end %></div>
     </section>
     <% if @lead.notes.present? %>
       <section class="card"><div class="card-head"><h2>Observações</h2></div><div class="card-body"><%= simple_format(@lead.notes, { style: "margin:0" }) %></div></section>

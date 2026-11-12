@@ -55,7 +55,7 @@ RSpec.describe "Tools de escrita do MCP" do
     it "altera só os campos enviados e limpa com null" do
       lead = create(:lead, phone: "11 9999-0000", next_step: "Ligar")
       tool_data(described_class, admin, id: lead.id, proximo_passo: "Enviar proposta", proximo_passo_em: "2026-11-05", telefone: nil)
-      expect(lead.reload).to have_attributes(next_step: "Enviar proposta", next_step_on: Date.new(2026, 11, 5), phone: nil,
+      expect(lead.reload).to have_attributes(next_step: "Enviar proposta", next_step_on: Time.zone.local(2026, 11, 5, 9), phone: nil,
                                              company_name: "Empresa do lead")
     end
 
