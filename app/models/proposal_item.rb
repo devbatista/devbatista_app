@@ -14,6 +14,12 @@ class ProposalItem < ApplicationRecord
 
   before_validation :defaults_from_service, if: -> { service && (new_record? || will_save_change_to_service_id?) }
 
+  # Valor em branco vale 0 (o formulário mostra o 0 como campo vazio). Em item novo, o 0 ainda
+  # recebe o preço padrão do serviço (defaults_from_service).
+  def price=(value)
+    self.price_cents = MoneyAttributes.to_cents(value) || 0
+  end
+
   def mrr_cents
     CustomerService.mrr_for(price_cents, recurrence)
   end

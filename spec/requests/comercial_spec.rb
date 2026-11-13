@@ -55,6 +55,19 @@ RSpec.describe "Comercial" do
     expect(proposal.total_cents).to eq(350_000)
   end
 
+  it "salva item com valor em branco como 0 e mostra o 0 no formulário" do
+    proposal = create(:proposal, company: create(:company))
+    item = proposal.items.first
+    sign_in comercial
+    patch proposal_path(proposal), params: { proposal: { title: proposal.title,
+                                                         items_attributes: { "0" => { id: item.id, service_id: item.service_id, price: "" } } } }
+    expect(response).to redirect_to(proposal_path(proposal))
+    expect([ item.reload.price_cents, proposal.reload.total_cents ]).to eq([ 0, 0 ])
+
+    get edit_proposal_path(proposal)
+    expect(response.body).to include('value="0.00"', "-100% do padrão")
+  end
+
   it "envia, aprova e gera o contrato" do
     proposal = create(:proposal, company: create(:company))
     sign_in comercial

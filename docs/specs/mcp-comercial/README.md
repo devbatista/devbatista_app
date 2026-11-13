@@ -58,6 +58,7 @@ Leitura do WhatsApp (`Mcp::Tools::WhatsappData` dá o formato às duas tools):
 | `registrar_interacao` | Ligação, WhatsApp, e-mail, reunião ou nota |
 | `concluir_passo` | "Feito" da lista Próximos passos (`NextStepCompletion`, a mesma regra da tela): grava `o_que_foi_feito` como interação de hoje (`tipo_interacao`) e define o novo `proximo_passo` + `proximo_passo_em` **ou** `marcar_perdido` + `motivo`. Sem um dos dois, ou com os dois, é erro: nenhum item sai da lista sem próximo passo ou sem ser marcado como perdido |
 | `criar_proposta` | Só como rascunho, com itens |
+| `atualizar_proposta` | Proposta em Rascunho, Enviada ou Visualizada (`Proposal#editable?`, a mesma regra da tela). Só os campos enviados mudam. `itens`: com `id` (que `ver_proposta` passa a devolver) altera o item, com `remover: true` o exclui; sem `id`, adiciona (sem preço, vale o padrão do serviço). Não muda o status nem reenvia ao cliente |
 | `gerar_pdf_proposta` | Links para abrir e baixar o PDF (gerado na hora; pedem login no sistema) |
 
 ### Envio ao contato

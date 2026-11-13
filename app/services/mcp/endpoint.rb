@@ -32,6 +32,7 @@ module Mcp
       Tools::AtualizarOportunidade,
       Tools::MoverOportunidade,
       Tools::CriarProposta,
+      Tools::AtualizarProposta,
       Tools::RegistrarEvento,
       Tools::LerPendencias,
       Tools::ConcluirPendencia,
