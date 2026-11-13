@@ -121,7 +121,7 @@ module Mcp
           enviada_em: proposal.sent_at, visualizada_em: proposal.viewed_at, decidida_em: proposal.decided_on,
           motivo_recusa: proposal.rejection_reason, detalhes_recusa: proposal.rejection_details,
           itens: proposal.items.map do |item|
-            { servico: item.service.name, servico_id: item.service_id, descricao: item.description,
+            { id: item.id, servico: item.service.name, servico_id: item.service_id, descricao: item.description,
               recorrencia: item.recurrence, recorrencia_rotulo: item.recurrence_label,
               preco_padrao: reais(item.default_price_cents), preco: reais(item.price_cents) }
           end

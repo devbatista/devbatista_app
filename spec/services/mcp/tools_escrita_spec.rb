@@ -179,6 +179,49 @@ RSpec.describe "Tools de escrita do MCP" do
     end
   end
 
+  describe Mcp::Tools::AtualizarProposta do
+    let(:proposal) { create(:proposal, company: create(:company)) }
+    let(:item) { proposal.items.first }
+
+    it "altera dados e itens: muda o existente, remove e adiciona, recalcula o total e audita" do
+      other = proposal.items.create!(service: create(:service), price_cents: 50_000)
+      extra = create(:service, default_price_cents: 120_000, kind: "project")
+      data = tool_data(described_class, admin, id: proposal.id, titulo: "Portal v2", condicoes_pagamento: "50% na entrada",
+                                               itens: [ { id: item.id, preco: 2_000, descricao: "Mensalidade" },
+                                                        { id: other.id, remover: true }, { servico_id: extra.id } ])
+
+      expect(data).to include("titulo" => "Portal v2", "condicoes_pagamento" => "50% na entrada", "total" => 3_200.0)
+      expect(data["itens"].map { |i| [ i["id"].present?, i["descricao"], i["preco"] ] })
+        .to eq([ [ true, "Mensalidade", 2_000.0 ], [ true, nil, 1_200.0 ] ])
+      expect(proposal.reload).to have_attributes(status: "draft", total_cents: 320_000)
+      expect(ProposalItem.exists?(other.id)).to be(false)
+      expect(AuditLog.where(auditable: proposal, action: "update", user: admin)).to exist
+    end
+
+    it "edita proposta enviada sem mudar o status" do
+      proposal.update!(status: "sent")
+      tool_data(described_class, admin, id: proposal.id, valida_ate: (Date.current + 30).iso8601)
+      expect(proposal.reload).to have_attributes(status: "sent", valid_until: Date.current + 30)
+    end
+
+    it "não edita proposta aprovada, recusada ou expirada" do
+      proposal.update!(status: "expired")
+      expect(error_text(described_class, admin, id: proposal.id, titulo: "X")).to eq("Proposta expirada não pode mais ser editada.")
+    end
+
+    it "recusa item de outra proposta, item novo sem serviço e chamada vazia" do
+      outsider = create(:proposal).items.first
+      expect(error_text(described_class, admin, id: proposal.id, itens: [ { id: outsider.id, preco: 1 } ]))
+        .to eq("Item 1: item não encontrado nesta proposta.")
+      expect(error_text(described_class, admin, id: proposal.id, itens: [ { preco: 1 } ])).to eq("Item 1: informe o servico_id do item novo.")
+      expect(error_text(described_class, admin, id: proposal.id)).to eq("Envie ao menos um campo para alterar.")
+    end
+
+    it "exige escrita no Comercial" do
+      expect(error_text(described_class, leitor, id: proposal.id, titulo: "X")).to eq("Sem permissão para esta ação.")
+    end
+  end
+
   describe Mcp::Tools::GerarPdfProposta do
     it "devolve os links do PDF" do
       proposal = create(:proposal)
