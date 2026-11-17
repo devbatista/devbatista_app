@@ -71,6 +71,7 @@ O site é HTML estático num Apache compartilhado (deploy por FTP). O PHP só ex
 | Resposta | Quando |
 | --- | --- |
 | `202` | Evento aceito ou descartado de propósito (robô, host de fora, `leave` sem `pageview`). O site não precisa saber a diferença |
+| `204` | `pageview` ou `leave` descartado por ser teste automatizado: `Origin` ou `Referer` (dos headers repassados) de host fora de `config.x.site_visits.hosts`, user agent com `HeadlessChrome`, `Playwright`, `Puppeteer` ou `Selenium`, ou `webdriver: true` no corpo. Não vale para o `server_hit`, cujo `Referer` é a referência de verdade da página |
 | `401` | Token errado ou `SITE_VISITS_TOKEN` não configurado (registra no log, como o de leads) |
 | `422` | JSON inválido, `type` desconhecido, `id` ou `url` ausentes |
 

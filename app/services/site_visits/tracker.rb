@@ -16,6 +16,7 @@ module SiteVisits
     UTM = %w[utm_source utm_medium utm_campaign utm_content utm_term].freeze
     PATH_LIMIT = 500
     UTM_LIMIT = 200
+    AUTOMATION = /HeadlessChrome|Playwright|Puppeteer|Selenium/i
 
     def self.hosts = Rails.configuration.x.site_visits.hosts
 
@@ -26,8 +27,10 @@ module SiteVisits
     end
 
     # O leave não traz URL: só liga o tempo à página vista pelo id.
+    # :automated é teste automatizado (o controller responde 204); :ignored é o resto do que se descarta.
     def track
       validate!
+      return :automated if automated?
       return :ignored if @uri && !self.class.hosts.include?(@uri.host.to_s.downcase)
 
       agent = AiAgentClassifier.new(@headers, ip).classify
@@ -54,6 +57,23 @@ module SiteVisits
       raise Invalid, "url ausente ou inválida" unless @uri.is_a?(URI::HTTP) && @uri.host.present?
     rescue URI::InvalidURIError
       raise Invalid, "url ausente ou inválida"
+    end
+
+    # Teste automatizado (Playwright, Puppeteer, Selenium, Chrome headless) que chegou pelo script.
+    # Vale só para pageview e leave: no server_hit o Referer é a referência de verdade da página
+    # (Google, um assistente de IA), e um agente de IA pode rodar num navegador automatizado.
+    # Nos eventos do script, o Referer é o da chamada ao api/v.php, ou seja, a própria página.
+    def automated?
+      return false if type == "server_hit"
+
+      [ true, "true" ].include?(@payload["webdriver"]) || user_agent.match?(AUTOMATION) ||
+        [ @headers["origin"], @headers["referer"] ].any? { |value| value.present? && !site_host?(value) }
+    end
+
+    def site_host?(url)
+      self.class.hosts.include?(URI(url.to_s.strip).host.to_s.downcase)
+    rescue URI::InvalidURIError
+      false
     end
 
     # Robô que não é de IA, e o prefetch/prerender do navegador.

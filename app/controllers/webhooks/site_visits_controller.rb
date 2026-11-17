@@ -3,7 +3,8 @@
 # login, do Pundit e do CSRF. Quem chama é o PHP do site, servidor a servidor, com o
 # SITE_VISITS_TOKEN no Authorization: Bearer; o navegador nunca fala direto com o Admin.
 #
-#   POST JSON  202 aceito ou descartado de propósito · 401 token errado · 422 dados inválidos
+#   POST JSON  202 aceito ou descartado de propósito · 204 descartado por ser teste automatizado
+#              401 token errado · 422 dados inválidos
 module Webhooks
   class SiteVisitsController < ActionController::API
     MAX_BODY = 16.kilobytes
@@ -15,8 +16,7 @@ module Webhooks
       payload = JSON.parse(request.raw_post)
       return render(json: { errors: [ "o corpo precisa ser um objeto JSON" ] }, status: :unprocessable_entity) unless payload.is_a?(Hash)
 
-      SiteVisits::Tracker.new(payload).track
-      head :accepted
+      SiteVisits::Tracker.new(payload).track == :automated ? head(:no_content) : head(:accepted)
     rescue JSON::ParserError
       render json: { errors: [ "JSON inválido" ] }, status: :unprocessable_entity
     rescue SiteVisits::Tracker::Invalid => e
