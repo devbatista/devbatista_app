@@ -8,6 +8,10 @@
 # agente de IA é ignorado: o acesso dele já veio pelo server_hit.
 #
 # O IP só entra no hash do visitante e na conferência das faixas dos robôs. Não é gravado.
+#
+# Duas propriedades: o site (config.x.site_visits.hosts) e as prévias de clientes
+# (config.x.site_visits.preview_hosts, previews.devbatista.com). A visita guarda de qual veio, e uma
+# prévia nunca soma página numa visita do site, nem o contrário.
 module SiteVisits
   class Tracker
     class Invalid < StandardError; end
@@ -16,9 +20,19 @@ module SiteVisits
     UTM = %w[utm_source utm_medium utm_campaign utm_content utm_term].freeze
     PATH_LIMIT = 500
     UTM_LIMIT = 200
+    # ID de clique da URL → plataforma. Só a plataforma é gravada: o valor identificaria a pessoa.
+    CLICK_IDS = { "gclid" => "google_ads", "gbraid" => "google_ads", "wbraid" => "google_ads", "dclid" => "google_ads",
+                  "msclkid" => "microsoft_ads", "fbclid" => "meta", "ttclid" => "tiktok", "li_fat_id" => "linkedin",
+                  "twclid" => "x" }.freeze
+    # Tela de um protótipo navegável das prévias (/sys/…#resumo, #/financeiro). Fora disso, o
+    # fragmento é só uma âncora da página e é descartado.
+    SCREEN = %r{\A/?[\w-]+(/[\w-]+)*\z}
+    SCREEN_LIMIT = 100
     AUTOMATION = /HeadlessChrome|Playwright|Puppeteer|Selenium/i
 
     def self.hosts = Rails.configuration.x.site_visits.hosts
+    def self.preview_hosts = Rails.configuration.x.site_visits.preview_hosts
+    def self.all_hosts = hosts + preview_hosts
 
     def initialize(payload)
       @payload = payload.to_h.stringify_keys
@@ -31,7 +45,7 @@ module SiteVisits
     def track
       validate!
       return :automated if automated?
-      return :ignored if @uri && !self.class.hosts.include?(@uri.host.to_s.downcase)
+      return :ignored if @uri && !self.class.all_hosts.include?(@uri.host.to_s.downcase)
 
       agent = AiAgentClassifier.new(@headers, ip).classify
       return record_ai_hit(agent) if agent && type == "server_hit"
@@ -71,7 +85,7 @@ module SiteVisits
     end
 
     def site_host?(url)
-      self.class.hosts.include?(URI(url.to_s.strip).host.to_s.downcase)
+      self.class.all_hosts.include?(URI(url.to_s.strip).host.to_s.downcase)
     rescue URI::InvalidURIError
       false
     end
@@ -92,7 +106,7 @@ module SiteVisits
         # Dois envios ao mesmo tempo do mesmo visitante não abrem duas visitas.
         SiteVisit.connection.execute(SiteVisit.sanitize_sql([ "SELECT pg_advisory_xact_lock(hashtext(?))", visitor_hash ]))
         unless SitePageview.exists?(client_id: client_id)
-          visit = SiteVisit.open_for(visitor_hash, @now)
+          visit = SiteVisit.open_for(visitor_hash, @now, property: property)
           if visit
             visit.update!(last_seen_at: @now, exit_path: path, pageviews_count: visit.pageviews_count + 1)
           else
@@ -119,24 +133,46 @@ module SiteVisits
 
     def new_visit_attributes
       utm = self.utm
-      channel, assistant = Channel.new(referrer_host: referrer_host, **utm.slice("utm_source", "utm_medium", "utm_campaign").symbolize_keys).classify
       agent = UserAgent.new(user_agent, screen_width: @payload["screen_width"])
-      { visitor_hash: visitor_hash, started_at: @now, last_seen_at: @now, pageviews_count: 1, entry_path: path, exit_path: path,
-        referrer_host: referrer_host, channel: channel, ai_assistant: assistant,
-        device_type: agent.device_type, browser: agent.browser, os: agent.os, **utm }
+      channel, assistant = Channel.new(referrer_host: referrer_host, click_source: click_source, in_app: agent.in_app,
+                                       **utm.slice("utm_source", "utm_medium", "utm_campaign").symbolize_keys).classify
+      { property: property, visitor_hash: visitor_hash, started_at: @now, last_seen_at: @now, pageviews_count: 1,
+        entry_path: path, exit_path: path, referrer_host: referrer_host, click_source: click_source,
+        channel: channel, ai_assistant: assistant, device_type: agent.device_type, browser: agent.browser, os: agent.os, **utm }
+    end
+
+    def property
+      @property ||= self.class.preview_hosts.include?(@uri.host.to_s.downcase) ? "previews" : "site"
+    end
+
+    def own_hosts
+      (property == "previews" ? self.class.preview_hosts : self.class.hosts).map { |h| h.delete_prefix("www.") }
     end
 
     def visitor_hash
       @visitor_hash ||= Digest::SHA256.hexdigest([ SiteVisitSalt.for(@now.to_date), ip, user_agent ].join("|")).first(16)
     end
 
-    # Só o caminho, sem a query (que pode trazer e-mail ou token) e sem barra no fim.
+    # Só o caminho, sem a query (que pode trazer e-mail ou token), sem barra nem index.html no fim.
+    # Nos protótipos das prévias (/sys/…), a tela vem no fragmento e fica no caminho: /sys/app#resumo.
     def path
       @path ||= begin
         value = @uri.path.presence || "/"
+        value = value.sub(%r{/index(\.html)?\z}, "/")
         value = value.chomp("/") while value.length > 1 && value.end_with?("/")
+        value += "##{screen}" if screen
         value.first(PATH_LIMIT)
       end
+    end
+
+    def screen
+      fragment = @uri.fragment.to_s
+      fragment if property == "previews" && @uri.path.to_s.start_with?("/sys/") && fragment.length <= SCREEN_LIMIT && fragment.match?(SCREEN)
+    end
+
+    def click_source
+      query = Rack::Utils.parse_query(@uri.query.to_s)
+      CLICK_IDS.find { |param, _| Array(query[param]).first.present? }&.last
     end
 
     def utm
@@ -144,12 +180,13 @@ module SiteVisits
       UTM.index_with { |key| Array(query[key]).first.to_s.strip.first(UTM_LIMIT).presence }.compact
     end
 
-    # Host da referência, sem www. A do próprio site conta como vazia (navegação interna ou direta).
+    # Host da referência, sem www. A da mesma propriedade conta como vazia (navegação interna ou
+    # direta); a da outra fica (quem foi da prévia ao site veio de previews.devbatista.com).
     def referrer_host
       return @referrer_host if defined?(@referrer_host)
 
       host = URI(@payload["referrer"].to_s).host.to_s.downcase.delete_prefix("www.")
-      @referrer_host = host.presence unless self.class.hosts.map { |h| h.delete_prefix("www.") }.include?(host)
+      @referrer_host = host.presence unless own_hosts.include?(host)
     rescue URI::InvalidURIError
       @referrer_host = nil
     end

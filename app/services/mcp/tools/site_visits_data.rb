@@ -11,6 +11,11 @@ module Mcp
       }.freeze
 
       FILTER_PROPERTIES = {
+        area: { type: "string", enum: SiteVisit::PROPERTY_LABELS.keys,
+                description: "site (padrão) = devbatista.com; previews = prévias de clientes em previews.devbatista.com, sempre separadas do site" },
+        previa: { type: "string", description: "Uma prévia (sys/aguas-cristalinas, sites/romulo-contabil): as visitas que passaram por ela. Implica area previews" },
+        clique: { type: "string", enum: [ *SiteVisit::CLICK_SOURCE_LABELS.keys, "nenhum" ],
+                  description: "Plataforma do ID de clique na URL: #{SiteVisit::CLICK_SOURCE_LABELS.map { |k, v| "#{k} = #{v}" }.join(', ')}, nenhum = sem ID" },
         canal: { type: "string", enum: SiteVisit::CHANNEL_LABELS.keys,
                  description: "Canal de origem: #{SiteVisit::CHANNEL_LABELS.map { |k, v| "#{k} = #{v}" }.join(', ')}" },
         origem: { type: "string", description: "Host da referência sem www (google.com, instagram.com, chatgpt.com) ou direto" },

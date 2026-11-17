@@ -66,6 +66,8 @@ module Devbatista
     # Hosts aceitos na URL da página; em desenvolvimento, SITE_VISITS_HOSTS acrescenta o local.
     config.x.site_visits.token = ENV["SITE_VISITS_TOKEN"].presence
     config.x.site_visits.hosts = [ "www.devbatista.com", "devbatista.com", *ENV["SITE_VISITS_HOSTS"].to_s.split(",").map(&:strip) ].compact_blank
+    # Prévias de clientes (docs/specs/visitas-do-site, Prévias): contadas à parte, fora dos números do site.
+    config.x.site_visits.preview_hosts = [ "previews.devbatista.com", *ENV["SITE_VISITS_PREVIEW_HOSTS"].to_s.split(",").map(&:strip) ].compact_blank
 
     # Active Record Encryption (token das contas do WhatsApp). As chaves vêm do ambiente; sem elas,
     # das credentials (active_record_encryption.*). Gere com bin/rails db:encryption:init.

@@ -9,12 +9,16 @@ module Mcp
       description <<~TEXT.squish
         Agrupa as visitas de pessoas ao site devbatista.com pela dimensão: canal (Assistentes de IA, E-mail,
         Campanha, Busca, Redes sociais, Outros sites, Direto), assistente_ia (ChatGPT, Perplexity…), origem
-        (host da referência), utm_source, utm_medium, utm_campaign, pagina (as visitas que viram a página; a
-        duração é o tempo médio na página), pagina_entrada, pagina_saida, dispositivo, navegador, sistema,
-        dia_da_semana ou hora (fuso de Brasília). Cada linha traz visitantes, visitas, páginas vistas, % das
-        visitas do período, taxa de rejeição e duração média em segundos; o que passar do limite vem somado
-        em "outros". Grupos de UTM com menos de 3 visitantes aparecem sem o rótulo. Aceita os mesmos
-        filtros de visitas_resumo, combináveis.
+        (host da referência), clique (plataforma do ID de clique da URL: Google Ads, Meta…), utm_source,
+        utm_medium, utm_campaign, pagina (as visitas que viram a página; a duração é o tempo médio na
+        página), pagina_entrada, pagina_saida, dispositivo, navegador (inclui o navegador interno de
+        Instagram, Facebook, LinkedIn, TikTok…), sistema, dia_da_semana, hora (fuso de Brasília) ou previa
+        (as prévias de clientes em previews.devbatista.com, com ultima_visita; a duração é o tempo médio por
+        visita na prévia). Cada linha traz visitantes, visitas, páginas vistas, % das visitas do período,
+        taxa de rejeição e duração média em segundos; o que passar do limite vem somado em "outros". Grupos
+        de UTM com menos de 3 visitantes aparecem sem o rótulo. Aceita os mesmos filtros de visitas_resumo,
+        combináveis. Com area previews (ou o filtro previa), pagina mostra as telas vistas de cada prévia
+        (/sys/aguas-cristalinas#resumo).
       TEXT
       read_only
       input_schema(

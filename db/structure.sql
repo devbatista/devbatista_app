@@ -991,7 +991,9 @@ CREATE TABLE public.site_visits (
     browser character varying,
     os character varying,
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    property character varying DEFAULT 'site'::character varying NOT NULL,
+    click_source character varying
 );
 
 
@@ -2756,6 +2758,13 @@ CREATE UNIQUE INDEX index_site_visit_salts_on_day ON public.site_visit_salts USI
 
 
 --
+-- Name: index_site_visits_on_property_and_started_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_site_visits_on_property_and_started_at ON public.site_visits USING btree (property, started_at);
+
+
+--
 -- Name: index_site_visits_on_started_at; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -3912,6 +3921,7 @@ ALTER TABLE ONLY public.leads
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261117150000'),
 ('20261111150000'),
 ('20261111120000'),
 ('20261109120000'),

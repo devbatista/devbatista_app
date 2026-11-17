@@ -1,6 +1,6 @@
-# Visitas do site — v1
+# Visitas do site — v1.1
 
-Novembro de 2026 · Área do Admin para acompanhar as visitas ao site devbatista.com. A coleta é própria: o site manda cada página vista ao Admin, que guarda as visitas no Postgres, sem cookie e sem guardar IP. Na v1 a tela mostra só a visão geral; a origem do tráfego, as páginas e o funil até o lead vêm depois, sobre os mesmos dados.
+Novembro de 2026 · Área do Admin para acompanhar as visitas ao site devbatista.com e às prévias de clientes (previews.devbatista.com). A coleta é própria: o site manda cada página vista ao Admin, que guarda as visitas no Postgres, sem cookie e sem guardar IP. Na v1 a tela mostra só a visão geral; a origem do tráfego, as páginas e o funil até o lead vêm depois, sobre os mesmos dados.
 
 ## Decisões
 
@@ -12,7 +12,8 @@ Novembro de 2026 · Área do Admin para acompanhar as visitas ao site devbatista
 | Visita (sessão) | Páginas vistas pelo mesmo visitante com no máximo 30 min entre uma e outra. Passou disso, abre uma visita nova |
 | Robôs | Fora da contagem de visitas: user agent de bot, crawler ou navegador headless, e as requisições de prefetch. Os de IA são registrados à parte, como acessos de IA; os outros são descartados |
 | Acessos de IA | Captados **no servidor do site, pelos headers da requisição**, já que robô de IA não roda JavaScript e o script nunca o vê. O PHP só repassa os headers; quem classifica é o Admin, por um catálogo de agentes em `config/ai_agents.yml`, que muda sem mexer no site |
-| Origem | Toda visita recebe um **canal** na entrada (Assistentes de IA, Campanha, E-mail, Busca, Redes sociais, Outros sites, Direto), além da referência e da UTM |
+| Origem | Toda visita recebe um **canal** na entrada (Assistentes de IA, Campanha, E-mail, Busca, Redes sociais, Outros sites, Direto), além da referência, da UTM e da plataforma do ID de clique da URL (v1.1) |
+| Prévias de clientes (v1.1) | As prévias em `previews.devbatista.com` são contadas pelo mesmo script e webhook, numa **propriedade separada** (`site_visits.property = previews`). Ficam fora de todos os números do site e aparecem numa seção própria da tela e no MCP com `area: previews` |
 | Escopo da v1 | Coleta completa e tela de visão geral. A origem (referência e UTM), o dispositivo e a página de entrada já são gravados desde o primeiro dia, porque não dá para recuperar depois, mas só aparecem na tela nas próximas fases |
 | Menu | Grupo novo **Marketing**, item **Visitas do site** (`/marketing/site-visits`) |
 | Usuários | Área nova `marketing` na matriz de permissões. Administrador "full"; os outros perfis começam sem acesso |
@@ -87,7 +88,11 @@ O serviço `SiteVisits::Tracker` faz o resto, na própria requisição (é só u
 
 **Dispositivo:** pela largura da tela (`mobile` < 768 px, `tablet` < 1024 px, `desktop` acima disso); sem largura, pelo user agent. O navegador e o sistema saem do user agent, por um parser simples feito no projeto, sem gem nova.
 
-**Referência:** grava só o host (`www.google.com` → `google.com`). Referência do próprio site conta como vazia, e a visita entra como direta.
+**Referência:** grava só o host (`www.google.com` → `google.com`). Referência da mesma propriedade conta como vazia, e a visita entra como direta. A da outra fica: quem vai da prévia ao site entra como Outros sites, com `previews.devbatista.com`. O caminho da página de origem não é gravado: desde 2020 os navegadores cortam a referência entre sites para só o domínio (`strict-origin-when-cross-origin`), então ele quase nunca chega.
+
+**ID de clique (v1.1):** a plataforma do primeiro ID de clique da URL vai para `click_source`; o valor do ID nunca é gravado, porque identificaria a pessoa. `gclid`, `gbraid`, `wbraid` e `dclid` → `google_ads`; `msclkid` → `microsoft_ads`; `fbclid` → `meta`; `ttclid` → `tiktok`; `li_fat_id` → `linkedin`; `twclid` → `x`. A Meta põe `fbclid` em todo link que sai do Facebook e do Instagram, pago ou orgânico; os outros só existem em anúncio.
+
+**Navegador interno de app (v1.1):** Instagram, Facebook, LinkedIn, TikTok, Threads, Pinterest, Snapchat e X se identificam no user agent quando abrem um link dentro do app. Vira o `browser` da visita e entra no canal.
 
 **Canal**, calculado na abertura da visita. Vale a primeira regra que bater:
 
@@ -95,13 +100,14 @@ O serviço `SiteVisits::Tracker` faz o resto, na própria requisição (é só u
 | --- | --- |
 | Assistentes de IA | Referência ou `utm_source` de um assistente do catálogo (`chatgpt.com`, `perplexity.ai`, `claude.ai`, `gemini.google.com`, `copilot.microsoft.com`, `meta.ai`, `chat.deepseek.com`, `grok.com`, `chat.mistral.ai`…). O ChatGPT põe `utm_source=chatgpt.com` nos links que mostra. Grava também qual assistente foi, em `ai_assistant` |
 | E-mail | `utm_medium=email`, ou referência de webmail (`mail.google.com`, `outlook.live.com`…) |
-| Campanha | Qualquer outra UTM |
+| Campanha | Qualquer outra UTM, ou ID de clique de anúncio (`google_ads`, `microsoft_ads`, `tiktok`, `linkedin`, `x`) |
+| Redes sociais, sem referência | Sem referência, mas com `fbclid` ou aberta no navegador interno de um app de rede social |
+| Direto | Sem referência, sem UTM, sem ID de clique de anúncio, sem `fbclid` e fora de navegador de app |
 | Busca | Referência de buscador (Google, Bing, DuckDuckGo, Yahoo, Ecosia, Yandex) |
-| Redes sociais | Referência de rede (Instagram, Facebook, LinkedIn, X/`t.co`, YouTube, TikTok, WhatsApp, Threads) |
+| Redes sociais | Referência de rede ou mensageiro (Instagram, Facebook, Messenger, LinkedIn, X/`t.co`, YouTube, TikTok, Threads, Bluesky, Pinterest, Reddit, WhatsApp e `l.wl.co`, Telegram, Discord, Slack, Teams), inclusive a `android-app://` dos apps no Android |
 | Outros sites | Qualquer outra referência |
-| Direto | Sem referência e sem UTM |
 
-Visita vinda de um app de IA no celular costuma chegar sem referência e entra como Direto. Então o canal Assistentes de IA mostra um piso, não o total.
+Visita vinda de um app de IA no celular costuma chegar sem referência e entra como Direto. Então o canal Assistentes de IA mostra um piso, não o total. O mesmo vale para link aberto pelo WhatsApp no computador, que não manda referência: para ele, só a UTM no link resolve.
 
 ## Acessos de IA
 
@@ -147,17 +153,29 @@ O tipo `user` é o sinal mais útil: alguém perguntou algo a uma IA e ela abriu
 - **Navegadores com IA** (ChatGPT Atlas, Comet e parecidos) usam o motor do Chrome e não mandam assinatura. Aparecem como pessoa comum, e a visita é contada pelo script.
 - **`robots.txt`, `sitemap.xml` e `llms.txt`** são arquivos estáticos do Apache e não passam pelo PHP. Contar quem os lê fica para a fase 3, com uma regra no `.htaccess` que os sirva por PHP.
 
+## Prévias de clientes (v1.1)
+
+As prévias (repositório `previews`, deploy por FTP em `previews.devbatista.com`) carregam o mesmo `js/visitas.js` do site, por URL absoluta (`https://www.devbatista.com/js/visitas.js`). Nas prévias, o script manda os eventos para `https://www.devbatista.com/api/v.php`, cuja lista `allowed_origins` passa a aceitar `https://previews.devbatista.com`. O cookie `nao_contar` é gravado com `Domain=devbatista.com` para valer também nas prévias.
+
+- **Propriedade:** o Admin aceita os hosts de `config.x.site_visits.preview_hosts` (`previews.devbatista.com`; `SITE_VISITS_PREVIEW_HOSTS` acrescenta outros) e grava a visita com `property: previews`. A janela de 30 min é por propriedade: ir da prévia ao site abre outra visita.
+- **Prévia:** as duas primeiras pastas do caminho (`/sys/aguas-cristalinas`, `/sites/romulo-contabil`). Não há tabela de prévias: o nome sai do caminho.
+- **Telas:** os protótipos de sistema (`/sys/…`) navegam pelo fragmento (`#resumo`, `#/financeiro`). Nas prévias de sistema, o script conta cada mudança de fragmento como página vista nova, e o Admin guarda a tela no caminho (`/sys/aguas-cristalinas#resumo`). Só fica fragmento de até 100 caracteres com letras, números, `-`, `_` e `/`; o resto é descartado. Nas prévias de site (`/sites/…`) e no site, o fragmento é só âncora e é descartado.
+- **Privacidade:** a prévia é mandada a um cliente só, então os números dela dizem quando ele abriu. É o objetivo. A regra de esconder rótulo abaixo de 3 visitantes não se aplica à prévia.
+- **Página 404 do site:** deixa de carregar o `js/visitas.js`. Antes, um link antigo para `devbatista.com/previews/…` era contado como página vista do site.
+
 ## Modelo de dados
 
 | Tabela | Conteúdo |
 | --- | --- |
-| `site_visits` | `visitor_hash`, `started_at`, `last_seen_at`, `pageviews_count`, `duration_seconds`, `entry_path`, `exit_path`, `referrer_host`, `utm_source`, `utm_medium`, `utm_campaign`, `utm_content`, `utm_term`, `channel`, `ai_assistant`, `device_type`, `browser`, `os` |
+| `site_visits` | `property` (`site` ou `previews`, v1.1), `click_source` (v1.1), `visitor_hash`, `started_at`, `last_seen_at`, `pageviews_count`, `duration_seconds`, `entry_path`, `exit_path`, `referrer_host`, `utm_source`, `utm_medium`, `utm_campaign`, `utm_content`, `utm_term`, `channel`, `ai_assistant`, `device_type`, `browser`, `os` |
 | `site_pageviews` | `site_visit_id`, `client_id` (o `id` do navegador, único), `path`, `occurred_at`, `duration_seconds` |
 | `ai_hits` | `agent` (a chave do catálogo, ou `signed:<domínio>`), `agent_name` e `company` (copiados do catálogo na hora, para o histórico não mudar com ele), `kind`, `verification`, `signature_agent`, `path`, `accepts_markdown`, `blocked` (barrado pelo `.htaccess` do site), `occurred_at` |
 | `site_visit_salts` | `day` (único), `salt` |
 
 **Regras:**
 - `device_type` com `labeled_enum`: `desktop` Computador · `mobile` Celular · `tablet` Tablet.
+- `property` com `labeled_enum` (prefixo): `site` Site · `previews` Prévias. `click_source` com `labeled_enum` (prefixo, aceita nulo): `google_ads` Google Ads · `microsoft_ads` Microsoft Ads · `meta` Meta (Facebook e Instagram) · `tiktok` TikTok · `linkedin` LinkedIn · `x` X (Twitter). Índice em `site_visits (property, started_at)`.
+- Caminho sem `index.html` no fim (`/blog/index.html` → `/blog`).
 - `channel` com `labeled_enum`: `ai_assistant` Assistentes de IA · `email` E-mail · `campaign` Campanha · `search` Busca · `social` Redes sociais · `referral` Outros sites · `direct` Direto.
 - `ai_hits.kind` e `ai_hits.verification` com `labeled_enum`, com os valores da seção Acessos de IA. Índice em `ai_hits (occurred_at)`.
 - Índices: `site_visits (visitor_hash, last_seen_at DESC)` para achar a visita aberta; `site_visits (started_at)` para os números do período; `site_pageviews (client_id)` único; `site_pageviews (site_visit_id)`.
@@ -183,6 +201,7 @@ O tipo `user` é o sinal mais útil: alguém perguntou algo a uma IA e ela abriu
 | Duração média | Média de `duration_seconds` das visitas, em "2 min 15 s" |
 
 - **Gráfico** de visitantes e visitas por dia (por hora em Hoje e Ontem; por mês em Últimos 12 meses), com dias sem visita como zero. Helper novo em `ChartsHelper`, em SVG desenhado no servidor como os gráficos mensais de hoje. Sem biblioteca de gráfico.
+- **Prévias de clientes** (v1.1), abaixo do gráfico: uma linha por prévia aberta no período, com link para ela, visitas, telas vistas, tempo médio por visita e a última vez que foi aberta (`visitas_por_dimensao` com `previa`). Sem prévia no período, uma linha avisa.
 - **Sem dados ainda:** antes da primeira visita, a tela mostra o `shared/_empty` com o passo a passo para instalar o script no site.
 - Os números do período saem do serviço `SiteVisits::Stats` (período, filtros, indicadores, série e agrupamentos), com consultas agregadas direto em `site_visits` e `site_pageviews`. A tela e as tools do MCP só formatam o que ele devolve. Cache de 15 min (o limite do dashboard nos requisitos não funcionais); Hoje e Ontem ficam sem cache.
 
@@ -204,12 +223,15 @@ No padrão do [MCP do Admin](../mcp-comercial/README.md): `Mcp::Tools::Base`, `r
 | `pagina` | `/servicos` (caminho exato) |
 | `pagina_entrada` | `/` |
 | `dispositivo` | `desktop`, `mobile`, `tablet` |
+| `clique` (v1.1) | `google_ads`, `meta`… ou `nenhum` |
+| `area` (v1.1) | `site` (padrão) ou `previews` |
+| `previa` (v1.1) | `sys/aguas-cristalinas`: as visitas que passaram pela prévia. Implica `area: previews` |
 
 | Tool | O que faz |
 | --- | --- |
 | `visitas_resumo` | Os seis indicadores da tela (visitantes únicos, visitas, páginas vistas, páginas por visita, taxa de rejeição em %, duração média em segundos), o valor no período anterior e a variação em %. Traz também a série por dia (por hora em `hoje`/`ontem`, por mês em `12m`), com zero nos dias sem visita, e a data da primeira visita registrada, para o Claude saber quando os dados começam |
 | `acessos_ia` | Acessos de robôs e agentes de IA no período, agrupados por `agrupar` (`empresa` (padrão), `agente`, `tipo`, `pagina` ou `dia`), com o total por tipo e por verificação, separando os servidos dos bloqueados pelo site. Os falsos ficam fora dos totais e aparecem numa contagem à parte. Para comparar, traz também as visitas de pessoas do canal Assistentes de IA no mesmo período (quem a IA leu × quem a IA mandou). Filtros: `empresa`, `tipo`, `verificacao`, `pagina` |
-| `visitas_por_dimensao` | Agrupa o período por `dimensao`: `canal`, `assistente_ia`, `origem`, `utm_source`, `utm_medium`, `utm_campaign`, `pagina`, `pagina_entrada`, `pagina_saida`, `dispositivo`, `navegador`, `sistema`, `dia_da_semana` ou `hora`. Cada linha traz visitantes, visitas, páginas vistas, % do total, taxa de rejeição e duração média, ordenada por visitas, até `limite` linhas (padrão 25, até 50), mais o total fora das linhas devolvidas ("outros") |
+| `visitas_por_dimensao` | Agrupa o período por `dimensao`: `canal`, `assistente_ia`, `origem`, `clique` (v1.1), `previa` (v1.1, já implica `area: previews`, com `ultima_visita` em cada linha e a duração média por visita na prévia), `utm_source`, `utm_medium`, `utm_campaign`, `pagina`, `pagina_entrada`, `pagina_saida`, `dispositivo`, `navegador`, `sistema`, `dia_da_semana` ou `hora`. Cada linha traz visitantes, visitas, páginas vistas, % do total, taxa de rejeição e duração média, ordenada por visitas, até `limite` linhas (padrão 25, até 50), mais o total fora das linhas devolvidas ("outros") |
 
 **Exemplo:** "o Instagram trouxe mais gente esse mês?" vira `visitas_resumo(periodo: "este_mes", origem: "instagram.com")`. "Que páginas quem vem do Google mais vê?" vira `visitas_por_dimensao(dimensao: "pagina", origem: "google.com")`. "Que IAs estão lendo o site, e quais páginas?" vira `acessos_ia(periodo: "30d", agrupar: "pagina", tipo: "user")`.
 
@@ -225,12 +247,14 @@ No padrão do [MCP do Admin](../mcp-comercial/README.md): `Mcp::Tools::Base`, `r
 | --- | --- | --- |
 | `SITE_VISITS_TOKEN` | Admin e PHP do site | Token do repasse (`config.x.site_visits.token`). Separado do `SITE_LEADS_TOKEN`: quem vazar um não grava no outro |
 | `SITE_VISITS_ADMIN_URL` | PHP do site | `https://admin.devbatista.com/webhooks/site-visits` |
+| `SITE_VISITS_PREVIEW_HOSTS` | Admin (opcional) | Hosts de prévia além de `previews.devbatista.com`, separados por vírgula |
 
 ## Fases
 
 1. ✅ **Coleta**: tabelas, `SiteVisits::Tracker`, webhook, sal do dia e job de limpeza, filtro de robôs, `SiteVisits::UserAgent`, `SiteVisits::Channel`, `SiteVisits::AiAgentClassifier` com o catálogo, `SiteVisits::AiAgentIpRanges` e o `AiAgentIpRangesJob`, script, proxy e captura no servidor do site, `SITE_VISITS_TOKEN`. Fica coletando enquanto a tela é feita.
 2. ✅ **Visão geral e MCP**: `SiteVisits::Stats`, área `marketing`, `SiteVisitPolicy`, as tools `visitas_resumo`, `visitas_por_dimensao` e `acessos_ia`, grupo Marketing, período, indicadores (com o card de indicador da tela de Indicadores), gráfico de colunas (`ChartsHelper#visits_bar_chart`), estado vazio com o passo a passo, aviso das tools do Claude, seeds de 400 dias de visitas e acessos de IA fora de produção (`db/seeds/visitas.rb`). A variação da taxa de rejeição sai em pontos percentuais, as outras em %.
-3. **Próximas** (cada uma é uma seção nova na mesma tela, sem coleta nova): acessos de IA, conferência criptográfica da assinatura do Web Bot Auth (Ed25519), contagem de `robots.txt`, `sitemap.xml` e `llms.txt` via `.htaccess`, origem do tráfego (canal, referência e UTM), páginas (mais vistas, de entrada e de saída), dispositivos e o funil visita → quiz → lead. O funil exige o `site_visit` no payload do `/webhooks/site-leads`, e quando existir entra no MCP como a dimensão `convertidas` ou como a tool `visitas_funil`.
+3. ✅ **v1.1, origem e prévias**: `click_source` pelo ID de clique, navegador interno de app no canal, mensageiros e `l.wl.co` em Redes sociais, `index.html` fora do caminho, 404 fora da contagem, prévias de clientes como propriedade separada (script nas prévias, telas pelo fragmento, seção Prévias de clientes na tela, `area`, `previa` e `clique` no MCP).
+4. **Próximas** (cada uma é uma seção nova na mesma tela, sem coleta nova): acessos de IA, conferência criptográfica da assinatura do Web Bot Auth (Ed25519), contagem de `robots.txt`, `sitemap.xml` e `llms.txt` via `.htaccess`, origem do tráfego (canal, referência e UTM), páginas (mais vistas, de entrada e de saída), dispositivos e o funil visita → quiz → lead. O funil exige o `site_visit` no payload do `/webhooks/site-leads`, e quando existir entra no MCP como a dimensão `convertidas` ou como a tool `visitas_funil`.
 
 ## Testes
 

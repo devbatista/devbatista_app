@@ -11,6 +11,9 @@
 #
 # O visitante único é contado por dia: o sal do hash muda à meia-noite, então quem volta no dia
 # seguinte é outro visitante. Somar os dias e contar os hashes distintos do período dá o mesmo número.
+#
+# Tudo é do site, a não ser com o filtro area: "previews" (as prévias de clientes em
+# previews.devbatista.com), que o filtro previa e a dimensão previa já implicam.
 module SiteVisits
   class Stats
     class Invalid < StandardError; end
@@ -28,12 +31,17 @@ module SiteVisits
     # Abaixo disso, o rótulo de UTM não aparece: um link mandado a uma pessoa só a identificaria.
     MIN_VISITORS = 3
 
-    FILTERS = %w[canal origem utm_source utm_medium utm_campaign pagina pagina_entrada dispositivo].freeze
-    DIMENSIONS = %w[canal assistente_ia origem utm_source utm_medium utm_campaign pagina pagina_entrada pagina_saida
-                    dispositivo navegador sistema dia_da_semana hora].freeze
+    FILTERS = %w[area previa canal origem clique utm_source utm_medium utm_campaign pagina pagina_entrada dispositivo].freeze
+    DIMENSIONS = %w[canal assistente_ia origem clique utm_source utm_medium utm_campaign pagina pagina_entrada pagina_saida
+                    dispositivo navegador sistema dia_da_semana hora previa].freeze
     HIDDEN_BELOW_MIN = %w[utm_source utm_medium utm_campaign].freeze
     CHRONOLOGICAL = %w[dia_da_semana hora].freeze
     WEEKDAYS = %w[Domingo Segunda Terça Quarta Quinta Sexta Sábado].freeze
+
+    # A prévia de uma página vista em previews.devbatista.com: as duas primeiras pastas do caminho, sem
+    # a tela (/sys/aguas-cristalinas#resumo → sys/aguas-cristalinas).
+    PREVIEW_SQL = "concat_ws('/', NULLIF(split_part(split_part(site_pageviews.path, '#', 1), '/', 2), ''), " \
+                  "NULLIF(split_part(split_part(site_pageviews.path, '#', 1), '/', 3), ''))"
 
     AI_GROUPS = %w[empresa agente tipo pagina dia].freeze
     AI_FILTERS = %w[empresa tipo verificacao pagina].freeze
@@ -99,7 +107,10 @@ module SiteVisits
     def initialize(period, filters = {})
       @period = period
       @filters = normalize_filters(filters.to_h.stringify_keys.slice(*FILTERS).compact_blank)
+      @filters["area"] = "previews" if @filters["previa"]
     end
+
+    def area = filters["area"] || "site"
 
     # Indicadores do período, do anterior, a variação e a série para o gráfico.
     def summary
@@ -109,7 +120,7 @@ module SiteVisits
         # Em %, menos a taxa de rejeição, que já é uma taxa: em pontos percentuais.
         variacao: current.to_h { |key, value| [ key, key == :taxa_rejeicao ? (value - before[key]).round(1) : variation(value, before[key]) ] },
         variacao_unidade: "% sobre o período anterior; taxa_rejeicao em pontos percentuais",
-        serie: series, primeira_visita: SiteVisit.minimum(:started_at)&.to_date&.iso8601 }
+        serie: series, primeira_visita: SiteVisit.where(property: area).minimum(:started_at)&.to_date&.iso8601 }
     end
 
     def indicators(range)
@@ -144,6 +155,7 @@ module SiteVisits
     # mais o que ficou fora do limite em "outros".
     def by_dimension(dimension, limit: 25)
       raise Invalid, "dimensao desconhecida. Use #{DIMENSIONS.join(', ')}." unless DIMENSIONS.include?(dimension)
+      return self.class.new(period, filters.merge("area" => "previews")).by_dimension(dimension, limit: limit) if dimension == "previa" && area != "previews"
 
       total = indicators(period.range)[:visitas]
       rows = dimension_rows(dimension)
@@ -172,7 +184,7 @@ module SiteVisits
       rows = scope.group(Arel.sql(expr)).pluck(Arel.sql(expr), Arel.sql("COUNT(*)"), Arel.sql("COUNT(*) FILTER (WHERE NOT blocked)"),
                                                 Arel.sql("COUNT(*) FILTER (WHERE blocked)"))
       rows = group == "dia" ? rows.sort_by(&:first) : rows.sort_by { |r| [ -r[1], r[0].to_s ] }
-      people = SiteVisit.where(started_at: period.range, channel: "ai_assistant")
+      people = SiteVisit.property_site.where(started_at: period.range, channel: "ai_assistant")
 
       { periodo: period_data, agrupar: group, filtros: filters,
         total: scope.count, servidos: scope.served.count, bloqueados: scope.blocked.count,
@@ -194,8 +206,10 @@ module SiteVisits
     private
 
     def visits(range = period.range)
-      scope = SiteVisit.where(started_at: range)
+      scope = SiteVisit.where(property: area, started_at: range)
       scope = scope.where(channel: filters["canal"]) if filters["canal"]
+      scope = scope.where(click_source: filters["clique"] == "nenhum" ? nil : filters["clique"]) if filters["clique"]
+      scope = scope.where(id: SitePageview.where("#{PREVIEW_SQL} = ?", filters["previa"]).select(:site_visit_id)) if filters["previa"]
       scope = scope.where(referrer_host: filters["origem"] == "direto" ? nil : filters["origem"]) if filters["origem"]
       %w[utm_source utm_medium utm_campaign].each { |key| scope = scope.where(key => filters[key]) if filters[key] }
       scope = scope.where(entry_path: filters["pagina_entrada"]) if filters["pagina_entrada"]
@@ -205,22 +219,26 @@ module SiteVisits
     end
 
     def dimension_rows(dimension)
-      if dimension == "pagina"
+      if dimension.in?(%w[pagina previa])
+        # Na página, a duração é o tempo médio nela. Na prévia, é o tempo médio por visita somando as
+        # telas dela, e vem junto quando foi vista pela última vez.
         bounced = "COUNT(DISTINCT CASE WHEN site_visits.pageviews_count = 1 AND site_visits.duration_seconds < #{BOUNCE_SECONDS} THEN site_visits.id END)"
-        SitePageview.joins(:site_visit).merge(visits).group("site_pageviews.path")
-                    .pluck(Arel.sql("site_pageviews.path"), Arel.sql("COUNT(DISTINCT site_visits.visitor_hash)"), Arel.sql("COUNT(DISTINCT site_pageviews.site_visit_id)"),
-                           Arel.sql("COUNT(*)"), Arel.sql(bounced), Arel.sql("AVG(site_pageviews.duration_seconds)"))
+        expr = dimension == "pagina" ? "site_pageviews.path" : PREVIEW_SQL
+        duration = dimension == "pagina" ? "AVG(site_pageviews.duration_seconds)" : "COALESCE(SUM(site_pageviews.duration_seconds), 0)::float / COUNT(DISTINCT site_pageviews.site_visit_id)"
+        SitePageview.joins(:site_visit).merge(visits).group(Arel.sql(expr))
+                    .pluck(Arel.sql(expr), Arel.sql("COUNT(DISTINCT site_visits.visitor_hash)"), Arel.sql("COUNT(DISTINCT site_pageviews.site_visit_id)"),
+                           Arel.sql("COUNT(*)"), Arel.sql(bounced), Arel.sql(duration), Arel.sql("MAX(site_pageviews.occurred_at)"))
       else
         expr = dimension_sql(dimension)
         scope = dimension == "assistente_ia" ? visits.where.not(ai_assistant: nil) : visits
         scope.group(Arel.sql(expr)).pluck(Arel.sql(expr), Arel.sql("COUNT(DISTINCT visitor_hash)"), Arel.sql("COUNT(*)"),
                                           Arel.sql("COALESCE(SUM(pageviews_count), 0)"), Arel.sql(bounce_sql), Arel.sql("AVG(duration_seconds)"))
-      end.map { |value, visitors, visits, pageviews, bounces, duration| [ value, visitors.to_i, visits.to_i, pageviews.to_i, bounces.to_i, duration ] }
+      end.map { |value, visitors, visits, pageviews, bounces, duration, last| [ value, visitors.to_i, visits.to_i, pageviews.to_i, bounces.to_i, duration, last ] }
     end
 
     def dimension_sql(dimension)
       { "canal" => "site_visits.channel", "assistente_ia" => "site_visits.ai_assistant",
-        "origem" => "COALESCE(site_visits.referrer_host, 'direto')",
+        "origem" => "COALESCE(site_visits.referrer_host, 'direto')", "clique" => "site_visits.click_source",
         "utm_source" => "site_visits.utm_source", "utm_medium" => "site_visits.utm_medium", "utm_campaign" => "site_visits.utm_campaign",
         "pagina_entrada" => "site_visits.entry_path", "pagina_saida" => "site_visits.exit_path",
         "dispositivo" => "site_visits.device_type", "navegador" => "site_visits.browser", "sistema" => "site_visits.os",
@@ -228,7 +246,7 @@ module SiteVisits
         "hora" => "EXTRACT(HOUR FROM #{local_time('site_visits.started_at')})::int" }.fetch(dimension)
     end
 
-    def dimension_line(dimension, (value, visitors, visits, pageviews, bounces, duration), total)
+    def dimension_line(dimension, (value, visitors, visits, pageviews, bounces, duration, last), total)
       hidden = HIDDEN_BELOW_MIN.include?(dimension) && !value.nil? && visitors < MIN_VISITORS
       line = { valor: hidden ? nil : value, rotulo: hidden ? "(oculto: menos de #{MIN_VISITORS} visitantes)" : dimension_label(dimension, value),
                visitantes: visitors, visitas: visits, paginas_vistas: pageviews,
@@ -236,6 +254,7 @@ module SiteVisits
                taxa_rejeicao: visits.positive? ? (bounces * 100.0 / visits).round(1) : 0,
                duracao_media: duration.to_f.round }
       line[:oculto] = true if hidden
+      line[:ultima_visita] = last.in_time_zone.iso8601 if dimension == "previa" && last
       line
     end
 
@@ -245,6 +264,7 @@ module SiteVisits
       case dimension
       when "canal" then SiteVisit::CHANNEL_LABELS.fetch(value, value)
       when "dispositivo" then SiteVisit::DEVICE_TYPE_LABELS.fetch(value, value)
+      when "clique" then SiteVisit::CLICK_SOURCE_LABELS.fetch(value, value)
       when "origem" then value == "direto" ? "Direto" : value
       when "dia_da_semana" then WEEKDAYS[value.to_i]
       when "hora" then format("%02dh", value.to_i)
@@ -268,6 +288,9 @@ module SiteVisits
         value = value.to_s.strip
         result[key] =
           case key
+          when "area" then value.presence_in(SiteVisit::PROPERTY_LABELS.keys) || raise(Invalid, "area desconhecida. Use #{SiteVisit::PROPERTY_LABELS.keys.join(', ')}.")
+          when "previa" then value.delete_prefix("/").chomp("/")
+          when "clique" then value.presence_in([ *SiteVisit::CLICK_SOURCE_LABELS.keys, "nenhum" ]) || raise(Invalid, "clique desconhecido. Use #{SiteVisit::CLICK_SOURCE_LABELS.keys.join(', ')} ou nenhum.")
           when "canal" then value.presence_in(SiteVisit::CHANNEL_LABELS.keys) || raise(Invalid, "canal desconhecido. Use #{SiteVisit::CHANNEL_LABELS.keys.join(', ')}.")
           when "dispositivo" then value.presence_in(SiteVisit::DEVICE_TYPE_LABELS.keys) || raise(Invalid, "dispositivo desconhecido. Use #{SiteVisit::DEVICE_TYPE_LABELS.keys.join(', ')}.")
           when "origem" then value.downcase.delete_prefix("www.")
