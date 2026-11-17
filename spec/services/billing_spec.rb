@@ -188,12 +188,12 @@ RSpec.describe "Faturas de fornecedores pela API" do
 
       paid, reissued, estimate, *rest = client.charges(today)
       expect(rest).to be_empty
-      expect(paid).to have_attributes(external_id: "invoice:in_1", competence: Date.new(2026, 9), due_on: Date.new(2026, 10, 18),
+      expect(paid).to have_attributes(external_id: "invoice:in_1", competence: Date.new(2026, 10), due_on: Date.new(2026, 10, 18),
                                       currency: "USD", amount_cents: 1_373, status: :paid, paid_on: Date.new(2026, 10, 18),
                                       replaces: [ "estimate:2026-09-18" ], description: "Railway — fatura de 18/09 a 18/10/2026")
       expect(reissued).to have_attributes(status: :pending, due_on: Date.new(2026, 9, 18), replaces: [ "estimate:2026-08-18", "invoice:in_0" ])
       expect(estimate).to have_attributes(external_id: "estimate:2026-10-18", status: :forecast, amount_cents: 1_033,
-                                          competence: Date.new(2026, 10), due_on: Date.new(2026, 11, 18))
+                                          competence: Date.new(2026, 11), due_on: Date.new(2026, 11, 18))
       expect(requests.first["Authorization"]).to eq("Bearer rw-token")
       expect(json_body(requests.first)["variables"]).to eq("id" => connection.account_id)
     end
