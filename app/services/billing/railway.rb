@@ -9,7 +9,8 @@ module Billing
   # BILLING_RAILWAY_API_TOKEN. A conta é o ID do workspace (railway usage --json).
   #
   # - O ciclo vai do dia da assinatura ao mesmo dia do mês seguinte (18/10 a 18/11), não do dia 1º.
-  #   A competência é o mês em que o ciclo começa.
+  #   A competência é o mês em que o ciclo termina (o da cobrança): o ciclo de 18/10 a 18/11 é de
+  #   novembro, e o ciclo corrente aparece sempre no mês corrente.
   # - Fatura (Stripe: total em centavos de dólar, período = consumo cobrado) → despesa vencendo no
   #   fim do ciclo, paga quando o status é "paid". Rascunho, anulada e valor zero ficam de fora.
   #   Fatura reemitida substitui a original.
@@ -54,7 +55,7 @@ module Billing
       paid = invoice["status"].to_s.downcase == "paid"
       replaces = [ estimate_id(start) ]
       replaces << "invoice:#{invoice['reissuedInvoiceOf']}" if invoice["reissuedInvoiceOf"].present?
-      Charge.new(external_id: "invoice:#{invoice['invoiceId']}", competence: start.beginning_of_month, due_on: finish,
+      Charge.new(external_id: "invoice:#{invoice['invoiceId']}", competence: finish.beginning_of_month, due_on: finish,
                  description: "Railway — fatura #{period_label(start, finish)}", currency: "USD",
                  amount_cents: invoice["total"].to_i, status: paid ? :paid : :pending, paid_on: (finish if paid), replaces: replaces)
     end
@@ -67,7 +68,7 @@ module Billing
       return [] unless start && finish && cents.positive?
       return [] if replaced.include?(estimate_id(start))
 
-      [ Charge.new(external_id: estimate_id(start), competence: start.beginning_of_month, due_on: finish, status: :forecast,
+      [ Charge.new(external_id: estimate_id(start), competence: finish.beginning_of_month, due_on: finish, status: :forecast,
                    description: "Railway — consumo #{period_label(start, finish)} (estimativa)", currency: "USD", amount_cents: cents) ]
     end
 
