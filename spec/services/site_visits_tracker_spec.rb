@@ -70,6 +70,32 @@ RSpec.describe SiteVisits::Tracker do
         .to contain_exactly([ "ai_assistant", "ChatGPT", "chatgpt.com" ], [ "direct", nil, nil ], [ "search", nil, "google.com.br" ])
     end
 
+    it "lê a plataforma do ID de clique sem guardar o valor, e o fbclid sem referência vira rede social" do
+      track(url: "https://www.devbatista.com/?fbclid=IwAR0abc123")
+      track(ip: "1.1.1.1", url: "https://www.devbatista.com/solucoes?gclid=Cj0KCQ")
+      track(ip: "1.1.1.2", url: "https://www.devbatista.com/?fbclid=IwAR0&utm_source=instagram&utm_medium=paid")
+
+      expect(SiteVisit.order(:created_at).pluck(:click_source, :channel, :referrer_host))
+        .to eq([ [ "meta", "social", nil ], [ "google_ads", "campaign", nil ], [ "meta", "campaign", nil ] ])
+      stored = SiteVisit.all.flat_map { |visit| visit.attributes.values.map(&:to_s) }.join(" ")
+      expect(stored).not_to include("IwAR0", "Cj0KCQ")
+    end
+
+    it "sem referência, o navegador interno de app de rede social vira rede social" do
+      instagram = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 350.0.0.0"
+      track(ua: instagram)
+      track(ip: "1.1.1.1", referrer: "https://l.wl.co/")
+
+      expect(SiteVisit.order(:created_at).pluck(:channel, :browser, :referrer_host))
+        .to eq([ [ "social", "Instagram", nil ], [ "social", "Safari", "l.wl.co" ] ])
+    end
+
+    it "tira o index.html do caminho" do
+      track(url: "https://www.devbatista.com/blog/index.html")
+      track(ip: "1.1.1.1", url: "https://www.devbatista.com/reindex")
+      expect(SitePageview.order(:created_at).pluck(:path)).to eq(%w[/blog /reindex])
+    end
+
     it "descarta robôs, o prefetch do navegador e páginas de outro host" do
       expect(track(ua: "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)")).to eq(:ignored)
       expect(track(ua: "")).to eq(:ignored)
@@ -82,6 +108,29 @@ RSpec.describe SiteVisits::Tracker do
       expect(track(ua: "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; ChatGPT-User/1.0; +https://openai.com/bot)")).to eq(:ignored)
       expect(track(ua: chrome, headers: { "signature-agent" => '"https://chatgpt.com"' })).to eq(:ignored)
       expect(SiteVisit.count + AiHit.count).to eq(0)
+    end
+  end
+
+  describe "prévias (previews.devbatista.com)" do
+    let(:preview) { "https://previews.devbatista.com/sys/aguas-cristalinas/" }
+
+    it "abre uma visita das prévias, separada da do site, com cada tela do sistema como uma página" do
+      expect(track(url: "#{preview}#resumo", headers: { "origin" => "https://previews.devbatista.com" })).to eq(:pageview)
+      track(url: "#{preview}index.html#/clientes/novo")
+      track(url: "https://www.devbatista.com/", referrer: preview)
+
+      previews, site = SiteVisit.order(:property).partition(&:property_previews?)
+      expect(previews.sole).to have_attributes(entry_path: "/sys/aguas-cristalinas#resumo", exit_path: "/sys/aguas-cristalinas#/clientes/novo",
+                                               pageviews_count: 2, channel: "direct", referrer_host: nil)
+      expect(site.sole).to have_attributes(property: "site", entry_path: "/", channel: "referral", referrer_host: "previews.devbatista.com")
+    end
+
+    it "só guarda o fragmento que é tela de sistema" do
+      track(url: "https://previews.devbatista.com/sites/romulo-contabil/#orcamento")
+      track(ip: "1.1.1.1", url: "#{preview}#access_token=abc&x=1")
+      track(ip: "1.1.1.2", url: "https://www.devbatista.com/sobre#equipe")
+
+      expect(SitePageview.order(:created_at).pluck(:path)).to eq(%w[/sites/romulo-contabil /sys/aguas-cristalinas /sobre])
     end
   end
 

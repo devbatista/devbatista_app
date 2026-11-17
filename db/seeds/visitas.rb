@@ -1,4 +1,5 @@
-# Visitas do site (docs/specs/visitas-do-site): 400 dias de visitas e acessos de IA inventados, para
+# Visitas do site (docs/specs/visitas-do-site): 400 dias de visitas e acessos de IA, e 30 dias de
+# visitas às prévias de clientes, inventados, para
 # ver a tela e testar as tools do MCP. Só fora de produção e só se ainda não há visitas. Gerados com
 # semente fixa: rodar de novo num banco limpo dá os mesmos números.
 module Seeds
@@ -17,6 +18,12 @@ module Seeds
       [ "campaign", 9, [ nil ], { "utm_source" => "instagram", "utm_medium" => "paid", "utm_campaign" => "diagnostico-tecnologico" } ],
       [ "referral", 7, %w[github.com clutch.co blog.rdstation.com], nil ],
       [ "email", 3, [ nil ], { "utm_source" => "newsletter", "utm_medium" => "email", "utm_campaign" => "novidades" } ]
+    ].freeze
+    # [prévia, telas, visitas nos últimos 30 dias]
+    PREVIEWS = [
+      [ "sys/aguas-cristalinas", %w[resumo clientes leituras financeiro], 9 ],
+      [ "sites/romulo-contabil", [ nil ], 4 ],
+      [ "sys/rubyrose-eventos", %w[/eventos /credenciamento /portaria], 2 ]
     ].freeze
     ASSISTANTS = { "chatgpt.com" => "ChatGPT", "perplexity.ai" => "Perplexity", "claude.ai" => "Claude", "gemini.google.com" => "Gemini" }.freeze
 
@@ -57,6 +64,12 @@ module Seeds
           visits << build_visit(random, started, hashes.sample(random: random), pageviews)
         end
       end
+      PREVIEWS.each do |preview, screens, count|
+        count.times do
+          started = (today - random.rand(30)).in_time_zone.change(hour: random.rand(9..18), min: random.rand(60))
+          visits << build_preview_visit(random, started.clamp(..Time.current - 1.hour), preview, screens, pageviews)
+        end
+      end
       SiteVisit.insert_all!(visits)
       SitePageview.insert_all!(pageviews)
 
@@ -87,11 +100,28 @@ module Seeds
         pageviews << { site_visit_id: id, client_id: SecureRandom.uuid, path: path, occurred_at: at, duration_seconds: durations[i] }
         at += durations[i].seconds + random.rand(1..20).seconds
       end
-      { id: id, visitor_hash: visitor_hash, started_at: started, last_seen_at: pageviews.last[:occurred_at],
+      click = "meta" if utm&.dig("utm_source") == "instagram" || (channel == "social" && referrer.to_s.match?(/instagram|facebook/) && random.rand < 0.7)
+      { id: id, property: "site", visitor_hash: visitor_hash, started_at: started, last_seen_at: pageviews.last[:occurred_at],
         pageviews_count: count, duration_seconds: durations.sum, entry_path: paths.first, exit_path: paths.last,
-        referrer_host: referrer, channel: channel, ai_assistant: ASSISTANTS[referrer],
+        referrer_host: referrer, click_source: click, channel: channel, ai_assistant: ASSISTANTS[referrer],
         device_type: device, browser: agent.browser, os: agent.os,
         **SiteVisits::Tracker::UTM.index_with(nil).merge(utm || {}).symbolize_keys }
+    end
+
+    # O cliente abre o link mandado no WhatsApp (direto) e passa por algumas telas da prévia.
+    def self.build_preview_visit(random, started, preview, screens, pageviews)
+      paths = screens.sample(random.rand(1..screens.size), random: random).map { |screen| [ "/#{preview}", screen ].compact.join("#") }
+      durations = Array.new(paths.size) { random.rand(15..240) }
+      id = SecureRandom.uuid
+      at = started
+      paths.each_with_index do |path, i|
+        pageviews << { site_visit_id: id, client_id: SecureRandom.uuid, path: path, occurred_at: at, duration_seconds: durations[i] }
+        at += durations[i].seconds + random.rand(1..10).seconds
+      end
+      { id: id, property: "previews", visitor_hash: random.bytes(8).unpack1("H*"), started_at: started, last_seen_at: pageviews.last[:occurred_at],
+        pageviews_count: paths.size, duration_seconds: durations.sum, entry_path: paths.first, exit_path: paths.last,
+        referrer_host: nil, click_source: nil, channel: "direct", ai_assistant: nil, device_type: "desktop", browser: "Chrome", os: "Windows",
+        **SiteVisits::Tracker::UTM.index_with(nil).symbolize_keys }
     end
 
     # Campanha e e-mail caem na página do e-book; o resto, quase sempre na home.

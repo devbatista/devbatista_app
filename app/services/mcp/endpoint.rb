@@ -55,7 +55,8 @@ module Mcp
       registrar_evento ao começar e ao terminar o trabalho (com precisa_aprovacao quando a ação exigir o aval do
       administrador) e concluir_pendencia para cada ordem atendida. Visitas do site devbatista.com (só leitura,
       números agregados): visitas_resumo, visitas_por_dimensao e acessos_ia. O visitante único é contado por dia,
-      não há dados antes de primeira_visita, e acesso de robô ou agente de IA não é visita de pessoa.
+      não há dados antes de primeira_visita, e acesso de robô ou agente de IA não é visita de pessoa. As prévias
+      de clientes (previews.devbatista.com) ficam fora dos números do site e são consultadas com area previews.
     TEXT
 
     def self.call(env)

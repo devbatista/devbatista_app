@@ -19,6 +19,20 @@ RSpec.describe "Classificação das visitas do site" do
       expect(channel).to eq([ "direct", nil ])
     end
 
+    it "usa o ID de clique e o navegador interno de app quando falta referência" do
+      expect(channel(click_source: "google_ads")).to eq([ "campaign", nil ])
+      expect(channel(referrer_host: "google.com", click_source: "google_ads")).to eq([ "campaign", nil ])
+      expect(channel(click_source: "meta")).to eq([ "social", nil ])
+      expect(channel(in_app: "Instagram")).to eq([ "social", nil ])
+      expect(channel(referrer_host: "google.com", in_app: "Instagram")).to eq([ "search", nil ])
+      expect(channel(referrer_host: "blog.exemplo.com.br", click_source: "meta")).to eq([ "referral", nil ])
+    end
+
+    it "reconhece mensageiros e a referência dos apps no Android" do
+      %w[l.wl.co t.me web.telegram.org app.slack.com teams.microsoft.com com.whatsapp org.telegram.messenger threads.com br.search.yahoo.com]
+        .each { |host| expect(channel(referrer_host: host).first).to eq(host.include?("yahoo") ? "search" : "social"), host }
+    end
+
     it "não confunde domínio parecido com assistente ou rede" do
       expect(channel(referrer_host: "notchatgpt.com")).to eq([ "referral", nil ])
       expect(channel(referrer_host: "fakeinstagram.com")).to eq([ "referral", nil ])
@@ -35,6 +49,16 @@ RSpec.describe "Classificação das visitas do site" do
 
       instagram = described_class.new("Mozilla/5.0 (Linux; Android 14; SM-S918B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0 Mobile Safari/537.36 Instagram 350.0", screen_width: 412)
       expect([ instagram.device_type, instagram.browser, instagram.os ]).to eq(%w[mobile Instagram Android])
+    end
+
+    it "reconhece o navegador interno dos apps de rede social" do
+      tiktok = described_class.new("Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Chrome/141.0 Mobile Safari/537.36 musical_ly_2023 BytedanceWebview/d8a21c6")
+      threads = described_class.new("Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148 Barcelona 350.0.0.0")
+      chrome = described_class.new("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36")
+
+      expect([ tiktok.in_app, tiktok.browser ]).to eq(%w[TikTok TikTok])
+      expect([ threads.in_app, threads.browser ]).to eq(%w[Threads Threads])
+      expect([ chrome.in_app, chrome.browser ]).to eq([ nil, "Chrome" ])
     end
 
     it "prefere a largura da tela ao user agent" do

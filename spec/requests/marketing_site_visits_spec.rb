@@ -31,6 +31,19 @@ RSpec.describe "Marketing → Visitas do site" do
     expect(response.body).not_to include("cache de até 15 minutos")
   end
 
+  it "lista as prévias de clientes abertas no período, fora dos indicadores do site" do
+    create_site_visit(at: now - 1.hour, pages: %w[/])
+    create_site_visit(at: now - 2.hours, property: "previews", pages: %w[/sys/aguas-cristalinas#resumo /sys/aguas-cristalinas#clientes], duration: 150)
+    sign_in admin
+    get site_visits_path
+
+    expect(response.body).to include("Prévias de clientes", "sys/aguas-cristalinas", "https://previews.devbatista.com/sys/aguas-cristalinas/",
+                                      "2 min 30 s", "09/11/2026 às 12:01")
+
+    get site_visits_path(periodo: "ontem")
+    expect(response.body).to include("Nenhuma prévia aberta no período")
+  end
+
   it "fica no grupo Marketing do menu, só para quem tem a área" do
     sign_in admin
     get root_path

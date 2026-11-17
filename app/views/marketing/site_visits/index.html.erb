@@ -5,7 +5,7 @@
   <div class="titles">
     <span class="section-label">Marketing · <%= @period.label %></span>
     <h1>Visitas do site</h1>
-    <p class="lead">Pessoas que visitaram o devbatista.com<%= ", comparadas com o período anterior" unless @empty %>. Robôs e agentes de IA não entram nestes números.</p>
+    <p class="lead">Pessoas que visitaram o devbatista.com<%= ", comparadas com o período anterior" unless @empty %>. Robôs, agentes de IA e as prévias de clientes não entram nestes números.</p>
   </div>
   <% unless @empty %>
     <%= form_with url: site_visits_path, method: :get, class: "actions" do %>
@@ -64,7 +64,32 @@
     <span class="caption">Passe o mouse numa coluna para ver visitantes e páginas vistas.<% if peak && peak[:visitas].positive? %> Pico: <%= visits_bucket_label(peak[:inicio], @period.bucket) %>, com <%= pluralize(peak[:visitas], "visita") %>.<% end %></span>
   </section>
 
+  <section class="card" aria-label="Prévias de clientes">
+    <div class="card-head"><div><h2>Prévias de clientes</h2><span class="caption">Abertas em previews.devbatista.com no período. Ficam fora dos números do site; cada tela de um sistema conta como uma tela vista.</span></div></div>
+    <% if @previews[:linhas].any? %>
+      <div class="table-wrap">
+        <table class="table cards">
+          <thead><tr><th>Prévia</th><th class="right">Visitas</th><th class="right">Telas vistas</th><th class="right">Tempo por visita</th><th>Última vez</th></tr></thead>
+          <tbody>
+            <% @previews[:linhas].each do |row| %>
+              <tr>
+                <td data-label="Prévia"><%= link_to row[:valor], "https://previews.devbatista.com/#{row[:valor]}/", target: "_blank", rel: "noopener", class: "strong" %></td>
+                <td data-label="Visitas" class="right"><%= count_br(row[:visitas]) %></td>
+                <td data-label="Telas vistas" class="right"><%= count_br(row[:paginas_vistas]) %></td>
+                <td data-label="Tempo por visita" class="right"><%= duration_br(row[:duracao_media]) %></td>
+                <td data-label="Última vez" class="nowrap"><%= row[:ultima_visita] ? l(Time.zone.parse(row[:ultima_visita]), format: "%d/%m/%Y às %H:%M") : "—" %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+      <% if @previews[:outros] %><p class="card-body caption" style="padding-top:0">E mais <%= pluralize(@previews[:outros][:grupos], "prévia") %>, com <%= pluralize(@previews[:outros][:visitas], "visita") %>.</p><% end %>
+    <% else %>
+      <p class="card-body caption" style="padding-top:0">Nenhuma prévia aberta no período. Só contam as abertas em previews.devbatista.com, fora do seu navegador marcado com <code>?nao-contar=1</code>.</p>
+    <% end %>
+  </section>
+
   <div class="callout">
-    <span><b>Mais detalhes pelo Claude.</b> No conector do Admin, peça por exemplo "de onde vieram as visitas este mês?", "quais páginas quem vem do Google mais vê?" ou "que IAs leram o site?". As tools <code>visitas_resumo</code>, <code>visitas_por_dimensao</code> e <code>acessos_ia</code> usam os mesmos números desta tela.</span>
+    <span><b>Mais detalhes pelo Claude.</b> No conector do Admin, peça por exemplo "de onde vieram as visitas este mês?", "quais páginas quem vem do Google mais vê?", "que telas o cliente viu na prévia da Águas Cristalinas?" ou "que IAs leram o site?". As tools <code>visitas_resumo</code>, <code>visitas_por_dimensao</code> e <code>acessos_ia</code> usam os mesmos números desta tela.</span>
   </div>
 <% end %>

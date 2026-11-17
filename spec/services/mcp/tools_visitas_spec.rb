@@ -64,6 +64,17 @@ RSpec.describe "Tools das visitas do site no MCP" do
       expect(tool_data(described_class, admin, dimensao: "origem", canal: "search")["linhas"].map { |l| l["rotulo"] }).to eq([ "google.com" ])
     end
 
+    it "mostra as prévias de clientes à parte, com as telas vistas" do
+      create_site_visit(at: now - 1.hour, property: "previews", pages: %w[/sys/aguas-cristalinas#resumo /sys/aguas-cristalinas#clientes])
+
+      expect(tool_data(described_class, admin, dimensao: "previa")["linhas"].map { |l| l.values_at("valor", "visitas", "ultima_visita") })
+        .to eq([ [ "sys/aguas-cristalinas", 1, (now - 1.hour + 1.minute).iso8601 ] ])
+      expect(tool_data(described_class, admin, dimensao: "pagina", previa: "sys/aguas-cristalinas")["linhas"].map { |l| l["valor"] })
+        .to contain_exactly("/sys/aguas-cristalinas#resumo", "/sys/aguas-cristalinas#clientes")
+      expect(tool_data(Mcp::Tools::VisitasResumo, admin)["indicadores"]["visitas"]).to eq(2)
+      expect(tool_data(Mcp::Tools::VisitasResumo, admin, area: "previews")["indicadores"]["visitas"]).to eq(1)
+    end
+
     it "recusa dimensão desconhecida e quem não tem a área" do
       expect(error_text(described_class, admin, dimensao: "cidade")).to start_with("dimensao desconhecida")
       expect(error_text(described_class, comercial, dimensao: "canal")).to eq("Sem permissão para esta ação.")

@@ -14,7 +14,8 @@ module Mcp
         ontem), dia ou mês (12m), com zero onde não houve visita, e a data da primeira visita registrada:
         antes dela não há dados. O visitante único é contado por dia (quem volta no dia seguinte conta de
         novo). Robôs e agentes de IA não entram aqui (use acessos_ia). Para quebrar por canal, origem,
-        página ou dispositivo, use visitas_por_dimensao.
+        página ou dispositivo, use visitas_por_dimensao. As prévias de clientes (previews.devbatista.com)
+        não entram nos números do site: peça com area previews ou previa.
       TEXT
       read_only
       input_schema(properties: { **PERIOD_PROPERTIES, **FILTER_PROPERTIES }, additionalProperties: false)

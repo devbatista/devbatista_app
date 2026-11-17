@@ -142,8 +142,50 @@ RSpec.describe SiteVisits::Stats do
       expect(lines.second).to include(valor: nil, rotulo: "(oculto: menos de 3 visitantes)", visitantes: 1, visitas: 2, oculto: true)
     end
 
+    it "agrupa e filtra pela plataforma do ID de clique" do
+      create_site_visit(at: now - 1.hour, channel: "social", click_source: "meta")
+      create_site_visit(at: now - 1.hour, channel: "campaign", click_source: "google_ads")
+      create_site_visit(at: now - 1.hour)
+
+      expect(stats.by_dimension("clique")[:linhas].map { |l| [ l[:rotulo], l[:visitas] ] })
+        .to contain_exactly([ "Meta (Facebook e Instagram)", 1 ], [ "Google Ads", 1 ], [ "(sem valor)", 1 ])
+      expect(stats(clique: "meta").summary[:indicadores][:visitas]).to eq(1)
+      expect(stats(clique: "nenhum").summary[:indicadores][:visitas]).to eq(1)
+      expect { stats(clique: "orkut") }.to raise_error(described_class::Invalid, /clique desconhecido/)
+    end
+
     it "recusa dimensão desconhecida" do
       expect { stats.by_dimension("cidade") }.to raise_error(described_class::Invalid, /dimensao desconhecida/)
+    end
+  end
+
+  describe "prévias" do
+    before do
+      create_site_visit(at: now - 1.hour, pages: %w[/])
+      create_site_visit(at: now - 3.hours, property: "previews", pages: %w[/sys/aguas-cristalinas#resumo /sys/aguas-cristalinas#clientes], duration: 300)
+      create_site_visit(at: now - 1.hour, property: "previews", pages: %w[/sys/aguas-cristalinas], duration: 60)
+      create_site_visit(at: now - 2.days, property: "previews", pages: %w[/sites/romulo-contabil], duration: 40)
+    end
+
+    it "ficam fora dos números do site e aparecem com area previews" do
+      expect(stats.summary[:indicadores][:visitas]).to eq(1)
+      expect(stats(area: "previews").summary[:indicadores]).to include(visitas: 3, paginas_vistas: 4)
+      expect { stats(area: "intranet") }.to raise_error(described_class::Invalid, /area desconhecida/)
+    end
+
+    it "agrupam por prévia com a última vez vista e o tempo médio por visita, mesmo sem pedir a area" do
+      lines = stats.by_dimension("previa")[:linhas]
+
+      expect(lines.map { |l| l.slice(:valor, :visitas, :paginas_vistas, :duracao_media, :ultima_visita) }).to eq([
+        { valor: "sys/aguas-cristalinas", visitas: 2, paginas_vistas: 3, duracao_media: 180, ultima_visita: (now - 1.hour).iso8601 },
+        { valor: "sites/romulo-contabil", visitas: 1, paginas_vistas: 1, duracao_media: 40, ultima_visita: (now - 2.days).iso8601 }
+      ])
+    end
+
+    it "filtram por prévia e mostram as telas vistas" do
+      expect(stats(previa: "/sys/aguas-cristalinas/").summary[:indicadores][:visitas]).to eq(2)
+      expect(stats(previa: "sys/aguas-cristalinas").by_dimension("pagina")[:linhas].map { |l| [ l[:valor], l[:visitas] ] })
+        .to contain_exactly([ "/sys/aguas-cristalinas#resumo", 1 ], [ "/sys/aguas-cristalinas#clientes", 1 ], [ "/sys/aguas-cristalinas", 1 ])
     end
   end
 

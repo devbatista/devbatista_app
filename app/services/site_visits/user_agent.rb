@@ -8,9 +8,16 @@ module SiteVisits
     BOT = /(?<!cu)bot\b|bot\/|crawl|spider|slurp|headless|phantomjs|lighthouse|pagespeed|preview|facebookexternalhit|
            embedly|python|curl|wget|httpclient|java\/|go-http|okhttp|axios|node-fetch|undici|scrapy|-user\b/xi
 
+    # Navegadores internos dos apps de rede social: quem abre um link dentro do app costuma chegar sem
+    # referência, e o nome do app no user agent é o que diz de onde a pessoa veio (SiteVisits::Channel).
+    IN_APP = [
+      [ /Barcelona/, "Threads" ], [ /Instagram/, "Instagram" ], [ /FBAN|FBAV|FB_IAB/, "Facebook" ], [ /LinkedInApp/, "LinkedIn" ],
+      [ /musical_ly|BytedanceWebview|TikTok/, "TikTok" ], [ /Pinterest/, "Pinterest" ], [ /Snapchat/, "Snapchat" ],
+      [ /TwitterAndroid|Twitter for iP/, "X" ]
+    ].freeze
+
     BROWSERS = [
-      [ /Instagram/, "Instagram" ], [ /FBAN|FBAV/, "Facebook" ], [ /LinkedInApp/, "LinkedIn" ],
-      [ /Edg(e|A|iOS)?\//, "Edge" ], [ /OPR\/|Opera/, "Opera" ], [ /SamsungBrowser/, "Samsung Internet" ],
+      *IN_APP, [ /Edg(e|A|iOS)?\//, "Edge" ], [ /OPR\/|Opera/, "Opera" ], [ /SamsungBrowser/, "Samsung Internet" ],
       [ /Firefox\/|FxiOS/, "Firefox" ], [ /Chrome\/|CriOS/, "Chrome" ], [ /Version\/[\d.]+.*Safari/, "Safari" ]
     ].freeze
 
@@ -46,6 +53,9 @@ module SiteVisits
 
     def browser = match(BROWSERS)
     def os = match(SYSTEMS)
+
+    # O app de rede social em cujo navegador interno a página foi aberta, ou nil.
+    def in_app = IN_APP.find { |pattern, _| @ua.match?(pattern) }&.last
 
     private
 
