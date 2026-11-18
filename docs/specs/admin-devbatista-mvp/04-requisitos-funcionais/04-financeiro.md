@@ -18,6 +18,7 @@
 26. **Contas a pagar.** Como financeiro, quero o mesmo controle para fornecedores, ligando cada título a fornecedor, serviço externo e cliente quando houver.
 27. **Recorrências.** Como financeiro, quero que os títulos dos próximos períodos sejam gerados sozinhos a partir dos serviços contratados ativos.
     - Respeita valor, periodicidade e dia de vencimento; títulos nascem como Previsto.
+    - Serviço pós-pago: o vencimento cobra o mês anterior, e a competência do título é o mês do serviço (o vencimento de 06/11 é a receita de outubro). O encerramento, nesse caso, cancela pelos meses de serviço posteriores.
     - Mudar o valor do serviço altera só títulos futuros não pagos.
     - Encerrar o serviço cancela os títulos posteriores à data de encerramento.
     - Despesas recorrentes seguem a mesma regra em contas a pagar.

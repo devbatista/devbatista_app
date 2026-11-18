@@ -68,7 +68,7 @@ module Customers
     end
 
     def customer_service_params
-      params.expect(customer_service: %i[company_id service_id contract_id price recurrence start_date due_day status description notes])
+      params.expect(customer_service: %i[company_id service_id contract_id price recurrence start_date due_day postpaid status description notes])
     end
 
     def return_path

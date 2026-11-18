@@ -359,7 +359,8 @@ CREATE TABLE public.customer_services (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     service_id uuid NOT NULL,
     contract_id uuid,
-    company_id uuid NOT NULL
+    company_id uuid NOT NULL,
+    postpaid boolean DEFAULT false NOT NULL
 );
 
 
@@ -4083,6 +4084,7 @@ ALTER TABLE ONLY public.leads
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261119120000'),
 ('20261118180000'),
 ('20261118120000'),
 ('20261117150000'),

@@ -57,12 +57,12 @@ class RecurrenceRoutine
   def generate_receivables
     CustomerService.active.recurring.includes(:service, :company, :contract).sum do |cs|
       months = CustomerService::PERIOD_MONTHS[cs.recurrence]
-      self.class.due_dates(cs.start_date, months, cs.due_day, window.first, window.last).count do |due_on|
-        competence = due_on.beginning_of_month
+      self.class.due_dates(cs.billing_start, months, cs.billing_day, window.first, window.last).count do |due_on|
+        competence = cs.competence_for(due_on)
         next false if Receivable.exists?(customer_service_id: cs.id, competence: competence)
         next false if adopt_manual_receivable(cs, competence)
 
-        Receivable.create!(customer_service: cs, company: cs.company, description: "#{cs.service.name} — #{month_label(due_on)}",
+        Receivable.create!(customer_service: cs, company: cs.company, description: "#{cs.service.name} — #{month_label(competence)}",
                            category: cs.service.name, amount_cents: cs.price_cents, competence: competence, due_on: due_on, status: "forecast")
       rescue ActiveRecord::RecordNotUnique
         false
@@ -99,7 +99,7 @@ class RecurrenceRoutine
     count = 0
     # A que está numa fatura emitida fica: cancelar muda o que foi cobrado (cancele a fatura antes).
     Receivable.open.joins(:customer_service).where(customer_services: { status: "ended" })
-              .where("receivables.due_on > customer_services.ended_on").where.not(id: billed_receivables).find_each do |r|
+              .where("CASE WHEN customer_services.postpaid THEN receivables.competence ELSE receivables.due_on END > customer_services.ended_on").where.not(id: billed_receivables).find_each do |r|
       r.cancel!("Cancelado: serviço encerrado em #{I18n.l(r.customer_service.ended_on)}.")
       count += 1
     end
