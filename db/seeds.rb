@@ -47,7 +47,7 @@ puts "Leads: #{Lead.count} · Oportunidades: #{Opportunity.count} · Propostas: 
 puts "Projetos: #{Project.count} (atrasados: #{Project.late.count}) · Tarefas: #{Task.count} · Horas: #{TimeEntry.sum(:minutes) / 60}h em " \
      "#{TimeEntry.count} lançamentos · Chamados: #{Ticket.count} (#{Ticket.open.count} abertos)" unless Rails.env.production?
 puts "Fornecedores: #{Supplier.count} · Receitas: #{Receivable.count} (vencidas: #{Receivable.overdue.count}) · Despesas: #{Payable.count} · " \
-     "Regras de despesa: #{RecurringExpense.count} · Notas fiscais: #{Invoice.count}" unless Rails.env.production?
+     "Regras de despesa: #{RecurringExpense.count} · Notas fiscais: #{FiscalInvoice.count}" unless Rails.env.production?
 puts "Aplicações: #{App.count} · Servidores: #{Server.count} · Domínios: #{Domain.count} · Bancos: #{Database.count} · Integrações: #{Integration.count} · " \
      "Serviços externos: #{ExternalService.count} · Produtos: #{Product.count} · Assinaturas: #{Subscription.count}" unless Rails.env.production?
 puts "Senha dos usuários de exemplo: #{password}" unless Rails.env.production?

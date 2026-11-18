@@ -94,15 +94,15 @@ RSpec.describe "Financeiro" do
     it "registra a nota fiscal com PDF ligada à receita" do
       receivable = create(:receivable, company: company)
       sign_in financeiro
-      get invoices_path
+      get fiscal_invoices_path
       expect(response.body).to include("Receitas sem nota", receivable.description)
-      post invoices_path, params: { invoice: { company_id: company.id, number: "000418", competence_month: Date.current.strftime("%Y-%m"),
+      post fiscal_invoices_path, params: { fiscal_invoice: { company_id: company.id, number: "000418", competence_month: Date.current.strftime("%Y-%m"),
                                                amount: "3000", issued_on: Date.current, status: "issued", receivable_ids: [ receivable.id ],
                                                files: [ Rack::Test::UploadedFile.new(StringIO.new("%PDF-1.4"), "application/pdf", original_filename: "nota.pdf") ] } }
-      invoice = Invoice.last
-      expect(invoice.files.count).to eq(1)
-      expect(receivable.reload.invoice).to eq(invoice)
-      get file_invoice_path(invoice, file_id: invoice.files.first.id)
+      fiscal_invoice = FiscalInvoice.last
+      expect(fiscal_invoice.files.count).to eq(1)
+      expect(receivable.reload.fiscal_invoice).to eq(fiscal_invoice)
+      get file_fiscal_invoice_path(fiscal_invoice, file_id: fiscal_invoice.files.first.id)
       expect(response).to have_http_status(:redirect)
     end
   end
@@ -140,7 +140,7 @@ RSpec.describe "Financeiro" do
 
     it "encontra faturas e notas fiscais" do
       create(:receivable, company: company, description: "Hospedagem — Outubro/2026")
-      create(:invoice, company: company, number: "000418")
+      create(:fiscal_invoice, company: company, number: "000418")
       sign_in financeiro
       get search_path(q: "ACME", format: :json)
       expect(response.parsed_body.map { |g| g["label"] }).to include("Faturas")

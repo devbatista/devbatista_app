@@ -76,7 +76,7 @@ pt-BR:
       recurring_expense:
         one: Despesa recorrente
         other: Despesas recorrentes
-      invoice:
+      fiscal_invoice:
         one: Nota fiscal
         other: Notas fiscais
       exchange_rate:
@@ -380,7 +380,7 @@ pt-BR:
         contract: Contrato
         contract_id: Contrato
         customer_service: Serviço contratado
-        invoice: Nota fiscal
+        fiscal_invoice: Nota fiscal
         paid_amount: Valor recebido
         paid_amount_cents: Valor recebido
       payable:
@@ -530,7 +530,7 @@ pt-BR:
         cancelled_on: Cancelada em
         status: Status
         notes: Observações
-      invoice:
+      fiscal_invoice:
         company: Cliente
         company_id: Cliente
         number: Número

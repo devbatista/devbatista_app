@@ -9,7 +9,7 @@ class Document < ApplicationRecord
   MAX_SIZE = 25.megabytes
 
   audited area: "documentos"
-  labeled_enum :kind, contract: "Contrato", proposal: "Proposta", invoice: "Nota", briefing: "Briefing",
+  labeled_enum :kind, contract: "Contrato", proposal: "Proposta", fiscal_invoice: "Nota", briefing: "Briefing",
                       technical: "Documento técnico", other: "Outro"
 
   belongs_to :documentable, polymorphic: true, optional: true

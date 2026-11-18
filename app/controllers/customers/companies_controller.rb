@@ -83,7 +83,7 @@ module Customers
                              .order(Arel.sql("CASE WHEN receivables.status IN ('overdue','pending') THEN 0 WHEN receivables.status = 'forecast' THEN 1 ELSE 2 END"),
                                     Arel.sql("CASE WHEN receivables.status IN ('overdue','pending','forecast') THEN receivables.due_on END"), due_on: :desc)
                              .limit(40).to_a
-      @invoices = @company.invoices.order(competence: :desc).limit(6).to_a
+      @fiscal_invoices = @company.fiscal_invoices.order(competence: :desc).limit(6).to_a
       @finance = {
         open: @company.receivables.where(status: %w[forecast pending]).where(due_on: ..Date.current.end_of_month).sum(:amount_cents),
         open_next: @company.receivables.where(status: %w[forecast pending]).minimum(:due_on),

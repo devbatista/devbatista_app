@@ -10,18 +10,18 @@
 # - clientes/empresa.html mostra uma receita avulsa de R$ 200 da ACME como "Gestão de
 #   infraestrutura"; receitas.html, como publicação de aplicativo. Vale receitas.html.
 
-- { company: Empresa ACME, service: Consultoria de TI, recurring: true, description: Consultoria de TI — Setembro/2026, amount: 3000, due_on: "2026-09-10", paid_on: "2026-09-10", invoice: "000418" }
-- { company: Empresa ACME, service: Manutenção, recurring: true, description: Manutenção — Setembro/2026, amount: 500, due_on: "2026-09-10", paid_on: "2026-09-10", invoice: "000418" }
-- { company: Empresa ACME, service: Hospedagem, recurring: true, description: Hospedagem — Setembro/2026, amount: 300, due_on: "2026-09-10", paid_on: "2026-09-10", invoice: "000418" }
-- { company: Empresa ACME, service: Publicação de aplicativos, description: Publicação do app Portal ACME na App Store, amount: 200, due_on: "2026-09-15", paid_on: "2026-09-15", invoice: "000421" }
-- { company: Empresa XYZ, service: Suporte, recurring: true, description: Suporte — Setembro/2026, amount: 900, due_on: "2026-09-05", paid_on: "2026-09-04", invoice: "000414" }
-- { company: Empresa XYZ, service: Hospedagem, recurring: true, description: Hospedagem — Setembro/2026, amount: 800, due_on: "2026-09-05", paid_on: "2026-09-05", invoice: "000414" }
-- { company: Cliente C, service: Desenvolvimento de sistemas, recurring: true, description: ERP Cliente C — parcela 4 de 6, amount: 2400, due_on: "2026-09-01", status: overdue, invoice: "000411" }
-- { company: Empresa XYZ, service: Manutenção, recurring: true, description: Manutenção — Setembro/2026, amount: 1200, due_on: "2026-09-05", status: overdue, invoice: "000414" }
-- { company: Empresa Delta, service: Suporte, recurring: true, description: Suporte — Setembro/2026, amount: 700, due_on: "2026-09-10", status: overdue, invoice: "000416" }
+- { company: Empresa ACME, service: Consultoria de TI, recurring: true, description: Consultoria de TI — Setembro/2026, amount: 3000, due_on: "2026-09-10", paid_on: "2026-09-10", fiscal_invoice: "000418" }
+- { company: Empresa ACME, service: Manutenção, recurring: true, description: Manutenção — Setembro/2026, amount: 500, due_on: "2026-09-10", paid_on: "2026-09-10", fiscal_invoice: "000418" }
+- { company: Empresa ACME, service: Hospedagem, recurring: true, description: Hospedagem — Setembro/2026, amount: 300, due_on: "2026-09-10", paid_on: "2026-09-10", fiscal_invoice: "000418" }
+- { company: Empresa ACME, service: Publicação de aplicativos, description: Publicação do app Portal ACME na App Store, amount: 200, due_on: "2026-09-15", paid_on: "2026-09-15", fiscal_invoice: "000421" }
+- { company: Empresa XYZ, service: Suporte, recurring: true, description: Suporte — Setembro/2026, amount: 900, due_on: "2026-09-05", paid_on: "2026-09-04", fiscal_invoice: "000414" }
+- { company: Empresa XYZ, service: Hospedagem, recurring: true, description: Hospedagem — Setembro/2026, amount: 800, due_on: "2026-09-05", paid_on: "2026-09-05", fiscal_invoice: "000414" }
+- { company: Cliente C, service: Desenvolvimento de sistemas, recurring: true, description: ERP Cliente C — parcela 4 de 6, amount: 2400, due_on: "2026-09-01", status: overdue, fiscal_invoice: "000411" }
+- { company: Empresa XYZ, service: Manutenção, recurring: true, description: Manutenção — Setembro/2026, amount: 1200, due_on: "2026-09-05", status: overdue, fiscal_invoice: "000414" }
+- { company: Empresa Delta, service: Suporte, recurring: true, description: Suporte — Setembro/2026, amount: 700, due_on: "2026-09-10", status: overdue, fiscal_invoice: "000416" }
 - { company: Cliente A, service: Hospedagem, recurring: true, description: Hospedagem — Setembro/2026, amount: 1500, due_on: "2026-09-18", status: pending }
 - { company: Empresa Delta, service: Hospedagem, recurring: true, description: Hospedagem — Setembro/2026, amount: 300, due_on: "2026-09-20", status: pending }
 - { company: Cliente B, service: Manutenção, recurring: true, description: Manutenção — Setembro/2026, amount: 1400, due_on: "2026-09-22", status: pending }
 - { company: Empresa Orion, service: Suporte, recurring: true, description: Suporte — Setembro/2026, amount: 900, due_on: "2026-09-25", status: pending }
 - { company: Cliente D, service: Integrações, description: Integração com marketplace — entrega 2, amount: 3000, due_on: "2026-09-30", status: pending }
-- { company: Cliente E, service: Publicação de aplicativos, description: Publicação de app Android, amount: 800, due_on: "2026-09-15", status: cancelled, notes: Cancelada a pedido do cliente, invoice: "000420" }
+- { company: Cliente E, service: Publicação de aplicativos, description: Publicação de app Android, amount: 800, due_on: "2026-09-15", status: cancelled, notes: Cancelada a pedido do cliente, fiscal_invoice: "000420" }

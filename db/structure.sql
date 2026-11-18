@@ -462,6 +462,26 @@ CREATE TABLE public.external_services (
 
 
 --
+-- Name: fiscal_invoices; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.fiscal_invoices (
+    number character varying,
+    competence date NOT NULL,
+    amount_cents integer NOT NULL,
+    issued_on date,
+    status character varying DEFAULT 'pending'::character varying NOT NULL,
+    description character varying,
+    url character varying,
+    notes text,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL,
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    company_id uuid NOT NULL
+);
+
+
+--
 -- Name: integrations; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -494,26 +514,6 @@ CREATE TABLE public.interactions (
     user_id uuid NOT NULL,
     subject_id uuid NOT NULL,
     whatsapp_conversation_id uuid
-);
-
-
---
--- Name: invoices; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.invoices (
-    number character varying,
-    competence date NOT NULL,
-    amount_cents integer NOT NULL,
-    issued_on date,
-    status character varying DEFAULT 'pending'::character varying NOT NULL,
-    description character varying,
-    url character varying,
-    notes text,
-    created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL,
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
-    company_id uuid NOT NULL
 );
 
 
@@ -808,7 +808,7 @@ CREATE TABLE public.receivables (
     updated_at timestamp(6) without time zone NOT NULL,
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     service_id uuid,
-    invoice_id uuid,
+    fiscal_invoice_id uuid,
     customer_service_id uuid,
     contract_id uuid,
     company_id uuid NOT NULL,
@@ -1454,6 +1454,14 @@ ALTER TABLE ONLY public.external_services
 
 
 --
+-- Name: fiscal_invoices fiscal_invoices_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.fiscal_invoices
+    ADD CONSTRAINT fiscal_invoices_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: integrations integrations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1467,14 +1475,6 @@ ALTER TABLE ONLY public.integrations
 
 ALTER TABLE ONLY public.interactions
     ADD CONSTRAINT interactions_pkey PRIMARY KEY (id);
-
-
---
--- Name: invoices invoices_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.invoices
-    ADD CONSTRAINT invoices_pkey PRIMARY KEY (id);
 
 
 --
@@ -1830,7 +1830,7 @@ CREATE INDEX index_agent_events_pending_decision ON public.agent_events USING bt
 -- Name: index_agent_events_unread_decision; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_agent_events_unread_decision ON public.agent_events USING btree (agent_id) WHERE (((decision)::text = ANY ((ARRAY['approved'::character varying, 'rejected'::character varying])::text[])) AND (decision_read_at IS NULL));
+CREATE INDEX index_agent_events_unread_decision ON public.agent_events USING btree (agent_id) WHERE (((decision)::text = ANY (ARRAY[('approved'::character varying)::text, ('rejected'::character varying)::text])) AND (decision_read_at IS NULL));
 
 
 --
@@ -2149,6 +2149,27 @@ CREATE INDEX index_external_services_on_supplier_id ON public.external_services 
 
 
 --
+-- Name: index_fiscal_invoices_on_company_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_fiscal_invoices_on_company_id ON public.fiscal_invoices USING btree (company_id);
+
+
+--
+-- Name: index_fiscal_invoices_on_competence; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_fiscal_invoices_on_competence ON public.fiscal_invoices USING btree (competence);
+
+
+--
+-- Name: index_fiscal_invoices_on_number; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_fiscal_invoices_on_number ON public.fiscal_invoices USING btree (number) WHERE (number IS NOT NULL);
+
+
+--
 -- Name: index_integrations_on_app_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2174,27 +2195,6 @@ CREATE INDEX index_interactions_on_user_id ON public.interactions USING btree (u
 --
 
 CREATE UNIQUE INDEX index_interactions_whatsapp_daily ON public.interactions USING btree (whatsapp_conversation_id, subject_type, subject_id, occurred_on) WHERE (whatsapp_conversation_id IS NOT NULL);
-
-
---
--- Name: index_invoices_on_company_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_invoices_on_company_id ON public.invoices USING btree (company_id);
-
-
---
--- Name: index_invoices_on_competence; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_invoices_on_competence ON public.invoices USING btree (competence);
-
-
---
--- Name: index_invoices_on_number; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX index_invoices_on_number ON public.invoices USING btree (number) WHERE (number IS NOT NULL);
 
 
 --
@@ -2632,10 +2632,10 @@ CREATE INDEX index_receivables_on_due_on ON public.receivables USING btree (due_
 
 
 --
--- Name: index_receivables_on_invoice_id; Type: INDEX; Schema: public; Owner: -
+-- Name: index_receivables_on_fiscal_invoice_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_receivables_on_invoice_id ON public.receivables USING btree (invoice_id);
+CREATE INDEX index_receivables_on_fiscal_invoice_id ON public.receivables USING btree (fiscal_invoice_id);
 
 
 --
@@ -3323,10 +3323,10 @@ ALTER TABLE ONLY public.contacts
 
 
 --
--- Name: invoices fk_rails_433d4c368d; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: fiscal_invoices fk_rails_433d4c368d; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.invoices
+ALTER TABLE ONLY public.fiscal_invoices
     ADD CONSTRAINT fk_rails_433d4c368d FOREIGN KEY (company_id) REFERENCES public.companies(id);
 
 
@@ -3407,7 +3407,7 @@ ALTER TABLE ONLY public.time_entries
 --
 
 ALTER TABLE ONLY public.receivables
-    ADD CONSTRAINT fk_rails_5c4527148d FOREIGN KEY (invoice_id) REFERENCES public.invoices(id);
+    ADD CONSTRAINT fk_rails_5c4527148d FOREIGN KEY (fiscal_invoice_id) REFERENCES public.fiscal_invoices(id);
 
 
 --
@@ -3921,6 +3921,7 @@ ALTER TABLE ONLY public.leads
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261118120000'),
 ('20261117150000'),
 ('20261111150000'),
 ('20261111120000'),

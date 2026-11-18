@@ -15,7 +15,7 @@ module Search
     def groups
       return [] if @term.size < 2
 
-      [ companies, contacts, contracts, apps, projects, tickets, receivables, invoices, proposals, leads ].compact.reject { |g| g.items.empty? }
+      [ companies, contacts, contracts, apps, projects, tickets, receivables, fiscal_invoices, proposals, leads ].compact.reject { |g| g.items.empty? }
     end
 
     private
@@ -86,12 +86,12 @@ module Search
       Group.new(label: "Faturas", area: "financeiro", items: items)
     end
 
-    def invoices
+    def fiscal_invoices
       return unless @user.can_read?("financeiro")
 
-      items = Invoice.search(@term).includes(:company).order(competence: :desc).limit(LIMIT).map do |i|
+      items = FiscalInvoice.search(@term).includes(:company).order(competence: :desc).limit(LIMIT).map do |i|
         Item.new(title: "#{i.code} — #{i.company.trade_name}", subtitle: "#{i.status_label} · #{i.competence.strftime('%m/%Y')} · #{money(i.amount_cents)}",
-                 path: invoices_path(periodo: i.competence.strftime("%Y-%m"), q: i.number))
+                 path: fiscal_invoices_path(periodo: i.competence.strftime("%Y-%m"), q: i.number))
       end
       Group.new(label: "Notas fiscais", area: "financeiro", items: items)
     end

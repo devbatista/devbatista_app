@@ -1,4 +1,4 @@
-# Módulo Financeiro: os mesmos dados do design (db/seeds/data/{suppliers,payables,receivables,invoices}.yml).
+# Módulo Financeiro: os mesmos dados do design (db/seeds/data/{suppliers,payables,receivables,fiscal_invoices}.yml).
 # Pode rodar mais de uma vez: só cria o que ainda não existe.
 module Seeds
   module Financeiro
@@ -23,7 +23,7 @@ module Seeds
       load("payables").each { |row| create_payable(row, suppliers.fetch(row["supplier"])) }
       load("receivables").each { |row| create_receivable(row) }
       history
-      load("invoices").each { |row| create_invoice(row) }
+      load("fiscal_invoices").each { |row| create_fiscal_invoice(row) }
     end
 
     def self.create_payable(row, supplier)
@@ -85,20 +85,20 @@ module Seeds
       end
     end
 
-    def self.create_invoice(row)
-      return if Invoice.exists?(number: row["number"])
+    def self.create_fiscal_invoice(row)
+      return if FiscalInvoice.exists?(number: row["number"])
 
       company = company(row["company"])
-      invoice = Invoice.new(company: company, number: row["number"], description: row["description"], amount_cents: cents(row["amount"]),
-                            competence: SEPTEMBER, issued_on: row["issued_on"], status: row["status"], url: row["url"])
+      fiscal_invoice = FiscalInvoice.new(company: company, number: row["number"], description: row["description"], amount_cents: cents(row["amount"]),
+                                       competence: SEPTEMBER, issued_on: row["issued_on"], status: row["status"], url: row["url"])
       Array(row["files"]).each do |kind|
         name = "NFS-e #{row['number']} #{company.trade_name}.#{kind}"
         body = kind == "pdf" ? Seeds::Clientes.placeholder_pdf(name) : %(<?xml version="1.0"?><nfse><numero>#{row['number']}</numero></nfse>)
-        invoice.files.attach(io: StringIO.new(body), filename: name, content_type: kind == "pdf" ? "application/pdf" : "application/xml")
+        fiscal_invoice.files.attach(io: StringIO.new(body), filename: name, content_type: kind == "pdf" ? "application/pdf" : "application/xml")
       end
-      invoice.save!
+      fiscal_invoice.save!
       Receivable.where(company: company, competence: SEPTEMBER).find_each do |r|
-        r.update!(invoice: invoice) if load("receivables").any? { |x| x["invoice"] == row["number"] && x["description"] == r.description && x["company"] == row["company"] }
+        r.update!(fiscal_invoice: fiscal_invoice) if load("receivables").any? { |x| x["fiscal_invoice"] == row["number"] && x["description"] == r.description && x["company"] == row["company"] }
       end
     end
   end
