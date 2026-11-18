@@ -1,6 +1,7 @@
 module FinanceHelper
   TITLE_TONES = { "forecast" => "info", "pending" => "warn", "paid" => "good", "overdue" => "crit", "cancelled" => "mute" }.freeze
   FISCAL_INVOICE_TONES = { "pending" => "warn", "issued" => "good", "cancelled" => "mute" }.freeze
+  INVOICE_TONES = { "draft" => "mute", "issued" => "info", "overdue" => "crit", "paid" => "good", "cancelled" => "mute" }.freeze
 
   def title_badge(title)
     status_badge(title.status_label, TITLE_TONES[title.status])
@@ -8,6 +9,11 @@ module FinanceHelper
 
   def fiscal_invoice_badge(fiscal_invoice)
     status_badge(fiscal_invoice.status_label, FISCAL_INVOICE_TONES[fiscal_invoice.status])
+  end
+
+  # Fatura: "Vencida" no lugar de "Emitida" quando o vencimento passou.
+  def invoice_badge(invoice)
+    status_badge(invoice.display_status_label, INVOICE_TONES[invoice.display_status_key])
   end
 
   # Valor na moeda original: "US$ 20,00".

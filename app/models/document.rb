@@ -5,11 +5,11 @@ class Document < ApplicationRecord
   include Auditable
   include LabeledEnums
 
-  LINKABLE_TYPES = %w[Company Contract Proposal Project Supplier].freeze
+  LINKABLE_TYPES = %w[Company Contract Proposal Invoice Project Supplier].freeze
   MAX_SIZE = 25.megabytes
 
   audited area: "documentos"
-  labeled_enum :kind, contract: "Contrato", proposal: "Proposta", fiscal_invoice: "Nota", briefing: "Briefing",
+  labeled_enum :kind, contract: "Contrato", proposal: "Proposta", invoice: "Fatura", fiscal_invoice: "Nota", briefing: "Briefing",
                       technical: "Documento técnico", other: "Outro"
 
   belongs_to :documentable, polymorphic: true, optional: true

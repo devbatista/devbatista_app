@@ -1,0 +1,9 @@
+FATURA <%= @invoice.code %>
+
+<%= brl(@invoice.total_cents) %> · vence em <%= date_br(@invoice.due_on) %>
+
+<%= @message %>
+
+Ver fatura (com o Pix): <%= @view_url %>
+
+O PDF também está anexado a este e-mail.

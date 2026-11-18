@@ -1,0 +1,9 @@
+<% nav_location :fin, "Faturas" %>
+<% breadcrumb ["Financeiro", finance_path], ["Faturas", invoices_path], ["Nova fatura"] %>
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Financeiro · Faturas<%= " · #{@invoice.company.trade_name}" if @invoice.company %></span>
+    <h1>Nova fatura</h1>
+  </div>
+</div>
+<%= render "form", invoice: @invoice %>

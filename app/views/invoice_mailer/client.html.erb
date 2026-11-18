@@ -1,0 +1,11 @@
+<% content_for :preheader, "Fatura #{@invoice.code} · #{brl(@invoice.total_cents)} · vence em #{date_br(@invoice.due_on)}" %>
+<%= mail_label "Fatura #{@invoice.code}" %>
+<%= mail_title "#{brl(@invoice.total_cents)} · vence em #{date_br(@invoice.due_on)}" %>
+<% @message.to_s.split(/\n{2,}/).each do |paragraph| %>
+  <%= mail_text safe_join(paragraph.strip.split("\n"), tag.br) %>
+<% end %>
+<%= mail_button "Ver fatura", @view_url %>
+<%= mail_note do %>
+  Na fatura on-line estão o QR Code e o Pix copia e cola. O PDF também está anexado a este e-mail.
+<% end %>
+<%= mail_link_fallback @view_url %>

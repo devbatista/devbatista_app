@@ -8,12 +8,20 @@ module Whatsapp
   # Valores sugeridos (Fase 7b): o {{1}} do corpo e as variáveis nomeadas conhecidas (PREFILL) já vêm
   # preenchidos com os dados do lead, do contato ou do perfil da conversa (person). O resto fica em
   # branco para a pessoa preencher; tudo pode ser editado antes do envio.
+  #
+  # Envio de fatura (docs/specs/faturas): person traz também a fatura (TemplateFields.invoice), que
+  # preenche as variáveis da fatura, o fim dos botões de URL (o token do link público) e, com
+  # cabeçalho de documento, dispensa o anexo: vai o PDF da fatura.
   class TemplateFields
     VARIABLE = WhatsappTemplate::VARIABLE
     PREFILL = {
       "nome" => :first_name, "primeiro_nome" => :first_name, "first_name" => :first_name, "name" => :first_name,
       "nome_completo" => :full_name, "full_name" => :full_name,
-      "empresa" => :company, "company" => :company, "company_name" => :company
+      "empresa" => :company, "company" => :company, "company_name" => :company,
+      "fatura" => :invoice_code, "numero_fatura" => :invoice_code, "invoice" => :invoice_code,
+      "valor" => :invoice_amount, "valor_fatura" => :invoice_amount, "amount" => :invoice_amount,
+      "vencimento" => :invoice_due, "due_date" => :invoice_due,
+      "link" => :invoice_link, "link_fatura" => :invoice_link, "url" => :invoice_link
     }.freeze
 
     # Primeiro nome, nome completo e empresa de quem vai receber: o lead ou o contato, ou, numa
@@ -25,6 +33,13 @@ module Whatsapp
       when WhatsappConversation then record.link ? person(record.link) : person_data(record.saved_name || record.profile_name, nil)
       else {}
       end
+    end
+
+    # Dados da fatura para as variáveis (somados aos de person).
+    def self.invoice(invoice, link:, token:)
+      helpers = ApplicationController.helpers
+      { invoice_code: invoice.code, invoice_amount: helpers.brl(invoice.total_cents), invoice_due: helpers.date_br(invoice.due_on),
+        invoice_link: link, invoice_token: token, invoice_pdf: true }
     end
 
     def self.person_data(name, company)
@@ -93,13 +108,14 @@ module Whatsapp
     def defaults(person = {}, values: nil)
       return { body: Array(values[:body]), header: Array(values[:header]), buttons: values[:buttons].to_h } if values
 
-      { body: body_names.map { |name| person[name == "1" ? :first_name : PREFILL[name.downcase]] }, header: [], buttons: {} }
+      buttons = person[:invoice_token] ? url_button_indexes.index_with { person[:invoice_token] }.transform_keys(&:to_s) : {}
+      { body: body_names.map { |name| person[name == "1" ? :first_name : PREFILL[name.downcase]] }, header: [], buttons: buttons }
     end
 
     def to_h(person: {}, values: nil)
       { id: template.id, defaults: defaults(person, values: values), name: template.name, language: template.language, label: "#{template.name} · #{template.category_label} · #{template.language_label}",
         body: template.body_text, body_names: body_names, header_text: (header["text"] if header_count.positive?),
-        header_media: header_media, footer: template.component("FOOTER")&.dig("text"),
+        header_media: header_media, header_auto: (person[:invoice_pdf] && header_media == "document") || false, footer: template.component("FOOTER")&.dig("text"),
         buttons: buttons.map { |button| { type: button["type"], text: button["text"] } }, url_buttons: url_button_indexes }
     end
   end

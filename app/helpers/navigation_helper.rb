@@ -84,7 +84,8 @@ module NavigationHelper
     { key: :fin, label: "Financeiro", items: [
       [ "Dashboard financeiro", :finance_path, "financeiro" ], [ "Receitas", :revenues_path, "financeiro" ],
       [ "Despesas", :expenses_path, "financeiro" ], [ "Contas a receber", :receivables_path, "financeiro" ],
-      [ "Contas a pagar", :payables_path, "financeiro" ], [ "Recorrências", :recurrences_path, "financeiro" ],
+      [ "Faturas", :invoices_path, "financeiro" ], [ "Contas a pagar", :payables_path, "financeiro" ],
+      [ "Recorrências", :recurrences_path, "financeiro" ],
       [ "Notas fiscais", :fiscal_invoices_path, "financeiro" ], [ "Conexões de cobrança", :billing_connections_path, "financeiro" ]
     ] },
     { key: :tec, label: "Tecnologia", items: [

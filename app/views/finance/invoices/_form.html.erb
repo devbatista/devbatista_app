@@ -1,0 +1,70 @@
+<% inv = invoice %>
+<% company = inv.company %>
+<% if company.nil? %>
+  <%# Primeiro o cliente: a lista de receitas depende dele. %>
+  <%= form_with url: new_invoice_path, method: :get, class: "form card", style: "max-width:640px" do %>
+    <div class="card-body form">
+      <div class="field"><label for="f-empresa">Cliente <span class="req">*</span></label>
+        <%= select_tag :empresa, options_from_collection_for_select(Company.where(id: Receivable.open.select(:company_id)).by_name, :id, :trade_name), prompt: "Selecione o cliente", class: "select", id: "f-empresa", required: true, onchange: "this.form.requestSubmit()" %>
+        <span class="hint">Só aparecem clientes com receitas em aberto</span></div>
+    </div>
+    <div class="card-foot"><%= link_to "Cancelar", invoices_path, class: "btn" %><button class="btn pri" type="submit">Continuar</button></div>
+  <% end %>
+<% else %>
+  <% options = billable(company, invoice: inv.persisted? ? inv : nil).includes(:service).by_due.to_a %>
+  <% chosen = inv.receivable_ids_for_items %>
+  <%= form_with model: inv, url: inv.persisted? ? invoice_path(inv) : invoices_path, class: "form", data: { turbo: false } do |f| %>
+    <%= f.hidden_field :company_id unless inv.persisted? %>
+    <%= render "shared/form_errors", record: inv %>
+    <div class="cols-2-1">
+      <div class="stack">
+        <section class="card">
+          <div class="card-head"><h2>Receitas cobradas</h2><span class="caption">Em aberto e sem outra fatura</span></div>
+          <% if options.any? %>
+            <%= hidden_field_tag "invoice[receivable_ids_for_items][]", "", id: nil %>
+            <div class="table-wrap">
+              <table class="table cards">
+                <thead><tr><th style="width:40px"><span class="sr-only">Incluir</span></th><th>Receita</th><th>Competência</th><th>Vencimento</th><th class="num">Valor</th></tr></thead>
+                <tbody>
+                  <% options.each do |r| %>
+                    <tr>
+                      <td data-label="Incluir"><label class="check"><%= check_box_tag "invoice[receivable_ids_for_items][]", r.id, chosen.include?(r.id), id: "rec-#{r.id}" %><span class="sr-only">Incluir <%= r.description %></span></label></td>
+                      <td data-label="Receita"><label for="rec-<%= r.id %>" class="strong"><%= r.description %></label><span class="cell-sub"><%= r.category %><%= " · #{r.origin_label}" if r.origin_label %></span></td>
+                      <td data-label="Competência"><%= r.competence_label %></td>
+                      <td data-label="Vencimento" class="mono"><%= date_br(r.due_on) %> <%= title_badge(r) if r.overdue? || r.forecast? %></td>
+                      <td data-label="Valor" class="num nowrap"><%= brl(r.amount_cents) %></td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          <% else %>
+            <%= render "shared/empty", title: "Nenhuma receita em aberto", text: "#{company.trade_name} não tem receitas pendentes, vencidas ou previstas fora de outra fatura.", icon_name: :file %>
+          <% end %>
+        </section>
+        <section class="card">
+          <div class="card-head"><h2>Observações na fatura</h2></div>
+          <div class="card-body form">
+            <div class="field"><%= f.label :client_notes, "Texto para o cliente" %><%= f.text_area :client_notes, class: "textarea", placeholder: "Opcional. Ex.: referente aos serviços de outubro; em caso de dúvida, fale com o financeiro." %><span class="hint">Aparece no PDF e no link da fatura</span></div>
+            <div class="field"><%= f.label :notes, "Anotação interna" %><%= f.text_area :notes, class: "textarea", placeholder: "Só aparece aqui no Admin" %></div>
+          </div>
+        </section>
+      </div>
+      <div class="stack">
+        <section class="card">
+          <div class="card-head"><h2>Fatura</h2></div>
+          <div class="card-body form">
+            <div class="field"><label>Cliente</label><input class="input" value="<%= company.trade_name %>" disabled><% unless inv.persisted? %><span class="hint"><%= link_to "Trocar cliente", new_invoice_path %></span><% end %></div>
+            <div class="field"><%= f.label :contact_id, "Contato" %><%= f.collection_select :contact_id, company.contacts, :id, :name, { include_blank: "Sem contato" }, class: "select" %><span class="hint">Recebe o e-mail e o WhatsApp da fatura</span></div>
+            <div class="field"><%= f.label :due_on do %>Vencimento <span class="req">*</span><% end %><%= f.date_field :due_on, class: "input", required: true %><span class="hint">Na emissão, as receitas passam a vencer nesta data</span></div>
+          </div>
+          <div class="card-foot">
+            <%= link_to "Cancelar", inv.persisted? ? invoice_path(inv) : invoices_path, class: "btn" %>
+            <%= f.submit inv.persisted? ? "Salvar rascunho" : "Criar rascunho", class: "btn pri" %>
+          </div>
+        </section>
+        <div class="callout"><span>A fatura nasce como <b class="strong">rascunho</b>. Confira o PDF e emita: o número é dado na emissão e o conteúdo fica travado.</span></div>
+      </div>
+    </div>
+  <% end %>
+<% end %>

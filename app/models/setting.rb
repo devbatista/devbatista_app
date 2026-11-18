@@ -23,12 +23,17 @@ class Setting < ApplicationRecord
     "loss_reasons" => [ "Preço", "Prazo", "Sem retorno", "Optou por concorrente", "Sem orçamento", "Fora do perfil", "Outro" ],
     "expense_categories" => [ "Infraestrutura", "Software", "Marketing", "Comercial", "Contabilidade", "Impostos", "Colaboradores", "Administrativo", "Outros" ],
     "cost_centers" => [ "Administrativo", "Comercial e marketing", "Operação", "Infraestrutura interna", "Produtos próprios" ],
-    "recurrence_months" => 3
+    "recurrence_months" => 3,
+    "pix_key" => "",
+    "pix_receiver_name" => "",
+    "pix_receiver_city" => "",
+    "bank_details" => ""
   }.freeze
 
   validates :key, presence: true, uniqueness: true, inclusion: { in: DEFAULTS.keys }
   validate :valid_cnpj, if: -> { key == "company_cnpj" && value.present? }
   validate :valid_whatsapp, if: -> { key == "company_whatsapp" && value.present? }
+  validate :valid_pix_lengths, if: -> { key.in?(%w[pix_receiver_name pix_receiver_city]) && value.present? }
 
   def self.[](key)
     key = key.to_s
@@ -54,6 +59,12 @@ class Setting < ApplicationRecord
 
   def valid_cnpj
     errors.add(:base, "CNPJ da empresa não é válido") unless CnpjValidator.valid?(value)
+  end
+
+  # Limites do BR Code do Pix: nome até 25 e cidade até 15 caracteres.
+  def valid_pix_lengths
+    limit = key == "pix_receiver_name" ? 25 : 15
+    errors.add(:base, "#{key == 'pix_receiver_name' ? 'Nome' : 'Cidade'} do recebedor do Pix: até #{limit} caracteres") if value.to_s.length > limit
   end
 
   # DDD + número, sem o 55: 10 dígitos (fixo) ou 11 (celular).

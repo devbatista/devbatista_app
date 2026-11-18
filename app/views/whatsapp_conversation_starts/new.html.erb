@@ -6,11 +6,12 @@
 <% org = lead ? r.company_name.presence : r.company.trade_name %>
 <% nav_location :wa, "Conversas" %>
 <% breadcrumb ["WhatsApp"], ["Conversas", whatsapp_conversations_path], ["Iniciar conversa"] %>
-<% back = lead ? lead_path(r) : company_path(r.company) %>
+<% back = @invoice ? invoice_path(@invoice) : (lead ? lead_path(r) : company_path(r.company)) %>
 <div class="form-page">
   <%= render layout: "shared/drawer_form", locals: { title: "Iniciar conversa no WhatsApp", cancel_path: back } do %>
     <%= form_with url: whatsapp_conversation_start_path, method: :post, multipart: true, class: "form", data: { turbo_frame: "_top" } do %>
       <%= hidden_field_tag(lead ? :lead_id : :contact_id, r.id, id: nil) %>
+      <%= hidden_field_tag :fatura, @invoice.id, id: nil if @invoice %>
       <div class="drawer-body form">
         <% if @error %><div class="callout crit" role="alert"><span><%= @error %></span></div><% end %>
         <% if @needs_number %>
@@ -25,6 +26,10 @@
         <% else %>
           <div class="callout"><span>Para <b class="strong"><%= r.name %></b><%= " · #{org}" if org %> · <span class="mono"><%= r.whatsapp %></span></span></div>
         <% end %>
+        <% if @invoice %>
+          <div class="callout"><span>Fatura <b class="strong"><%= @invoice.code %></b> · <%= brl(@invoice.total_cents) %> · vence <%= date_br(@invoice.due_on) %>.
+            As variáveis <span class="mono">{{fatura}}</span>, <span class="mono">{{valor}}</span>, <span class="mono">{{vencimento}}</span> e <span class="mono">{{link}}</span> e o fim dos botões de link vêm preenchidos; com cabeçalho de documento, vai o PDF da fatura.</span></div>
+        <% end %>
         <% if @existing %>
           <span class="caption">Já existe conversa com <%= first %> nesta conta. O template entra nela. <%= link_to "Abrir conversa", whatsapp_conversation_path(@existing), data: { turbo_frame: "_top" } %></span>
         <% end %>
@@ -34,7 +39,7 @@
           <% if @accounts.size > 1 %>
             <div class="field"><label for="iw-conta">Enviar pela conta</label>
               <%= select_tag :conta, options_for_select(@accounts.map { |acc| [ whatsapp_account_label(acc), acc.id ] }, @account.id), id: "iw-conta", class: "select",
-                             data: { url: new_whatsapp_conversation_start_path((lead ? :lead_id : :contact_id) => r.id) },
+                             data: { url: new_whatsapp_conversation_start_path((lead ? :lead_id : :contact_id) => r.id, fatura: @invoice&.id) },
                              onchange: "Turbo.visit(`${this.dataset.url}&conta=${encodeURIComponent(this.value)}`, { frame: 'drawer-frame' })" %>
               <span class="hint">Trocar a conta recarrega os templates dela.</span></div>
           <% else %>

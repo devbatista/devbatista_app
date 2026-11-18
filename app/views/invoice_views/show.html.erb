@@ -1,0 +1,66 @@
+<% inv = @invoice %>
+<% tone = { "issued" => "info", "overdue" => "crit", "paid" => "good", "cancelled" => "mute" }[inv.display_status_key] %>
+<section class="card client-card" aria-labelledby="inv-title">
+  <div class="client-card-head">
+    <div>
+      <span class="eyebrow">Fatura</span>
+      <h1 id="inv-title" class="mono"><%= inv.code %></h1>
+      <span class="caption">Para <b class="strong"><%= inv.company.legal_name %></b><%= " · emitida em #{date_br(inv.issued_on)}" if inv.issued_on %></span>
+    </div>
+    <%= status_badge(inv.display_status_label, tone) %>
+  </div>
+
+  <div class="client-amount">
+    <div><span class="eyebrow">Valor</span><span class="v"><%= brl(inv.total_cents) %></span></div>
+    <div><span class="eyebrow">Vencimento</span><span class="v sm"><%= date_br(inv.due_on) %></span></div>
+  </div>
+
+  <% if inv.paid? %>
+    <div class="callout good"><span><b class="strong">Fatura paga</b> em <%= date_br(inv.paid_on) %>. Obrigado!</span></div>
+  <% elsif inv.cancelled? %>
+    <div class="callout crit"><span><b class="strong">Fatura cancelada.</b> Não pague este documento.</span></div>
+  <% end %>
+
+  <div class="table-wrap">
+    <table class="table cards">
+      <thead><tr><th>Descrição</th><th>Competência</th><th class="num">Valor</th></tr></thead>
+      <tbody>
+        <% inv.items.each do |item| %>
+          <tr><td data-label="Descrição" class="strong"><%= item.description %></td><td data-label="Competência"><%= item.competence_label %></td><td data-label="Valor" class="num nowrap"><%= brl(item.amount_cents) %></td></tr>
+        <% end %>
+      </tbody>
+      <tfoot><tr><td data-label="" colspan="2">Total</td><td data-label="Total" class="num nowrap"><%= brl(inv.total_cents) %></td></tr></tfoot>
+    </table>
+  </div>
+
+  <% if inv.client_notes.present? %><div class="card-body caption"><%= simple_format(inv.client_notes, { style: "margin:0" }) %></div><% end %>
+
+  <% if inv.issued? %>
+    <div class="client-pay">
+      <h2>Como pagar</h2>
+      <% if @pix&.available? %>
+        <div class="pix">
+          <div class="pix-qr"><%= raw @pix.qr_svg(size: 200) %></div>
+          <div class="pix-info" data-controller="clipboard">
+            <b class="strong">Pix</b>
+            <span class="caption">Abra o app do banco, escolha pagar com Pix e leia o QR Code ou use o copia e cola.</span>
+            <span class="caption">Chave: <b class="strong mono"><%= @pix.key %></b></span>
+            <label class="sr-only" for="pix-code">Pix copia e cola</label>
+            <textarea id="pix-code" class="textarea mono pix-code" readonly rows="4" data-clipboard-target="source"><%= @pix.to_s %></textarea>
+            <button type="button" class="btn pri" data-action="clipboard#copy" data-clipboard-target="button">Copiar código Pix</button>
+          </div>
+        </div>
+      <% end %>
+      <% if Setting[:bank_details].present? %>
+        <div class="bank"><b class="strong">Transferência</b><%= simple_format(Setting[:bank_details], { class: "caption", style: "margin:4px 0 0" }) %></div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div class="client-actions">
+    <%= link_to invoice_view_pdf_path(params[:token]), class: "btn" do %><%= icon(:file, size: 16, stroke: 1.8) %>Baixar PDF<% end %>
+    <% if Setting[:company_whatsapp].present? %>
+      <%= link_to "Falar pelo WhatsApp", "https://wa.me/55#{Setting[:company_whatsapp]}?text=#{ERB::Util.url_encode("Olá! Sobre a fatura #{inv.code}")}", class: "btn", target: "_blank", rel: "noopener" %>
+    <% end %>
+  </div>
+</section>

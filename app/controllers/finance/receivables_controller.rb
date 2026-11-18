@@ -15,9 +15,9 @@ module Finance
       base = policy_scope(Receivable)
       base = @view == "receitas" ? base.where(competence: @range) : base.where(due_on: @range)
       @kpis = kpis(base)
-      scope = base.joins(:company).includes(:company, :service, :contract, :customer_service, :fiscal_invoice)
+      scope = base.joins(:company).includes(:company, :service, :contract, :customer_service, :fiscal_invoice, :invoice)
       # O filtro "Vencido" mostra todos os inadimplentes, de qualquer mês.
-      scope = policy_scope(Receivable).joins(:company).includes(:company, :service, :contract, :customer_service, :fiscal_invoice) if params[:status] == "overdue"
+      scope = policy_scope(Receivable).joins(:company).includes(:company, :service, :contract, :customer_service, :fiscal_invoice, :invoice) if params[:status] == "overdue"
       @counts = base.group(:status).count.merge("overdue" => policy_scope(Receivable).overdue.count)
       scope = scope.where(status: params[:status]) if Receivable.statuses.key?(params[:status])
       scope = scope.where(company_id: params[:empresa]) if params[:empresa].present?
@@ -63,6 +63,8 @@ module Finance
     def destroy
       if @receivable.recurring?
         redirect_to return_path, alert: "Título gerado pela recorrência não é excluído: cancele-o (a rotina não gera de novo a mesma competência)."
+      elsif @receivable.invoice_items.exists?
+        redirect_to return_path, alert: "A receita está numa fatura: tire-a do rascunho ou cancele a fatura antes de excluir."
       else
         @receivable.destroy!
         redirect_to return_path, notice: "Receita excluída.", status: :see_other
@@ -86,6 +88,8 @@ module Finance
     def cancel
       @receivable.cancel!(params[:motivo].presence && "Cancelado: #{params[:motivo]}")
       redirect_to return_path, notice: "Receita cancelada; não entra mais no faturamento."
+    rescue ActiveRecord::RecordInvalid
+      redirect_to return_path, alert: @receivable.errors.full_messages.to_sentence
     end
 
     private

@@ -7,6 +7,9 @@ Rails.application.routes.draw do
 
   # Link "Ver proposta" do e-mail ao cliente, sem login (token assinado; pode conter "/").
   get "p/*token", to: "proposal_views#show", as: :proposal_view, format: false
+  # Link público da fatura (docs/specs/faturas): a página com o Pix e o PDF, sem login.
+  get "f/pdf/*token", to: "invoice_views#pdf", as: :invoice_view_pdf, format: false
+  get "f/*token", to: "invoice_views#show", as: :invoice_view, format: false
 
   # URLs em inglês e em kebab-case, agrupadas como o menu: /commercial/leads, /operations/time-entries.
   # Cada grupo é um módulo de controllers (Commercial::LeadsController), mas os helpers não levam
@@ -112,6 +115,18 @@ Rails.application.routes.draw do
     end
     resources :billing_connections, path: "billing-connections", except: :show do
       post :sync, on: :member
+    end
+    resources :invoices do
+      member do
+        patch :issue
+        get :pdf
+        get :delivery, action: :new_delivery
+        post :delivery, action: :deliver
+        get :payment, action: :new_payment
+        patch :payment, action: :pay
+        get :cancel, action: :new_cancellation
+        patch :cancel
+      end
     end
     resources :fiscal_invoices, path: "fiscal-invoices", except: :show do
       get :file, on: :member, path: "file/:file_id"

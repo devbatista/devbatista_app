@@ -71,6 +71,7 @@ module Management
     def return_path
       case @document.documentable
       when Proposal then proposal_path(@document.documentable)
+      when Invoice then invoice_path(@document.documentable)
       when Contract then contract_path(@document.documentable)
       when Project then project_path(@document.documentable, aba: "documentos")
       when Supplier then edit_supplier_path(@document.documentable)

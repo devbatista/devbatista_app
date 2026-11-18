@@ -1,6 +1,7 @@
 <% back = case document.documentable
           when Contract then contract_path(document.documentable)
           when Proposal then proposal_path(document.documentable)
+          when Invoice then invoice_path(document.documentable)
           when Project then project_path(document.documentable, aba: "documentos")
           when Supplier then edit_supplier_path(document.documentable)
           when Company then params[:voltar] == "empresa" ? company_path(document.documentable, aba: "documentos") : documents_path
@@ -25,6 +26,7 @@
             <input class="input" value="<%= case document.documentable
                                               when Contract then "Contrato #{document.documentable.code} · #{document.documentable.company.trade_name}"
                                               when Proposal then "Proposta #{document.documentable.code} · #{document.documentable.recipient_name}"
+                                              when Invoice then "Fatura #{document.documentable.code} · #{document.documentable.company.trade_name}"
                                               when Project then "Projeto #{document.documentable.name} · #{document.documentable.company.trade_name}"
                                               when Supplier then "Fornecedor #{document.documentable.name}"
                                               else document.documentable.to_s end %>" disabled>

@@ -42,6 +42,20 @@ FactoryBot.define do
     amount_cents { 380_000 }
   end
 
+  # Rascunho com uma receita do mesmo cliente; :issued emite (número e receitas ligadas).
+  factory :invoice do
+    company
+    due_on { Date.current + 7 }
+
+    after(:build) do |invoice|
+      invoice.receivable_ids_for_items = [ create(:receivable, company: invoice.company).id ] if invoice.items.empty?
+    end
+
+    trait :issued do
+      after(:create) { |invoice| invoice.issue! }
+    end
+  end
+
   factory :billing_connection do
     supplier
     provider { "aws" }

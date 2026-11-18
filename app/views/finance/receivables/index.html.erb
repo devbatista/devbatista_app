@@ -75,7 +75,7 @@
             <tr class="<%= 'late' if r.overdue? %>">
               <% if revenues %>
                 <td data-label="Cliente"><%= link_to r.company.trade_name, company_path(r.company), class: "strong" %></td>
-                <td data-label="Descrição"><%= r.description %><span class="cell-sub"><% if r.contract %>Contrato <%= link_to r.contract.code, contract_path(r.contract) %><%= " · " if r.origin_label %><% end %><%= r.origin_label %><%= " · #{r.notes.lines.last.strip}" if r.cancelled? && r.notes.present? %></span></td>
+                <td data-label="Descrição"><%= r.description %><span class="cell-sub"><% if r.contract %>Contrato <%= link_to r.contract.code, contract_path(r.contract) %><%= " · " if r.origin_label %><% end %><%= r.origin_label %><% if r.invoice %><%= " · " if r.contract || r.origin_label %>Fatura <%= link_to r.invoice.code, invoice_path(r.invoice) %><% end %><%= " · #{r.notes.lines.last.strip}" if r.cancelled? && r.notes.present? %></span></td>
                 <td data-label="Categoria"><%= r.category %></td>
                 <td data-label="Valor" class="num nowrap<%= ' strike' if r.cancelled? %>"><%= brl(r.amount_cents) %></td>
                 <td data-label="Competência" class="mono"><%= r.competence.strftime("%m/%Y") %></td>

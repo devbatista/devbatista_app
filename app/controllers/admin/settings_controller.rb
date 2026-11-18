@@ -21,6 +21,7 @@ module Admin
     def settings_params
       raw = params.require(:settings).permit(:company_name, :company_legal_name, :company_cnpj, :company_whatsapp, :company_site, :mailer_sender,
                                              :email_enabled, :daily_run_time, :session_timeout_minutes, :proposal_alert_days, :recurrence_months,
+                                             :pix_key, :pix_receiver_name, :pix_receiver_city, :bank_details,
                                              contract_alert_days: [], domain_alert_days: [], loss_reasons: [],
                                              expense_categories: [], cost_centers: [])
       raw.to_h.to_h do |key, value|
