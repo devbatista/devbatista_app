@@ -518,6 +518,48 @@ CREATE TABLE public.interactions (
 
 
 --
+-- Name: invoice_items; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.invoice_items (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    invoice_id uuid NOT NULL,
+    receivable_id uuid NOT NULL,
+    description character varying NOT NULL,
+    competence date NOT NULL,
+    amount_cents integer NOT NULL,
+    "position" integer DEFAULT 0 NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: invoices; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.invoices (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    company_id uuid NOT NULL,
+    contact_id uuid,
+    year integer,
+    number integer,
+    status character varying DEFAULT 'draft'::character varying NOT NULL,
+    due_on date NOT NULL,
+    issued_on date,
+    paid_on date,
+    sent_at timestamp(6) without time zone,
+    viewed_at timestamp(6) without time zone,
+    total_cents integer DEFAULT 0 NOT NULL,
+    client_notes text,
+    notes text,
+    cancellation_reason character varying,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
 -- Name: leads; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -813,6 +855,7 @@ CREATE TABLE public.receivables (
     contract_id uuid,
     company_id uuid NOT NULL,
     contact_id uuid,
+    invoice_id uuid,
     CONSTRAINT receivables_amount_positive CHECK ((amount_cents >= 0))
 );
 
@@ -1475,6 +1518,22 @@ ALTER TABLE ONLY public.integrations
 
 ALTER TABLE ONLY public.interactions
     ADD CONSTRAINT interactions_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: invoice_items invoice_items_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.invoice_items
+    ADD CONSTRAINT invoice_items_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: invoices invoices_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.invoices
+    ADD CONSTRAINT invoices_pkey PRIMARY KEY (id);
 
 
 --
@@ -2198,6 +2257,62 @@ CREATE UNIQUE INDEX index_interactions_whatsapp_daily ON public.interactions USI
 
 
 --
+-- Name: index_invoice_items_on_invoice_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_invoice_items_on_invoice_id ON public.invoice_items USING btree (invoice_id);
+
+
+--
+-- Name: index_invoice_items_on_invoice_id_and_receivable_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_invoice_items_on_invoice_id_and_receivable_id ON public.invoice_items USING btree (invoice_id, receivable_id);
+
+
+--
+-- Name: index_invoice_items_on_receivable_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_invoice_items_on_receivable_id ON public.invoice_items USING btree (receivable_id);
+
+
+--
+-- Name: index_invoices_on_company_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_invoices_on_company_id ON public.invoices USING btree (company_id);
+
+
+--
+-- Name: index_invoices_on_contact_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_invoices_on_contact_id ON public.invoices USING btree (contact_id);
+
+
+--
+-- Name: index_invoices_on_due_on; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_invoices_on_due_on ON public.invoices USING btree (due_on);
+
+
+--
+-- Name: index_invoices_on_status; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_invoices_on_status ON public.invoices USING btree (status);
+
+
+--
+-- Name: index_invoices_on_year_and_number; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_invoices_on_year_and_number ON public.invoices USING btree (year, number) WHERE (number IS NOT NULL);
+
+
+--
 -- Name: index_leads_on_company_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2636,6 +2751,13 @@ CREATE INDEX index_receivables_on_due_on ON public.receivables USING btree (due_
 --
 
 CREATE INDEX index_receivables_on_fiscal_invoice_id ON public.receivables USING btree (fiscal_invoice_id);
+
+
+--
+-- Name: index_receivables_on_invoice_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_receivables_on_invoice_id ON public.receivables USING btree (invoice_id);
 
 
 --
@@ -3203,6 +3325,14 @@ ALTER TABLE ONLY public.whatsapp_conversations
 
 
 --
+-- Name: invoice_items fk_rails_25bf3d2c5e; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.invoice_items
+    ADD CONSTRAINT fk_rails_25bf3d2c5e FOREIGN KEY (invoice_id) REFERENCES public.invoices(id);
+
+
+--
 -- Name: apps fk_rails_2701a89c0b; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3323,10 +3453,10 @@ ALTER TABLE ONLY public.contacts
 
 
 --
--- Name: fiscal_invoices fk_rails_433d4c368d; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: invoices fk_rails_433d4c368d; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.fiscal_invoices
+ALTER TABLE ONLY public.invoices
     ADD CONSTRAINT fk_rails_433d4c368d FOREIGN KEY (company_id) REFERENCES public.companies(id);
 
 
@@ -3344,6 +3474,14 @@ ALTER TABLE ONLY public.whatsapp_conversations
 
 ALTER TABLE ONLY public.projects
     ADD CONSTRAINT fk_rails_44a549d7b3 FOREIGN KEY (company_id) REFERENCES public.companies(id);
+
+
+--
+-- Name: invoices fk_rails_49adb03fa6; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.invoices
+    ADD CONSTRAINT fk_rails_49adb03fa6 FOREIGN KEY (contact_id) REFERENCES public.contacts(id);
 
 
 --
@@ -3379,6 +3517,14 @@ ALTER TABLE ONLY public.tickets
 
 
 --
+-- Name: invoice_items fk_rails_53a1394109; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.invoice_items
+    ADD CONSTRAINT fk_rails_53a1394109 FOREIGN KEY (receivable_id) REFERENCES public.receivables(id);
+
+
+--
 -- Name: whatsapp_templates fk_rails_53e97ad791; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3407,7 +3553,7 @@ ALTER TABLE ONLY public.time_entries
 --
 
 ALTER TABLE ONLY public.receivables
-    ADD CONSTRAINT fk_rails_5c4527148d FOREIGN KEY (fiscal_invoice_id) REFERENCES public.fiscal_invoices(id);
+    ADD CONSTRAINT fk_rails_5c4527148d FOREIGN KEY (invoice_id) REFERENCES public.invoices(id);
 
 
 --
@@ -3592,6 +3738,14 @@ ALTER TABLE ONLY public.active_storage_variant_records
 
 ALTER TABLE ONLY public.apps
     ADD CONSTRAINT fk_rails_995ae3be76 FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
+-- Name: fiscal_invoices fk_rails_9caabb9428; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.fiscal_invoices
+    ADD CONSTRAINT fk_rails_9caabb9428 FOREIGN KEY (company_id) REFERENCES public.companies(id);
 
 
 --
@@ -3811,6 +3965,14 @@ ALTER TABLE ONLY public.apps
 
 
 --
+-- Name: receivables fk_rails_d8ce2fc212; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.receivables
+    ADD CONSTRAINT fk_rails_d8ce2fc212 FOREIGN KEY (fiscal_invoice_id) REFERENCES public.fiscal_invoices(id);
+
+
+--
 -- Name: whatsapp_messages fk_rails_db315c944a; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3921,6 +4083,7 @@ ALTER TABLE ONLY public.leads
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20261118180000'),
 ('20261118120000'),
 ('20261117150000'),
 ('20261111150000'),

@@ -34,6 +34,8 @@ module Finance
     end
 
     def new
+      return new_from_invoice(Invoice.find(params[:fatura])) if params[:fatura].present?
+
       receivable = Receivable.find_by(id: params[:receita])
       @fiscal_invoice = authorize FiscalInvoice.new(company: receivable&.company || Company.find_by(id: params[:empresa]), status: "issued",
                                        competence: receivable&.competence || Date.current.beginning_of_month,
@@ -77,6 +79,17 @@ module Finance
     end
 
     private
+
+    # Da fatura paga (docs/specs/faturas): cliente, receitas, valor e competência já preenchidos.
+    def new_from_invoice(invoice)
+      authorize invoice, :show?
+      receivables = invoice.items.includes(:receivable).map(&:receivable).reject(&:cancelled?)
+      @fiscal_invoice = authorize FiscalInvoice.new(company: invoice.company, status: "issued", issued_on: Date.current,
+                                                    competence: receivables.map(&:competence).max || Date.current.beginning_of_month,
+                                                    amount_cents: invoice.total_cents, description: invoice.items.map(&:description).to_sentence.truncate(250))
+      @fiscal_invoice.receivable_ids = receivables.map(&:id)
+      render :new
+    end
 
     def set_fiscal_invoice
       @fiscal_invoice = FiscalInvoice.find(params[:id])

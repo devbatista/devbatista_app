@@ -11,6 +11,7 @@
             <td data-label="Vínculo"><%= case doc.documentable
                                            when Contract then link_to("Contrato #{doc.documentable.code}", doc.documentable)
                                            when Proposal then link_to("Proposta #{doc.documentable.code}", doc.documentable)
+                                           when Invoice then link_to("Fatura #{doc.documentable.code}", invoice_path(doc.documentable))
                                            when Project then link_to("Projeto #{doc.documentable.name}", project_path(doc.documentable))
                                            when Supplier then "Fornecedor #{doc.documentable.name}"
                                            when Company then "Cliente"

@@ -29,8 +29,9 @@ export default class extends Controller {
     t.url_buttons.forEach((index) => fields.push(this.field(`values[buttons][${index}]`, `Fim do link: ${t.buttons[index].text}`, (defaults.buttons || {})[index])))
     this.variablesTarget.innerHTML = fields.join("")
     this.variablesTarget.querySelectorAll("input").forEach((input) => input.addEventListener("input", () => this.paint()))
-    this.headerFileFieldTarget.hidden = !t.header_media
-    this.headerFileTarget.required = !!t.header_media
+    // header_auto: o servidor anexa o documento sozinho (o PDF da fatura); o arquivo fica opcional.
+    this.headerFileFieldTarget.hidden = !t.header_media || !!t.header_auto
+    this.headerFileTarget.required = !!t.header_media && !t.header_auto
     this.headerFileTarget.accept = t.header_media ? this.typesValue[t.header_media].join(",") : ""
     this.paint()
   }

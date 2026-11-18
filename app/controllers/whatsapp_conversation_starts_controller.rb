@@ -6,6 +6,9 @@
 # - Sem número válido no cadastro, pede o número e pode salvá-lo no cadastro.
 # - A conversa é a do cadastro nesta conta, a do mesmo número (com e sem o nono dígito) ou uma
 #   nova, ligada ao cadastro depois do envio. Número numa conversa ligada a outro cadastro é recusado.
+# - Com fatura (fatura=<id>, na tela da fatura emitida; docs/specs/faturas): as variáveis da fatura
+#   e o link público vêm preenchidos, o PDF vai no cabeçalho de documento e o envio marca a fatura
+#   como enviada.
 class WhatsappConversationStartsController < ApplicationController
   include WhatsappDeliveryParams
 
@@ -17,15 +20,21 @@ class WhatsappConversationStartsController < ApplicationController
     @recipient = find_recipient
     return search unless @recipient
 
+    @invoice = find_invoice
+
     prepare_form
   end
 
   def create
     @recipient = find_recipient || raise(ActiveRecord::RecordNotFound)
+    @invoice = find_invoice
     prepare_form
     @error = start
     if @error
       render :new, status: :unprocessable_content
+    elsif @invoice
+      @invoice.mark_sent!
+      redirect_to invoice_path(@invoice), notice: "Fatura #{@invoice.code} enviada pelo WhatsApp para #{@recipient.name}."
     else
       redirect_to whatsapp_conversation_path(@conversation), notice: "Template enviado para #{@recipient.name}."
     end
@@ -46,6 +55,31 @@ class WhatsappConversationStartsController < ApplicationController
     end
   end
 
+  # Fatura emitida do próprio contato, para quem pode ver o Financeiro.
+  def find_invoice
+    return if params[:fatura].blank? || !@recipient.is_a?(Contact)
+
+    invoice = policy_scope(Invoice).issued.find_by(id: params[:fatura], contact_id: @recipient.id)
+    invoice if invoice && policy(invoice).update?
+  end
+
+  # PDF da fatura como arquivo enviado, para o cabeçalho de documento do template.
+  def invoice_pdf_upload
+    pdf = InvoicePdf.new(@invoice, view_url: invoice_link)
+    file = Tempfile.new([ "fatura", ".pdf" ], binmode: true)
+    file.write(pdf.render)
+    file.rewind
+    ActionDispatch::Http::UploadedFile.new(tempfile: file, filename: pdf.filename, type: "application/pdf")
+  end
+
+  def invoice_token
+    @invoice_token ||= @invoice.generate_token_for(:client_view)
+  end
+
+  def invoice_link
+    invoice_view_url(invoice_token)
+  end
+
   # Leads e contatos com WhatsApp cadastrado; os leads em aberto primeiro.
   def search
     @term = params[:q].to_s.strip
@@ -64,6 +98,7 @@ class WhatsappConversationStartsController < ApplicationController
     @number = @needs_number ? params[:numero].to_s.strip : @recipient.whatsapp
     @existing = @recipient.whatsapp_conversations.with_messages.where(account: @account).order(last_message_at: :desc).first if @account
     person = Whatsapp::TemplateFields.person(@recipient)
+    person = person.merge(Whatsapp::TemplateFields.invoice(@invoice, link: invoice_link, token: invoice_token)) if @invoice
     @templates = Array(@account&.templates&.usable).map do |template|
       Whatsapp::TemplateFields.new(template).to_h(person: person, values: (template_values if template.id == params[:template_id]))
     end
@@ -84,7 +119,7 @@ class WhatsappConversationStartsController < ApplicationController
       return "O número #{Whatsapp::Phone.national_label(wa_ids.first)} já está na conversa com #{conversation.link}. Abra a conversa para enviar."
     end
     result = Whatsapp::Outbound.new(conversation, user: current_user)
-                               .deliver(kind: "template", template_id: params[:template_id], values: template_values, header_file: upload(:header_file))
+                               .deliver(kind: "template", template_id: params[:template_id], values: template_values, header_file: header_file)
     if result.error
       discard_empty(conversation) if created
       return result.error
@@ -102,6 +137,15 @@ class WhatsappConversationStartsController < ApplicationController
   def discard_empty(conversation)
     conversation.reload
     conversation.destroy! if conversation.messages.none? && (!conversation.linked? || conversation.linked_by_id.nil?)
+  end
+
+  # Arquivo enviado na tela ou, com fatura e template de cabeçalho de documento, o PDF dela.
+  def header_file
+    file = upload(:header_file)
+    return file if file || @invoice.nil?
+
+    template = @account.templates.find_by(id: params[:template_id])
+    invoice_pdf_upload if template && Whatsapp::TemplateFields.new(template).header_media == "document"
   end
 
   # O número digitado vai para o WhatsApp do cadastro, que estava vazio ou inválido.

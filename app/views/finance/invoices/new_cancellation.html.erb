@@ -1,0 +1,18 @@
+<% inv = @invoice %>
+<% nav_location :fin, "Faturas" %>
+<% breadcrumb ["Financeiro", finance_path], ["Faturas", invoices_path], [inv.code, invoice_path(inv)], ["Cancelar"] %>
+<div class="form-page">
+  <%= render layout: "shared/drawer_form", locals: { title: "Cancelar fatura #{inv.code}", cancel_path: invoice_path(inv) } do %>
+    <%= form_with scope: :cancellation, url: cancel_invoice_path(inv), method: :patch, class: "form", data: { turbo_frame: "_top" } do |f| %>
+      <div class="drawer-body form">
+        <%= render "shared/form_errors", record: inv %>
+        <div class="callout warn"><span>A fatura sai da cobrança e o link passa a mostrar “cancelada”. As <%= pluralize(inv.items.size, "receita") %> continuam em aberto e voltam para a lista de receitas sem fatura, para entrar em outra.</span></div>
+        <div class="field"><%= f.label :reason do %>Motivo <span class="req">*</span><% end %><%= f.text_field :reason, value: params.dig(:cancellation, :reason), class: "input", required: true, placeholder: "Ex.: valor errado, cliente pediu para juntar com o próximo mês" %></div>
+      </div>
+      <div class="drawer-foot">
+        <%= link_to "Voltar", invoice_path(inv), class: "btn", data: { close: true, turbo_frame: "_top" } %>
+        <%= f.submit "Cancelar fatura", class: "btn danger" %>
+      </div>
+    <% end %>
+  <% end %>
+</div>

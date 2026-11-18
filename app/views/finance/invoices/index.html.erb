@@ -1,0 +1,83 @@
+<% nav_location :fin, "Faturas" %>
+<% breadcrumb ["Financeiro", finance_path], ["Faturas"] %>
+<% k = @kpis %>
+<% can_create = policy(Invoice).create? %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Financeiro · Cobrança</span>
+    <h1>Faturas</h1>
+  </div>
+  <div class="actions">
+    <% if can_create %><%= link_to new_invoice_path, class: "btn pri" do %><%= icon(:plus, size: 16, stroke: 2) %>Nova fatura<% end %><% end %>
+  </div>
+</div>
+
+<div class="grid-kpi g4">
+  <%= link_to invoices_path(status: "issued"), class: "card kpi" do %><span class="eyebrow">Em aberto</span><span class="v"><%= brl(k[:open]) %></span><span class="f"><%= pluralize(k[:open_count], "fatura") %> no prazo</span><% end %>
+  <%= link_to invoices_path(status: "overdue"), class: "card kpi#{' alert' if k[:overdue_count].positive?}" do %><span class="eyebrow">Vencidas</span><span class="v"><%= brl(k[:overdue]) %></span><span class="f"><% if k[:overdue_count].positive? %><span class="badge b-crit"><%= pluralize(k[:overdue_count], "fatura") %></span><% else %>nenhuma<% end %></span><% end %>
+  <div class="card kpi"><span class="eyebrow">Recebido no mês</span><span class="v"><%= brl(k[:paid_month]) %></span><span class="f"><%= pluralize(k[:paid_month_count], "fatura paga", plural: "faturas pagas") %></span></div>
+  <%= link_to invoices_path(status: "draft"), class: "card kpi" do %><span class="eyebrow">Rascunhos</span><span class="v"><%= k[:draft_count] %></span><span class="f">ainda não emitidos</span><% end %>
+</div>
+
+<% if @unbilled.any? %>
+  <section class="card" style="border-color:var(--warn-line)" aria-labelledby="unbilled-t">
+    <div class="card-head">
+      <div class="row wrap"><h2 id="unbilled-t">Receitas sem fatura</h2><span class="badge b-warn"><%= pluralize(@unbilled.sum { |r| r[:count] }, "receita") %> · <%= brl(@unbilled.sum { |r| r[:total] }) %></span></div>
+      <span class="caption">Pendentes e vencidas, por cliente</span>
+    </div>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr><th>Cliente</th><th>Receitas</th><th class="num">Total</th><th>Primeiro vencimento</th><th><span class="sr-only">Ações</span></th></tr></thead>
+        <tbody>
+          <% @unbilled.each do |row| %>
+            <tr>
+              <td data-label="Cliente"><%= link_to row[:company].trade_name, company_path(row[:company]), class: "strong" %></td>
+              <td data-label="Receitas"><%= link_to pluralize(row[:count], "receita"), receivables_path(empresa: row[:company].id) %></td>
+              <td data-label="Total" class="num nowrap"><%= brl(row[:total]) %></td>
+              <td data-label="Primeiro vencimento" class="mono"><%= date_br(row[:due_on]) %> <% if row[:due_on] < Date.current %><span class="badge b-crit">vencida</span><% elsif (row[:due_on] - Date.current) <= 3 %><span class="badge b-warn"><%= due_hint(row[:due_on]) %></span><% end %></td>
+              <td data-label="" class="right"><% if can_create %><%= link_to "Criar fatura", new_invoice_path(empresa: row[:company].id), class: "link-btn" %><% end %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+<% end %>
+
+<%= form_with url: invoices_path, method: :get, class: "toolbar" do %>
+  <%= status_filter :status, [ [ "todos", "Todas", @counts.except("overdue").values.sum ], [ "draft", "Rascunho", @counts["draft"].to_i ],
+                               [ "issued", "Em aberto", @counts["issued"].to_i - @counts["overdue"].to_i ], [ "overdue", "Vencidas", @counts["overdue"].to_i ],
+                               [ "paid", "Pagas", @counts["paid"].to_i ], [ "cancelled", "Canceladas", @counts["cancelled"].to_i ] ] %>
+  <span class="spacer"></span>
+  <%= hidden_field_tag :status, params[:status], id: nil if params[:status].present? %>
+  <%= search_field placeholder: "Cliente ou número", label: "Buscar fatura" %>
+  <label class="sr-only" for="f-cli">Cliente</label>
+  <%= select_tag :empresa, options_from_collection_for_select(@companies, :id, :trade_name, params[:empresa]), include_blank: "Todos os clientes", class: "select", id: "f-cli", onchange: "this.form.requestSubmit()" %>
+  <%= render "shared/sort_select" %>
+<% end %>
+
+<section class="card" aria-label="Faturas">
+  <% if @invoices.any? %>
+    <div class="table-wrap">
+      <table class="table cards">
+        <thead><tr><th>Número</th><th>Cliente</th><th class="num">Valor</th><th>Vencimento</th><th>Envio</th><th>Status</th></tr></thead>
+        <tbody>
+          <% @invoices.each do |inv| %>
+            <tr>
+              <td data-label="Número"><%= link_to inv.code, invoice_path(inv), class: "mono strong" %><% if inv.issued_on %><span class="cell-sub">emitida <%= date_br(inv.issued_on) %></span><% end %></td>
+              <td data-label="Cliente"><%= link_to inv.company.trade_name, company_path(inv.company), class: "strong" %><% if inv.contact %><span class="cell-sub"><%= inv.contact.name %></span><% end %></td>
+              <td data-label="Valor" class="num nowrap<%= ' strike' if inv.cancelled? %>"><%= brl(inv.total_cents) %></td>
+              <td data-label="Vencimento" class="mono"><%= date_br(inv.due_on) %><% if inv.overdue? %><span class="cell-sub" style="color:var(--crit)"><%= days_text(inv.days_late) %> de atraso</span><% elsif inv.paid? %><span class="cell-sub">paga <%= date_br(inv.paid_on) %></span><% end %></td>
+              <td data-label="Envio"><% if inv.sent_at %><span class="caption"><%= date_br(inv.sent_at.to_date) %></span><% if inv.viewed_at %><span class="cell-sub">vista <%= date_br(inv.viewed_at.to_date) %></span><% end %><% else %><span class="muted">—</span><% end %></td>
+              <td data-label="Status"><%= invoice_badge(inv) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <%= render "shared/pagination", pager: @pager %>
+  <% else %>
+    <%= render "shared/empty", title: "Nenhuma fatura", text: "Crie a fatura a partir das receitas em aberto do cliente: ela junta as receitas num valor só, com o Pix para pagar.", icon_name: :file %>
+  <% end %>
+</section>

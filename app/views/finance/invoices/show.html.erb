@@ -1,0 +1,130 @@
+<% nav_location :fin, "Faturas" %>
+<% inv = @invoice %>
+<% breadcrumb ["Financeiro", finance_path], ["Faturas", invoices_path], [inv.code] %>
+<% can_update = policy(inv).update? %>
+<% view_url = invoice_view_url(inv.generate_token_for(:client_view)) unless inv.draft? %>
+
+<div class="page-head">
+  <div class="titles">
+    <span class="section-label">Fatura · <%= link_to inv.company.trade_name, company_path(inv.company) %></span>
+    <h1 class="mono"><%= inv.code %></h1>
+    <div class="row wrap" style="gap:8px">
+      <%= invoice_badge(inv) %>
+      <span class="chip">Vence <%= date_br(inv.due_on) %><%= " · #{days_text(inv.days_late)} de atraso" if inv.overdue? %></span>
+      <span class="caption"><%= brl(inv.total_cents) %> · <%= pluralize(inv.items.size, "receita") %></span>
+    </div>
+  </div>
+  <div class="actions">
+    <%= link_to pdf_invoice_path(inv), class: "btn", target: "_blank" do %><%= icon(:file, size: 16, stroke: 1.8) %><%= inv.draft? ? "Prévia do PDF" : "PDF" %><% end %>
+    <% if can_update && inv.draft? %>
+      <%= link_to "Excluir rascunho", invoice_path(inv), class: "btn danger", data: { turbo_method: :delete, turbo_confirm: "Excluir o rascunho da fatura de #{inv.company.trade_name}?" } if policy(inv).destroy? %>
+      <%= link_to edit_invoice_path(inv), class: "btn" do %><%= icon(:edit, size: 16, stroke: 1.8) %>Editar<% end %>
+      <%= button_to issue_invoice_path(inv), method: :patch, class: "btn pri", form: { data: { turbo_confirm: "Emitir a fatura de #{brl(inv.total_cents)} para #{inv.company.trade_name}, com vencimento em #{date_br(inv.due_on)}? Depois de emitida ela não pode mais ser editada." } } do %><%= icon(:check, size: 16, stroke: 2) %>Emitir fatura<% end %>
+    <% elsif can_update && inv.issued? %>
+      <%= drawer_link_to "Cancelar fatura", cancel_invoice_path(inv), class: "btn danger" %>
+      <% if policy(WhatsappMessage).create? %>
+        <%= drawer_link_to new_whatsapp_conversation_start_path(contact_id: inv.contact_id, fatura: inv.id), class: "btn", disabled: inv.contact.nil? do %><%= icon(:send, size: 16, stroke: 1.8) %>WhatsApp<% end %>
+      <% end %>
+      <%= drawer_link_to delivery_invoice_path(inv), class: "btn" do %><%= icon(:send, size: 16, stroke: 1.8) %><%= inv.sent_at ? "Reenviar por e-mail" : "Enviar por e-mail" %><% end %>
+      <%= drawer_link_to payment_invoice_path(inv), class: "btn pri" do %><%= icon(:check, size: 16, stroke: 2) %>Registrar pagamento<% end %>
+    <% elsif inv.paid? && policy(FiscalInvoice).create? %>
+      <%= drawer_link_to new_fiscal_invoice_path(fatura: inv.id), class: "btn pri" do %><%= icon(:plus, size: 16, stroke: 2) %>Registrar nota fiscal<% end %>
+    <% end %>
+  </div>
+</div>
+
+<% if inv.draft? %>
+  <div class="callout"><span><b class="strong">Rascunho.</b> Confira as receitas, o vencimento e o PDF. Ao emitir, a fatura ganha o número, o conteúdo fica travado e as receitas passam a vencer em <%= date_br(inv.due_on) %>.</span></div>
+<% elsif inv.issued? %>
+  <div class="callout<%= ' crit' if inv.overdue? %>"><span>
+    <% if inv.sent_at %>Enviada em <%= datetime_br(inv.sent_at) %>. <%= inv.viewed_at ? "O cliente abriu o link em #{datetime_br(inv.viewed_at)}." : "O cliente ainda não abriu o link." %>
+    <% else %>Emitida em <%= date_br(inv.issued_on) %> e ainda não enviada: mande por e-mail, WhatsApp ou copie o link abaixo.<% end %>
+    <% if inv.overdue? %> <b class="strong">Vencida há <%= days_text(inv.days_late) %>.</b><% end %>
+    Quando o cliente pagar, registre o pagamento: as receitas da fatura ficam pagas juntas.</span></div>
+<% elsif inv.paid? %>
+  <div class="callout good"><span><b class="strong">Paga</b> em <%= date_br(inv.paid_on) %>. Agora é emitir a nota fiscal na contabilidade e registrá-la em Notas fiscais.</span></div>
+<% elsif inv.cancelled? %>
+  <div class="callout crit"><span><b class="strong">Cancelada</b> · <%= inv.cancellation_reason %>. As receitas voltaram para a lista de receitas sem fatura.</span></div>
+<% end %>
+
+<div class="cols-2-1">
+  <div class="stack">
+    <section class="card">
+      <div class="card-head"><h2>Itens</h2></div>
+      <div class="table-wrap">
+        <table class="table cards">
+          <thead><tr><th>Receita</th><th>Competência</th><th class="num">Valor</th><th>Situação da receita</th></tr></thead>
+          <tbody>
+            <% inv.items.includes(:receivable).each do |item| %>
+              <tr>
+                <td data-label="Receita" class="strong"><%= item.description %><% if item.receivable.amount_cents != item.amount_cents && !inv.cancelled? %><span class="cell-sub" style="color:var(--warn)">a receita hoje está em <%= brl(item.receivable.amount_cents) %></span><% end %></td>
+                <td data-label="Competência"><%= item.competence_label %></td>
+                <td data-label="Valor" class="num nowrap"><%= brl(item.amount_cents) %></td>
+                <td data-label="Situação da receita"><%= title_badge(item.receivable) %><%= link_to "Ver", receivables_path(empresa: inv.company_id, q: item.receivable.description), class: "link-btn" %></td>
+              </tr>
+            <% end %>
+          </tbody>
+          <tfoot><tr><td data-label="" colspan="2">Total</td><td data-label="Total" class="num nowrap"><%= brl(inv.total_cents) %></td><td data-label=""></td></tr></tfoot>
+        </table>
+      </div>
+    </section>
+    <% if inv.client_notes.present? || inv.notes.present? %>
+      <section class="card">
+        <div class="card-head"><h2>Observações</h2></div>
+        <% if inv.client_notes.present? %><div class="kv"><span>Na fatura</span><b style="text-align:right"><%= inv.client_notes %></b></div><% end %>
+        <% if inv.notes.present? %><div class="card-body caption" style="border-top:1px solid var(--rule)"><%= simple_format(inv.notes, { style: "margin:0" }) %></div><% end %>
+      </section>
+    <% end %>
+    <section class="card">
+      <div class="card-head"><h2>Histórico</h2></div>
+      <% @history.each do |log| %>
+        <% from, to = log.changeset["status"] %>
+        <div class="tl"><i class="<%= { 'create' => 'mute', 'status_change' => 'warn' }[log.action] %>"></i><div>
+          <% if log.action == "create" %>Rascunho criado<% elsif log.action == "status_change" %><span class="strong"><%= Invoice::STATUS_LABELS[from] %> → <%= Invoice::STATUS_LABELS[to] %></span><% else %>Fatura alterada (<%= log.readable_changes.map(&:first).first(3).to_sentence %>)<% end %>
+          <small><%= datetime_br(log.created_at) %> · <%= log.user&.name || "Sistema" %></small></div></div>
+      <% end %>
+    </section>
+  </div>
+
+  <div class="stack">
+    <section class="card">
+      <div class="card-head"><h2>Resumo</h2></div>
+      <div class="kv"><span>Valor</span><b><%= brl(inv.total_cents) %></b></div>
+      <div class="kv"><span>Vencimento</span><b><%= date_br(inv.due_on) %></b></div>
+      <div class="kv"><span>Emissão</span><b><%= date_br(inv.issued_on) %></b></div>
+      <div class="kv"><span>Enviada</span><b><%= inv.sent_at ? datetime_br(inv.sent_at) : "—" %></b></div>
+      <div class="kv"><span>Vista pelo cliente</span><b><%= inv.viewed_at ? datetime_br(inv.viewed_at) : "—" %></b></div>
+      <% if inv.paid? %><div class="kv"><span>Paga em</span><b><%= date_br(inv.paid_on) %></b></div><% end %>
+    </section>
+    <section class="card">
+      <div class="card-head"><h2>Cliente</h2></div>
+      <div class="kv"><span>Empresa</span><%= link_to "#{inv.company.trade_name} · Visão 360º", company_path(inv.company), style: "font-weight:600" %></div>
+      <div class="kv"><span>Contato</span><b><%= inv.contact&.name || "—" %></b></div>
+      <div class="kv"><span>E-mail</span><b><%= inv.recipient_email || "—" %></b></div>
+      <div class="kv"><span>WhatsApp</span><b><%= inv.contact&.whatsapp.presence || "—" %></b></div>
+    </section>
+    <% if view_url %>
+      <section class="card" data-controller="clipboard">
+        <div class="card-head"><h2>Link da fatura</h2><%= link_to "Abrir", view_url, target: "_blank", rel: "noopener", style: "font-size:13px;font-weight:600" %></div>
+        <div class="card-body form">
+          <label class="sr-only" for="inv-link">Link público da fatura</label>
+          <input id="inv-link" class="input mono" value="<%= view_url %>" readonly data-clipboard-target="source">
+          <button type="button" class="btn" data-action="clipboard#copy" data-clipboard-target="button">Copiar link</button>
+          <span class="hint">Abre sem login, com o Pix e o PDF. Para mandar por outro canal.</span>
+        </div>
+      </section>
+    <% end %>
+    <% unless PixPayload.configured? %>
+      <div class="callout warn"><span>Sem chave Pix configurada, a fatura sai só com os dados bancários. <%= link_to "Configurar o Pix", admin_settings_path(aba: "financeiro"), class: "strong" if policy(Setting).index? %></span></div>
+    <% end %>
+    <% if policy(Document).index? %>
+      <section class="card">
+        <div class="card-head"><h2>Documentos</h2></div>
+        <% @documents.each do |doc| %>
+          <div class="file-row"><span class="file-ic"><%= icon(:file, size: 18, stroke: 1.8) %></span><div><%= link_to doc.title, document_path(doc), target: "_blank", class: "strong" %><span class="cell-sub"><%= date_br(doc.created_at) %> · <%= doc.uploaded_by.first_name %></span></div><%= link_to "Abrir", document_path(doc), target: "_blank", class: "link-btn" %></div>
+        <% end %>
+        <% if @documents.empty? %><div class="card-foot"><span>O PDF enviado por e-mail fica guardado aqui.</span></div><% end %>
+      </section>
+    <% end %>
+  </div>
+</div>

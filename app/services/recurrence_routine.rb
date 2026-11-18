@@ -97,8 +97,9 @@ class RecurrenceRoutine
 
   def cancel_after_end
     count = 0
+    # A que está numa fatura emitida fica: cancelar muda o que foi cobrado (cancele a fatura antes).
     Receivable.open.joins(:customer_service).where(customer_services: { status: "ended" })
-              .where("receivables.due_on > customer_services.ended_on").find_each do |r|
+              .where("receivables.due_on > customer_services.ended_on").where.not(id: billed_receivables).find_each do |r|
       r.cancel!("Cancelado: serviço encerrado em #{I18n.l(r.customer_service.ended_on)}.")
       count += 1
     end
@@ -123,7 +124,13 @@ class RecurrenceRoutine
       model.where(status: %w[forecast pending]).where(due_on: ...today).find_each.count { |t| t.update!(status: "overdue") }
     end
     routes = Rails.application.routes.url_helpers
-    Receivable.overdue.includes(:company).find_each do |r|
+    # Receita numa fatura emitida: um aviso pela fatura, em vez de um por receita.
+    Invoice.overdue(today).includes(:company).find_each do |invoice|
+      Notification.deliver!(kind: "receivable_overdue", level: "crit", notifiable: invoice, dedup_key: "invoice-#{invoice.id}-overdue",
+                            title: "Fatura vencida: #{invoice.company.trade_name} · #{invoice.code} · #{money(invoice.total_cents)} (venceu #{I18n.l(invoice.due_on, format: '%d/%m')})",
+                            path: routes.invoice_path(invoice))
+    end
+    Receivable.overdue.where.not(id: billed_receivables).includes(:company).find_each do |r|
       Notification.deliver!(kind: "receivable_overdue", level: "crit", notifiable: r, dedup_key: "receivable-#{r.id}-overdue",
                             title: "Recebimento vencido: #{r.company.trade_name} · #{r.description} · #{money(r.amount_cents)} (venceu #{I18n.l(r.due_on, format: '%d/%m')})",
                             path: routes.receivables_path(status: "overdue"))
@@ -134,6 +141,10 @@ class RecurrenceRoutine
                             path: routes.payables_path(status: "overdue"))
     end
     count
+  end
+
+  def billed_receivables
+    Receivable.where(invoice_id: Invoice.issued.select(:id)).select(:id)
   end
 
   def refresh_estimates(warnings)

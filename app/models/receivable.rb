@@ -15,8 +15,11 @@ class Receivable < ApplicationRecord
   belongs_to :service, optional: true
   belongs_to :contract, optional: true
   belongs_to :fiscal_invoice, optional: true
+  belongs_to :invoice, optional: true
+  has_many :invoice_items, dependent: :restrict_with_error
 
   validate :links_from_same_company
+  validate :locked_by_invoice, on: :update
   validate :not_duplicating_recurring, on: :create
 
   before_validation :fill_from_customer_service
@@ -67,6 +70,22 @@ class Receivable < ApplicationRecord
     update!(paid_on: paid_on, paid_amount: amount.presence || self.amount, notes: [ self.notes, notes ].compact_blank.join("\n").presence)
   end
 
+  # Entra na fatura emitida: passa a apontar para ela e a vencer junto. O status de atraso segue o
+  # novo vencimento.
+  def move_to_invoice!(invoice, today = Date.current)
+    self.invoice = invoice
+    self.due_on = invoice.due_on
+    if overdue? && due_on >= today then self.status = "pending"
+    elsif pending? && due_on < today then self.status = "overdue"
+    end
+    save!
+  end
+
+  # Fatura emitida ainda em aberto que cobra esta receita.
+  def billed?
+    invoice&.issued? || false
+  end
+
   def activity_name
     "a receita #{description} de #{company&.trade_name}"
   end
@@ -107,5 +126,15 @@ class Receivable < ApplicationRecord
     errors.add(:contact, "não é da empresa") if contact && contact.company_id != company_id
     errors.add(:customer_service, "é de outra empresa") if customer_service && customer_service.company_id != company_id
     errors.add(:fiscal_invoice, "é de outra empresa") if fiscal_invoice && fiscal_invoice.company_id != company_id
+    errors.add(:invoice, "é de outra empresa") if invoice && invoice.company_id != company_id
+  end
+
+  # Na fatura emitida, cliente, valor e cancelamento passam pela fatura (cancele-a antes), para o
+  # documento enviado ao cliente não divergir das receitas.
+  def locked_by_invoice
+    return unless invoice_id_was && Invoice.issued.exists?(id: invoice_id_was)
+    return unless will_save_change_to_amount_cents? || will_save_change_to_company_id? || (will_save_change_to_status? && cancelled?)
+
+    errors.add(:base, "A receita está na fatura #{Invoice.find(invoice_id_was).code}: cancele a fatura antes de mudar valor, cliente ou cancelar a receita")
   end
 end

@@ -84,8 +84,15 @@
   <section data-panel="financeiro" <%= "hidden" unless @tab == "financeiro" %> style="margin-top:20px">
     <%= form_with url: admin_settings_path, method: :patch, class: "card", data: { turbo: false } do %>
       <%= hidden_field_tag :aba, "financeiro" %>
-      <div class="card-head"><div><h2>Financeiro</h2><span class="caption">Listas das despesas e horizonte da rotina de recorrências</span></div></div>
+      <div class="card-head"><div><h2>Financeiro</h2><span class="caption">Pix das faturas, listas das despesas e horizonte da rotina de recorrências</span></div></div>
       <div class="card-body form">
+        <span class="fieldset-title">Faturas · como o cliente paga</span>
+        <div class="form-grid">
+          <div class="field full"><label for="s-pix">Chave Pix</label><%= text_field_tag "settings[pix_key]", Setting[:pix_key], class: "input mono", id: "s-pix", placeholder: "CNPJ, e-mail, +55 telefone ou chave aleatória", disabled: !editable %><span class="hint">Gera o QR Code e o copia e cola com o valor de cada fatura. Telefone: com +55, como +5511987654321</span></div>
+          <div class="field"><label for="s-pixn">Nome do recebedor</label><%= text_field_tag "settings[pix_receiver_name]", Setting[:pix_receiver_name], class: "input", id: "s-pixn", maxlength: 25, placeholder: Setting[:company_legal_name].to_s.first(25), disabled: !editable %><span class="hint">Até 25 caracteres, como no banco. Em branco: a razão social</span></div>
+          <div class="field"><label for="s-pixc">Cidade do recebedor</label><%= text_field_tag "settings[pix_receiver_city]", Setting[:pix_receiver_city], class: "input", id: "s-pixc", maxlength: 15, placeholder: "São Paulo", disabled: !editable %><span class="hint">Até 15 caracteres</span></div>
+          <div class="field full"><label for="s-bank">Dados para transferência</label><%= text_area_tag "settings[bank_details]", Setting[:bank_details], class: "textarea", id: "s-bank", placeholder: "Banco, agência, conta e titular", disabled: !editable %><span class="hint">Aparecem na fatura abaixo do Pix. Em branco: a fatura mostra só o Pix</span></div>
+        </div>
         <span class="fieldset-title">Recorrências</span>
         <div class="form-grid">
           <div class="field"><label for="s-rm">Meses à frente gerados como Previsto</label><%= number_field_tag "settings[recurrence_months]", Setting[:recurrence_months], class: "input", min: 1, max: 12, id: "s-rm", disabled: !editable %><span class="hint">Além do mês corrente</span></div>

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <%= render "layouts/shared/head" %>
+    <meta name="robots" content="noindex, nofollow">
+  </head>
+
+  <body>
+    <main class="client-page">
+      <header class="client-head">
+        <%= image_tag "logo-devbatista-branco.png", alt: Setting[:company_name], class: "logo" %>
+      </header>
+      <%= yield %>
+      <p class="caption client-foot"><%= [ Setting[:company_legal_name], ("CNPJ #{CnpjValidator.format(Setting[:company_cnpj])}" if Setting[:company_cnpj].present?) ].compact.join(" · ") %></p>
+    </main>
+  </body>
+</html>

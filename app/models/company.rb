@@ -20,6 +20,7 @@ class Company < ApplicationRecord
   has_many :tickets, dependent: :restrict_with_error
   has_many :time_entries, dependent: :restrict_with_error
   has_many :receivables, dependent: :restrict_with_error
+  has_many :invoices, dependent: :restrict_with_error
   has_many :fiscal_invoices, dependent: :restrict_with_error
   has_many :payables, dependent: :restrict_with_error
   has_many :apps, dependent: :restrict_with_error
