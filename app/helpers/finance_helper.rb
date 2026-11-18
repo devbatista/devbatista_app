@@ -1,13 +1,13 @@
 module FinanceHelper
   TITLE_TONES = { "forecast" => "info", "pending" => "warn", "paid" => "good", "overdue" => "crit", "cancelled" => "mute" }.freeze
-  INVOICE_TONES = { "pending" => "warn", "issued" => "good", "cancelled" => "mute" }.freeze
+  FISCAL_INVOICE_TONES = { "pending" => "warn", "issued" => "good", "cancelled" => "mute" }.freeze
 
   def title_badge(title)
     status_badge(title.status_label, TITLE_TONES[title.status])
   end
 
-  def invoice_badge(invoice)
-    status_badge(invoice.status_label, INVOICE_TONES[invoice.status])
+  def fiscal_invoice_badge(fiscal_invoice)
+    status_badge(fiscal_invoice.status_label, FISCAL_INVOICE_TONES[fiscal_invoice.status])
   end
 
   # Valor na moeda original: "US$ 20,00".

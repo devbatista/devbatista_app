@@ -24,7 +24,7 @@ flowchart LR
     Receivable
     Payable
     RecurringExpense --> Payable
-    Invoice --> Receivable
+    FiscalInvoice --> Receivable
   end
   subgraph TE["Tecnologia"]
     Application --> Database

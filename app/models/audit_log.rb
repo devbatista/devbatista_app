@@ -12,6 +12,9 @@ class AuditLog < ApplicationRecord
     "password_change" => "Troca de senha"
   }.freeze
 
+  # Tipos de registros antigos que mudaram de nome depois de auditados (a trilha não muda).
+  LEGACY_TYPES = { "Invoice" => "FiscalInvoice" }.freeze
+
   belongs_to :user, optional: true
   belongs_to :auditable, polymorphic: true, optional: true
 
@@ -42,17 +45,23 @@ class AuditLog < ApplicationRecord
 
   # Nome do model na interface ("Usuário" em vez de "User").
   def auditable_type_name
-    auditable_type&.safe_constantize&.model_name&.human || auditable_type
+    auditable_model&.model_name&.human || auditable_type
   end
 
   # Campos alterados prontos para exibir: [rótulo, antes, depois].
   # Na criação só existe o valor novo; na exclusão, só o anterior.
   def readable_changes
-    model = auditable_type&.safe_constantize
+    model = auditable_model
     changeset.map do |field, change|
       label = model.respond_to?(:human_attribute_name) ? model.human_attribute_name(field) : field
       before, after = change.is_a?(Array) && change.size == 2 ? change : [ nil, change ]
       [ label, before, after ]
     end
+  end
+
+  private
+
+  def auditable_model
+    (LEGACY_TYPES[auditable_type] || auditable_type)&.safe_constantize
   end
 end

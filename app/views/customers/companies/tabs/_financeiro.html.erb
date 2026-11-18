@@ -38,14 +38,14 @@
 
 <div class="grid-2">
   <div class="card">
-    <div class="card-head"><h2>Notas fiscais</h2><%= link_to "Notas fiscais", invoices_path(empresa: @company.id, periodo: "ano"), style: "font-size:13px;font-weight:600" %></div>
-    <% if @invoices.any? %>
+    <div class="card-head"><h2>Notas fiscais</h2><%= link_to "Notas fiscais", fiscal_invoices_path(empresa: @company.id, periodo: "ano"), style: "font-size:13px;font-weight:600" %></div>
+    <% if @fiscal_invoices.any? %>
       <div class="table-wrap">
         <table class="table cards">
           <thead><tr><th>Número</th><th>Competência</th><th class="num">Valor</th><th>Status</th></tr></thead>
           <tbody>
-            <% @invoices.each do |inv| %>
-              <tr><td data-label="Número" class="mono strong"><%= inv.number || "—" %></td><td data-label="Competência"><%= inv.competence.strftime("%m/%Y") %></td><td data-label="Valor" class="num nowrap"><%= brl(inv.amount_cents) %></td><td data-label="Status"><%= invoice_badge(inv) %></td></tr>
+            <% @fiscal_invoices.each do |inv| %>
+              <tr><td data-label="Número" class="mono strong"><%= inv.number || "—" %></td><td data-label="Competência"><%= inv.competence.strftime("%m/%Y") %></td><td data-label="Valor" class="num nowrap"><%= brl(inv.amount_cents) %></td><td data-label="Status"><%= fiscal_invoice_badge(inv) %></td></tr>
             <% end %>
           </tbody>
         </table>

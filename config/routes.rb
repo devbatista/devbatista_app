@@ -113,7 +113,7 @@ Rails.application.routes.draw do
     resources :billing_connections, path: "billing-connections", except: :show do
       post :sync, on: :member
     end
-    resources :invoices, except: :show do
+    resources :fiscal_invoices, path: "fiscal-invoices", except: :show do
       get :file, on: :member, path: "file/:file_id"
     end
   end

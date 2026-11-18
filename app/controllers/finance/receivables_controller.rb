@@ -15,9 +15,9 @@ module Finance
       base = policy_scope(Receivable)
       base = @view == "receitas" ? base.where(competence: @range) : base.where(due_on: @range)
       @kpis = kpis(base)
-      scope = base.joins(:company).includes(:company, :service, :contract, :customer_service, :invoice)
+      scope = base.joins(:company).includes(:company, :service, :contract, :customer_service, :fiscal_invoice)
       # O filtro "Vencido" mostra todos os inadimplentes, de qualquer mês.
-      scope = policy_scope(Receivable).joins(:company).includes(:company, :service, :contract, :customer_service, :invoice) if params[:status] == "overdue"
+      scope = policy_scope(Receivable).joins(:company).includes(:company, :service, :contract, :customer_service, :fiscal_invoice) if params[:status] == "overdue"
       @counts = base.group(:status).count.merge("overdue" => policy_scope(Receivable).overdue.count)
       scope = scope.where(status: params[:status]) if Receivable.statuses.key?(params[:status])
       scope = scope.where(company_id: params[:empresa]) if params[:empresa].present?

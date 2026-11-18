@@ -33,9 +33,9 @@ FactoryBot.define do
     start_on { Date.current.beginning_of_month }
   end
 
-  factory :invoice do
+  factory :fiscal_invoice do
     company
-    number { generate(:invoice_number) }
+    number { generate(:fiscal_invoice_number) }
     status { "issued" }
     competence { Date.current.beginning_of_month }
     issued_on { Date.current }
@@ -50,5 +50,5 @@ FactoryBot.define do
     cost_center { "Infraestrutura interna" }
   end
 
-  sequence(:invoice_number) { |n| format("%06d", 400 + n) }
+  sequence(:fiscal_invoice_number) { |n| format("%06d", 400 + n) }
 end

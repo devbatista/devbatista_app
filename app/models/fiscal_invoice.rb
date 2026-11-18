@@ -1,6 +1,6 @@
 # Nota fiscal emitida fora do sistema (RF 28): número, competência, valor e PDF, XML ou link.
 # A emissão automática fica para a V1.1. Uma nota pode cobrir várias receitas do cliente.
-class Invoice < ApplicationRecord
+class FiscalInvoice < ApplicationRecord
   include Auditable
   include LabeledEnums
   include MoneyAttributes
@@ -29,7 +29,7 @@ class Invoice < ApplicationRecord
   before_validation { self.competence = competence&.beginning_of_month }
 
   scope :search, lambda { |term|
-    joins(:company).where("invoices.number ILIKE :q OR unaccent(companies.trade_name) ILIKE unaccent(:q) OR unaccent(invoices.description) ILIKE unaccent(:q)",
+    joins(:company).where("fiscal_invoices.number ILIKE :q OR unaccent(companies.trade_name) ILIKE unaccent(:q) OR unaccent(fiscal_invoices.description) ILIKE unaccent(:q)",
                           q: "%#{sanitize_sql_like(term.to_s.strip)}%")
   }
 

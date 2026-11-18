@@ -14,7 +14,7 @@ class Receivable < ApplicationRecord
   belongs_to :customer_service, optional: true
   belongs_to :service, optional: true
   belongs_to :contract, optional: true
-  belongs_to :invoice, optional: true
+  belongs_to :fiscal_invoice, optional: true
 
   validate :links_from_same_company
   validate :not_duplicating_recurring, on: :create
@@ -106,6 +106,6 @@ class Receivable < ApplicationRecord
     errors.add(:contract, "é de outra empresa") if contract && contract.company_id != company_id
     errors.add(:contact, "não é da empresa") if contact && contact.company_id != company_id
     errors.add(:customer_service, "é de outra empresa") if customer_service && customer_service.company_id != company_id
-    errors.add(:invoice, "é de outra empresa") if invoice && invoice.company_id != company_id
+    errors.add(:fiscal_invoice, "é de outra empresa") if fiscal_invoice && fiscal_invoice.company_id != company_id
   end
 end

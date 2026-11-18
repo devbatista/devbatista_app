@@ -208,15 +208,15 @@ RSpec.describe "Financeiro" do
     end
   end
 
-  describe Invoice do
+  describe FiscalInvoice do
     it "exige número e data de emissão quando emitida e aceita só PDF ou XML" do
-      invoice = build(:invoice, number: nil, issued_on: nil)
-      expect(invoice).not_to be_valid
-      expect(invoice.errors.attribute_names).to include(:number, :issued_on)
-      invoice = build(:invoice)
-      invoice.files.attach(io: StringIO.new("x"), filename: "nota.png", content_type: "image/png")
-      expect(invoice).not_to be_valid
-      expect(build(:invoice, status: "pending", number: nil, issued_on: nil)).to be_valid
+      fiscal_invoice = build(:fiscal_invoice, number: nil, issued_on: nil)
+      expect(fiscal_invoice).not_to be_valid
+      expect(fiscal_invoice.errors.attribute_names).to include(:number, :issued_on)
+      fiscal_invoice = build(:fiscal_invoice)
+      fiscal_invoice.files.attach(io: StringIO.new("x"), filename: "nota.png", content_type: "image/png")
+      expect(fiscal_invoice).not_to be_valid
+      expect(build(:fiscal_invoice, status: "pending", number: nil, issued_on: nil)).to be_valid
     end
   end
 

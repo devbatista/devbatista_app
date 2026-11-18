@@ -5,7 +5,7 @@
 # projetos (Briefing_Portal_ACME_Fase2.docx / briefing-portal-acme-fase2.docx,
 # erp-cliente-c-arquitetura.pdf, cliente-d-marca.zip) e fornecedores
 # (aws-business-support-2026.pdf, silva-associados-honorarios-09-2026.pdf).
-# kind: Contratos = contract · Notas = invoice · Briefings = briefing · Documentos técnicos = technical
+# kind: Contratos = contract · Notas = fiscal_invoice · Briefings = briefing · Documentos técnicos = technical
 
 - title: Contrato_104_ACME_assinado.pdf
   kind: contract
@@ -32,7 +32,7 @@
   notes: Contrato #103 — Diagnóstico de infraestrutura (assinado).
 
 - title: NF_1248_ACME_set2026.pdf
-  kind: invoice
+  kind: fiscal_invoice
   company: Empresa ACME
   contract: null
   uploaded_by: bruno.lima@devbatista.com
