@@ -128,6 +128,36 @@ RSpec.describe "Financeiro" do
       expect { described_class.new(today).run! }.not_to change(Receivable, :count)
     end
 
+    it "no pós-pago, o vencimento cobra o mês anterior: a competência é o mês do serviço" do
+      postpaid = create(:customer_service, service: create(:service, name: "Desenvolvimento de Software"), price_cents: 800_000,
+                                           start_date: Date.new(2026, 8, 1), due_day: 6, postpaid: true)
+      described_class.new(today).run!
+      titles = postpaid.receivables.order(:due_on)
+      expect(titles.map { |t| [ t.due_on, t.competence ] }).to eq([
+        [ Date.new(2026, 9, 6), Date.new(2026, 8, 1) ], [ Date.new(2026, 10, 6), Date.new(2026, 9, 1) ],
+        [ Date.new(2026, 11, 6), Date.new(2026, 10, 1) ], [ Date.new(2026, 12, 6), Date.new(2026, 11, 1) ]
+      ])
+      expect(titles.first.description).to eq("Desenvolvimento de Software — Agosto/2026")
+      expect(postpaid.next_due_date(Date.new(2026, 9, 20))).to eq(Date.new(2026, 10, 6))
+      expect { described_class.new(today).run! }.not_to change(Receivable, :count)
+    end
+
+    it "no pós-pago, o primeiro vencimento é no mês seguinte ao início" do
+      postpaid = create(:customer_service, price_cents: 100_000, start_date: Date.new(2026, 9, 15), due_day: 6, postpaid: true)
+      described_class.new(today).run!
+      expect(postpaid.receivables.order(:due_on).first).to have_attributes(due_on: Date.new(2026, 10, 6), competence: Date.new(2026, 9, 1))
+      expect(postpaid.next_due_date(today)).to eq(Date.new(2026, 10, 6))
+    end
+
+    it "no pós-pago, encerrar mantém o mês do encerramento, cobrado no vencimento seguinte" do
+      postpaid = create(:customer_service, price_cents: 100_000, start_date: Date.new(2026, 8, 1), due_day: 6, postpaid: true)
+      described_class.new(today).run!
+      postpaid.update!(status: "ended", ended_on: Date.new(2026, 10, 20))
+      open = postpaid.receivables.where.not(status: "cancelled").order(:due_on)
+      expect(open.map(&:competence).last).to eq(Date.new(2026, 10, 1))
+      expect(postpaid.receivables.cancelled.map(&:competence)).to eq([ Date.new(2026, 11, 1) ])
+    end
+
     it "respeita a periodicidade e o dia de vencimento" do
       quarterly = create(:customer_service, price_cents: 360_000, recurrence: "quarterly", start_date: Date.new(2026, 4, 15), due_day: 15)
       described_class.new(today).run!

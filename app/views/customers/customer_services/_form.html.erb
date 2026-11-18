@@ -15,6 +15,7 @@
         <div class="field"><%= f.label :recurrence do %>Recorrência <span class="req">*</span><% end %><%= f.select :recurrence, CustomerService.options_for_recurrence, {}, class: "select" %><span class="hint">Trimestral ÷ 3, semestral ÷ 6, anual ÷ 12; avulsa fora do MRR</span></div>
         <div class="field"><%= f.label :start_date do %>Início <span class="req">*</span><% end %><%= f.date_field :start_date, class: "input", required: true %></div>
         <div class="field"><%= f.label :due_day, "Dia de vencimento" %><%= f.number_field :due_day, class: "input", min: 1, max: 31 %></div>
+        <div class="field full"><label class="check"><%= f.check_box :postpaid %> Pós-pago: o vencimento cobra o mês anterior</label><span class="hint">Ex.: o serviço de outubro vence em 06/11. A receita fica na competência do mês do serviço</span></div>
         <div class="field"><%= f.label :contract_id, "Contrato" %><%= f.select :contract_id, contracts.map { |c| [ "#{c.code} — #{c.title}#{" · #{c.company.trade_name}" unless customer_service.company}", c.id ] }, { include_blank: "Sem contrato" }, class: "select" %></div>
         <div class="field"><%= f.label :status, "Status" %><%= f.select :status, CustomerService.options_for_status, {}, class: "select" %><span class="hint">Só Ativo compõe o MRR</span></div>
       </div>

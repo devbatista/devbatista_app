@@ -38,15 +38,31 @@ class CustomerService < ApplicationRecord
 
   PERIOD_MONTHS = { "monthly" => 1, "quarterly" => 3, "semiannual" => 6, "annual" => 12 }.freeze
 
+  # Competência do título que vence em `due_on`: o próprio mês ou, no pós-pago, o mês anterior
+  # (o vencimento de 06/11 cobra outubro).
+  def competence_for(due_on)
+    postpaid? ? due_on.prev_month.beginning_of_month : due_on.beginning_of_month
+  end
+
+  # Mês a partir do qual há vencimento: o do início ou, no pós-pago, o seguinte (o primeiro mês
+  # de serviço é cobrado no mês depois).
+  def billing_start
+    postpaid? ? start_date.next_month.beginning_of_month : start_date
+  end
+
+  def billing_day
+    due_day || start_date.day
+  end
+
   # Próximo vencimento a partir de `today`, pela recorrência e pelo dia de vencimento.
   # Enquanto o Financeiro não existe, é a base da "Próxima cobrança" da Visão 360º.
   def next_due_date(today = Date.current)
     months = PERIOD_MONTHS[recurrence]
     return nil unless months && active?
 
-    day = due_day || start_date.day
-    date = start_date.beginning_of_month
-    date = date.next_month(months) while due_on(date, day) < [ today, start_date ].max
+    day = billing_day
+    date = billing_start.beginning_of_month
+    date = date.next_month(months) while due_on(date, day) < [ today, billing_start ].max
     due_on(date, day)
   end
 
@@ -81,9 +97,11 @@ class CustomerService < ApplicationRecord
     receivables.where(status: %w[forecast pending]).where(due_on: Date.current..).find_each { |r| r.update!(amount_cents: price_cents) }
   end
 
-  # Encerrar o serviço cancela os títulos posteriores à data de encerramento (RF 27).
+  # Encerrar o serviço cancela os títulos posteriores à data de encerramento (RF 27). No pós-pago
+  # vale a competência: o mês do encerramento ainda é cobrado no vencimento seguinte.
   def cancel_receivables_after_end
-    receivables.open.where("due_on > ?", ended_on).find_each { |r| r.cancel!("Cancelado: serviço encerrado em #{I18n.l(ended_on)}.") }
+    after_end = postpaid? ? receivables.where("competence > ?", ended_on) : receivables.where("due_on > ?", ended_on)
+    after_end.open.find_each { |r| r.cancel!("Cancelado: serviço encerrado em #{I18n.l(ended_on)}.") }
   end
 
   def contract_from_same_company
