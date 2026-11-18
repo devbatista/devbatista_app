@@ -16,7 +16,7 @@ class PixPayload
   def initialize(amount_cents:, txid:, key: Setting[:pix_key], name: nil, city: Setting[:pix_receiver_city])
     @amount_cents = amount_cents.to_i
     @txid = txid.to_s.gsub(/[^A-Za-z0-9]/, "").first(25).presence || "***"
-    @key = normalize_key(key)
+    @key = PixKey.normalize(nil, key)
     @name = ascii(name.presence || Setting[:pix_receiver_name].presence || Setting[:company_legal_name]).first(25)
     @city = ascii(city.presence || "SAO PAULO").first(15)
   end
@@ -27,6 +27,11 @@ class PixPayload
 
   def key
     @key
+  end
+
+  # Chave para mostrar ao cliente: CNPJ pontuado, celular com DDD.
+  def key_label
+    PixKey.format(@key)
   end
 
   def to_s
@@ -63,20 +68,6 @@ class PixPayload
 
   def field(id, value)
     "#{id}#{format('%02d', value.bytesize)}#{value}"
-  end
-
-  # Telefone vai com +55; CPF/CNPJ só com dígitos; e-mail em minúsculas; aleatória como está.
-  def normalize_key(key)
-    text = key.to_s.strip
-    return "" if text.empty?
-    return text.downcase if text.include?("@")
-    return text.downcase if text.match?(/\A\h{8}-\h{4}-\h{4}-\h{4}-\h{12}\z/)
-
-    digits = text.gsub(/\D/, "")
-    return "+#{digits}" if text.start_with?("+")
-    return "+55#{digits}" if text.include?("(")
-
-    digits.size.in?([ 11, 14 ]) ? digits : text
   end
 
   def ascii(text)

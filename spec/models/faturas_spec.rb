@@ -111,7 +111,7 @@ end
 
 RSpec.describe PixPayload do
   before do
-    Setting[:pix_key] = "12.345.678/0001-90"
+    Setting[:pix_key] = "12345678000195"
     Setting[:pix_receiver_name] = "DevBatista Tecnologia"
     Setting[:pix_receiver_city] = "São Paulo"
   end
@@ -120,7 +120,7 @@ RSpec.describe PixPayload do
     pix = described_class.new(amount_cents: 380_000, txid: "FAT-2026-0001")
     code = pix.to_s
     expect(code).to start_with("000201")
-    expect(code).to include("0014br.gov.bcb.pix0114123456780001905204000053039865407" + "3800.00", "5921DEVBATISTA TECNOLOGIA6009SAO PAULO", "0511FAT20260001")
+    expect(code).to include("0014br.gov.bcb.pix0114123456780001955204000053039865407" + "3800.00", "5921DEVBATISTA TECNOLOGIA6009SAO PAULO", "0511FAT20260001")
     crc = code[-4..]
     expect(described_class.new(amount_cents: 0, txid: "x").send(:crc16, code[0...-4])).to eq(crc)
     expect(pix.qr_svg).to include("<svg")
@@ -140,5 +140,48 @@ RSpec.describe PixPayload do
     Setting[:pix_key] = ""
     expect(described_class.new(amount_cents: 1, txid: "a")).not_to be_available
     expect(described_class.configured?).to be(false)
+  end
+end
+
+RSpec.describe PixKey do
+  it "reconhece o tipo pelo formato" do
+    expect(%w[61408507000173 52998224725 +5511987654321 pix@devbatista.com 123e4567-e89b-12d3-a456-426614174000 abc].map { |k| described_class.detect(k) })
+      .to eq([ "cnpj", "cpf", "phone", "email", "random", nil ])
+  end
+
+  it "normaliza pelo tipo escolhido" do
+    expect(described_class.normalize("cnpj", "61.408.507/0001-73")).to eq("61408507000173")
+    expect(described_class.normalize("cpf", "529.982.247-25")).to eq("52998224725")
+    expect(described_class.normalize("phone", "(11) 98765-4321")).to eq("+5511987654321")
+    expect(described_class.normalize("phone", "+55 11 98765-4321")).to eq("+5511987654321")
+    expect(described_class.normalize("email", " Pix@DevBatista.com ")).to eq("pix@devbatista.com")
+    expect(described_class.normalize("random", "123E4567-E89B-12D3-A456-426614174000")).to eq("123e4567-e89b-12d3-a456-426614174000")
+  end
+
+  it "recusa CPF e CNPJ com dígito errado, celular sem DDD e e-mail inválido" do
+    expect(described_class.error("61408507000163")).to eq("CNPJ inválido: confira os dígitos")
+    expect(described_class.error("52998224726")).to eq("CPF inválido: confira os dígitos")
+    expect(described_class.error("+55987654321")).to include("DDD")
+    expect(described_class.error("pix@devbatista")).to eq("e-mail inválido")
+    expect(described_class.error("abc")).to include("não reconhecido")
+    expect(%w[61408507000173 52998224725 +5511987654321 pix@devbatista.com].map { |k| described_class.valid?(k) }).to all(be(true))
+  end
+
+  it "formata para mostrar" do
+    expect(described_class.format("61408507000173")).to eq("61.408.507/0001-73")
+    expect(described_class.format("52998224725")).to eq("529.982.247-25")
+    expect(described_class.format("+5511987654321")).to eq("+55 (11) 98765-4321")
+  end
+
+  it "a configuração recusa chave inválida" do
+    expect { Setting[:pix_key] = "61408507000163" }.to raise_error(ActiveRecord::RecordInvalid, /Chave Pix: CNPJ inválido/)
+  end
+end
+
+RSpec.describe CpfValidator do
+  it "confere os dígitos verificadores" do
+    expect(described_class.valid?("529.982.247-25")).to be(true)
+    expect(described_class.valid?("529.982.247-26")).to be(false)
+    expect(described_class.valid?("111.111.111-11")).to be(false)
   end
 end

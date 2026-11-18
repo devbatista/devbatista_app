@@ -5,7 +5,7 @@ RSpec.describe "Faturas" do
   let(:company) { create(:company, trade_name: "Empresa ACME") }
   let!(:contact) { create(:contact, company: company, primary: true, name: "Maria Souza", email: "maria@acme.com.br", whatsapp: "(11) 98765-4321") }
 
-  before { Setting[:pix_key] = "12345678000190" }
+  before { Setting[:pix_key] = "12345678000195" }
 
   def issued_invoice(**attrs)
     create(:invoice, :issued, company: company, **attrs)
