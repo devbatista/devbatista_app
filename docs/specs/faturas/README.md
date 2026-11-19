@@ -56,7 +56,7 @@ receivables.invoice_id    # fatura ativa da receita (nulo quando a fatura é can
 
 Configurações → Financeiro, card "Faturas":
 
-- `pix_key`: chave Pix (CNPJ, e-mail, telefone, aleatória);
+- `pix_key`: chave Pix, com o tipo escolhido na tela (CNPJ, CPF, celular, e-mail ou aleatória). A máscara segue o tipo, e a chave é guardada no formato do banco: CNPJ e CPF só com dígitos, celular com +55, e-mail e aleatória em minúsculas. CNPJ e CPF têm os dígitos verificadores conferidos no navegador e no servidor (`PixKey`), porque com um dígito errado o app do banco responde "chave inexistente";
 - `pix_receiver_name`: nome do recebedor no Pix (até 25 caracteres; padrão: razão social);
 - `pix_receiver_city`: cidade do recebedor (até 15 caracteres);
 - `bank_details`: dados para transferência, em texto livre.

@@ -21,10 +21,13 @@ module Admin
     def settings_params
       raw = params.require(:settings).permit(:company_name, :company_legal_name, :company_cnpj, :company_whatsapp, :company_site, :mailer_sender,
                                              :email_enabled, :daily_run_time, :session_timeout_minutes, :proposal_alert_days, :recurrence_months,
-                                             :pix_key, :pix_receiver_name, :pix_receiver_city, :bank_details,
+                                             :pix_key, :pix_key_type, :pix_receiver_name, :pix_receiver_city, :bank_details,
                                              contract_alert_days: [], domain_alert_days: [], loss_reasons: [],
                                              expense_categories: [], cost_centers: [])
+      # O tipo escolhido na tela só serve para normalizar a chave; não é uma configuração.
+      pix_type = raw.delete(:pix_key_type)
       raw.to_h.to_h do |key, value|
+        next [ key, PixKey.normalize(pix_type, value) ] if key == "pix_key"
         next [ key, value.to_s.gsub(/\D/, "") ] if key == "company_cnpj"
         next [ key, value.to_s.gsub(/\D/, "").sub(/\A55(?=\d{10,11}\z)/, "") ] if key == "company_whatsapp"
 

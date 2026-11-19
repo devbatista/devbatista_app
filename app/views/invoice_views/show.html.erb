@@ -44,7 +44,7 @@
           <div class="pix-info" data-controller="clipboard">
             <b class="strong">Pix</b>
             <span class="caption">Abra o app do banco, escolha pagar com Pix e leia o QR Code ou use o copia e cola.</span>
-            <span class="caption">Chave: <b class="strong mono"><%= @pix.key %></b></span>
+            <span class="caption">Chave: <b class="strong mono"><%= @pix.key_label %></b></span>
             <label class="sr-only" for="pix-code">Pix copia e cola</label>
             <textarea id="pix-code" class="textarea mono pix-code" readonly rows="4" data-clipboard-target="source"><%= @pix.to_s %></textarea>
             <button type="button" class="btn pri" data-action="clipboard#copy" data-clipboard-target="button">Copiar código Pix</button>

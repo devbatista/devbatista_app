@@ -132,7 +132,7 @@ class InvoicePdf
         pdf.text "Pix", size: 11, style: :bold
         pdf.text "Abra o app do banco, escolha pagar com Pix e leia o QR Code ou cole o código abaixo.", size: 9, color: MUTED
         pdf.move_down 6
-        pdf.text "Chave: #{pix.key}", size: 9, style: :semibold
+        pdf.text "Chave: #{pix.key_label}", size: 9, style: :semibold
         pdf.move_down 6
         pdf.text "Pix copia e cola", size: 7.5, style: :semibold, color: ACCENT
         pdf.text pix.to_s, size: 7, color: INK, leading: 1

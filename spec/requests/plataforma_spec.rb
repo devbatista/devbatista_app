@@ -66,6 +66,23 @@ RSpec.describe "Busca, notificações e configurações" do
       expect(Setting[:company_cnpj]).to eq(cnpj)
     end
 
+    it "salva a chave Pix no formato do banco, pelo tipo escolhido, e recusa CNPJ com dígito errado" do
+      sign_in admin
+      patch admin_settings_path, params: { aba: "financeiro", settings: { pix_key_type: "cnpj", pix_key: "61.408.507/0001-73" } }
+      expect(Setting[:pix_key]).to eq("61408507000173")
+      get admin_settings_path(aba: "financeiro")
+      expect(response.body).to include('data-controller="pix-key"', "61.408.507/0001-73")
+
+      patch admin_settings_path, params: { aba: "financeiro", settings: { pix_key_type: "cnpj", pix_key: "61.408.507/0001-63" } }
+      expect(flash[:alert]).to include("Chave Pix: CNPJ inválido")
+      expect(Setting[:pix_key]).to eq("61408507000173")
+
+      patch admin_settings_path, params: { aba: "financeiro", settings: { pix_key_type: "phone", pix_key: "(11) 98765-4321" } }
+      expect(Setting[:pix_key]).to eq("+5511987654321")
+      patch admin_settings_path, params: { aba: "financeiro", settings: { pix_key_type: "email", pix_key: " Pix@DevBatista.com " } }
+      expect(Setting[:pix_key]).to eq("pix@devbatista.com")
+    end
+
     it "salva o WhatsApp da empresa só com os dígitos" do
       sign_in admin
       patch admin_settings_path, params: { aba: "geral", settings: { company_whatsapp: "(11) 98765-4321" } }

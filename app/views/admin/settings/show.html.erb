@@ -88,7 +88,12 @@
       <div class="card-body form">
         <span class="fieldset-title">Faturas · como o cliente paga</span>
         <div class="form-grid">
-          <div class="field full"><label for="s-pix">Chave Pix</label><%= text_field_tag "settings[pix_key]", Setting[:pix_key], class: "input mono", id: "s-pix", placeholder: "CNPJ, e-mail, +55 telefone ou chave aleatória", disabled: !editable %><span class="hint">Gera o QR Code e o copia e cola com o valor de cada fatura. Telefone: com +55, como +5511987654321</span></div>
+          <% pix_type = PixKey.detect(Setting[:pix_key]) || "cnpj" %>
+          <div class="form-grid full" style="grid-column:1/-1" data-controller="pix-key">
+            <div class="field"><label for="s-pixt">Tipo de chave</label><%= select_tag "settings[pix_key_type]", options_for_select(PixKey::TYPES.invert, pix_type), class: "select", id: "s-pixt", disabled: !editable, data: { pix_key_target: "type", action: "pix-key#change" } %></div>
+            <div class="field"><label for="s-pix">Chave Pix</label><%= text_field_tag "settings[pix_key]", PixKey.format(Setting[:pix_key]), class: "input mono", id: "s-pix", autocomplete: "off", spellcheck: false, disabled: !editable, data: { pix_key_target: "input", action: "input->pix-key#format blur->pix-key#check" } %>
+              <span class="hint" data-pix-key-target="hint">Gera o QR Code e o copia e cola com o valor de cada fatura</span></div>
+          </div>
           <div class="field"><label for="s-pixn">Nome do recebedor</label><%= text_field_tag "settings[pix_receiver_name]", Setting[:pix_receiver_name], class: "input", id: "s-pixn", maxlength: 25, placeholder: Setting[:company_legal_name].to_s.first(25), disabled: !editable %><span class="hint">Até 25 caracteres, como no banco. Em branco: a razão social</span></div>
           <div class="field"><label for="s-pixc">Cidade do recebedor</label><%= text_field_tag "settings[pix_receiver_city]", Setting[:pix_receiver_city], class: "input", id: "s-pixc", maxlength: 15, placeholder: "São Paulo", disabled: !editable %><span class="hint">Até 15 caracteres</span></div>
           <div class="field full"><label for="s-bank">Dados para transferência</label><%= text_area_tag "settings[bank_details]", Setting[:bank_details], class: "textarea", id: "s-bank", placeholder: "Banco, agência, conta e titular", disabled: !editable %><span class="hint">Aparecem na fatura abaixo do Pix. Em branco: a fatura mostra só o Pix</span></div>

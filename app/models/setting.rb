@@ -33,6 +33,7 @@ class Setting < ApplicationRecord
   validates :key, presence: true, uniqueness: true, inclusion: { in: DEFAULTS.keys }
   validate :valid_cnpj, if: -> { key == "company_cnpj" && value.present? }
   validate :valid_whatsapp, if: -> { key == "company_whatsapp" && value.present? }
+  validate :valid_pix_key, if: -> { key == "pix_key" && value.present? }
   validate :valid_pix_lengths, if: -> { key.in?(%w[pix_receiver_name pix_receiver_city]) && value.present? }
 
   def self.[](key)
@@ -59,6 +60,12 @@ class Setting < ApplicationRecord
 
   def valid_cnpj
     errors.add(:base, "CNPJ da empresa não é válido") unless CnpjValidator.valid?(value)
+  end
+
+  # Chave Pix no formato do banco (PixKey): com dígito errado, o app do banco diz "chave inexistente".
+  def valid_pix_key
+    error = PixKey.error(value)
+    errors.add(:base, "Chave Pix: #{error}") if error
   end
 
   # Limites do BR Code do Pix: nome até 25 e cidade até 15 caracteres.
