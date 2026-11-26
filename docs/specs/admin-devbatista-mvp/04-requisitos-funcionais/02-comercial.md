@@ -5,6 +5,7 @@
 6. **Leads.** Como comercial, quero registrar leads com origem e serviço de interesse.
    - Origem obrigatória entre: WhatsApp, Indicação, Site, Diagnóstico, Meta Ads, Google Ads, LinkedIn, Outbound, Outros.
    - Data de entrada preenchida automaticamente.
+   - Os formulários do site (Diagnóstico Tecnológico, e-book e contato) chegam como leads pelo webhook `/webhooks/site-leads`. Ver [Leads do site](../../leads-do-site/README.md).
 7. **Pipeline.** Como comercial, quero um quadro kanban com 7 etapas para arrastar os negócios entre elas.
    - Etapas: Novo Lead, Contato Realizado, Qualificado, Reunião, Proposta, Negociação, Fechado.
    - Perdido pode ser marcado em qualquer etapa aberta e exige motivo da perda.

@@ -9,6 +9,12 @@ RSpec.describe "Webhook de leads do site" do
       details: "Diagnóstico Tecnológico — 29/10/2026 10:00\nPrincipal desafio: Automatização de tarefas" }
   end
 
+  let(:contact) do
+    { source: "contact", site_id: "abc123", name: "Maria Souza", company: "Escritório X", email: "", phone: "11999990000",
+      need: "whatsapp_ia", consent: true, summary: "Contato pelo site: Atendimento com IA no WhatsApp · Contabilidade",
+      details: "Segmento: Contabilidade\nMensagens por mês: 300 a 1.000" }
+  end
+
   def post_lead(payload, token = "token-do-site-de-teste")
     post "/webhooks/site-leads", params: JSON.generate(payload),
                                  headers: { "Content-Type" => "application/json", "Authorization" => ("Bearer #{token}" if token) }.compact
@@ -79,11 +85,100 @@ RSpec.describe "Webhook de leads do site" do
     expect(response).to have_http_status(:unprocessable_entity)
     post_lead(diagnosis.except(:name))
     expect(response).to have_http_status(:unprocessable_entity)
+    post_lead(diagnosis.except(:email))
+    expect(response).to have_http_status(:unprocessable_entity)
+    post_lead(source: "ebook", site_id: "e0e0e0e0e0e0e0e0", phone: "11987654321")
+    expect(response).to have_http_status(:unprocessable_entity)
 
     admin.update!(active: false)
     post_lead(diagnosis)
     expect(response).to have_http_status(:unprocessable_entity)
     expect(response.parsed_body["errors"]).to include("Nenhum administrador ativo para receber o lead")
     expect(Lead.count).to eq(0)
+  end
+
+  describe "formulário de contato" do
+    let!(:ia) { create(:service, name: "Inteligência Artificial") }
+
+    it "cria o lead sem e-mail, com o serviço da necessidade, a interação, o próximo passo e o aviso ao responsável" do
+      travel_to Time.zone.local(2026, 11, 26, 14, 30, 15) do
+        expect { post_lead(contact) }.to change(Lead, :count).by(1).and change(Interaction, :count).by(1)
+      end
+      expect(response).to have_http_status(:created)
+
+      lead = Lead.find(response.parsed_body["id"])
+      expect(lead).to have_attributes(name: "Maria Souza", company_name: "Escritório X", email: nil, whatsapp: "(11) 99999-0000",
+                                      origin: "site", status: "new", user: admin, external_id: "abc123", service: ia,
+                                      notes: "#{contact[:details]}\nConsentimento de contato: sim",
+                                      next_step: "Responder o contato do site pelo WhatsApp",
+                                      next_step_on: Time.zone.local(2026, 11, 26, 14, 30))
+      expect(lead.interactions.sole).to have_attributes(kind: "note", notes: contact[:summary], user: admin)
+      expect(admin.notifications.sole).to have_attributes(kind: "site_lead", level: "warn", path: "/commercial/leads/#{lead.id}",
+                                                          title: "Novo contato do site: Escritório X · Maria Souza")
+    end
+
+    it "usa a nota padrão sem summary e aceita o contato sem consent" do
+      post_lead(contact.except(:summary, :consent, :details))
+      expect(response).to have_http_status(:created)
+      lead = Lead.sole
+      expect(lead.interactions.sole.notes).to eq("Enviou o formulário de contato pelo site")
+      expect(lead.notes).to be_nil
+    end
+
+    it "completa o lead em aberto com o mesmo WhatsApp, sem trocar serviço nem próximo passo já definidos" do
+      outro = create(:service, name: "Consultoria")
+      lead = create(:lead, name: "Maria", company_name: nil, email: "maria@escritorio.com.br", whatsapp: "(11) 99999-0000", service: outro,
+                           next_step: "Ligar na segunda", next_step_on: Date.new(2026, 12, 1), user: admin)
+
+      expect { post_lead(contact) }.not_to change(Lead, :count)
+      expect(response).to have_http_status(:ok)
+      expect(response.parsed_body).to eq("id" => lead.id, "created" => false)
+      expect(lead.reload).to have_attributes(name: "Maria", email: "maria@escritorio.com.br", company_name: "Escritório X", service: outro,
+                                             next_step: "Ligar na segunda")
+      expect(admin.notifications.sole).to have_attributes(level: "warn", title: "Escritório X · Maria enviou o formulário de contato")
+    end
+
+    it "acha o lead pelo e-mail quando vem e-mail, e pelo telefone o mais recente em aberto" do
+      by_email = create(:lead, email: "maria@escritorio.com.br", user: admin)
+      post_lead(contact.merge(email: "Maria@Escritorio.com.br", phone: "11911112222"))
+      expect(response.parsed_body).to eq("id" => by_email.id, "created" => false)
+
+      create(:lead, whatsapp: "(11) 99999-0000", user: admin, created_at: 2.days.ago)
+      newest = create(:lead, whatsapp: "(11) 99999-0000", user: admin, created_at: 1.day.ago)
+      post_lead(contact)
+      expect(response.parsed_body).to eq("id" => newest.id, "created" => false)
+    end
+
+    it "abre lead novo quando o do mesmo WhatsApp já foi perdido ou convertido" do
+      create(:lead, whatsapp: "(11) 99999-0000", status: "lost", lost_reason: "Preço", user: admin)
+      create(:lead, whatsapp: "(11) 99999-0000", status: "converted", user: admin)
+      expect { post_lead(contact) }.to change(Lead, :count).by(1)
+      expect(response).to have_http_status(:created)
+    end
+
+    it "mapeia a necessidade para o serviço do catálogo pelo nome e segue sem serviço quando não há" do
+      sob_medida = create(:service, name: "Desenvolvimento de sistemas")
+      {
+        "whatsapp_ia" => ia, "ia_sistemas" => ia, "sob_medida" => sob_medida,
+        "automacao_ia" => nil, # "Automação/RPA" não está no catálogo do teste
+        "agencia" => nil, "nao_sei" => nil, "outra_coisa" => nil, nil => nil
+      }.each_with_index do |(need, service), index|
+        post_lead(contact.merge(need: need, site_id: "need#{index}", phone: "1199999#{index.to_s.rjust(4, '0')}"))
+        expect(response).to have_http_status(:created)
+        expect(Lead.find(response.parsed_body["id"]).service).to eq(service), "need #{need.inspect}"
+      end
+    end
+
+    it "recusa contato sem nome, sem telefone ou com e-mail inválido" do
+      [ contact.except(:name), contact.merge(phone: ""), contact.merge(email: "sem-arroba") ].each do |payload|
+        expect { post_lead(payload) }.not_to change(Lead, :count)
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
+
+    it "recusa token errado" do
+      expect { post_lead(contact, "outro-token") }.not_to change(Lead, :count)
+      expect(response).to have_http_status(:unauthorized)
+    end
   end
 end
