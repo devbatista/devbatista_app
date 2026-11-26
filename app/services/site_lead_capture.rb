@@ -8,7 +8,8 @@
 # completo (details) se soma às observações.
 #
 # Cada envio vira uma interação (nota) com o resumo de uma linha. O diagnóstico e o contato avisam o
-# responsável, e o contato ainda deixa o próximo passo de responder pelo WhatsApp.
+# responsável (sino e e-mail com os dados do lead), e o contato ainda deixa o próximo passo de responder
+# pelo WhatsApp. O Admin é o único que manda e-mail dos leads do site: o site só grava e repassa.
 class SiteLeadCapture
   include ActiveModel::Model
   include ActiveModel::Attributes
@@ -22,6 +23,12 @@ class SiteLeadCapture
     "whatsapp_ia" => "Inteligência Artificial", "automacao_ia" => "Automação/RPA", "ia_sistemas" => "Inteligência Artificial",
     "sob_medida" => "Desenvolvimento de sistemas", "manutencao" => "Manutenção"
   }.freeze
+  # Rótulos das necessidades, como no formulário do site (CONTACT_NEEDS em api/contato.php).
+  NEED_LABELS = {
+    "whatsapp_ia" => "Atendimento com IA no WhatsApp", "automacao_ia" => "Automação de tarefas com IA",
+    "ia_sistemas" => "IA conectada aos meus sistemas", "sob_medida" => "Sistema, site ou app sob medida",
+    "manutencao" => "Manutenção de sistema existente", "agencia" => "Sou agência ou software house", "nao_sei" => "Ainda não sei"
+  }.freeze
   CONTACT_NEXT_STEP = "Responder o contato do site pelo WhatsApp".freeze
 
   attribute :source, :string
@@ -34,6 +41,7 @@ class SiteLeadCapture
   attribute :details, :string    # texto completo, para as observações
   attribute :tier, :string       # potencial comercial do diagnóstico: frio, morno ou quente
   attribute :need, :string       # necessidade do formulário de contato (NEED_SERVICES)
+  attribute :segment, :string    # segmento do contato, já em rótulo; sem ele, vale a linha "Segmento:" do details
   attribute :consent, :boolean   # aceite do formulário de contato, só registrado nas observações
 
   attr_reader :lead
@@ -124,7 +132,21 @@ class SiteLeadCapture
 
   def notify
     Notification.deliver!(kind: "site_lead", title: notification_title, level: notification_level, users: [ lead.user ],
-                          notifiable: lead, path: Rails.application.routes.url_helpers.lead_path(lead))
+                          notifiable: lead, path: Rails.application.routes.url_helpers.lead_path(lead),
+                          email_params: { site_lead: submission_for_email })
+  end
+
+  # O que é só deste envio, para o e-mail do aviso (NotificationMailer, template site_lead). Os dados
+  # do lead (nome, contato, empresa, serviço) o e-mail lê do próprio lead.
+  def submission_for_email
+    {
+      "origin" => contact? ? "Formulário de contato" : "Diagnóstico Tecnológico",
+      "tier" => (tier.capitalize if diagnosis? && tier.in?(TIERS)),
+      "need" => (NEED_LABELS[need] || need.presence if contact?),
+      "segment" => segment.presence || details.to_s[/^Segmento: *(.+)$/, 1]&.strip,
+      "summary" => interaction_notes,
+      "details" => details_with_consent
+    }.compact_blank
   end
 
   # Quem manda o formulário de contato está pronto para conversar: sempre "warn".

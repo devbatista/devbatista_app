@@ -65,6 +65,28 @@ module MailerHelper
     end
   end
 
+  # Dados de um registro em linhas "rótulo  valor". Linha sem valor fica de fora.
+  #
+  #   <%= mail_fields "Nome" => lead.name, "E-mail" => mail_to(lead.email) %>
+  def mail_fields(rows)
+    rows = rows.select { |_label, value| value.present? }
+    return if rows.empty?
+
+    tag.table(role: "presentation", width: "100%", cellpadding: 0, cellspacing: 0, border: 0, style: "margin:0 0 16px;border-collapse:collapse") do
+      safe_join(rows.map do |label, value|
+        tag.tr do
+          tag.td(label, style: "padding:6px 16px 6px 0;vertical-align:top;white-space:nowrap;font-family:#{FONT};font-size:13px;color:#{COLORS[:muted]}") +
+            tag.td(value, style: "padding:6px 0;vertical-align:top;font-family:#{FONT};font-size:14px;line-height:1.5;color:#{COLORS[:white]}")
+        end
+      end)
+    end
+  end
+
+  # Texto de várias linhas (como veio do formulário), com as quebras preservadas.
+  def mail_lines(text)
+    mail_text safe_join(text.to_s.strip.split("\n"), tag.br)
+  end
+
   # Texto secundário no fim do conteúdo; o primeiro abre com uma linha divisória.
   def mail_note(text = nil, rule: true, &block)
     spacing = rule ? "padding-top:16px;border-top:1px solid #{COLORS[:rule]}" : "padding-top:8px"

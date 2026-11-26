@@ -1,0 +1,32 @@
+<%# Aviso de lead do site (docs/specs/leads-do-site): os dados do lead e do envio, para agir sem abrir o sistema. %>
+<% link_style = "color:#{MailerHelper::COLORS[:cyan]}" %>
+<% whatsapp_digits = @lead.whatsapp.to_s.gsub(/\D/, "") %>
+<% content_for :preheader, @submission["summary"].presence || @notification.title %>
+<%= mail_label @notification.kind_label %>
+<%= mail_title @notification.title %>
+<% if @submission["tier"] %>
+  <%= mail_badge "Potencial #{@submission['tier'].downcase}", @notification.level %>
+<% elsif !@notification.level_info? %>
+  <%= mail_badge @notification.level_label, @notification.level %>
+<% end %>
+<%= mail_text "Olá, #{@notification.user.first_name}. Chegou pelo site: #{@submission['summary']}" if @submission["summary"].present? %>
+<%= mail_fields(
+      "Nome" => @lead.name,
+      "WhatsApp" => (link_to(@lead.whatsapp, "https://wa.me/55#{whatsapp_digits}", style: link_style) if whatsapp_digits.present?),
+      "E-mail" => (mail_to(@lead.email, @lead.email, style: link_style) if @lead.email.present?),
+      "Empresa" => @lead.company_name,
+      "Origem" => @submission["origin"],
+      "Potencial" => @submission["tier"],
+      "O que precisa" => @submission["need"],
+      "Serviço de interesse" => @lead.service&.name,
+      "Segmento" => @submission["segment"]
+    ) %>
+<% if @submission["details"].present? %>
+  <%= mail_label "Envio completo" %>
+  <%= mail_lines @submission["details"] %>
+<% end %>
+<%= mail_button "Abrir o lead", @url %>
+<%= mail_note do %>
+  Você recebe este e-mail porque o alerta “<%= @notification.kind_label %>” está ativo nas suas preferências.
+  <%= link_to "Alterar preferências", notifications_url, style: "color:#22d3ee" %>
+<% end %>
