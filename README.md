@@ -66,7 +66,7 @@ bundle exec sidekiq          # em outro terminal
 - **Relatórios:** `ReportCatalog` (`app/services/report_catalog.rb`) registra os 19 relatórios: quem pode ver, se é financeiro (filtra por cliente e serviço) e o método que monta a tabela. A mesma tabela vira o CSV (`CsvExport`: `;`, vírgula decimal e BOM para o Excel).
 - **Formulários:** abrem na gaveta lateral por Turbo Frame (`drawer_link_to`) e também funcionam como página própria.
 - **Seeds:** `db/seeds/data/*.yml` traz os mesmos dados do design (empresas, contatos, contratos, serviços contratados, documentos). Só carregam fora de produção.
-- **Leads do site:** o Diagnóstico Tecnológico, o e-book e o formulário de contato do devbatista.com chegam por `POST /webhooks/site-leads` (`SiteLeadCapture`), com o `SITE_LEADS_TOKEN`. Contrato e regras na [spec](docs/specs/leads-do-site/README.md).
+- **Leads do site:** o Diagnóstico Tecnológico, o e-book e o formulário de contato do devbatista.com chegam por `POST /webhooks/site-leads` (`SiteLeadCapture`), com o `SITE_LEADS_TOKEN`. O Admin manda todos os e-mails desses leads: o aviso ao responsável (diagnóstico e contato) e o e-book ao visitante (`EbookMailer`, link em `EBOOK_DOWNLOAD_URL`). Contrato e regras na [spec](docs/specs/leads-do-site/README.md).
 - **Menu:** `NavigationHelper::NAV`. Item sem rota aparece como "em breve".
 
 ## Produção

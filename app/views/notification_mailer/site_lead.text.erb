@@ -1,0 +1,23 @@
+<%= @notification.kind_label.upcase %><%= " · Potencial #{@submission['tier'].downcase}" if @submission["tier"] %>
+
+<%= @notification.title %>
+
+Olá, <%= @notification.user.first_name %>.<%= " Chegou pelo site: #{@submission['summary']}" if @submission["summary"].present? %>
+
+<% {
+     "Nome" => @lead.name, "WhatsApp" => @lead.whatsapp, "E-mail" => @lead.email, "Empresa" => @lead.company_name,
+     "Origem" => @submission["origin"], "Potencial" => @submission["tier"], "O que precisa" => @submission["need"],
+     "Serviço de interesse" => @lead.service&.name, "Segmento" => @submission["segment"]
+   }.select { |_label, value| value.present? }.each do |label, value| -%>
+<%= label %>: <%= value %>
+<% end -%>
+<% if @submission["details"].present? -%>
+
+ENVIO COMPLETO
+<%= @submission["details"].strip %>
+<% end -%>
+
+Abrir o lead: <%= @url %>
+
+Você recebe este e-mail porque o alerta "<%= @notification.kind_label %>" está ativo nas suas preferências.
+Alterar preferências: <%= notifications_url %>

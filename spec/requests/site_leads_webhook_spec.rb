@@ -97,6 +97,131 @@ RSpec.describe "Webhook de leads do site" do
     expect(Lead.count).to eq(0)
   end
 
+  describe "e-mail do aviso ao responsável" do
+    let!(:ia) { create(:service, name: "Inteligência Artificial") }
+
+    def mails_to(user) = ActionMailer::Base.deliveries.select { |mail| mail.to == [ user.email ] }
+    def html(mail) = mail.html_part.body.decoded
+    def text(mail) = mail.text_part.body.decoded
+
+    def post_and_deliver(payload)
+      perform_enqueued_jobs(only: ActionMailer::MailDeliveryJob) { post_lead(payload) }
+    end
+
+    it "manda o diagnóstico de qualquer potencial, com o nível no assunto e os dados do lead no corpo" do
+      post_and_deliver(diagnosis.merge(tier: "frio"))
+      mail = mails_to(admin).sole
+      lead = Lead.sole
+
+      expect(mail.subject).to eq("[Admin DevBatista] Novo lead do site: Clínica Sorriso · Ana Souza · potencial frio")
+      [ html(mail), text(mail) ].each do |body|
+        expect(body).to include("Ana Souza", "(11) 98765-4321", "ana@clinica.com.br", "Clínica Sorriso", "Diagnóstico Tecnológico",
+                                "Frio", diagnosis[:summary], "Principal desafio: Automatização de tarefas", "/commercial/leads/#{lead.id}")
+      end
+      expect(html(mail)).to include("https://wa.me/5511987654321", "Potencial frio", "Abrir o lead")
+    end
+
+    it "manda todo contato, com o que precisa, o serviço, o segmento e o texto completo" do
+      post_and_deliver(contact)
+      mail = mails_to(admin).sole
+
+      expect(mail.subject).to eq("[Admin DevBatista] Novo contato do site: Escritório X · Maria Souza")
+      [ html(mail), text(mail) ].each do |body|
+        expect(body).to include("Maria Souza", "(11) 99999-0000", "Escritório X", "Formulário de contato", "Atendimento com IA no WhatsApp",
+                                "Inteligência Artificial", "Segmento", "Contabilidade", "Mensagens por mês: 300 a 1.000",
+                                "Consentimento de contato: sim")
+      end
+      expect(text(mail)).not_to include("E-mail:", "Potencial")
+    end
+
+    it "usa o segmento enviado no campo próprio, no lugar da linha do details" do
+      post_and_deliver(contact.merge(segment: "Saúde e estética", details: "Caso: agenda lotada"))
+      expect(text(mails_to(admin).sole)).to include("Segmento: Saúde e estética")
+    end
+
+    it "não avisa o responsável no e-book" do
+      post_and_deliver(source: "ebook", site_id: "e0e0e0e0e0e0e0e0", email: "ana@clinica.com.br")
+      expect(response).to have_http_status(:created)
+      expect(mails_to(admin)).to be_empty
+    end
+
+    it "respeita a preferência desligada e o envio de alertas desligado em Configurações" do
+      admin.update!(email_preferences: { "site_lead" => false })
+      post_and_deliver(contact)
+      expect(admin.notifications.count).to eq(1)
+      expect(mails_to(admin)).to be_empty
+
+      admin.update!(email_preferences: {})
+      Setting[:email_enabled] = false
+      post_and_deliver(diagnosis)
+      expect(mails_to(admin)).to be_empty
+    end
+
+    it "fica ligado por padrão para quem nunca mexeu na preferência" do
+      expect(admin.email_for?("site_lead")).to be(true)
+    end
+  end
+
+  describe "entrega do e-book" do
+    let(:ebook) { { source: "ebook", site_id: "e0e0e0e0e0e0e0e0", email: "Ana@Clinica.com.br", summary: "Baixou o e-book pelo site (ebook)" } }
+
+    def ebook_mails = ActionMailer::Base.deliveries.select { |mail| mail.subject == EbookMailer::SUBJECT }
+
+    it "manda ao visitante o link do e-book, do endereço do Rafael e sem Reply-To" do
+      perform_enqueued_jobs(only: ActionMailer::MailDeliveryJob) { post_lead(ebook) }
+      expect(response).to have_http_status(:created)
+
+      mail = ebook_mails.sole
+      expect(mail.to).to eq([ "ana@clinica.com.br" ])
+      expect(mail[:from].value).to eq("Rafael Batista <rafael@devbatista.com>")
+      expect(mail.reply_to).to be_nil
+      expect(mail.subject).to eq("Seu e-book chegou: onde a TI drena o lucro da sua empresa")
+      url = "https://www.devbatista.com/materiais/ebook-de-teste.pdf"
+      expect(mail.html_part.body.decoded).to include(%(href="#{url}"), "Baixar o e-book (PDF)", "ele chega direto em mim")
+      expect(mail.html_part.body.decoded).not_to include("Admin")
+      expect(mail.text_part.body.decoded).to include("Obrigado pelo interesse!", url, "Rafael Batista\nDevBatista — devbatista.com")
+    end
+
+    it "usa o remetente das variáveis EBOOK_EMAIL_FROM e EBOOK_EMAIL_FROM_NAME" do
+      allow(Rails.configuration.x.ebook).to receive_messages(email_from: "materiais@devbatista.com", email_from_name: "DevBatista")
+      perform_enqueued_jobs(only: ActionMailer::MailDeliveryJob) { post_lead(ebook) }
+      expect(ebook_mails.sole[:from].value).to eq("DevBatista <materiais@devbatista.com>")
+    end
+
+    it "manda o e-book de novo a quem pede duas vezes, sem duplicar o lead" do
+      perform_enqueued_jobs(only: ActionMailer::MailDeliveryJob) do
+        post_lead(ebook)
+        expect { post_lead(ebook.merge(site_id: "f1f1f1f1f1f1f1f1")) }.not_to change(Lead, :count)
+      end
+      expect(response).to have_http_status(:ok)
+      expect(ebook_mails.size).to eq(2)
+    end
+
+    it "responde 503 ebook_unavailable sem EBOOK_DOWNLOAD_URL, mas guarda o lead" do
+      allow(Rails.configuration.x.ebook).to receive(:download_url).and_return(nil)
+      allow(Rails.logger).to receive(:error)
+
+      expect { post_lead(ebook) }.not_to have_enqueued_mail(EbookMailer, :download)
+      expect(Lead.sole.email).to eq("ana@clinica.com.br")
+      expect(response).to have_http_status(:service_unavailable)
+      expect(response.parsed_body).to eq("errors" => [ "ebook_unavailable" ])
+      expect(Rails.logger).to have_received(:error).with(/EBOOK_DOWNLOAD_URL/)
+    end
+
+    it "responde 503 quando o e-mail não entra na fila" do
+      allow(Rails.logger).to receive(:error)
+      allow(EbookMailer).to receive(:download).and_return(instance_double(ActionMailer::MessageDelivery, deliver_later: false))
+      post_lead(ebook)
+      expect(response).to have_http_status(:service_unavailable)
+
+      allow(EbookMailer).to receive(:download).and_raise(RuntimeError, "Redis fora do ar")
+      post_lead(ebook)
+      expect(response).to have_http_status(:service_unavailable)
+      expect(response.parsed_body).to eq("errors" => [ "ebook_unavailable" ])
+      expect(Rails.logger).to have_received(:error).with(/Redis fora do ar/)
+    end
+  end
+
   describe "formulário de contato" do
     let!(:ia) { create(:service, name: "Inteligência Artificial") }
 

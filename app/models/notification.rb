@@ -26,8 +26,8 @@ class Notification < ApplicationRecord
                            trigger: -> { "#{Setting[:domain_alert_days].to_sentence} dias antes do vencimento" } },
     "ticket_critical" => { label: "Chamados críticos", roles: %w[admin suporte desenvolvedor], area: "suporte",
                            trigger: -> { "Abertura ou mudança para prioridade Crítica (na hora)" } },
-    "site_lead" => { label: "Leads do site", roles: :owner, area: "comercial", email_default: false,
-                     trigger: -> { "Diagnóstico Tecnológico ou formulário de contato enviado pelo site (o site já manda e-mail dos diagnósticos mornos e quentes)" } },
+    "site_lead" => { label: "Leads do site", roles: :owner, area: "comercial",
+                     trigger: -> { "Diagnóstico Tecnológico ou formulário de contato enviado pelo site (o e-mail traz os dados do lead)" } },
     "whatsapp_message" => { label: "Mensagens do WhatsApp", roles: %w[admin], area: "whatsapp", area_readers: true, email_default: false,
                             audience: "quem vê as conversas", trigger: -> { "Mensagem recebida numa conversa (um aviso por conversa)" } },
     "whatsapp_token_expiring" => { label: "Acesso do WhatsApp vencendo", roles: %w[admin], area: "whatsapp",
@@ -50,7 +50,8 @@ class Notification < ApplicationRecord
   # Cria o alerta para cada usuário ativo dos perfis do tipo. Com dedup_key, não
   # repete o mesmo alerta se a rotina rodar duas vezes.
   # Alertas com roles: :owner vão só para o responsável do registro (users:).
-  def self.deliver!(kind:, title:, path: nil, notifiable: nil, level: "info", dedup_key: nil, users: nil)
+  # email_params: dados extras do e-mail (params do NotificationMailer), como os do envio do site.
+  def self.deliver!(kind:, title:, path: nil, notifiable: nil, level: "info", dedup_key: nil, users: nil, email_params: {})
     config = KINDS.fetch(kind)
     users ||= User.active.joins(:role).where(roles: { key: config[:roles] })
     users = Array(users).select(&:active?)
@@ -59,7 +60,7 @@ class Notification < ApplicationRecord
 
       notification = create!(user: user, kind: kind, title: title, path: path, notifiable: notifiable,
                              level: level, area: config[:area], dedup_key: dedup_key)
-      notification.email_later
+      notification.email_later(email_params)
       notification
     end
   end
@@ -72,8 +73,8 @@ class Notification < ApplicationRecord
     Turbo::StreamsChannel.broadcast_replace_later_to(stream, target: "notifications_bell_list", partial: "notifications/bell_list", locals: { user: user })
   end
 
-  def email_later
-    NotificationMailer.alert(self).deliver_later if user.email_for?(kind) && Setting[:email_enabled]
+  def email_later(params = {})
+    NotificationMailer.with(params).alert(self).deliver_later if user.email_for?(kind) && Setting[:email_enabled]
   end
 
   def read?
