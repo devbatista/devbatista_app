@@ -1,4 +1,4 @@
-# Leads do site (devbatista.com): Diagnóstico Tecnológico e e-book (SiteLeadCapture). Herda de
+# Leads do site (devbatista.com): Diagnóstico Tecnológico, e-book e formulário de contato (SiteLeadCapture). Herda de
 # ActionController::API, como o webhook do WhatsApp: fica fora do login, do Pundit e do CSRF.
 # Quem chama é o PHP do site, servidor a servidor, com o SITE_LEADS_TOKEN no Authorization: Bearer.
 #
