@@ -9,7 +9,8 @@
 #
 # Cada envio vira uma interação (nota) com o resumo de uma linha. O diagnóstico e o contato avisam o
 # responsável (sino e e-mail com os dados do lead), e o contato ainda deixa o próximo passo de responder
-# pelo WhatsApp. O Admin é o único que manda e-mail dos leads do site: o site só grava e repassa.
+# pelo WhatsApp. O e-book manda o link do PDF a quem pediu (EbookMailer), a cada pedido, mesmo que o
+# lead já exista. O Admin é o único que manda e-mail dos leads do site: o site só grava e repassa.
 class SiteLeadCapture
   include ActiveModel::Model
   include ActiveModel::Attributes
@@ -59,7 +60,10 @@ class SiteLeadCapture
 
   def diagnosis? = source == "diagnosis"
   def contact? = source == "contact"
+  def ebook? = source == "ebook"
   def created? = @created
+  # E-mail do e-book aceito para envio (enfileirado). Falso sem EBOOK_DOWNLOAD_URL ou se a fila falhar.
+  def ebook_sent? = @ebook_sent
 
   def save
     return false unless valid?
@@ -79,6 +83,7 @@ class SiteLeadCapture
       @lead.interactions.create!(kind: "note", occurred_on: Date.current, notes: interaction_notes, user: @lead.user)
     end
     notify if diagnosis? || contact?
+    @ebook_sent = send_ebook if ebook?
     true
   rescue ActiveRecord::RecordInvalid => e
     errors.merge!(e.record.errors)
@@ -128,6 +133,22 @@ class SiteLeadCapture
     return "Enviou o formulário de contato pelo site" if contact?
 
     diagnosis? ? "Fez o Diagnóstico Tecnológico pelo site" : "Baixou o e-book pelo site"
+  end
+
+  # Depois de salvar: o lead nunca se perde por causa do e-mail. A falha volta como ebook_sent? falso,
+  # para o webhook avisar o site, que mostra a mensagem de erro ao visitante.
+  def send_ebook
+    url = Rails.configuration.x.ebook.download_url
+    unless url.to_s.match?(%r{\Ahttps?://\S+\z})
+      Rails.logger.error("[SiteLeads] EBOOK_DOWNLOAD_URL não configurada ou inválida: e-book não enviado (lead #{lead.id})")
+      return false
+    end
+
+    job = EbookMailer.download(to: email.strip.downcase, url: url).deliver_later
+    job.present? && job.successfully_enqueued?
+  rescue StandardError => e
+    Rails.logger.error("[SiteLeads] e-book não enfileirado (lead #{lead.id}): #{e.class}: #{e.message}")
+    false
   end
 
   def notify

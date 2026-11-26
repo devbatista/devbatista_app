@@ -60,6 +60,11 @@ module Devbatista
     # Leads do site (devbatista.com), no lugar do HubSpot: token compartilhado com o api/config.php do
     # site (crm_token). Sem ele, o webhook /webhooks/site-leads recusa tudo.
     config.x.site_leads.token = ENV["SITE_LEADS_TOKEN"].presence
+    # E-book do site: o Admin manda o link a quem pediu (EbookMailer). Sem a URL, o webhook responde
+    # 503 (ebook_unavailable). Sai do endereço pessoal do Rafael, sem Reply-To: a resposta cai direto nele.
+    config.x.ebook.download_url = ENV["EBOOK_DOWNLOAD_URL"].presence
+    config.x.ebook.email_from = ENV["EBOOK_EMAIL_FROM"].presence || "rafael@devbatista.com"
+    config.x.ebook.email_from_name = ENV["EBOOK_EMAIL_FROM_NAME"].presence || "Rafael Batista"
 
     # Visitas do site (docs/specs/visitas-do-site): token compartilhado com o api/config.php do site
     # (visits_token), separado do de leads. Sem ele, o webhook /webhooks/site-visits recusa tudo.

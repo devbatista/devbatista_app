@@ -162,6 +162,66 @@ RSpec.describe "Webhook de leads do site" do
     end
   end
 
+  describe "entrega do e-book" do
+    let(:ebook) { { source: "ebook", site_id: "e0e0e0e0e0e0e0e0", email: "Ana@Clinica.com.br", summary: "Baixou o e-book pelo site (ebook)" } }
+
+    def ebook_mails = ActionMailer::Base.deliveries.select { |mail| mail.subject == EbookMailer::SUBJECT }
+
+    it "manda ao visitante o link do e-book, do endereço do Rafael e sem Reply-To" do
+      perform_enqueued_jobs(only: ActionMailer::MailDeliveryJob) { post_lead(ebook) }
+      expect(response).to have_http_status(:created)
+
+      mail = ebook_mails.sole
+      expect(mail.to).to eq([ "ana@clinica.com.br" ])
+      expect(mail[:from].value).to eq("Rafael Batista <rafael@devbatista.com>")
+      expect(mail.reply_to).to be_nil
+      expect(mail.subject).to eq("Seu e-book chegou: onde a TI drena o lucro da sua empresa")
+      url = "https://www.devbatista.com/materiais/ebook-de-teste.pdf"
+      expect(mail.html_part.body.decoded).to include(%(href="#{url}"), "Baixar o e-book (PDF)", "ele chega direto em mim")
+      expect(mail.html_part.body.decoded).not_to include("Admin")
+      expect(mail.text_part.body.decoded).to include("Obrigado pelo interesse!", url, "Rafael Batista\nDevBatista — devbatista.com")
+    end
+
+    it "usa o remetente das variáveis EBOOK_EMAIL_FROM e EBOOK_EMAIL_FROM_NAME" do
+      allow(Rails.configuration.x.ebook).to receive_messages(email_from: "materiais@devbatista.com", email_from_name: "DevBatista")
+      perform_enqueued_jobs(only: ActionMailer::MailDeliveryJob) { post_lead(ebook) }
+      expect(ebook_mails.sole[:from].value).to eq("DevBatista <materiais@devbatista.com>")
+    end
+
+    it "manda o e-book de novo a quem pede duas vezes, sem duplicar o lead" do
+      perform_enqueued_jobs(only: ActionMailer::MailDeliveryJob) do
+        post_lead(ebook)
+        expect { post_lead(ebook.merge(site_id: "f1f1f1f1f1f1f1f1")) }.not_to change(Lead, :count)
+      end
+      expect(response).to have_http_status(:ok)
+      expect(ebook_mails.size).to eq(2)
+    end
+
+    it "responde 503 ebook_unavailable sem EBOOK_DOWNLOAD_URL, mas guarda o lead" do
+      allow(Rails.configuration.x.ebook).to receive(:download_url).and_return(nil)
+      allow(Rails.logger).to receive(:error)
+
+      expect { post_lead(ebook) }.not_to have_enqueued_mail(EbookMailer, :download)
+      expect(Lead.sole.email).to eq("ana@clinica.com.br")
+      expect(response).to have_http_status(:service_unavailable)
+      expect(response.parsed_body).to eq("errors" => [ "ebook_unavailable" ])
+      expect(Rails.logger).to have_received(:error).with(/EBOOK_DOWNLOAD_URL/)
+    end
+
+    it "responde 503 quando o e-mail não entra na fila" do
+      allow(Rails.logger).to receive(:error)
+      allow(EbookMailer).to receive(:download).and_return(instance_double(ActionMailer::MessageDelivery, deliver_later: false))
+      post_lead(ebook)
+      expect(response).to have_http_status(:service_unavailable)
+
+      allow(EbookMailer).to receive(:download).and_raise(RuntimeError, "Redis fora do ar")
+      post_lead(ebook)
+      expect(response).to have_http_status(:service_unavailable)
+      expect(response.parsed_body).to eq("errors" => [ "ebook_unavailable" ])
+      expect(Rails.logger).to have_received(:error).with(/Redis fora do ar/)
+    end
+  end
+
   describe "formulário de contato" do
     let!(:ia) { create(:service, name: "Inteligência Artificial") }
 

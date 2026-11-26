@@ -3,6 +3,7 @@
 # Quem chama é o PHP do site, servidor a servidor, com o SITE_LEADS_TOKEN no Authorization: Bearer.
 #
 #   POST JSON  201 lead criado · 200 lead em aberto completado · 401 token errado · 422 dados inválidos
+#              503 e-book não enviado (ebook_unavailable): o lead fica salvo, mas o site avisa o visitante
 module Webhooks
   class SiteLeadsController < ActionController::API
     def create
@@ -11,6 +12,8 @@ module Webhooks
       attributes = SiteLeadCapture.attribute_names
       capture = SiteLeadCapture.new(params.slice(*attributes).permit(*attributes))
       if capture.save
+        return render(json: { errors: [ "ebook_unavailable" ] }, status: :service_unavailable) if capture.ebook? && !capture.ebook_sent?
+
         render json: { id: capture.lead.id, created: capture.created? }, status: capture.created? ? :created : :ok
       else
         render json: { errors: capture.errors.full_messages }, status: :unprocessable_entity
