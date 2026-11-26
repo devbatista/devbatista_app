@@ -305,4 +305,8 @@ Os formulários do devbatista.com viram leads pelo webhook `/webhooks/site-leads
   - [x] Serviço de interesse pela necessidade (`need`), buscado pelo nome no catálogo; sem o serviço, segue sem ele
   - [x] Consentimento registrado nas observações
   - [x] Aviso ao responsável (`warn`) e próximo passo "Responder o contato do site pelo WhatsApp"
+- [x] **E-mails no Admin** (o site deixa de mandar pelo SES)
+  - [x] Aviso `site_lead` com e-mail ligado por padrão e template com os dados do lead, para todo contato e todo diagnóstico
+  - [x] E-book entregue ao visitante (`EbookMailer`, `EBOOK_DOWNLOAD_URL`), do endereço do Rafael e sem Reply-To
+  - [x] 503 `ebook_unavailable` quando o e-book não pode ser enviado
 - [x] Testes e rubocop
