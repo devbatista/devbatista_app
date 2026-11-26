@@ -293,3 +293,16 @@ Página em que os agentes do Claude (rotinas agendadas que acessam o Admin pelo 
   - [x] Auditoria (`AuditLog`, sem `Activity`), seeds (5 agentes em todo ambiente; um dia de exemplo fora de produção)
   - [x] Testes, rubocop e brakeman
 - [ ] **Fase 2 · Planta em pixel art** (canvas, tiles, sprites, BFS, comportamento por status, zoom, `prefers-reduced-motion`)
+
+## Extra · Leads do site
+
+Os formulários do devbatista.com viram leads pelo webhook `/webhooks/site-leads`, no lugar do HubSpot. Ver a [spec](specs/leads-do-site/README.md).
+
+- [x] Diagnóstico Tecnológico e e-book, com o `SITE_LEADS_TOKEN`; lead em aberto com o mesmo e-mail completado em vez de duplicado
+- [x] **Formulário de contato** (`source: contact`, origem Site)
+  - [x] Nome e telefone obrigatórios; e-mail opcional, validado quando vem
+  - [x] Lead em aberto achado pelo e-mail ou pelo WhatsApp (o mais recente); perdido ou convertido não é reaberto
+  - [x] Serviço de interesse pela necessidade (`need`), buscado pelo nome no catálogo; sem o serviço, segue sem ele
+  - [x] Consentimento registrado nas observações
+  - [x] Aviso ao responsável (`warn`) e próximo passo "Responder o contato do site pelo WhatsApp"
+- [x] Testes e rubocop
